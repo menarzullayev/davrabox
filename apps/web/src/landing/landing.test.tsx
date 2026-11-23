@@ -112,12 +112,21 @@ describe('landing page', () => {
     const { container } = renderLanding('en');
     const tiles = [...container.querySelectorAll('[data-testid=capability]')];
     expect(tiles).toHaveLength(12);
-    expect(tiles.map((t) => t.querySelector('h3')?.textContent)).toEqual([
+    expect(tiles.map((t) => t.querySelector('h3')?.firstChild?.textContent)).toEqual([
       'Video meetings', 'Waiting room and host control', 'Chat and files', 'SSO and admin console', 'Audit trail', 'End-to-end encryption',
       'Recording', 'Calendar', 'REST API and webhooks', 'Your own keys', 'Mobile', 'Desktop app',
     ]);
-    // equal: no tile carries a status badge
-    for (const t of tiles) expect(t.querySelector('.dx-badge')).toBeNull();
+    // truthful state: only what a visitor cannot use today (recording on the pilot, calendar, mobile, desktop) says so
+    const soon = tiles.map((t, i) => (t.querySelector('[data-testid=capability-soon]') ? i : -1)).filter((i) => i >= 0);
+    expect(soon).toEqual([6, 7, 10, 11]);
+  });
+
+  it('the coming-soon marker is translated in every language', () => {
+    for (const [lang, word] of [['uz', 'Tez orada'], ['ru', 'Скоро'], ['en', 'Coming soon']] as const) {
+      const { container, unmount } = renderLanding(lang);
+      expect(container.querySelector('[data-testid=capability-soon]')?.textContent).toBe(word);
+      unmount();
+    }
   });
 
   it('switching the language updates the page text and the document language', () => {
