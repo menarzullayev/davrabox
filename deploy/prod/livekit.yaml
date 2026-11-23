@@ -1,0 +1,22 @@
+port: 7880
+bind_addresses:
+  - "0.0.0.0"
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  # Production: advertise the public address found through STUN. Requires the ports published in docker-compose.yml.
+  use_external_ip: true
+room:
+  auto_create: false
+  empty_timeout: 300
+  max_participants: 300
+logging:
+  level: info
+# Prometheus scrapes this on the internal network only; it is never published.
+prometheus_port: 6789
+turn:
+  enabled: true
+  udp_port: 3478
+  relay_range_start: 52000
+  relay_range_end: 52019
+  # TURN over TLS (443/5349) additionally needs a dedicated domain and a certificate; see docs/HELD.md.

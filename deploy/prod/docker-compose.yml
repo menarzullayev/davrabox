@@ -1,0 +1,188 @@
+# DavraBox production stack for ONE Linux host with Docker (Compose v2).
+#   cp .env.example .env && edit .env          # every key is documented there; .env is git-ignored
+#   docker compose --env-file .env up -d
+# Public ports: 80 and 443 (Caddy, automatic TLS), 7881/tcp, 7882/udp, 3478/udp and 52000-52019/udp (LiveKit media + TURN).
+# Everything else (Postgres, MinIO, ClamAV, Keycloak, API, metrics) stays on the internal network.
+# BACKUPS ARE OFF BY USER DECISION (2026-11-24, reviewed after 12 months): a lost disk loses all data.
+name: davrabox
+x-restart: &restart
+  restart: unless-stopped
+x-logging: &logging
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+services:
+  caddy:
+    <<: [*restart, *logging]
+    image: caddy:2.10-alpine
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST}
+      SITE_ADDRESS: ${SITE_ADDRESS:-${PUBLIC_HOST}}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    depends_on: [web, api, keycloak, livekit]
+    mem_limit: 256m
+
+  web:
+    <<: [*restart, *logging]
+    image: ghcr.io/${GHCR_OWNER:-menarzullayev}/davrabox-web:${DAVRA_TAG:?set DAVRA_TAG to a released tag or sha-...}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+
+  migrate:
+    image: ghcr.io/${GHCR_OWNER:-menarzullayev}/davrabox-api:${DAVRA_TAG:?set DAVRA_TAG}
+    command: ["dist/db/migrate-cli.js"]
+    environment:
+      MIGRATE_DATABASE_URL: postgres://davra_admin:${POSTGRES_PASSWORD}@postgres:5432/davra
+      DATABASE_URL: postgres://davra_app:${APP_DB_PASSWORD}@postgres:5432/davra
+      KEYCLOAK_ISSUER: https://${PUBLIC_HOST}/auth/realms/davrabox
+      LIVEKIT_URL: wss://${PUBLIC_HOST}/livekit
+      LIVEKIT_API_URL: http://livekit:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+    mem_limit: 256m
+
+  api:
+    <<: [*restart, *logging]
+    image: ghcr.io/${GHCR_OWNER:-menarzullayev}/davrabox-api:${DAVRA_TAG:?set DAVRA_TAG}
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://davra_app:${APP_DB_PASSWORD}@postgres:5432/davra
+      MIGRATE_DATABASE_URL: postgres://davra_admin:${POSTGRES_PASSWORD}@postgres:5432/davra
+      KEYCLOAK_ISSUER: https://${PUBLIC_HOST}/auth/realms/davrabox
+      KEYCLOAK_JWKS_URL: http://keycloak:8080/auth/realms/davrabox/protocol/openid-connect/certs
+      KEYCLOAK_ADMIN_URL: http://keycloak:8080/auth
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET}
+      LIVEKIT_URL: wss://${PUBLIC_HOST}/livekit
+      LIVEKIT_API_URL: http://livekit:7880
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      CLAMAV_HOST: clamav
+      FILE_MASTER_KEY: ${FILE_MASTER_KEY}
+      CORS_ORIGINS: https://${PUBLIC_HOST}
+      METRICS_HOST: 0.0.0.0 # reachable only on the internal network; the port is never published
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      keycloak: { condition: service_started }
+      livekit: { condition: service_started }
+    mem_limit: 512m
+
+  keycloak:
+    <<: [*restart, *logging]
+    image: quay.io/keycloak/keycloak:26.0
+    # Production mode (not start-dev): TLS is terminated by Caddy, Keycloak trusts only its forwarded headers.
+    command:
+      - start
+      - --import-realm
+      - --http-enabled=true
+      - --http-port=8080
+      - --http-relative-path=/auth
+      - --proxy-headers=xforwarded
+      - --hostname=https://${PUBLIC_HOST}/auth
+      - --hostname-admin=http://localhost:8180/auth
+      - --health-enabled=true
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: davra_admin
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      # substituted into the imported realm file
+      PUBLIC_HOST: ${PUBLIC_HOST}
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET}
+    volumes:
+      - ../keycloak/davrabox-realm.prod.json:/opt/keycloak/data/import/davrabox-realm.json:ro
+      - ../helm/davrabox/files/keycloak-theme:/opt/keycloak/themes/davrabox:ro
+    ports:
+      # Admin console for the operator only: reach it with `ssh -L 8180:127.0.0.1:8180 <host>`.
+      - "127.0.0.1:8180:8080"
+    depends_on:
+      postgres: { condition: service_healthy }
+    mem_limit: 1536m
+
+  postgres:
+    <<: [*restart, *logging]
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: davra_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: davra
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+    command: ["postgres", "-c", "max_connections=100", "-c", "shared_buffers=256MB", "-c", "log_min_duration_statement=500"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../compose/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U davra_admin -d davra"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 1g
+
+  livekit:
+    <<: [*restart, *logging]
+    image: livekit/livekit-server:v1.13.11
+    command: ["--config", "/etc/livekit.yaml"]
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+    ports:
+      - "7881:7881" # ICE over TCP
+      - "7882:7882/udp" # all media on one UDP port
+      - "3478:3478/udp" # TURN
+      - "52000-52019:52000-52019/udp" # TURN relay range
+    mem_limit: 2g
+
+  minio:
+    <<: [*restart, *logging]
+    image: cgr.dev/chainguard/minio:latest-dev@sha256:5735e8125c4af7dd310dc5780508bfb850f0b68783a1a56089b5c64316a8f603
+    command: ["server", "/data", "--address", ":9000"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    volumes:
+      - minio-data:/data
+    mem_limit: 512m
+
+  clamav:
+    <<: [*restart, *logging]
+    image: clamav/clamav:1.4.7
+    volumes:
+      - clamav-db:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 40
+      start_period: 120s
+    mem_limit: 2g
+
+volumes:
+  pgdata:
+  minio-data:
+  clamav-db:
+  caddy-data:
+  caddy-config:

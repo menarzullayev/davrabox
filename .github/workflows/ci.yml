@@ -44,6 +44,11 @@ jobs:
           pnpm --filter @davrabox/web test
           pnpm --filter @davrabox/design-tokens test
           pnpm --filter @davrabox/desktop test
+      - name: Scripts tests and production bundle checks
+        run: |
+          pnpm --filter @davrabox/scripts test
+          node scripts/make-prod-realm.mjs --check
+          docker compose --env-file deploy/prod/.env.example -f deploy/prod/docker-compose.yml config -q
       - name: Helm chart lint and render
         run: |
           curl -sSfL https://get.helm.sh/helm-v4.3.2-linux-amd64.tar.gz | tar -xz --strip-components=1 linux-amd64/helm

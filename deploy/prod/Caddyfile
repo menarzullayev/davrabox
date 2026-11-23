@@ -1,0 +1,44 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		# Behind Cloudflare or another proxy, set SITE_ADDRESS=http://<host>:80 and trust its ranges here.
+		trusted_proxies static private_ranges
+	}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	# The identity provider's admin console, admin API, master realm and its metrics must never be public.
+	@kc_private path /auth/admin /auth/admin/* /auth/realms/master /auth/realms/master/* /auth/metrics /auth/metrics/* /auth/health /auth/health/*
+	handle @kc_private {
+		respond 404
+	}
+
+	handle /auth/* {
+		reverse_proxy keycloak:8080 {
+			header_up X-Forwarded-Proto https
+		}
+	}
+
+	# LiveKit signalling over WSS; the media itself flows directly over 7881/7882/3478.
+	handle_path /livekit/* {
+		reverse_proxy livekit:7880
+	}
+
+	handle_path /api/* {
+		reverse_proxy api:3000
+	}
+
+	# Web app: nginx image with the strict CSP (frame-ancestors none, no unsafe-inline scripts)
+	handle {
+		reverse_proxy web:8080
+	}
+}
