@@ -1,0 +1,7 @@
+# Reviewed findings in already-published history (gitleaks fingerprint = commit:file:rule:line).
+# Both were in commit a02be89 and are not secrets:
+#  1. ci.yml line 88: a throw-away FILE_MASTER_KEY used only by the CI test run against disposable containers; since replaced by values
+#     generated at run time.
+#  2. files.service.ts line 40: a code reference (secretAccessKey: cfg.S3_SECRET_KEY), not a literal; since rewritten.
+a02be891baf834c5417eb33870d317f00bab36f5:.github/workflows/ci.yml:generic-api-key:88
+a02be891baf834c5417eb33870d317f00bab36f5:apps/api/src/files/files.service.ts:generic-api-key:40
