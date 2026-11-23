@@ -83,7 +83,7 @@ const uz = {
   uiClose: 'Yopish',
   uiDismiss: 'Xabarni yopish',
   uiLoading: 'Yuklanmoqda…',
-  uiConnecting: 'Davraga ulanmoqda…',
+  uiConnecting: 'Uchrashuvga ulanmoqda…',
   uiOptional: '(ixtiyoriy)',
   uiCopy: 'Nusxa olish',
   uiCopied: 'Nusxa olindi',
