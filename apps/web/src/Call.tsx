@@ -136,13 +136,19 @@ export function Call({
   const [unread, setUnread] = useState(0);
   const [hands, setHands] = useState<Record<string, boolean>>({});
   const [myHand, setMyHand] = useState(false);
+  const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
   const lineId = useRef(0);
   const chatOpenRef = useRef(false);
   chatOpenRef.current = chatOpen;
 
   useEffect(() => {
-    const room = new Room({ adaptiveStream: true, dynacast: true });
+    // Browser audio DSP is on by default; the toggle below restarts the microphone with the chosen setting.
+    const room = new Room({
+      adaptiveStream: true,
+      dynacast: true,
+      audioCaptureDefaults: { noiseSuppression: true, echoCancellation: true, autoGainControl: true },
+    });
     roomRef.current = room;
     const sync = () => setParticipants([room.localParticipant, ...Array.from(room.remoteParticipants.values())]);
     // Only a disconnect of the room that is still current may leave the call. React StrictMode mounts,
@@ -188,6 +194,8 @@ export function Call({
         try {
           await room.localParticipant.setMicrophoneEnabled(true);
           await room.localParticipant.setCameraEnabled(true);
+          const v = room.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack?.mediaStreamTrack.getSettings().noiseSuppression;
+          setNoiseOn(typeof v === 'boolean' ? v : null);
         } catch {
           setError(t(lang, 'errMedia'));
           setMic(false);
@@ -269,6 +277,22 @@ export function Call({
     await send({ t: 'chat', text }, target ? { to: target, topic: 'chat-private' } : { topic: 'chat' });
     setLines((l) => [...l.slice(-199), { id: ++lineId.current, from: t(lang, 'you'), text, mine: true, to: toName, priv: Boolean(target) }]);
     setDraft('');
+  };
+  const readNoise = () => {
+    const track = room?.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack;
+    const v = track?.mediaStreamTrack.getSettings().noiseSuppression;
+    setNoiseOn(typeof v === 'boolean' ? v : null);
+  };
+  const toggleNoise = async () => {
+    const track = room?.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack;
+    if (!track) return;
+    try {
+      const next = !(track.mediaStreamTrack.getSettings().noiseSuppression ?? true);
+      await track.restartTrack({ noiseSuppression: next, echoCancellation: true, autoGainControl: true });
+      readNoise();
+    } catch {
+      setError(t(lang, 'errMedia'));
+    }
   };
   const toggleHand = async () => {
     const up = !myHand;
@@ -368,6 +392,9 @@ export function Call({
           data-testid="chat-toggle"
         >
           💬 {t(lang, 'chat')}{unread > 0 ? ` (${unread})` : ''}
+        </button>
+        <button onClick={toggleNoise} onFocus={readNoise} onMouseEnter={readNoise} aria-pressed={noiseOn ?? true} disabled={!mic} data-testid="noise" data-state={String(noiseOn)}>
+          🎧 {t(lang, 'noiseSuppression')}
         </button>
         <button onClick={toggleHand} aria-pressed={myHand} data-testid="hand">✋ {myHand ? t(lang, 'lowerHand') : t(lang, 'raiseHand')}</button>
         <span className="reaction-bar" role="group" aria-label={t(lang, 'reactions')}>

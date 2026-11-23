@@ -51,6 +51,7 @@ const uz = {
   raiseHand: 'Qo‘l ko‘tarish',
   lowerHand: 'Qo‘lni tushirish',
   reactions: 'Reaksiyalar',
+  noiseSuppression: 'Shovqinni kamaytirish',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -106,6 +107,7 @@ const ru: Record<Key, string> = {
   raiseHand: 'Поднять руку',
   lowerHand: 'Опустить руку',
   reactions: 'Реакции',
+  noiseSuppression: 'Шумоподавление',
 };
 
 const en: Record<Key, string> = {
@@ -159,6 +161,7 @@ const en: Record<Key, string> = {
   raiseHand: 'Raise hand',
   lowerHand: 'Lower hand',
   reactions: 'Reactions',
+  noiseSuppression: 'Noise suppression',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
