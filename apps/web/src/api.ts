@@ -77,10 +77,19 @@ async function downloadFile(token: string, code: string, id: string): Promise<Bl
   return res.blob();
 }
 
+export interface TrialStatus {
+  trial: boolean;
+  expired: boolean;
+  endsAt: string | null;
+  maxParticipants: number | null;
+  maxMinutes: number | null;
+}
+
 export const api = {
   uploadFile,
   downloadFile,
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
+  trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
   create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),
   join: (token: string, code: string, passcode?: string) =>

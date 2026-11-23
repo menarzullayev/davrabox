@@ -27,6 +27,8 @@ export interface HomeScreenProps {
   onJoin: (code: string, passcode?: string) => Promise<void>;
   onCreate: (data: NewMeetingData) => Promise<Meeting>;
   onSignOut: () => void;
+  /** Free-trial notice ("ends in less than N days"); omitted or null for paid organizations. */
+  banner?: { key: Key; n?: number } | null;
   /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
   now?: Date;
 }
@@ -97,6 +99,12 @@ function HomeBody(props: HomeScreenProps) {
           <p className="hm-date">{formatDay(clock, dayNames(lang))}</p>
           <h1 className="hm-greeting">{name ? `${greeting}, ${name}` : greeting}</h1>
         </section>
+
+        {props.banner ? (
+          <Alert tone="info" className="ln-trial">
+            {tx(lang, props.banner.key, props.banner.n === undefined ? undefined : { n: props.banner.n })}
+          </Alert>
+        ) : null}
 
         {props.error ? (
           <Alert tone="danger" onDismiss={props.onDismissError} dismissLabel={t(lang, 'uiDismiss')} className="hm-error">
