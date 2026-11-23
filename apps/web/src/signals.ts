@@ -30,6 +30,22 @@ export function encode(s: Signal): Uint8Array<ArrayBuffer> {
   return new TextEncoder().encode(JSON.stringify(s));
 }
 
+/**
+ * The recording consent flag. The server (not a participant) sets `{"recording":true}` in the LiveKit room metadata before
+ * recording starts and clears it after. It is deliberately NOT a data-channel signal: any participant can publish data, and a
+ * forged "recording stopped" would hide the badge. Room metadata can only be written with the server's credentials.
+ */
+export function parseRoomRecording(metadata: string | undefined): boolean {
+  if (!metadata || metadata.length > 4096) return false;
+  let v: unknown;
+  try {
+    v = JSON.parse(metadata);
+  } catch {
+    return false;
+  }
+  return typeof v === 'object' && v !== null && !Array.isArray(v) && (v as Record<string, unknown>).recording === true;
+}
+
 export function decode(bytes: Uint8Array): Signal | null {
   if (bytes.byteLength === 0 || bytes.byteLength > 8 * 1024) return null;
   let v: unknown;

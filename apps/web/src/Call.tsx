@@ -3,13 +3,13 @@ import { ConnectionQuality, Room, RoomEvent, Track, type LocalVideoTrack, type P
 import { t, type Lang } from './i18n';
 import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { ApiError, api, type JoinedResult } from './api';
-import { MAX_FILE_BYTES, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
+import { MAX_FILE_BYTES, cleanChatText, decode, encode, parseRoomRecording, type Reaction, type Signal } from './signals';
 import { CallView } from './call/CallView';
 import { Button, Dialog } from './ui';
 import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
-import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality } from './call/types';
+import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, RecordingItem } from './call/types';
 
 type ChatLine = ChatLineView;
 
@@ -77,6 +77,11 @@ export function Call({
   const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
+  // Recording: `recOn` is the consent truth (server-set room metadata, read on connect and on every change, so late joiners see it too).
+  const [recOn, setRecOn] = useState(false);
+  const [recStatus, setRecStatus] = useState({ enabled: false, e2ee: false });
+  const [recBusy, setRecBusy] = useState(false);
+  const [recItems, setRecItems] = useState<RecordingItem[]>([]);
   const lineId = useRef(0);
   const manages = role !== 'member';
   const chatOpenRef = useRef(false);
@@ -134,6 +139,7 @@ export function Call({
       .on(RoomEvent.ParticipantConnected, sync)
       .on(RoomEvent.ParticipantDisconnected, onGone)
       .on(RoomEvent.DataReceived, onData)
+      .on(RoomEvent.RoomMetadataChanged, (metadata: string) => setRecOn(parseRoomRecording(metadata)))
       .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
         // Keep the last person who spoke featured instead of flipping back when everyone is silent.
         // Never yourself: the centre stage is for the others (you are always on your own screen).
@@ -158,6 +164,7 @@ export function Call({
         await room.connect(join.url, join.token, relay ? { rtcConfig: { iceTransportPolicy: 'relay' } } : undefined);
         if (cancelled) return;
         setConnected(true);
+        setRecOn(parseRoomRecording(room.metadata));
         sync();
         try {
           await room.localParticipant.setMicrophoneEnabled(true);
@@ -210,6 +217,22 @@ export function Call({
     return () => {
       stop = true;
       clearInterval(id);
+    };
+  }, [code, getToken]);
+
+  // Whether recording is available here and whether this meeting is end-to-end encrypted (the record button depends on it).
+  useEffect(() => {
+    let stop = false;
+    void (async () => {
+      try {
+        const st = await api.recordingStatus(await getToken(), code);
+        if (!stop) setRecStatus({ enabled: st.enabled, e2ee: st.e2ee });
+      } catch {
+        /* recording stays unavailable */
+      }
+    })();
+    return () => {
+      stop = true;
     };
   }, [code, getToken]);
 
@@ -352,6 +375,49 @@ export function Call({
     }
     await send({ t: 'react', e });
   };
+  const loadRecordings = async () => {
+    if (!manages || !recStatus.enabled) return;
+    try {
+      setRecItems(await api.recordings(await getToken(), code));
+    } catch {
+      /* the list is a convenience; the badge does not depend on it */
+    }
+  };
+  const recError = (e: unknown): string => {
+    const status = e instanceof ApiError ? e.status : 0;
+    if (status === 503) return t(lang, 'clRecErrOff');
+    if (status === 409) return t(lang, 'clRecErrBusy');
+    return t(lang, 'clRecErrGeneric');
+  };
+  const toggleRecording = async () => {
+    if (recBusy) return;
+    setRecBusy(true);
+    try {
+      const tk = await getToken();
+      if (recOn) await api.stopRecording(tk, code);
+      else await api.startRecording(tk, code);
+      await loadRecordings();
+    } catch (e) {
+      setError(recError(e));
+    } finally {
+      setRecBusy(false);
+    }
+  };
+  const saveRecording = async (id: string) => {
+    try {
+      const blob = await api.downloadRecording(await getToken(), id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${join.title.replace(/[^\p{L}\p{N}._-]+/gu, '_').slice(0, 60) || 'recording'}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch {
+      setError(t(lang, 'clRecErrGeneric'));
+    }
+  };
   const hostCall = async (fn: (token: string) => Promise<unknown>) => {
     try {
       await fn(await getToken());
@@ -430,7 +496,10 @@ export function Call({
       onReact={(e) => void react(e)}
       onNoise={() => void toggleNoise()}
       onBlur={() => void toggleBlur()}
-      onMoreOpen={readNoise}
+      onMoreOpen={() => {
+        readNoise();
+        void loadRecordings();
+      }}
       onLeave={onLeave}
       panel={panel}
       onPanel={(id) => {
@@ -441,6 +510,14 @@ export function Call({
       chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f) }}
       layout={layout}
       onLayout={setLayout}
+      recording={{
+        on: recOn,
+        e2ee: recStatus.e2ee,
+        busy: recBusy,
+        onToggle: manages && recStatus.enabled ? () => void toggleRecording() : undefined,
+        items: recItems,
+        onDownload: (id) => void saveRecording(id),
+      }}
     />
     <Dialog
       open={removeTarget !== null}

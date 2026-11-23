@@ -9,9 +9,10 @@ import { ControlBar } from './ControlBar';
 import { LiveRegion, useCallAnnouncements } from './LiveRegion';
 import { hintKey, pickFeatured, type FallbackReason, type LayoutMode } from './layout';
 import { ChatPanel, PeoplePanel, RequestsTray, type ChatPanelProps } from './Panels';
+import { RecordingLive } from './RecordingBadge';
 import { Stage } from './Stage';
 import { TopBar } from './TopBar';
-import type { JoinRequestView, ManageActions, PanelId, ParticipantView, Quality, Role } from './types';
+import type { JoinRequestView, ManageActions, PanelId, ParticipantView, Quality, RecordingView, Role } from './types';
 
 export interface CallViewProps {
   lang: Lang;
@@ -63,6 +64,9 @@ export interface CallViewProps {
 
   layout: LayoutMode;
   onLayout(m: LayoutMode): void;
+
+  /** Recording consent state (every participant) and the host's controls. Absent in the lab and older tests. */
+  recording?: RecordingView;
 }
 
 /** The whole call screen as a pure function of its props: no LiveKit, no network. Call.tsx and the lab feed it. */
@@ -90,7 +94,7 @@ export function CallView(p: CallViewProps) {
 
   return (
     <div className="call dv-call" data-panel={p.panel ?? 'none'}>
-      <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} />
+      <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} recording={p.recording?.on} />
       <div className={`stage dv-main${p.panel ? ' with-chat' : ''}`}>
         <main className="dv-stagewrap" aria-label={t(lang, 'clStage')}>
           <Stage
@@ -153,8 +157,10 @@ export function CallView(p: CallViewProps) {
         onBlur={p.onBlur}
         onMoreOpen={p.onMoreOpen}
         onLeave={p.onLeave}
+        recording={p.recording}
       />
       <LiveRegion text={live} />
+      <RecordingLive lang={lang} on={!!p.recording?.on} />
     </div>
   );
 }

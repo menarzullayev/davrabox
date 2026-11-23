@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const h = vi.hoisted(() => {
   const rooms: Array<{ emit(e: string, ...a: unknown[]): boolean; connect: ReturnType<typeof import('vitest').vi.fn>; disconnect: ReturnType<typeof import('vitest').vi.fn>; localParticipant: unknown; remoteParticipants: Map<string, unknown> }> = [];
-  return { rooms, failConnect: false };
+  return { rooms, failConnect: false, roomMetadata: '' };
 });
 
 vi.mock('livekit-client', async () => {
@@ -28,6 +28,7 @@ vi.mock('livekit-client', async () => {
   class Room extends EventEmitter {
     localParticipant = new FakeParticipant('me', 'Nodir Aliyev', true);
     remoteParticipants = new Map<string, FakeParticipant>();
+    metadata = h.roomMetadata;
     connect = vi.fn(async () => {
       if (h.failConnect) throw new Error('no');
     });
@@ -48,6 +49,7 @@ vi.mock('livekit-client', async () => {
       Reconnecting: 'reconnecting',
       Reconnected: 'reconnected',
       Disconnected: 'disconnected',
+      RoomMetadataChanged: 'roomMetadataChanged',
     },
     Track: { Source: { Camera: 'camera', Microphone: 'microphone', ScreenShare: 'screen_share' } },
     ConnectionQuality: { Excellent: 'excellent', Good: 'good', Poor: 'poor', Lost: 'lost', Unknown: 'unknown' },
@@ -68,6 +70,11 @@ vi.mock('./api', () => ({
     lock: vi.fn(async (_t: string, _c: string, locked: boolean) => ({ locked })),
     uploadFile: vi.fn(),
     downloadFile: vi.fn(),
+    recordingStatus: vi.fn(async () => ({ enabled: false, e2ee: false, active: false, canRecord: false })),
+    startRecording: vi.fn(async () => ({ id: 'rec1', status: 'active' })),
+    stopRecording: vi.fn(async () => ({ id: 'rec1', status: 'stopping' })),
+    recordings: vi.fn(async () => []),
+    downloadRecording: vi.fn(),
   },
 }));
 
@@ -83,6 +90,7 @@ const flush = async () => act(async () => { await new Promise((r) => setTimeout(
 beforeEach(() => {
   h.rooms.length = 0;
   h.failConnect = false;
+  h.roomMetadata = '';
   localStorage.clear();
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ x: 0, y: 0, left: 0, top: 0, right: 1280, bottom: 560, width: 1280, height: 560, toJSON: () => ({}) });
   vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
@@ -376,5 +384,83 @@ describe('Call with a fake room', () => {
     mount();
     await flush();
     expect(screen.getByTestId('grid').getAttribute('data-layout')).toBe('speaker');
+  });
+});
+
+describe('recording in the call', () => {
+  const status = (api.recordingStatus as ReturnType<typeof vi.fn>);
+  const asMember = () => (api.me as ReturnType<typeof vi.fn>).mockResolvedValue({ role: 'member' });
+  beforeEach(() => {
+    for (const f of [api.startRecording, api.stopRecording, api.recordings]) (f as ReturnType<typeof vi.fn>).mockClear();
+  });
+  afterEach(() => {
+    (api.me as ReturnType<typeof vi.fn>).mockResolvedValue({ role: 'host' });
+    status.mockResolvedValue({ enabled: false, e2ee: false, active: false, canRecord: false });
+  });
+  const memberCall = () => render(<Call join={{ ...join, isHost: false }} code="1" getToken={async () => 'jwt'} lang="en" onLeave={vi.fn()} />);
+
+  it('a participant who joins while a recording runs sees the badge at once and gets the announcement; a member has no record control', async () => {
+    asMember();
+    h.roomMetadata = '{"recording":true}';
+    memberCall();
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('rec-badge')).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId('rec-live').textContent).toBe('Recording started. This meeting is being recorded'));
+    expect(screen.queryByTestId('record')).toBeNull();
+  });
+
+  it('follows the room metadata for everyone, and a forged data message cannot hide the badge', async () => {
+    asMember();
+    memberCall();
+    await flush();
+    expect(screen.queryByTestId('rec-badge')).toBeNull();
+    act(() => void lkRoom().emit('roomMetadataChanged', '{"recording":true}'));
+    await waitFor(() => expect(screen.getByTestId('rec-badge')).toBeTruthy());
+    const fake = new Fake('evil', 'Mallory');
+    act(() => {
+      lkRoom().remoteParticipants.set('evil', fake);
+      lkRoom().emit('participantConnected', fake);
+      lkRoom().emit('dataReceived', encode({ t: 'hand', up: false }), fake);
+      lkRoom().emit('dataReceived', new TextEncoder().encode('{"t":"rec","on":false}'), fake);
+    });
+    await flush();
+    expect(screen.getByTestId('rec-badge')).toBeTruthy();
+    act(() => void lkRoom().emit('roomMetadataChanged', '{}'));
+    await waitFor(() => expect(screen.queryByTestId('rec-badge')).toBeNull());
+    await waitFor(() => expect(screen.getByTestId('rec-live').textContent).toBe('Recording stopped'));
+  });
+
+  it('the host starts and stops recording through the API; the badge follows the server, not the click', async () => {
+    status.mockResolvedValue({ enabled: true, e2ee: false, active: false, canRecord: true });
+    mount();
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('record')).toBeTruthy());
+    fireEvent.click(screen.getByTestId('record'));
+    await flush();
+    expect(api.startRecording).toHaveBeenCalledWith('jwt', '12345678901');
+    expect(screen.queryByTestId('rec-badge')).toBeNull();
+    act(() => void lkRoom().emit('roomMetadataChanged', '{"recording":true}'));
+    await waitFor(() => expect(screen.getByTestId('record').textContent).toContain('Stop recording'));
+    fireEvent.click(screen.getByTestId('record'));
+    await flush();
+    expect(api.stopRecording).toHaveBeenCalledWith('jwt', '12345678901');
+  });
+
+  it('in an E2EE meeting the host cannot start a recording and sees why', async () => {
+    status.mockResolvedValue({ enabled: true, e2ee: true, active: false, canRecord: false });
+    mount();
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('record').getAttribute('aria-disabled')).toBe('true'));
+    expect(screen.getByTestId('record').textContent).toContain('End-to-end encrypted meetings cannot be recorded');
+    fireEvent.click(screen.getByTestId('record'));
+    await flush();
+    expect(api.startRecording).not.toHaveBeenCalled();
+  });
+
+  it('shows no record control when recording is not available on the server', async () => {
+    mount();
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('role-badge')).toBeTruthy());
+    expect(screen.queryByTestId('record')).toBeNull();
   });
 });
