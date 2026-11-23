@@ -13,6 +13,8 @@ const schema = z.object({
   KEYCLOAK_AUDIENCE: z.string().default('davrabox-web'),
   LIVEKIT_URL: z.string().url(), // ws(s):// URL handed to clients
   LIVEKIT_API_URL: z.string().url(), // http(s):// URL used by the server
+  // true = always hand LIVEKIT_URL to clients as is (a hosted LiveKit such as LiveKit Cloud); false = per-host /livekit proxy.
+  LIVEKIT_URL_FIXED: z.enum(['0', '1', 'true', 'false']).default('0').transform((v) => v === '1' || v === 'true'),
   LIVEKIT_API_KEY: z.string().min(1),
   LIVEKIT_API_SECRET: z.string().min(32),
   // File sharing is optional: without S3, ClamAV and a master key the endpoints answer 503 instead of storing anything.
