@@ -19,12 +19,14 @@ function Tile({
   lang,
   handUp,
   reaction,
+  featured,
   onMute,
   onRemove,
 }: {
   p: Participant;
   local: boolean;
   lang: Lang;
+  featured?: boolean;
   handUp?: boolean;
   reaction?: Reaction;
   onMute?: () => void;
@@ -87,7 +89,7 @@ function Tile({
           <span className="label">{p.name || p.identity}</span>
         </div>
       )}
-      <div className={`tile${p.isSpeaking ? ' speaking' : ''}`} data-identity={p.identity}>
+      <div className={`tile${p.isSpeaking ? ' speaking' : ''}${featured ? ' featured' : ''}`} data-identity={p.identity}>
         {camTrack && !cam?.isMuted ? <video ref={videoRef} autoPlay playsInline muted={local} /> : <div className="avatar">{(p.name || '?').slice(0, 1).toUpperCase()}</div>}
         <audio ref={audioRef} autoPlay />
         <span className="label">
@@ -137,6 +139,8 @@ export function Call({
   const [hands, setHands] = useState<Record<string, boolean>>({});
   const [myHand, setMyHand] = useState(false);
   const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
+  const [layout, setLayout] = useState<'gallery' | 'speaker'>('gallery');
+  const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
   const lineId = useRef(0);
   const chatOpenRef = useRef(false);
@@ -185,6 +189,10 @@ export function Call({
       .on(RoomEvent.ParticipantConnected, sync)
       .on(RoomEvent.ParticipantDisconnected, onGone)
       .on(RoomEvent.DataReceived, onData)
+      .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
+        // Keep the last person who spoke featured instead of flipping back when everyone is silent.
+        if (speakers.length > 0) setSpeakerId(speakers[0]!.identity);
+      })
       .on(RoomEvent.Disconnected, onDisconnected);
     (async () => {
       try {
@@ -234,6 +242,13 @@ export function Call({
   }, [join.isHost, code, getToken]);
 
   const room = roomRef.current;
+  // Speaker view features a screen sharer first, then the last active speaker, then the first remote participant.
+  const indexed = participants.map((p, i) => ({ p, i }));
+  const sharer = participants.find((p) => p.getTrackPublication(Track.Source.ScreenShare)?.track);
+  const featuredId =
+    sharer?.identity ??
+    (speakerId && participants.some((p) => p.identity === speakerId) ? speakerId : (participants[1] ?? participants[0])?.identity);
+  const ordered = layout === 'speaker' && featuredId ? [...indexed.filter((x) => x.p.identity === featuredId), ...indexed.filter((x) => x.p.identity !== featuredId)] : indexed;
   const toggle = async (kind: 'mic' | 'cam') => {
     if (!room) return;
     try {
@@ -340,12 +355,13 @@ export function Call({
         </section>
       )}
       <div className={`stage${chatOpen ? ' with-chat' : ''}`}>
-      <div className="grid" data-testid="grid">
-        {participants.map((p, i) => (
+      <div className={`grid${layout === 'speaker' ? ' speaker' : ''}`} data-testid="grid" data-layout={layout}>
+        {ordered.map(({ p, i }) => (
           <Tile
             key={p.identity}
             p={p}
             local={i === 0}
+            featured={layout === 'speaker' && p.identity === featuredId}
             lang={lang}
             handUp={i === 0 ? myHand : hands[p.identity]}
             reaction={reactions[p.identity]}
@@ -392,6 +408,9 @@ export function Call({
           data-testid="chat-toggle"
         >
           💬 {t(lang, 'chat')}{unread > 0 ? ` (${unread})` : ''}
+        </button>
+        <button onClick={() => setLayout(layout === 'gallery' ? 'speaker' : 'gallery')} aria-pressed={layout === 'speaker'} data-testid="layout">
+          ▦ {layout === 'gallery' ? t(lang, 'speakerView') : t(lang, 'galleryView')}
         </button>
         <button onClick={toggleNoise} onFocus={readNoise} onMouseEnter={readNoise} aria-pressed={noiseOn ?? true} disabled={!mic} data-testid="noise" data-state={String(noiseOn)}>
           🎧 {t(lang, 'noiseSuppression')}
