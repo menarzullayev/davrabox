@@ -6,6 +6,7 @@ import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { exportJWK, generateKeyPair, SignJWT, type JWK, type KeyLike } from 'jose';
 import { Pool } from 'pg';
+import { applyApiHardening } from '../src/security-headers.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // Manual attack suite against the REAL application module: real guards, real JWT verification (a local JWKS stands in
@@ -85,6 +86,7 @@ async function boot(env: Record<string, string>): Promise<INestApplication> {
   Object.assign(process.env, env);
   const { AppModule } = await import('../src/app.module.js'); // after the environment is set
   const a = await NestFactory.create(AppModule, { logger: ['error'], abortOnError: false });
+  applyApiHardening(a); // the same hardening main.ts applies
   await a.listen(0, '127.0.0.1');
   base = `http://127.0.0.1:${(a.getHttpServer().address() as net.AddressInfo).port}`;
   return a;

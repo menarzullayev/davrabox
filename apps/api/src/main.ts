@@ -6,10 +6,12 @@ import { startMetricsServer } from './metrics.js';
 import { AUDIT_FORWARDER } from './app.module.js';
 import type { AuditForwarder } from './audit/forwarder.js';
 import { installGracefulShutdown } from './shutdown.js'; // REL
+import { applyApiHardening } from './security-headers.js'; // REL
 
 async function bootstrap() {
   const cfg = loadConfig();
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+  applyApiHardening(app); // REL: baseline response headers (nosniff, CORP, referrer policy); must run before listen()
   app.enableCors({ origin: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()), methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], maxAge: 600 });
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   await app.listen(cfg.API_PORT, '0.0.0.0');
