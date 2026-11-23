@@ -105,7 +105,7 @@ jobs:
           exit-code: "1"
           skip-dirs: spike
       - name: SBOM (CycloneDX)
-        run: npx --yes @cyclonedx/cdxgen@11 -o sbom.cdx.json -t js .
+        run: pnpm sbom --sbom-format cyclonedx > sbom.cdx.json
       - uses: actions/upload-artifact@v4
         with:
           name: sbom
