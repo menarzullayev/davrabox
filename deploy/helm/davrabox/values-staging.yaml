@@ -1,8 +1,8 @@
 # Staging overrides. The image tags below are rewritten by .github/workflows/publish.yml after every green CI run on main;
 # ArgoCD watches this file, so merging to main is what moves staging forward.
 image:
-  api: ghcr.io/menarzullayev/davrabox-api:sha-07ebab8
-  web: ghcr.io/menarzullayev/davrabox-web:sha-07ebab8
+  api: ghcr.io/menarzullayev/davrabox-api:sha-01d6c1f
+  web: ghcr.io/menarzullayev/davrabox-web:sha-01d6c1f
   pullPolicy: IfNotPresent
 
 publicHost: staging.davrabox.local
