@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Alert, Button, Dialog, Switch, TextField } from '../ui';
+import { Alert, Button, Checkbox, Dialog, Switch, TextField } from '../ui';
 import { t, type Lang } from '../i18n';
 import type { Meeting } from '../api';
 import { tx } from './text';
@@ -16,17 +16,20 @@ export interface NewMeetingDialogProps {
   onClose: () => void;
   /** Resolves with the created meeting; a rejection shows the generic error inside the dialog. */
   onCreate: (data: NewMeetingData) => Promise<Meeting>;
-  onCreated: (m: Meeting) => void;
+  onCreated: (m: Meeting, opts?: { calendar?: boolean }) => void;
+  /** Offer "add to calendar after creating" (calendar integration). */
+  calendar?: boolean;
 }
 
 const FORM_ID = 'hm-new-form';
 
-export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated }: NewMeetingDialogProps) {
+export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, calendar }: NewMeetingDialogProps) {
   const [title, setTitle] = useState('');
   const [passcode, setPasscode] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [addCalendar, setAddCalendar] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -46,7 +49,8 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated }: N
       setTitle('');
       setPasscode('');
       setWaitingRoom(true);
-      onCreated(m);
+      onCreated(m, calendar && addCalendar ? { calendar: true } : undefined);
+      setAddCalendar(false);
     } catch {
       setFailed(true);
     } finally {
@@ -101,6 +105,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated }: N
           data-testid="waiting-room"
           onChange={(e) => setWaitingRoom(e.target.checked)}
         />
+        {calendar ? <Checkbox label={tx(lang, 'calAfterCreate')} checked={addCalendar} data-testid="cal-after-create" onChange={(e) => setAddCalendar(e.target.checked)} /> : null}
       </form>
     </Dialog>
   );
