@@ -1,4 +1,5 @@
 import { ApiError } from '../api';
+import type { ApiKeyScope, DeliveryStatus, WebhookEvent } from './integrations-helpers';
 
 export type Role = 'org_admin' | 'member';
 export interface AdminUser {
@@ -63,6 +64,34 @@ export interface UserPatch {
   role?: Role;
   departmentId?: string | null;
   disabled?: boolean;
+}
+
+export interface ApiKeyItem {
+  id: string;
+  name: string;
+  prefix: string;
+  scopes: ApiKeyScope[];
+  createdAt: string;
+  lastUsedAt: string | null;
+  revokedAt: string | null;
+}
+export interface WebhookItem {
+  id: string;
+  url: string;
+  events: WebhookEvent[];
+  createdAt: string;
+}
+export interface DeliveryItem {
+  id: string;
+  eventId: string;
+  eventType: string;
+  status: DeliveryStatus;
+  attempts: number;
+  lastStatus: number | null;
+  lastError: string | null;
+  nextAttemptAt: string;
+  createdAt: string;
+  deliveredAt: string | null;
 }
 
 type Query = Record<string, string | number | null | undefined>;
@@ -161,6 +190,15 @@ export function createAdminClient(getToken: () => Promise<string>, fetchFn: Fetc
       return { blob, filename: filenameFromDisposition(res.headers.get('Content-Disposition'), `audit.${EXPORT_EXT[format]}`) };
     },
     verifyAudit: () => call<VerifyResult>('/v1/admin/audit/verify'),
+    // Integrations. The secrets returned by the two create calls are shown once and never kept by the client.
+    listApiKeys: () => call<ApiKeyItem[]>('/v1/admin/api-keys'),
+    createApiKey: (body: { name: string; scopes: ApiKeyScope[] }) => call<ApiKeyItem & { secret: string }>('/v1/admin/api-keys', { method: 'POST', body }),
+    revokeApiKey: (id: string) => call<void>(`/v1/admin/api-keys/${enc(id)}`, { method: 'DELETE' }),
+    listWebhooks: () => call<WebhookItem[]>('/v1/admin/webhooks'),
+    createWebhook: (body: { url: string; events: WebhookEvent[] }) => call<WebhookItem & { secret: string }>('/v1/admin/webhooks', { method: 'POST', body }),
+    deleteWebhook: (id: string) => call<void>(`/v1/admin/webhooks/${enc(id)}`, { method: 'DELETE' }),
+    listDeliveries: (id: string, p: { status?: DeliveryStatus; limit?: number; cursor?: string | null }) =>
+      call<Page<DeliveryItem>>(`/v1/admin/webhooks/${enc(id)}/deliveries${buildQuery({ status: p.status, limit: p.limit, cursor: p.cursor })}`),
   };
 }
 

@@ -2,6 +2,7 @@ import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
 import { homeEn, homeRu, homeUz } from './home/i18n-home';
 import { callEn, callRu, callUz } from './call/i18n-call';
 import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
+import { integrationsEn, integrationsRu, integrationsUz } from './admin/i18n-integrations';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -89,6 +90,7 @@ const uz = {
   ...homeUz,
   ...callUz,
   ...landingUz,
+  ...integrationsUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -176,6 +178,7 @@ const ru: Record<Key, string> = {
   ...homeRu,
   ...callRu,
   ...landingRu,
+  ...integrationsRu,
 };
 
 const en: Record<Key, string> = {
@@ -261,6 +264,7 @@ const en: Record<Key, string> = {
   ...homeEn,
   ...callEn,
   ...landingEn,
+  ...integrationsEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
