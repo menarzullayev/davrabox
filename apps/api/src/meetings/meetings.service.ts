@@ -8,6 +8,7 @@ import type { Config } from '../config.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { joinResults, meetingsCreated } from '../metrics.js';
 import { livekitUrlFor } from './public-url.js';
+import { loadPolicies } from '../admin/policies.js';
 
 export class MeetingError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -63,6 +64,9 @@ export class MeetingsService {
   }
 
   async create(user: AuthedUser, input: CreateMeetingInput) {
+    // Organization policies (admin console): a required passcode is enforced, the waiting-room default applies when the client is silent.
+    const policy = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
+    if (policy.requirePasscode && !input.passcode) throw new MeetingError(400, 'this organization requires a meeting passcode');
     const passcodeHash = input.passcode ? await argon2.hash(input.passcode, { type: argon2.argon2id }) : null;
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = newCode();
@@ -72,7 +76,7 @@ export class MeetingsService {
             `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id, code, title, waiting_room, locked, scheduled_at, (passcode_hash IS NOT NULL) AS has_passcode`,
-            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? true],
+            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault],
           );
           await this.audit(c, user, 'meeting.create', code);
           meetingsCreated.inc();
@@ -340,7 +344,8 @@ export class MeetingsService {
     await withTenant(this.pool, user.orgId, (c) =>
       c.query('INSERT INTO meeting_access (meeting_id, user_id, org_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [meeting.id, user.userId, user.orgId]),
     );
-    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: 300 });
+    const { maxParticipants } = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
+    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants });
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,

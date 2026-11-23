@@ -7,7 +7,7 @@ import { startMetricsServer } from './metrics.js';
 async function bootstrap() {
   const cfg = loadConfig();
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
-  app.enableCors({ origin: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()), methods: ['GET', 'POST'], maxAge: 600 });
+  app.enableCors({ origin: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()), methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], maxAge: 600 });
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   await app.listen(cfg.API_PORT, '0.0.0.0');
   startMetricsServer(cfg.METRICS_PORT, cfg.METRICS_HOST);
