@@ -20,16 +20,18 @@ import { ExtApiModule } from './ext-api/ext-api.module.js';
 import { recordingControllers, recordingProviders } from './recording/recording.module.js';
 import { calendarControllers, calendarProviders } from './calendar/calendar.module.js';
 import { byokControllers, byokProviders } from './byok/byok.module.js';
+import { privacyControllers, privacyProviders } from './privacy/privacy.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [SignupModule, ExtApiModule],
-  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers],
+  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
+    ...privacyProviders,
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },
