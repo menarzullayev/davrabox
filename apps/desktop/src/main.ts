@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, desktopCapturer, dialog, session, shell, type WebContents } from 'electron';
 import { join } from 'node:path';
+import { startAutoUpdates } from './updater';
 import { DEEP_LINK_SCHEME, appOriginFrom, isAllowedNavigation, isAllowedPermission, isSafeExternalUrl, parseDeepLink } from './security';
 
 // The desktop app is a hardened shell around the web client. It opens no local port, exposes no Node.js to the page,
@@ -124,6 +125,7 @@ if (!app.requestSingleInstanceLock()) {
     if (app.isPackaged) Menu.setApplicationMenu(null);
     handleDeepLink(process.argv.find((a) => a.startsWith(`${DEEP_LINK_SCHEME}://`)));
     createWindow();
+    startAutoUpdates();
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
