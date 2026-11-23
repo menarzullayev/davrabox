@@ -58,7 +58,8 @@ const waitCall = (page) => page.waitForSelector('.call', { timeout: 30000 });
 /** True when a remote (unmuted) video element shows real, changing, non-black pixels. */
 const remoteVideoAlive = (page) =>
   page.evaluate(async () => {
-    const v = Array.from(document.querySelectorAll('.tile[data-identity] video')).find((x) => !x.muted);
+    // the local tile is first in the DOM; remote videos are muted on purpose (their audio plays in a separate <audio>)
+    const v = Array.from(document.querySelectorAll('.tile[data-identity]')).slice(1).map((t) => t.querySelector('video')).find(Boolean);
     if (!v || v.videoWidth === 0 || v.paused) return { ok: false, why: 'no playing remote video' };
     const c = document.createElement('canvas');
     c.width = 160;
@@ -78,7 +79,8 @@ const remoteVideoAlive = (page) =>
   });
 const sharpness = (page) =>
   page.evaluate(async () => {
-    const v = Array.from(document.querySelectorAll('.tile[data-identity] video')).find((x) => !x.muted);
+    // the local tile is first in the DOM; remote videos are muted on purpose (their audio plays in a separate <audio>)
+    const v = Array.from(document.querySelectorAll('.tile[data-identity]')).slice(1).map((t) => t.querySelector('video')).find(Boolean);
     const W = 640;
     const H = 360;
     const c = document.createElement('canvas');
@@ -134,7 +136,7 @@ try {
   await mem.page.locator('[data-testid=join-form]').getByRole('button').click();
   await waitCall(mem.page);
   await mem.page.waitForFunction(() => document.querySelectorAll('.grid .tile[data-identity]').length >= 2, null, { timeout: 40000 });
-  await mem.page.waitForFunction(() => Array.from(document.querySelectorAll('.tile[data-identity] video')).some((v) => !v.muted && v.videoWidth > 0), null, { timeout: 40000 });
+  await mem.page.waitForFunction(() => Array.from(document.querySelectorAll('.tile[data-identity]')).slice(1).some((t) => (t.querySelector('video')?.videoWidth ?? 0) > 0), null, { timeout: 40000 });
   const alive = await remoteVideoAlive(mem.page);
   check('the member sees the host video: decrypted, not black or flat, and moving', alive.ok, alive.why);
   check('the member sees the E2EE badge', (await mem.page.getByTestId('e2ee-badge').count()) === 1);
@@ -153,7 +155,7 @@ try {
   await str.page.getByTestId('e2ee-gate-input').fill(link);
   await str.page.getByTestId('e2ee-gate-submit').click();
   await str.page.waitForSelector('.call', { timeout: 30000 });
-  await str.page.waitForFunction(() => Array.from(document.querySelectorAll('.tile[data-identity] video')).some((v) => !v.muted && v.videoWidth > 0), null, { timeout: 40000 });
+  await str.page.waitForFunction(() => Array.from(document.querySelectorAll('.tile[data-identity]')).slice(1).some((t) => (t.querySelector('video')?.videoWidth ?? 0) > 0), null, { timeout: 40000 });
   check('pasting the full link into the gate lets the person in and shows video', (await remoteVideoAlive(str.page)).ok);
 
   // 7. Chat over the encrypted data channel; no file attach.

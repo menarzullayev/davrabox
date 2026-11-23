@@ -23,6 +23,7 @@ if [ -z "${DAVRA_LOCAL_LIVEKIT:-}" ] && [ -n "${LIVEKIT_CLOUD_URL:-}" ] && [ -n 
 fi
 # Local dev and e2e sign up many throw-away organisations from one address: lift the per-IP hourly limit here only (default 5).
 export SIGNUP_IP_PER_HOUR="${SIGNUP_IP_PER_HOUR:-1000}"
+export SIGNUP_DAILY_CAP="${SIGNUP_DAILY_CAP:-100000}" # the API test suite also creates many trial organisations in the dev database
 export CORS_ORIGINS="https://${LAN_IP}:8443,https://localhost:8443,https://davrabox.bugvector.uz"
 export KEYCLOAK_ADMIN_URL="http://${LAN_IP}:8180/auth"
 export KEYCLOAK_ADMIN_CLIENT_SECRET="${ADMIN_API_CLIENT_SECRET:-}"
