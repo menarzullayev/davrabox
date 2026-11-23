@@ -76,5 +76,11 @@ The earlier "2FA not enforced for admins" item is therefore closed. Remaining op
 - Full local e2e (`pnpm --filter @davrabox/e2e test`): call 8/8, TOTP 5/5, admin-2FA 3/3, passkey 3/3 PASSED.
 - ArgoCD manifest now points at the real repository and passes the realm file via fileParameters; still not applied (no ArgoCD, staging cluster, or published images: `davra/*:dev` exist only locally; publishing images to GHCR is the next step toward the staging gate).
 
-Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate itself ("daily auto-deploy to staging") is BLOCKED on external items (remote repo, staging environment).
+## 2026-11-23 (late night): staging gate with evidence
+- `.github/workflows/publish.yml`: after a green CI on main it builds the api and web images, pushes `ghcr.io/menarzullayev/davrabox-{api,web}:sha-<commit>` (packages are public: anonymous pull works), then a bot commit (`[skip ci]`) rewrites the tags in `deploy/helm/davrabox/values-staging.yaml`.
+- Staging cluster: local kind cluster `davra-kind` with ArgoCD v3.6.2 and Application `davrabox-staging` (automated sync, prune, self-heal) watching `main`; secrets are created in-cluster by hand (never in git). Result: Synced/Healthy, all pods Running from the GHCR images, migrations 001+002 applied, API `/healthz` 200 and unauthenticated `/v1/meetings` 401.
+- GATE PROOF ("code reaches staging automatically"): commit `a5fd782` pushed -> CI success -> publish workflow success (images for sha-a5fd782, bump commit) -> ArgoCD (no manual action) changed the running api Deployment from `davrabox-api:sha-1dda5e0` to `davrabox-api:sha-a5fd782`.
+- Caveats: this "staging" is a kind cluster on the developer PC, not an independent environment; ArgoCD polls (about 3 minutes); the staging host name `staging.davrabox.local` is not resolvable from outside and Keycloak login inside staging was not exercised (only discovery earlier); TURN/UDP media to outsiders still untested.
+
+Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.
