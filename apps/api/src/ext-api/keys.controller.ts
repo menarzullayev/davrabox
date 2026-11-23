@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { z } from 'zod';
+import { noControl } from '../common/text.js';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
 import { AdminGuard } from '../admin/admin.controller.js';
 import { API_KEY_SCOPES, type ApiKeysService } from './api-keys.service.js';
@@ -8,7 +9,7 @@ import { EXT_KEYS } from './tokens.js';
 
 const createSchema = z
   .object({
-    name: z.string().trim().min(1).max(80),
+    name: z.string().trim().min(1).max(80).refine(noControl),
     scopes: z.array(z.enum(API_KEY_SCOPES)).min(1).max(API_KEY_SCOPES.length),
   })
   .strict()

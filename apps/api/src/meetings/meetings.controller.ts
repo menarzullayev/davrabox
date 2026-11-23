@@ -1,18 +1,19 @@
 import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { z } from 'zod';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
+import { noControl } from '../common/text.js';
 import { MeetingError, MeetingsService } from './meetings.service.js';
 
 export const MEETINGS = Symbol('MEETINGS');
 
 const createSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  passcode: z.string().min(6).max(64).optional(),
+  title: z.string().trim().min(1).max(200).refine(noControl),
+  passcode: z.string().min(6).max(64).refine(noControl).optional(),
   scheduledAt: z.string().datetime().optional(),
   waitingRoom: z.boolean().optional(),
   e2ee: z.boolean().optional(),
 }).strict(); // strict: a client that ever sent an E2EE meeting key here fails loudly instead of the server silently dropping it
-const joinSchema = z.object({ passcode: z.string().max(64).optional() });
+const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional() });
 const lockSchema = z.object({ locked: z.boolean() });
 
 type Req = { user: AuthedUser; headers: Record<string, string | string[] | undefined> };

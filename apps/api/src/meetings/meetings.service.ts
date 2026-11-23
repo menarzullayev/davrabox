@@ -146,11 +146,11 @@ export class MeetingsService {
     if (decision.banned && !manages) throw new MeetingError(403, 'removed from this meeting');
     if (meeting.locked && !manages) throw new MeetingError(403, 'meeting is locked');
     if (meeting.passcode_hash && !manages) {
+      // The attempt is counted atomically BEFORE the hash is checked. Checking "is blocked" first and recording the failure
+      // afterwards leaves a gap in which any number of parallel guesses all pass the check (measured: 40 of 40).
+      if (!(await this.limiter.hit(key)).allowed) throw new MeetingError(429, 'too many attempts, try again later');
       const ok = passcode ? await argon2.verify(meeting.passcode_hash, passcode) : false;
-      if (!ok) {
-        await this.limiter.recordFailure(key);
-        throw new MeetingError(403, 'wrong passcode');
-      }
+      if (!ok) throw new MeetingError(403, 'wrong passcode');
     }
     await this.limiter.reset(key);
 
