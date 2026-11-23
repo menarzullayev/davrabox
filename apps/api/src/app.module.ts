@@ -15,13 +15,15 @@ import { AuditForwarder } from './audit/forwarder.js';
 import { ADMIN, AdminController, AdminGuard } from './admin/admin.controller.js';
 import { AdminService } from './admin/admin.service.js';
 import { KeycloakAdmin } from './admin/identity-admin.js';
+import { recordingControllers, recordingProviders } from './recording/recording.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
-  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController],
+  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers],
   providers: [
+    ...recordingProviders,
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },

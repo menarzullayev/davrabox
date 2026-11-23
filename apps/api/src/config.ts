@@ -25,6 +25,12 @@ const schema = z.object({
   CLAMAV_HOST: z.string().min(1).optional(),
   CLAMAV_PORT: z.coerce.number().int().default(3310),
   FILE_MASTER_KEY: z.string().min(1).optional(),
+  // Meeting recording is optional: it needs LiveKit Egress, the S3 settings above and FILE_MASTER_KEY; otherwise the endpoints answer 503.
+  RECORDING_ENABLED: z.enum(['0', '1', 'true', 'false']).default('0').transform((v) => v === '1' || v === 'true'),
+  RECORDING_BUCKET: z.string().min(3).default('davra-recordings'),
+  // The storage endpoint as Egress reaches it (inside the compose network); defaults to S3_ENDPOINT.
+  RECORDING_S3_ENDPOINT: z.string().url().optional(),
+  RECORDING_S3_REGION: z.string().min(1).default('us-east-1'),
   // Admin console user management is optional: without these the user-management endpoints answer 503.
   // The client is a confidential service-account client limited to view-users, manage-users, view-realm, query-users.
   KEYCLOAK_ADMIN_URL: z.string().url().optional(), // e.g. http://host:8180/auth
