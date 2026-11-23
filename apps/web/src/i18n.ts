@@ -66,6 +66,18 @@ const uz = {
   errFileSize: 'Fayl juda katta (25 MB gacha)',
   relayMode: 'Xavfsizlik devori rejimi',
   relayHint: 'Barcha video va ovoz TURN relay orqali o‘tadi (to‘g‘ridan-to‘g‘ri UDP bloklangan tarmoqlar uchun)',
+  // design system (generic UI strings used by apps/web/src/ui)
+  uiClose: 'Yopish',
+  uiDismiss: 'Xabarni yopish',
+  uiLoading: 'Yuklanmoqda…',
+  uiConnecting: 'Davraga ulanmoqda…',
+  uiOptional: '(ixtiyoriy)',
+  uiCopy: 'Nusxa olish',
+  uiCopied: 'Nusxa olindi',
+  uiMore: 'Yana',
+  uiTheme: 'Ko‘rinish',
+  uiThemeDark: 'Tungi',
+  uiThemeLight: 'Kunduzgi',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -136,6 +148,17 @@ const ru: Record<Key, string> = {
   errFileSize: 'Файл слишком большой (до 25 МБ)',
   relayMode: 'Режим за брандмауэром',
   relayHint: 'Весь звук и видео идут через TURN-ретранслятор (для сетей, где заблокирован прямой UDP)',
+  uiClose: 'Закрыть',
+  uiDismiss: 'Закрыть уведомление',
+  uiLoading: 'Загрузка…',
+  uiConnecting: 'Подключение к встрече…',
+  uiOptional: '(необязательно)',
+  uiCopy: 'Копировать',
+  uiCopied: 'Скопировано',
+  uiMore: 'Ещё',
+  uiTheme: 'Оформление',
+  uiThemeDark: 'Тёмная',
+  uiThemeLight: 'Светлая',
 };
 
 const en: Record<Key, string> = {
@@ -204,6 +227,17 @@ const en: Record<Key, string> = {
   errFileSize: 'File is too large (up to 25 MB)',
   relayMode: 'Firewall mode',
   relayHint: 'All audio and video go through the TURN relay (for networks that block direct UDP)',
+  uiClose: 'Close',
+  uiDismiss: 'Dismiss message',
+  uiLoading: 'Loading…',
+  uiConnecting: 'Connecting to the meeting…',
+  uiOptional: '(optional)',
+  uiCopy: 'Copy',
+  uiCopied: 'Copied',
+  uiMore: 'More',
+  uiTheme: 'Appearance',
+  uiThemeDark: 'Dark',
+  uiThemeLight: 'Light',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
