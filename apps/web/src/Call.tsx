@@ -1,121 +1,40 @@
-import { useEffect, useRef, useState } from 'react';
-import { Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant, type RemoteTrack, type TrackPublication } from 'livekit-client';
+import { useEffect, useReducer, useRef, useState } from 'react';
+import { ConnectionQuality, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
-import { ApiError, api, type JoinedResult, type JoinRequest } from './api';
-import { MAX_FILE_BYTES, REACTIONS, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
+import { ApiError, api, type JoinedResult } from './api';
+import { MAX_FILE_BYTES, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
+import { CallView } from './call/CallView';
+import { LiveMedia } from './call/LiveMedia';
+import { loadLayout, saveLayout } from './call/prefs';
+import type { LayoutMode } from './call/layout';
+import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality } from './call/types';
 
-interface ChatLine {
-  id: number;
-  from: string;
-  text: string;
-  mine: boolean;
-  file?: { id: string; name: string; size: number };
-  to?: string; // set for private messages: the recipient's display name (or 'me' for received ones)
-  priv: boolean;
-}
+type ChatLine = ChatLineView;
 
-function Tile({
-  p,
-  local,
-  lang,
-  handUp,
-  reaction,
-  featured,
-  isCohost,
-  onCohost,
-  onMute,
-  onRemove,
-}: {
-  p: Participant;
-  local: boolean;
-  lang: Lang;
-  featured?: boolean;
-  isCohost?: boolean;
-  onCohost?: () => void;
-  handUp?: boolean;
-  reaction?: Reaction;
-  onMute?: () => void;
-  onRemove?: () => void;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const shareRef = useRef<HTMLVideoElement>(null);
-  const [, bump] = useState(0);
+const QUALITY: Record<string, Quality> = {
+  [ConnectionQuality.Excellent]: 'excellent',
+  [ConnectionQuality.Good]: 'good',
+  [ConnectionQuality.Poor]: 'poor',
+  [ConnectionQuality.Lost]: 'lost',
+};
 
+/** Re-renders the call screen when a participant's tracks, mute state or speaking state change. */
+function useParticipantEvents(participants: Participant[]): void {
+  const [, bump] = useReducer((n: number) => n + 1, 0);
   useEffect(() => {
-    const refresh = () => bump((n) => n + 1);
-    p.on('trackSubscribed', refresh).on('trackUnsubscribed', refresh).on('trackMuted', refresh).on('trackUnmuted', refresh)
-      .on('localTrackPublished', refresh).on('localTrackUnpublished', refresh).on('isSpeakingChanged', refresh);
+    const refresh = () => bump();
+    for (const p of participants) {
+      p.on('trackSubscribed', refresh).on('trackUnsubscribed', refresh).on('trackMuted', refresh).on('trackUnmuted', refresh)
+        .on('localTrackPublished', refresh).on('localTrackUnpublished', refresh).on('isSpeakingChanged', refresh);
+    }
     return () => {
-      p.off('trackSubscribed', refresh).off('trackUnsubscribed', refresh).off('trackMuted', refresh).off('trackUnmuted', refresh)
-        .off('localTrackPublished', refresh).off('localTrackUnpublished', refresh).off('isSpeakingChanged', refresh);
+      for (const p of participants) {
+        p.off('trackSubscribed', refresh).off('trackUnsubscribed', refresh).off('trackMuted', refresh).off('trackUnmuted', refresh)
+          .off('localTrackPublished', refresh).off('localTrackUnpublished', refresh).off('isSpeakingChanged', refresh);
+      }
     };
-  }, [p]);
-
-  const cam = p.getTrackPublication(Track.Source.Camera);
-  const scr = p.getTrackPublication(Track.Source.ScreenShare);
-  const camTrack = cam?.track;
-  const scrTrack = scr?.track;
-
-  useEffect(() => {
-    const el = videoRef.current;
-    if (el && camTrack && !cam?.isMuted) {
-      camTrack.attach(el);
-      return () => void camTrack.detach(el);
-    }
-    return undefined;
-  });
-  useEffect(() => {
-    const el = shareRef.current;
-    if (el && scrTrack) {
-      scrTrack.attach(el);
-      return () => void scrTrack.detach(el);
-    }
-    return undefined;
-  });
-
-  // Remote audio must be attached to an element to play.
-  const audioPub: TrackPublication | undefined = p.getTrackPublication(Track.Source.Microphone);
-  const audioTrack = audioPub?.track as RemoteTrack | undefined;
-  const audioRef = useRef<HTMLAudioElement>(null);
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!local && el && audioTrack) {
-      audioTrack.attach(el);
-      return () => void audioTrack.detach(el);
-    }
-    return undefined;
-  });
-
-  return (
-    <>
-      {scrTrack && (
-        <div className="tile share">
-          <video ref={shareRef} autoPlay playsInline muted={local} />
-          <span className="label">{p.name || p.identity}</span>
-        </div>
-      )}
-      <div className={`tile${p.isSpeaking ? ' speaking' : ''}${featured ? ' featured' : ''}`} data-identity={p.identity}>
-        {camTrack && !cam?.isMuted ? <video ref={videoRef} autoPlay playsInline muted={local} /> : <div className="avatar">{(p.name || '?').slice(0, 1).toUpperCase()}</div>}
-        <audio ref={audioRef} autoPlay />
-        <span className="label">
-          {p.name || p.identity}
-          {local ? ` (${t(lang, 'you')})` : ''}
-          {audioPub?.isMuted !== false ? ' 🔇' : ''}
-          {handUp ? ' ✋' : ''}
-          {isCohost ? ` ★ ${t(lang, 'cohostBadge')}` : ''}
-        </span>
-        {reaction && <span className="reaction" aria-live="polite" data-testid="reaction">{reaction}</span>}
-        {(onMute || onRemove || onCohost) && (
-          <span className="tile-actions">
-            {onCohost && <button onClick={onCohost} data-testid="cohost-toggle">{isCohost ? t(lang, 'dismissCohost') : t(lang, 'makeCohost')}</button>}
-            {onMute && <button onClick={onMute}>{t(lang, 'muteAudio')}</button>}
-            {onRemove && <button className="danger" onClick={onRemove}>{t(lang, 'removeFromMeeting')}</button>}
-          </span>
-        )}
-      </div>
-    </>
-  );
+  }, [participants]);
 }
 
 export function Call({
@@ -133,13 +52,16 @@ export function Call({
 }) {
   const roomRef = useRef<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [connected, setConnected] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
+  const [quality, setQuality] = useState<Quality>('unknown');
   const [mic, setMic] = useState(true);
   const [cam, setCam] = useState(true);
   const [sharing, setSharing] = useState(false);
   const [locked, setLocked] = useState(false);
-  const [requests, setRequests] = useState<JoinRequest[]>([]);
+  const [requests, setRequests] = useState<import('./api').JoinRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [panel, setPanel] = useState<PanelId>(null);
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [draft, setDraft] = useState('');
   const [target, setTarget] = useState(''); // '' = everyone, otherwise a participant identity
@@ -150,13 +72,18 @@ export function Call({
   const [role, setRole] = useState<'host' | 'cohost' | 'member'>(join.isHost ? 'host' : 'member');
   const [cohostIds, setCohostIds] = useState<string[]>([]);
   const [blurOn, setBlurOn] = useState(false);
-  const [layout, setLayout] = useState<'gallery' | 'speaker'>('gallery');
+  const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
   const lineId = useRef(0);
   const manages = role !== 'member';
   const chatOpenRef = useRef(false);
-  chatOpenRef.current = chatOpen;
+  chatOpenRef.current = panel === 'chat';
+  const setLayout = (m: LayoutMode) => {
+    setLayoutState(m);
+    saveLayout(m);
+  };
+  useParticipantEvents(participants);
 
   useEffect(() => {
     // Browser audio DSP is on by default; the toggle below restarts the microphone with the chosen setting.
@@ -209,6 +136,11 @@ export function Call({
         // Keep the last person who spoke featured instead of flipping back when everyone is silent.
         if (speakers.length > 0) setSpeakerId(speakers[0]!.identity);
       })
+      .on(RoomEvent.ConnectionQualityChanged, (q, p) => {
+        if (p.isLocal) setQuality(QUALITY[q] ?? 'unknown');
+      })
+      .on(RoomEvent.Reconnecting, () => setReconnecting(true))
+      .on(RoomEvent.Reconnected, () => setReconnecting(false))
       .on(RoomEvent.Disconnected, onDisconnected);
     (async () => {
       try {
@@ -221,6 +153,7 @@ export function Call({
         }
         await room.connect(join.url, join.token, relay ? { rtcConfig: { iceTransportPolicy: 'relay' } } : undefined);
         if (cancelled) return;
+        setConnected(true);
         sync();
         try {
           await room.localParticipant.setMicrophoneEnabled(true);
@@ -277,13 +210,6 @@ export function Call({
   }, [code, getToken]);
 
   const room = roomRef.current;
-  // Speaker view features a screen sharer first, then the last active speaker, then the first remote participant.
-  const indexed = participants.map((p, i) => ({ p, i }));
-  const sharer = participants.find((p) => p.getTrackPublication(Track.Source.ScreenShare)?.track);
-  const featuredId =
-    sharer?.identity ??
-    (speakerId && participants.some((p) => p.identity === speakerId) ? speakerId : (participants[1] ?? participants[0])?.identity);
-  const ordered = layout === 'speaker' && featuredId ? [...indexed.filter((x) => x.p.identity === featuredId), ...indexed.filter((x) => x.p.identity !== featuredId)] : indexed;
   const toggle = async (kind: 'mic' | 'cam') => {
     if (!room) return;
     try {
@@ -371,7 +297,6 @@ export function Call({
       setError(t(lang, 'errBlur'));
     }
   };
-  const fileInput = useRef<HTMLInputElement>(null);
   const fileError = (e: unknown): string => {
     const d = e instanceof ApiError ? e.detail : '';
     if (/not configured/i.test(d)) return t(lang, 'errFilesOff');
@@ -431,117 +356,86 @@ export function Call({
     }
   };
 
+  // Plain props for the presentational layer. Local participant first: that order is the stable ring order.
+  const views: ParticipantView[] = participants.map((p, i) => ({
+    id: p.identity,
+    name: p.name || p.identity,
+    local: i === 0,
+    speaking: p.isSpeaking,
+    micMuted: p.getTrackPublication(Track.Source.Microphone)?.isMuted !== false,
+    camOn: (() => {
+      const c = p.getTrackPublication(Track.Source.Camera);
+      return !!c?.track && !c.isMuted;
+    })(),
+    handUp: i === 0 ? myHand : !!hands[p.identity],
+    reaction: reactions[p.identity] ?? null,
+    isCohost: cohostIds.includes(p.identity),
+  }));
+  const sharerLk = participants.find((p) => p.getTrackPublication(Track.Source.ScreenShare)?.track);
+  const sharer = sharerLk ? (views.find((v) => v.id === sharerLk.identity) ?? null) : null;
+  const manage: ManageActions | null = manages
+    ? {
+        isHost: role === 'host',
+        onMute: (id) => void hostCall((tk) => api.mute(tk, code, id)),
+        onRemove: (id) => void hostCall((tk) => api.remove(tk, code, id)),
+        onToggleCohost: (id) => void hostCall((tk) => api.setCohost(tk, code, id, !cohostIds.includes(id)).then(() => setCohostIds((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id])))),
+      }
+    : null;
+  let relay = false;
+  try {
+    relay = localStorage.getItem('relayMode') === '1';
+  } catch {
+    /* storage unavailable */
+  }
+
   return (
-    <div className="call">
-      <header className="callbar">
-        <strong>{join.title}</strong>
-        {manages && <span className="badge" data-testid="role-badge">{role === 'cohost' ? t(lang, 'cohostBadge') : t(lang, 'hostBadge')}</span>}
-        <span className="count" data-testid="count">{participants.length}</span>
-      </header>
-      {error && <div className="error">{error}</div>}
-      {manages && requests.length > 0 && (
-        <section className="requests" aria-label={t(lang, 'requests')}>
-          <strong>{t(lang, 'requests')}</strong>
-          {requests.map((r) => (
-            <div className="request" key={r.id} data-testid="join-request">
-              <span>{r.display_name || r.email}</span>
-              <button className="primary" onClick={() => hostCall((tk) => api.decide(tk, code, r.id, true).then(() => setRequests((x) => x.filter((y) => y.id !== r.id))))}>
-                {t(lang, 'admit')}
-              </button>
-              <button onClick={() => hostCall((tk) => api.decide(tk, code, r.id, false).then(() => setRequests((x) => x.filter((y) => y.id !== r.id))))}>
-                {t(lang, 'deny')}
-              </button>
-            </div>
-          ))}
-        </section>
-      )}
-      <div className={`stage${chatOpen ? ' with-chat' : ''}`}>
-      <div className={`grid${layout === 'speaker' ? ' speaker' : ''}`} data-testid="grid" data-layout={layout}>
-        {ordered.map(({ p, i }) => (
-          <Tile
-            key={p.identity}
-            p={p}
-            local={i === 0}
-            featured={layout === 'speaker' && p.identity === featuredId}
-            lang={lang}
-            handUp={i === 0 ? myHand : hands[p.identity]}
-            reaction={reactions[p.identity]}
-            onMute={manages && i > 0 ? () => void hostCall((tk) => api.mute(tk, code, p.identity)) : undefined}
-            onRemove={manages && i > 0 ? () => void hostCall((tk) => api.remove(tk, code, p.identity)) : undefined}
-            isCohost={cohostIds.includes(p.identity)}
-            onCohost={role === 'host' && i > 0 ? () => void hostCall((tk) => api.setCohost(tk, code, p.identity, !cohostIds.includes(p.identity)).then(() => setCohostIds((c) => (c.includes(p.identity) ? c.filter((x) => x !== p.identity) : [...c, p.identity])))) : undefined}
-          />
-        ))}
-      </div>
-      {chatOpen && (
-        <aside className="chat" aria-label={t(lang, 'chat')} data-testid="chat-panel">
-          <div className="chat-lines" data-testid="chat-lines">
-            {lines.map((l) => (
-              <div className={`chat-line${l.mine ? ' mine' : ''}`} key={l.id} data-testid="chat-line">
-                <strong>{l.from}</strong>
-                {l.priv && <em className="tag">{l.mine && l.to ? `${t(lang, 'privateTo')} ${l.to}` : t(lang, 'privateTag')}</em>}
-                {/* Plain text only: React escapes it, nothing is parsed as HTML or turned into a link. */}
-                {l.file ? (
-                  <button className="file-chip" onClick={() => void saveFile(l.file!)} data-testid="file-chip">
-                    📎 {l.file.name} <span className="muted">({(l.file.size / 1024).toFixed(l.file.size < 10240 ? 1 : 0)} KB)</span>
-                  </button>
-                ) : (
-                  <div className="chat-text">{l.text}</div>
-                )}
-              </div>
-            ))}
-          </div>
-          <form onSubmit={sendChat} className="chat-form">
-            <select aria-label={t(lang, 'toEveryone')} value={target} onChange={(e) => setTarget(e.target.value)} data-testid="chat-target">
-              <option value="">{t(lang, 'toEveryone')}</option>
-              {participants.slice(1).map((p) => (
-                <option key={p.identity} value={p.identity}>{p.name || p.identity}</option>
-              ))}
-            </select>
-            <input ref={fileInput} type="file" hidden onChange={(e) => { void attach(e.target.files?.[0]); e.target.value = ''; }} data-testid="file-input" />
-            <button type="button" onClick={() => fileInput.current?.click()} aria-label={t(lang, 'attach')} data-testid="attach">📎</button>
-            <input value={draft} maxLength={1000} placeholder={t(lang, 'chatPlaceholder')} onChange={(e) => setDraft(e.target.value)} data-testid="chat-input" />
-            <button className="primary" type="submit">{t(lang, 'send')}</button>
-          </form>
-        </aside>
-      )}
-      </div>
-      <footer className="controls">
-        <button onClick={() => toggle('mic')} aria-pressed={mic}>{mic ? '🎤' : '🔇'} {t(lang, 'mic')}</button>
-        <button onClick={() => toggle('cam')} aria-pressed={cam}>{cam ? '📷' : '🚫'} {t(lang, 'camera')}</button>
-        <button onClick={toggleShare}>{sharing ? t(lang, 'stopShare') : t(lang, 'share')}</button>
-        <button
-          onClick={() => {
-            setChatOpen(!chatOpen);
-            setUnread(0);
-          }}
-          aria-pressed={chatOpen}
-          data-testid="chat-toggle"
-        >
-          💬 {t(lang, 'chat')}{unread > 0 ? ` (${unread})` : ''}
-        </button>
-        <button onClick={() => setLayout(layout === 'gallery' ? 'speaker' : 'gallery')} aria-pressed={layout === 'speaker'} data-testid="layout">
-          ▦ {layout === 'gallery' ? t(lang, 'speakerView') : t(lang, 'galleryView')}
-        </button>
-        <button onClick={toggleBlur} aria-pressed={blurOn} disabled={!cam} data-testid="blur" data-state={String(blurOn)}>
-          🌫 {t(lang, 'blurBackground')}
-        </button>
-        <button onClick={toggleNoise} onFocus={readNoise} onMouseEnter={readNoise} aria-pressed={noiseOn ?? true} disabled={!mic} data-testid="noise" data-state={String(noiseOn)}>
-          🎧 {t(lang, 'noiseSuppression')}
-        </button>
-        <button onClick={toggleHand} aria-pressed={myHand} data-testid="hand">✋ {myHand ? t(lang, 'lowerHand') : t(lang, 'raiseHand')}</button>
-        <span className="reaction-bar" role="group" aria-label={t(lang, 'reactions')}>
-          {REACTIONS.map((e) => (
-            <button key={e} onClick={() => void react(e)} aria-label={e} data-testid={`react-${e}`}>{e}</button>
-          ))}
-        </span>
-        {manages && (
-          <button onClick={() => void hostCall((tk) => api.lock(tk, code, !locked).then((r) => setLocked(r.locked)))} aria-pressed={locked} data-testid="lock">
-            {locked ? t(lang, 'unlockMeeting') : t(lang, 'lockMeeting')}
-          </button>
-        )}
-        <button className="danger" onClick={onLeave}>{t(lang, 'leave')}</button>
-      </footer>
-    </div>
+    <CallView
+      lang={lang}
+      title={join.title}
+      connected={connected}
+      reconnecting={reconnecting}
+      quality={quality}
+      error={error}
+      onDismissError={() => setError(null)}
+      participants={views}
+      speakerId={speakerId}
+      sharer={sharer}
+      renderMedia={(kind, pv) => {
+        const p = participants.find((x) => x.identity === pv.id);
+        return p ? <LiveMedia p={p} kind={kind} local={pv.local} /> : null;
+      }}
+      role={role}
+      manage={manage}
+      locked={locked}
+      onLock={manages ? () => void hostCall((tk) => api.lock(tk, code, !locked).then((r) => setLocked(r.locked))) : undefined}
+      requests={requests.map((r) => ({ id: r.id, name: r.display_name || r.email }))}
+      onDecide={(id, admit) => void hostCall((tk) => api.decide(tk, code, id, admit).then(() => setRequests((x) => x.filter((y) => y.id !== id))))}
+      mic={mic}
+      cam={cam}
+      sharing={sharing}
+      canShare={typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function'}
+      handUp={myHand}
+      noiseOn={noiseOn}
+      blurOn={blurOn}
+      relay={relay}
+      onMic={() => void toggle('mic')}
+      onCam={() => void toggle('cam')}
+      onShare={() => void toggleShare()}
+      onHand={() => void toggleHand()}
+      onReact={(e) => void react(e)}
+      onNoise={() => void toggleNoise()}
+      onBlur={() => void toggleBlur()}
+      onMoreOpen={readNoise}
+      onLeave={onLeave}
+      panel={panel}
+      onPanel={(id) => {
+        setPanel(id);
+        if (id === 'chat') setUnread(0);
+      }}
+      unread={unread}
+      chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f) }}
+      layout={layout}
+      onLayout={setLayout}
+    />
   );
 }

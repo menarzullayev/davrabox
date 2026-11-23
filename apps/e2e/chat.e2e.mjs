@@ -104,6 +104,8 @@ try {
   check('a raised hand shows on the participant tile and disappears when lowered', handShown && handGone);
 
   // Reaction from C appears for the host.
+  // Reactions live in a popover of the control bar.
+  if (!(await pc.page.getByTestId('react-🎉').isVisible())) await pc.page.getByTestId('reactions').click();
   await pc.page.getByTestId('react-🎉').click();
   const reacted = await host.page
     .waitForFunction(() => Array.from(document.querySelectorAll('[data-testid=reaction]')).some((r) => r.textContent === '🎉'), null, { timeout: 15000 })

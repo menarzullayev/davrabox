@@ -1,0 +1,42 @@
+import type { Reaction } from '../signals';
+
+/** What the presentational call UI knows about one participant. LiveKit objects never cross this boundary. */
+export interface ParticipantView {
+  id: string;
+  name: string;
+  local: boolean;
+  speaking: boolean;
+  micMuted: boolean;
+  camOn: boolean;
+  handUp: boolean;
+  reaction: Reaction | null;
+  isCohost: boolean;
+}
+
+export interface ChatLineView {
+  id: number;
+  from: string;
+  text: string;
+  mine: boolean;
+  file?: { id: string; name: string; size: number };
+  /** Private messages: the recipient's name for sent ones. */
+  to?: string;
+  priv: boolean;
+}
+
+export type Quality = 'excellent' | 'good' | 'poor' | 'lost' | 'unknown';
+export type PanelId = 'chat' | 'people' | null;
+export type Role = 'host' | 'cohost' | 'member';
+
+export interface JoinRequestView {
+  id: string;
+  name: string;
+}
+
+/** What a manager (host or co-host) may do to another participant. Absent for plain members. */
+export interface ManageActions {
+  isHost: boolean;
+  onMute(id: string): void;
+  onRemove(id: string): void;
+  onToggleCohost(id: string): void;
+}

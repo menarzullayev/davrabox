@@ -46,6 +46,11 @@ try {
   await page.waitForSelector('.call', { timeout: 30000 });
   await page.waitForFunction(() => document.querySelector('.tile[data-identity] video')?.videoWidth > 0, null, { timeout: 30000 });
   foreign.clear(); // only requests made from now on matter: the blur assets
+  // Background blur lives in the "More" panel of the control bar.
+  const openMore = async () => {
+    if (!(await page.getByTestId('blur').isVisible())) await page.getByTestId('more').click();
+    await page.getByTestId('blur').waitFor({ state: 'visible' });
+  };
 
   // Share of pixels that sit on a hard edge (neighbour difference > 40) in the local video at 640x360: blur removes them.
   const sharpness = () =>
@@ -73,6 +78,7 @@ try {
     });
 
   const before = await sharpness();
+  await openMore();
   await page.getByTestId('blur').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=blur]')?.getAttribute('data-state') === 'true', null, { timeout: 60000 });
   check('the blur toggle turns on (model and WASM loaded)', true);
@@ -87,6 +93,7 @@ try {
   check('no request left our own origin (no CDN, no third party)', foreign.size === 0, [...foreign].join(','));
   check('no Content-Security-Policy violation in the console', consoleErrors.length === 0, consoleErrors[0] ?? '');
 
+  await openMore();
   await page.getByTestId('blur').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=blur]')?.getAttribute('data-state') === 'false', null, { timeout: 20000 });
   await page.waitForTimeout(1500);

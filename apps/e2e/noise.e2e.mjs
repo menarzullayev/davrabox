@@ -35,16 +35,24 @@ try {
   await page.locator('form').nth(1).getByRole('button').click();
   await page.waitForSelector('.call', { timeout: 30000 });
 
+  // Noise suppression lives in the "More" panel of the control bar.
+  const openMore = async () => {
+    if (!(await page.getByTestId('noise').isVisible())) await page.getByTestId('more').click();
+    await page.getByTestId('noise').waitFor({ state: 'visible' });
+  };
+  await openMore();
   const state = () => page.getByTestId('noise').getAttribute('data-state');
   await page.waitForFunction(() => document.querySelector('[data-testid=noise]')?.getAttribute('data-state') !== 'null', null, { timeout: 20000 }).catch(() => undefined);
   const initial = await state();
   check('noise suppression is on by default on the live microphone', initial === 'true', `state=${initial}`);
 
+  await openMore();
   await page.getByTestId('noise').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=noise]')?.getAttribute('data-state') === 'false', null, { timeout: 15000 }).catch(() => undefined);
   const off = await state();
   check('the toggle restarts the microphone with noise suppression off', off === 'false', `state=${off}`);
 
+  await openMore();
   await page.getByTestId('noise').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=noise]')?.getAttribute('data-state') === 'true', null, { timeout: 15000 }).catch(() => undefined);
   const on = await state();

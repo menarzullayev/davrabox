@@ -1,4 +1,5 @@
 import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
+import { callEn, callRu, callUz } from './call/i18n-call';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -81,6 +82,7 @@ const uz = {
   uiTheme: 'Ko‘rinish',
   uiThemeDark: 'Tungi',
   uiThemeLight: 'Kunduzgi',
+  ...callUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -163,6 +165,7 @@ const ru: Record<Key, string> = {
   uiTheme: 'Оформление',
   uiThemeDark: 'Тёмная',
   uiThemeLight: 'Светлая',
+  ...callRu,
 };
 
 const en: Record<Key, string> = {
@@ -243,6 +246,7 @@ const en: Record<Key, string> = {
   uiTheme: 'Appearance',
   uiThemeDark: 'Dark',
   uiThemeLight: 'Light',
+  ...callEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
