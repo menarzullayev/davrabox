@@ -22,7 +22,10 @@ const STORE_PREFIX = 'davra.e2ee.';
 function toBase64Url(bytes: Uint8Array): string {
   let bin = '';
   for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const b64 = btoa(bin);
+  let end = b64.length;
+  while (end > 0 && b64[end - 1] === '=') end--; // strip padding without a regex
+  return b64.slice(0, end).replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /** Decodes a base64url key; throws on anything that is not exactly 32 bytes in canonical form. */
@@ -86,7 +89,9 @@ export function extractKeyFromText(text: string): string | null {
 export function buildShareLink(origin: string, code: string, key: string): string {
   if (!CODE.test(code)) throw new Error('invalid meeting code');
   if (!isValidKey(key)) throw new Error('invalid meeting key');
-  return `${origin.replace(/\/+$/, '')}/app?join=${code}#k=${key}`;
+  let end = origin.length;
+  while (end > 0 && origin[end - 1] === '/') end--;
+  return `${origin.slice(0, end)}/app?join=${code}#k=${key}`;
 }
 
 export function storeKey(code: string, key: string): void {
