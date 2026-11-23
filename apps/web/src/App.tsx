@@ -233,6 +233,7 @@ export function App() {
       onJoin={doJoin}
       onCreate={doCreate}
       onSignOut={() => void manager.signoutRedirect()}
+      calendarToken={token}
     />
   );
 }

@@ -8,6 +8,8 @@ import { SettingsMenu } from './SettingsMenu';
 import { TimelineView, copyJoinLink } from './Timeline';
 import { displayName, firstName, formatDay, greetingSlot, groupMeetings, type ProfileLike, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
+import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
+import { useCalendarReturn } from '../calendar/useCalendarReturn';
 
 export interface HomeScreenProps {
   lang: Lang;
@@ -29,6 +31,8 @@ export interface HomeScreenProps {
   onSignOut: () => void;
   /** Free-trial notice ("ends in less than N days"); omitted or null for paid organizations. */
   banner?: { key: Key; n?: number } | null;
+  /** Bearer token for the calendar integration; when set, hosts can add a meeting to Google Calendar or Outlook. */
+  calendarToken?: string;
   /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
   now?: Date;
 }
@@ -60,6 +64,8 @@ function HomeBody(props: HomeScreenProps) {
   const joinCard = useRef<JoinCardHandle>(null);
   const [dialog, setDialog] = useState(false);
   const [joiningCode, setJoiningCode] = useState<string | null>(null);
+  const [calendarFor, setCalendarFor] = useState<Meeting | null>(null);
+  useCalendarReturn(lang, toast);
 
   const timeline = useMemo(() => (meetings ? groupMeetings(meetings, clock) : null), [meetings, clock]);
   const name = firstName(props.profile);
@@ -129,7 +135,7 @@ function HomeBody(props: HomeScreenProps) {
           <h2 className="hm-section" id="hm-meetings-h">
             {t(lang, 'meetings')}
           </h2>
-          <TimelineView lang={lang} timeline={timeline} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} />
+          <TimelineView lang={lang} timeline={timeline} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} />
         </section>
 
         <footer className="hm-footer">{tx(lang, 'hBrandLine')}</footer>
@@ -140,11 +146,14 @@ function HomeBody(props: HomeScreenProps) {
         open={dialog}
         onClose={() => setDialog(false)}
         onCreate={onCreate}
-        onCreated={(m) => {
+        calendar={Boolean(props.calendarToken)}
+        onCreated={(m, opts) => {
           setDialog(false);
+          if (opts?.calendar) setCalendarFor(m);
           toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: m.code.replace(/(\d{3})(\d{4})(\d+)/, '$1 $2 $3') }) });
         }}
       />
+      {props.calendarToken ? <AddToCalendarDialog lang={lang} token={props.calendarToken} meeting={calendarFor} onClose={() => setCalendarFor(null)} /> : null}
     </>
   );
 }

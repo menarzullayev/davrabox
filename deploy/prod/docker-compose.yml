@@ -78,6 +78,12 @@ services:
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       CLAMAV_HOST: clamav
       FILE_MASTER_KEY: ${FILE_MASTER_KEY}
+      # calendar integration (optional; docs/calendar.md): empty values keep the endpoints answering 503
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      MS_CLIENT_ID: ${MS_CLIENT_ID:-}
+      MS_CLIENT_SECRET: ${MS_CLIENT_SECRET:-}
+      CALENDAR_PUBLIC_URL: https://${PUBLIC_HOST}
       CORS_ORIGINS: https://${PUBLIC_HOST}
       METRICS_HOST: 0.0.0.0 # reachable only on the internal network; the port is never published
     read_only: true

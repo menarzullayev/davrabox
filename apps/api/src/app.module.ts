@@ -18,13 +18,14 @@ import { KeycloakAdmin } from './admin/identity-admin.js';
 import { SignupModule } from './signup/signup.module.js';
 import { ExtApiModule } from './ext-api/ext-api.module.js';
 import { recordingControllers, recordingProviders } from './recording/recording.module.js';
+import { calendarControllers, calendarProviders } from './calendar/calendar.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [SignupModule, ExtApiModule],
-  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers],
+  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers],
   providers: [
     ...recordingProviders,
     { provide: CONFIG, useFactory: () => loadConfig() },
@@ -57,6 +58,7 @@ export const CONFIG = Symbol('CONFIG');
           : null,
       inject: [POOL, CONFIG],
     },
+    ...calendarProviders,
     AuthGuard,
     AdminGuard,
     AuditAdminGuard,
