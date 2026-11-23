@@ -28,3 +28,4 @@ docs/Korporativ_*
 apps/web/dist-lab/
 docs/design/critic/*.jpg
 PRODUCTION-READINESS.md
+deploy/compose/*.cred.txt
