@@ -113,6 +113,7 @@ The user decided that phase 1 is closed with these items left open because none 
 
 ## 2026-11-23 (phase 2, slice 3): noise suppression
 - The microphone is captured with browser noise suppression, echo cancellation and auto gain on by default (`audioCaptureDefaults`); a toggle restarts the live track with the chosen setting and shows the state read back from the browser's `MediaStreamTrack.getSettings()`. `apps/e2e/noise.e2e.mjs` 3/3 PASSED (default on, toggled off, back on, verified on the real track). uz/ru/en strings; web tests 32 PASSED, typecheck PASSED.
+- Pipeline: CI success -> publish -> ArgoCD rolled staging web to `sha-c0fa260`, Synced/Healthy.
 - Honest scope: this is the browser's built-in DSP, not an AI denoiser (Krisp-class). It satisfies the "noise suppression" item at baseline quality; an AI model would be a later upgrade (licensing/size to be decided).
 - Still open in phase 2: background blur (needs a self-hosted segmentation model to satisfy the CSP and privacy rules), TURN + TLS 443, file sharing in chat, co-host, speaker/gallery layouts, Electron app, 50-participant load test, Keycloak login page i18n.
 
