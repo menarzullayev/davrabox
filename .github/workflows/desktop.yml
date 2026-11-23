@@ -32,8 +32,10 @@ jobs:
       - name: Read the fuses of the built app
         shell: bash
         run: |
-          APP=$(ls -d apps/desktop/release/*-unpacked/DavraBox* apps/desktop/release/mac*/DavraBox.app apps/desktop/release/linux-unpacked/davrabox* 2>/dev/null | head -1)
+          find apps/desktop/release -maxdepth 2 | head -30
+          APP=$(find apps/desktop/release -maxdepth 2 \( -iname 'davrabox.exe' -o -iname 'davrabox.app' -o -iname 'davrabox' -o -iname 'davrabox-desktop' \) ! -type d -o -iname 'davrabox.app' | head -1)
           echo "app: $APP"
+          test -n "$APP"
           pnpm dlx @electron/fuses read --app "$APP" | tee fuses.txt
           grep -q "RunAsNode is Disabled" fuses.txt
           grep -q "EnableNodeCliInspectArguments is Disabled" fuses.txt
