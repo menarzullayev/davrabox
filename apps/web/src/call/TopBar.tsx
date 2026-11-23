@@ -1,6 +1,7 @@
 import { t, type Lang } from '../i18n';
 import { Badge, Button, IconLock, IconShieldCheck, IconUnlock, IconUsers, LogoMark } from '../ui';
 import { RecordingBadge } from './RecordingBadge';
+import '../e2ee/e2ee.css';
 import type { Quality, Role } from './types';
 
 const QUALITY_KEY = { excellent: 'clQExcellent', good: 'clQGood', poor: 'clQPoor', lost: 'clQLost', unknown: 'clQUnknown' } as const;
@@ -34,9 +35,11 @@ export interface TopBarProps {
   quality: Quality;
   /** A recording is running: everyone sees the consent badge. */
   recording?: boolean;
+  /** End-to-end encrypted meeting: persistent badge plus a polite live announcement when the encryption becomes active. */
+  e2ee?: { on: boolean };
 }
 
-export function TopBar({ lang, title, count, role, locked, onLock, quality, recording }: TopBarProps) {
+export function TopBar({ lang, title, count, role, locked, onLock, quality, recording, e2ee }: TopBarProps) {
   const manages = role !== 'member';
   return (
     <header className="callbar dv-topbar">
@@ -46,6 +49,14 @@ export function TopBar({ lang, title, count, role, locked, onLock, quality, reco
       <h1 className="dv-title" title={title}>{title}</h1>
       <div className="dv-top-right">
         <RecordingBadge lang={lang} on={!!recording} />
+        {e2ee ? (
+          <span className="dv-pill dv-e2ee" data-testid="e2ee-badge" data-state={e2ee.on ? 'on' : 'pending'}>
+            <IconLock size={16} />
+            <span className="dv-pill__text">{t(lang, 'e2eeBadge')}</span>
+            <span className="dx-sr-only">: {t(lang, 'e2eeBadgeHint')}</span>
+            <span className="dx-sr-only" role="status" aria-live="polite" data-testid="e2ee-status">{e2ee.on ? t(lang, 'e2eeAnnOn') : ''}</span>
+          </span>
+        ) : null}
         {manages ? (
           <Badge tone="gold" className="badge dv-role" data-testid="role-badge">
             {role === 'cohost' ? t(lang, 'cohostBadge') : t(lang, 'hostBadge')}

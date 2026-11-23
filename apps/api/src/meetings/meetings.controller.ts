@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { z } from 'zod';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
 import { MeetingError, MeetingsService } from './meetings.service.js';
@@ -10,7 +10,8 @@ const createSchema = z.object({
   passcode: z.string().min(6).max(64).optional(),
   scheduledAt: z.string().datetime().optional(),
   waitingRoom: z.boolean().optional(),
-});
+  e2ee: z.boolean().optional(),
+}).strict(); // strict: a client that ever sent an E2EE meeting key here fails loudly instead of the server silently dropping it
 const joinSchema = z.object({ passcode: z.string().max(64).optional() });
 const lockSchema = z.object({ locked: z.boolean() });
 
@@ -43,6 +44,13 @@ export class MeetingsController {
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) throw new HttpException('invalid input', 400);
     return wrap(this.svc.create(req.user, parsed.data));
+  }
+
+  /** Nothing about a meeting is editable after creation; asking to change `e2ee` is an explicit 409. */
+  @Patch(':code')
+  update(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) throw new HttpException('invalid input', 400);
+    return wrap(this.svc.update(req.user, code, body as Record<string, unknown>));
   }
 
   @Post(':code/join')

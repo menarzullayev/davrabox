@@ -67,4 +67,12 @@ describe('legacyJoinRedirect', () => {
   it('does not treat an OIDC callback (code + state) as a join link', () => {
     expect(legacyJoinRedirect(loc('/', '?code=12345678901&state=abc'))).toBeNull();
   });
+  it('keeps an E2EE meeting key (the #k= fragment) through the redirect, and only a valid one', () => {
+    const k = 'A'.repeat(42) + 'A';
+    expect(legacyJoinRedirect({ ...loc('/j/12345678901'), hash: '#k=' + k })).toBe('/app?join=12345678901#k=' + k);
+    expect(legacyJoinRedirect({ ...loc('/', '?join=12345678901'), hash: '#k=' + k })).toBe('/app?join=12345678901#k=' + k);
+    expect(legacyJoinRedirect({ ...loc('/j/12345678901'), hash: '#k=short' })).toBe('/app?join=12345678901');
+    expect(legacyJoinRedirect({ ...loc('/j/12345678901'), hash: '#other=1' })).toBe('/app?join=12345678901');
+    expect(legacyJoinRedirect({ ...loc('/j/12345678901'), hash: '#k=' + k + '&evil=//x.example' })).toBe('/app?join=12345678901#k=' + k);
+  });
 });

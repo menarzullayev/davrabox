@@ -69,29 +69,31 @@ export class FilesService {
   }
 
   /** The meeting row if the caller may use its files, otherwise throws. */
-  private async authorize(user: AuthedUser, code: string): Promise<{ id: string }> {
+  private async authorize(user: AuthedUser, code: string): Promise<{ id: string; e2ee: boolean }> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT m.id,
+        `SELECT m.id, m.e2ee,
                 (m.host_user_id = $2 OR EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2)) AS manages,
                 EXISTS (SELECT 1 FROM meeting_bans b WHERE b.meeting_id = m.id AND b.user_id = $2) AS banned,
                 EXISTS (SELECT 1 FROM meeting_access a WHERE a.meeting_id = m.id AND a.user_id = $2) AS entered
          FROM meetings m WHERE m.code = $1`,
         [code, user.userId],
       );
-      const row = r.rows[0] as { id: string; manages: boolean; banned: boolean; entered: boolean } | undefined;
+      const row = r.rows[0] as { id: string; e2ee: boolean; manages: boolean; banned: boolean; entered: boolean } | undefined;
       if (!row) throw new MeetingError(404, 'meeting not found');
       const manages = row.manages || user.role === 'org_admin';
       if (row.banned && !manages) throw new MeetingError(403, 'removed from this meeting');
       if (!manages && !row.entered) throw new MeetingError(403, 'join the meeting first');
-      return { id: row.id };
+      return { id: row.id, e2ee: row.e2ee };
     });
   }
 
   async upload(user: AuthedUser, code: string, rawName: string, data: Buffer): Promise<SharedFile> {
     const { s3, keys } = this.require();
     const meeting = await this.authorize(user, code);
+    // Files are stored by the server (envelope-encrypted with a server key), which contradicts the promise of an E2EE meeting.
+    if (meeting.e2ee) throw new MeetingError(409, 'file sharing is turned off in end-to-end encrypted meetings');
     if (this.limiter.isBlocked(user.userId)) throw new MeetingError(429, 'too many uploads, try again in a minute');
     this.limiter.recordFailure(user.userId); // counts every attempt
     const name = sanitizeName(rawName);

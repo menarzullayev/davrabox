@@ -47,6 +47,8 @@ export interface ChatPanelProps {
   onSend(e: FormEvent): void;
   onAttach(file: File | undefined): void;
   onSave(f: { id: string; name: string }): void;
+  /** End-to-end encrypted meeting: files would pass through the server, so attaching is switched off and explained. */
+  noFiles?: boolean;
   onClose(): void;
 }
 
@@ -97,9 +99,14 @@ export function ChatPanel(p: ChatPanelProps) {
             <option key={o.id} value={o.id}>{o.name}</option>
           ))}
         </Select>
+        {p.noFiles ? <p className="dv-empty" data-testid="e2ee-nofiles">{t(lang, 'e2eeNoFiles')}</p> : null}
         <div className="dv-form__row">
-          <input ref={fileInput} type="file" hidden onChange={(e) => { p.onAttach(e.target.files?.[0]); e.target.value = ''; }} data-testid="file-input" />
-          <IconButton label={t(lang, 'attach')} icon={<IconPaperclip size={18} />} variant="secondary" tooltip={false} onClick={() => fileInput.current?.click()} data-testid="attach" />
+          {p.noFiles ? null : (
+            <>
+              <input ref={fileInput} type="file" hidden onChange={(e) => { p.onAttach(e.target.files?.[0]); e.target.value = ''; }} data-testid="file-input" />
+              <IconButton label={t(lang, 'attach')} icon={<IconPaperclip size={18} />} variant="secondary" tooltip={false} onClick={() => fileInput.current?.click()} data-testid="attach" />
+            </>
+          )}
           <input
             ref={input}
             className="dx-input"
