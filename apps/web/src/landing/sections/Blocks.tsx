@@ -36,6 +36,11 @@ const CAP_ICON: ReadonlyArray<IconComponent> = [
   IconCamera, IconUsers, IconChat, IconShieldCheck, IconEye, IconLock, IconDownload, IconCalendar, IconLink, IconShield, IconUser, IconSettings,
 ];
 
+// Truthful state of each tile, same order. 'soon' = not usable by a visitor today. Flip a value when the capability is verified:
+// recording needs a media server that can reach the storage (the pilot uses LiveKit Cloud), calendar needs registered OAuth
+// apps, the Android app and the signed Windows app need store accounts and certificates (all user-supplied, due 2027).
+const CAP_STATUS: ReadonlyArray<'live' | 'soon'> = ['live', 'live', 'live', 'live', 'live', 'live', 'soon', 'soon', 'live', 'live', 'soon', 'soon'];
+
 export function Capabilities({ lang }: Props) {
   return (
     <section className="ln-section" id="capabilities" aria-labelledby="ln-caps-h">
@@ -46,7 +51,14 @@ export function Capabilities({ lang }: Props) {
             <span className="ln-tile__icon">
               <Icon size={22} />
             </span>
-            <h3 className="ln-tile__title">{tx(lang, key('lnCap', i + 1, 'T'))}</h3>
+            <h3 className="ln-tile__title">
+              {tx(lang, key('lnCap', i + 1, 'T'))}
+              {CAP_STATUS[i] === 'soon' ? (
+                <span className="ln-soon" data-testid="capability-soon">
+                  {tx(lang, 'lnSoon')}
+                </span>
+              ) : null}
+            </h3>
             <p className="ln-tile__text">{tx(lang, key('lnCap', i + 1, 'D'))}</p>
           </li>
         ))}

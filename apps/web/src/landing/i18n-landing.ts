@@ -62,6 +62,7 @@ export const landingUz = {
   lnCap11D: 'Android ilovasi bilan telefondan qo‘shiling.',
   lnCap12T: 'Kompyuter ilovasi',
   lnCap12D: 'Windows uchun ilova: xuddi shu boshqaruv elementlari, alohida oynada.',
+  lnSoon: 'Tez orada',
 
   lnHowTitle: 'Qanday boshlanadi',
   lnHow1T: 'Tashkilotingizni oching',
@@ -196,6 +197,7 @@ export const landingRu: Record<LandingKey, string> = {
   lnCap11D: 'Подключайтесь с телефона через приложение для Android.',
   lnCap12T: 'Приложение для компьютера',
   lnCap12D: 'Приложение для Windows: те же элементы управления в отдельном окне.',
+  lnSoon: 'Скоро',
 
   lnHowTitle: 'Как начать',
   lnHow1T: 'Создайте организацию',
@@ -328,6 +330,7 @@ export const landingEn: Record<LandingKey, string> = {
   lnCap11D: 'Join from your phone with the Android app.',
   lnCap12T: 'Desktop app',
   lnCap12D: 'An app for Windows: the same controls in a window of its own.',
+  lnSoon: 'Coming soon',
 
   lnHowTitle: 'How it starts',
   lnHow1T: 'Open your organisation',
