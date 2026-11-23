@@ -359,7 +359,7 @@ export class MeetingsService {
       canPublishData: true,
       roomAdmin: manages,
     });
-    const url = livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
+    const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
     return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages };
   }
 }
