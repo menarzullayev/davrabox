@@ -1,0 +1,24 @@
+# SSO test infrastructure (dev only): an OpenLDAP directory joined to the main dev stack's network, so the
+# davra-keycloak container reaches it as ldap://davra-ldap:389. Start it with the main stack's project name:
+#   LDAP_ADMIN_PASSWORD=<any test value> docker compose -p davra -f deploy/compose/docker-compose.sso.yml up -d
+# The seed (sso/ldap/50-seed.ldif) contains no passwords; the e2e sets throw-away ones at run time.
+name: davra
+services:
+  ldap:
+    image: osixia/openldap:1.5.0@sha256:18742e9c449c9c1afe129d3f2f3ee15fb34cc43e5f940a20f3399728f41d7c28
+    container_name: davra-ldap
+    command: ["--copy-service", "--loglevel", "info"]
+    environment:
+      LDAP_ORGANISATION: DavraBox Test
+      LDAP_DOMAIN: davra.test
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:?set LDAP_ADMIN_PASSWORD}
+      LDAP_TLS: "false"
+    volumes:
+      - ./sso/ldap/50-seed.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/50-seed.ldif:ro
+    tmpfs:
+      - /var/lib/ldap
+      - /etc/ldap/slapd.d
+    ports:
+      - "127.0.0.1:53389:389"
+    mem_limit: 128m
+    cpus: 0.5

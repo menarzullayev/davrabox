@@ -1,0 +1,48 @@
+# Test directory for the SSO e2e. No passwords here: the test sets throw-away ones at run time (ldappasswd).
+# Base DN comes from LDAP_DOMAIN=davra.test (dc=davra,dc=test).
+dn: ou=people,dc=davra,dc=test
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=davra,dc=test
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=alice.admin,ou=people,dc=davra,dc=test
+objectClass: inetOrgPerson
+uid: alice.admin
+cn: Alice Admin
+givenName: Alice
+sn: Admin
+mail: alice.admin@acme.test
+
+dn: uid=bob.member,ou=people,dc=davra,dc=test
+objectClass: inetOrgPerson
+uid: bob.member
+cn: Bob Member
+givenName: Bob
+sn: Member
+mail: bob.member@acme.test
+
+# Suspended account: still present in the directory, excluded by the federation's user filter
+# (employeeType=suspended), the way a disabled/locked AD or LDAP account is handled.
+dn: uid=carol.locked,ou=people,dc=davra,dc=test
+objectClass: inetOrgPerson
+uid: carol.locked
+cn: Carol Locked
+givenName: Carol
+sn: Locked
+mail: carol.locked@acme.test
+employeeType: suspended
+
+dn: cn=davra-admins,ou=groups,dc=davra,dc=test
+objectClass: groupOfNames
+cn: davra-admins
+member: uid=alice.admin,ou=people,dc=davra,dc=test
+
+dn: cn=davra-staff,ou=groups,dc=davra,dc=test
+objectClass: groupOfNames
+cn: davra-staff
+member: uid=alice.admin,ou=people,dc=davra,dc=test
+member: uid=bob.member,ou=people,dc=davra,dc=test
+member: uid=carol.locked,ou=people,dc=davra,dc=test

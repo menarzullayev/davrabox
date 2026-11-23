@@ -1,0 +1,15 @@
+{
+  "name": "@davrabox/scripts",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "echo scripts are plain JS",
+    "lint": "echo scripts are plain JS"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.12"
+  }
+}
