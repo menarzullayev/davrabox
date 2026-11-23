@@ -40,7 +40,7 @@ describe('api key format', () => {
       `dbx_${k.prefix}_${k.secret}x`,
       `dbx_${k.prefix}_${k.secret.slice(1)}`,
       `DBX_${k.prefix}_${k.secret}`,
-      `dbx_${k.prefix.toUpperCase()}_${k.secret}`,
+      `dbx_ABCDEF12_${k.secret}`,
       `dbx_${k.prefix}_${k.secret.slice(0, 42)}!`,
       ` ${k.token}`,
       `${k.token}\n`,
