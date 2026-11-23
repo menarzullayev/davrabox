@@ -218,6 +218,13 @@ export function createAdminClient(getToken: () => Promise<string>, fetchFn: Fetc
       return { blob, filename: filenameFromDisposition(res.headers.get('Content-Disposition'), `audit.${EXPORT_EXT[format]}`) };
     },
     verifyAudit: () => call<VerifyResult>('/v1/admin/audit/verify'),
+    // Privacy: export of one person's data (a file, like the audit export) and erasure by anonymisation.
+    async exportUserData(id: string): Promise<{ blob: Blob; filename: string }> {
+      const res = await raw(`/v1/admin/users/${enc(id)}/export`);
+      return { blob: await res.blob(), filename: filenameFromDisposition(res.headers.get('Content-Disposition'), 'davrabox-export.json') };
+    },
+    eraseUser: (id: string, confirm: string) =>
+      call<{ status: 'erased'; alreadyErased: boolean }>(`/v1/admin/users/${enc(id)}`, { method: 'DELETE', body: { confirm } }),
     // Integrations. The secrets returned by the two create calls are shown once and never kept by the client.
     listApiKeys: () => call<ApiKeyItem[]>('/v1/admin/api-keys'),
     createApiKey: (body: { name: string; scopes: ApiKeyScope[] }) => call<ApiKeyItem & { secret: string }>('/v1/admin/api-keys', { method: 'POST', body }),
