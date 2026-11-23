@@ -24,7 +24,6 @@ import {
   IconSmile,
   IconUsers,
 } from '../ui';
-import { fmt } from './announcer';
 import type { FallbackReason, LayoutMode } from './layout';
 import { applyRoving, handleRovingKey } from './roving';
 import type { PanelId } from './types';
@@ -73,9 +72,8 @@ export interface ControlBarProps {
 }
 
 interface CtlProps {
+  /** The action as a short phrase. It is the button's visible text on wide screens (or visually hidden), so the accessible name always contains the visible text. */
   label: string;
-  /** Short visible text under the icon (wide screens); the label stays the accessible name. */
-  text: string;
   icon: ReactNode;
   showText: boolean;
   pressed?: boolean;
@@ -92,7 +90,7 @@ interface CtlProps {
 }
 
 /** One control bar button: icon, optional visible text, 44 px minimum target, part of the toolbar's roving tabindex. */
-function Ctl({ label, text, icon, showText, pressed, off, danger, badge, disabled, testId, haspopup, expanded, onClick, buttonRef, extra }: CtlProps) {
+function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, testId, haspopup, expanded, onClick, buttonRef, extra }: CtlProps) {
   const btn = (
     <Button
       ref={buttonRef}
@@ -101,7 +99,6 @@ function Ctl({ label, text, icon, showText, pressed, off, danger, badge, disable
       data-roving=""
       data-off={off ? '' : undefined}
       data-active={pressed ? '' : undefined}
-      aria-label={label}
       aria-pressed={pressed}
       aria-haspopup={haspopup ? 'dialog' : undefined}
       aria-expanded={haspopup ? !!expanded : undefined}
@@ -114,13 +111,13 @@ function Ctl({ label, text, icon, showText, pressed, off, danger, badge, disable
         {badge ? <span className="dv-ctl__badge" aria-hidden="true">{badge > 9 ? '9+' : badge}</span> : null}
       </span>
       <span className={`dv-ctl__text${showText ? '' : ' dx-sr-only'}`}>
-        {text}
+        {label}
         {badge ? <span className="dx-sr-only"> ({badge})</span> : null}
-        {extra}
+        {extra ? <span className="dx-sr-only">{extra}</span> : null}
       </span>
     </Button>
   );
-  return showText ? btn : <Tooltip content={label}>{btn}</Tooltip>;
+  return showText ? btn : <Tooltip content={`${label}${extra ?? ''}`}>{btn}</Tooltip>;
 }
 
 function useFocusFirst(open: boolean, ref: React.RefObject<HTMLElement>) {
@@ -158,7 +155,7 @@ export function ControlBar(p: ControlBarProps) {
   const { lang } = p;
   const root = useRef<HTMLDivElement>(null);
   const active = useRef<HTMLElement | null>(null);
-  const wide = useMedia('(min-width: 900px)');
+  const wide = useMedia('(min-width: 1180px)');
   const compact = useMedia('(max-width: 559px)');
 
   // Roving tabindex: re-applied after every render because buttons come and go (disabled, compact mode).
@@ -187,7 +184,7 @@ export function ControlBar(p: ControlBarProps) {
   const layoutName = t(lang, MODES.find((m) => m.id === p.layout)!.key);
 
   return (
-    <div className="dv-controls">
+    <section className="dv-controls" aria-label={t(lang, 'clControls')}>
       <div
         ref={root}
         className="controls dv-toolbar"
@@ -202,52 +199,24 @@ export function ControlBar(p: ControlBarProps) {
           if (root.current) handleRovingKey(root.current, e);
         }}
       >
-        <Ctl label={p.mic ? t(lang, 'clMicMute') : t(lang, 'clMicUnmute')} text={t(lang, 'mic')} icon={p.mic ? <IconMic /> : <IconMicOff />} showText={wide} off={!p.mic} onClick={p.onMic} testId="mic" />
-        <Ctl label={p.cam ? t(lang, 'clCamOff') : t(lang, 'clCamOn')} text={t(lang, 'camera')} icon={p.cam ? <IconCamera /> : <IconCameraOff />} showText={wide} off={!p.cam} onClick={p.onCam} testId="cam" />
+        <Ctl label={t(lang, 'mic')} extra={`, ${t(lang, p.mic ? 'clActOff' : 'clActOn')}`} icon={p.mic ? <IconMic /> : <IconMicOff />} showText={wide} off={!p.mic} onClick={p.onMic} testId="mic" />
+        <Ctl label={t(lang, 'camera')} extra={`, ${t(lang, p.cam ? 'clActOff' : 'clActOn')}`} icon={p.cam ? <IconCamera /> : <IconCameraOff />} showText={wide} off={!p.cam} onClick={p.onCam} testId="cam" />
         {!compact && p.canShare ? (
-          <Ctl label={p.sharing ? t(lang, 'stopShare') : t(lang, 'share')} text={p.sharing ? t(lang, 'stopShare') : t(lang, 'share')} icon={<IconScreenShare />} showText={wide} pressed={p.sharing} onClick={p.onShare} testId="share" />
+          <Ctl label={p.sharing ? t(lang, 'stopShare') : t(lang, 'share')} icon={<IconScreenShare />} showText={wide} pressed={p.sharing} onClick={p.onShare} testId="share" />
         ) : null}
         <span className="dv-sep" aria-hidden="true" />
-        <Ctl label={p.handUp ? t(lang, 'lowerHand') : t(lang, 'raiseHand')} text={p.handUp ? t(lang, 'lowerHand') : t(lang, 'raiseHand')} icon={<IconHand />} showText={wide} pressed={p.handUp} onClick={p.onHand} testId="hand" />
-        <Ctl
-          label={t(lang, 'reactions')}
-          text={t(lang, 'clReact')}
-          icon={<IconSmile />}
-          showText={wide}
-          haspopup
-          expanded={open === 'react'}
-          onClick={() => toggle('react')}
-          buttonRef={reactBtn}
-          testId="reactions"
-        />
-        <Ctl
-          label={p.unread > 0 ? `${t(lang, 'chat')}, ${fmt(t(lang, 'clUnread'), { n: p.unread })}` : t(lang, 'chat')}
-          text={t(lang, 'chat')}
-          icon={<IconChat />}
-          showText={wide}
-          pressed={p.panel === 'chat'}
-          badge={p.unread}
-          onClick={() => p.onPanel(p.panel === 'chat' ? null : 'chat')}
-          testId="chat-toggle"
-        />
+        <Ctl label={p.handUp ? t(lang, 'lowerHand') : t(lang, 'raiseHand')} icon={<IconHand />} showText={wide} pressed={p.handUp} onClick={p.onHand} testId="hand" />
+        <Ctl label={t(lang, 'clReact')} icon={<IconSmile />} showText={wide} haspopup expanded={open === 'react'} onClick={() => toggle('react')} buttonRef={reactBtn} testId="reactions" />
+        <Ctl label={t(lang, 'chat')} icon={<IconChat />} showText={wide} pressed={p.panel === 'chat'} badge={p.unread} onClick={() => p.onPanel(p.panel === 'chat' ? null : 'chat')} testId="chat-toggle" />
         {!compact ? (
-          <Ctl
-            label={p.waiting > 0 ? `${t(lang, 'clPeopleTitle')}, ${fmt(t(lang, 'clWaitingN'), { n: p.waiting })}` : t(lang, 'clPeopleTitle')}
-            text={t(lang, 'clPeopleTitle')}
-            icon={<IconUsers />}
-            showText={wide}
-            pressed={p.panel === 'people'}
-            badge={p.waiting}
-            onClick={() => p.onPanel(p.panel === 'people' ? null : 'people')}
-            testId="people-toggle"
-          />
+          <Ctl label={t(lang, 'clPeopleTitle')} icon={<IconUsers />} showText={wide} pressed={p.panel === 'people'} badge={p.waiting} onClick={() => p.onPanel(p.panel === 'people' ? null : 'people')} testId="people-toggle" />
         ) : null}
         {!compact ? (
-          <Ctl label={`${t(lang, 'clLayout')}: ${layoutName}`} text={layoutName} icon={<LayoutIcon />} showText={wide} haspopup expanded={open === 'layout'} onClick={() => toggle('layout')} buttonRef={layoutBtn} testId="layout" />
+          <Ctl label={layoutName} extra={`, ${t(lang, 'clLayout')}`} icon={<LayoutIcon />} showText={wide} haspopup expanded={open === 'layout'} onClick={() => toggle('layout')} buttonRef={layoutBtn} testId="layout" />
         ) : null}
-        <Ctl label={t(lang, 'clMoreTitle')} text={t(lang, 'clMore')} icon={<IconMore />} showText={wide} haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
+        <Ctl label={t(lang, 'clMore')} extra={`, ${t(lang, 'clMoreTitle')}`} icon={<IconMore />} showText={wide} haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
         <span className="dv-sep" aria-hidden="true" />
-        <Ctl label={t(lang, 'leave')} text={t(lang, 'leave')} icon={<IconPhoneOff />} showText={wide} danger onClick={p.onLeave} testId="leave" />
+        <Ctl label={t(lang, 'leave')} icon={<IconPhoneOff />} showText={wide} danger onClick={p.onLeave} testId="leave" />
       </div>
 
       <Popover open={open === 'react'} anchorRef={reactBtn} onClose={close} role="group" aria-label={t(lang, 'reactions')}>
@@ -329,6 +298,6 @@ export function ControlBar(p: ControlBarProps) {
           </div>
         </div>
       </Popover>
-    </div>
+    </section>
   );
 }

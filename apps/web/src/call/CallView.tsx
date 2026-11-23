@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
 import type { Reaction } from '../signals';
 import { Alert, ConnectingRing } from '../ui';
+// ui.css first: call.css overrides some .dx-btn values with equal specificity, so it must come later in the bundle.
+import '../ui/ui.css';
 import './call.css';
 import { ControlBar } from './ControlBar';
 import { LiveRegion, useCallAnnouncements } from './LiveRegion';
@@ -90,7 +92,7 @@ export function CallView(p: CallViewProps) {
     <div className="call dv-call" data-panel={p.panel ?? 'none'}>
       <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} />
       <div className={`stage dv-main${p.panel ? ' with-chat' : ''}`}>
-        <div className="dv-stagewrap">
+        <main className="dv-stagewrap" aria-label={t(lang, 'clStage')}>
           <Stage
             lang={lang}
             requested={p.layout}
@@ -121,7 +123,7 @@ export function CallView(p: CallViewProps) {
             {p.sharing ? <Alert tone="info" className="dv-notice">{t(lang, 'clYouShare')}</Alert> : null}
           </div>
           {p.manage ? <RequestsTray lang={lang} requests={p.requests} onDecide={p.onDecide} /> : null}
-        </div>
+        </main>
         {p.panel === 'chat' ? <ChatPanel lang={lang} {...p.chat} others={others} onClose={closePanel} /> : null}
         {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onClose={closePanel} /> : null}
       </div>
