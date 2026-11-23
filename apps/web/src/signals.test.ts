@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CHAT_LENGTH, REACTIONS, cleanChatText, decode, encode } from './signals';
+import { MAX_CHAT_LENGTH, REACTIONS, cleanChatText, decode, encode, parseRoomRecording } from './signals';
 
 const raw = (v: unknown) => new TextEncoder().encode(typeof v === 'string' ? v : JSON.stringify(v));
 
@@ -66,4 +66,17 @@ describe('file signal', () => {
     ['size above the limit', { t: 'file', id, name: 'a', size: 26 * 1024 * 1024 }],
     ['size as a string', { t: 'file', id, name: 'a', size: '10' }],
   ])('rejects %s', (_n, v) => expect(decode(raw(v))).toBeNull());
+});
+
+describe('parseRoomRecording', () => {
+  it('reads the consent flag the server sets in the room metadata', () => {
+    expect(parseRoomRecording('{"recording":true}')).toBe(true);
+    expect(parseRoomRecording('{"recording":true,"other":1}')).toBe(true);
+    expect(parseRoomRecording('{}')).toBe(false);
+  });
+  it('treats anything unexpected as not recording', () => {
+    for (const bad of [undefined, '', 'recording', 'null', '[]', '"x"', '{"recording":"true"}', '{"recording":1}', '{"recording":false}', '{', 'x'.repeat(5000)]) {
+      expect(parseRoomRecording(bad), String(bad).slice(0, 20)).toBe(false);
+    }
+  });
 });

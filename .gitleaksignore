@@ -7,3 +7,4 @@ a02be891baf834c5417eb33870d317f00bab36f5:.github/workflows/ci.yml:generic-api-ke
 a02be891baf834c5417eb33870d317f00bab36f5:apps/api/src/files/files.service.ts:generic-api-key:40
 # apps/api/test/audit.test.ts line 534: a constant used only to test webhook HMAC signing against a local test receiver; not a credential.
 e937bb1006f17842dfdfbde992fd35f596d6b25a:apps/api/test/audit.test.ts:generic-api-key:534
+ea3e0bc6f5d3d444286d5eb09532abc076f68bae:docs/api.md:generic-api-key:42

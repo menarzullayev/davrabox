@@ -67,7 +67,7 @@ describe('formatCode and joinLink', () => {
     expect(formatCode('')).toBe('');
   });
   it('builds the link the app understands (?join=) without a double slash', () => {
-    expect(joinLink('https://davrabox.bugvector.uz/', '12345678901')).toBe('https://davrabox.bugvector.uz/?join=12345678901');
+    expect(joinLink('https://davrabox.bugvector.uz/', '12345678901')).toBe('https://davrabox.bugvector.uz/app?join=12345678901');
     expect(parseJoinInput(joinLink('https://x.test', '12345678901'))).toMatchObject({ status: 'valid', code: '12345678901' });
   });
 });

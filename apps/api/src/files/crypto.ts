@@ -8,7 +8,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 const IV = 12;
 const TAG = 16;
 
-function gcmEncrypt(key: Buffer, plain: Buffer, aad: Buffer): Buffer {
+export function gcmEncrypt(key: Buffer, plain: Buffer, aad: Buffer): Buffer {
   const iv = randomBytes(IV);
   const c = createCipheriv('aes-256-gcm', key, iv);
   c.setAAD(aad);
@@ -16,7 +16,7 @@ function gcmEncrypt(key: Buffer, plain: Buffer, aad: Buffer): Buffer {
   return Buffer.concat([iv, ct, c.getAuthTag()]);
 }
 
-function gcmDecrypt(key: Buffer, blob: Buffer, aad: Buffer): Buffer {
+export function gcmDecrypt(key: Buffer, blob: Buffer, aad: Buffer): Buffer {
   if (blob.length < IV + TAG) throw new Error('ciphertext too short');
   const d = createDecipheriv('aes-256-gcm', key, blob.subarray(0, IV));
   d.setAAD(aad);
@@ -47,4 +47,14 @@ export function open(master: Buffer, fileId: string, blob: Buffer, wrappedKey: s
   } finally {
     dataKey.fill(0);
   }
+}
+
+/** Generates a data key for a stream-encrypted object and wraps it with the master key (same wrapping as seal()). */
+export function newDataKey(master: Buffer, id: string): { dataKey: Buffer; wrappedKey: string } {
+  const dataKey = randomBytes(32);
+  return { dataKey, wrappedKey: gcmEncrypt(master, dataKey, Buffer.from(id, 'utf8')).toString('base64') };
+}
+
+export function unwrapDataKey(master: Buffer, id: string, wrappedKey: string): Buffer {
+  return gcmDecrypt(master, Buffer.from(wrappedKey, 'base64'), Buffer.from(id, 'utf8'));
 }

@@ -1,0 +1,51 @@
+import { tx } from '../../home/text';
+import type { Lang } from '../../i18n';
+import { Davra, IconChevronRight, type ThemeChoice } from '../../ui';
+import { ButtonLink } from '../ButtonLink';
+import { JoinForm } from '../JoinForm';
+
+export interface HeroProps {
+  lang: Lang;
+  theme: ThemeChoice;
+  navigate: (url: string) => void;
+}
+
+/** The screenshots are the call screen in the davra layout (rendered by apps/e2e/landing.shots.mjs from the call lab). */
+export const HERO_SHOT = { dark: '/landing/call-davra-dark.jpg', light: '/landing/call-davra-light.jpg', width: 1280, height: 720 } as const;
+
+export function Hero({ lang, theme, navigate }: HeroProps) {
+  return (
+    <section className="ln-hero" aria-labelledby="ln-hero-title">
+      <div className="ln-hero__copy">
+        <p className="ln-kicker">{tx(lang, 'lnHeroKicker')}</p>
+        <h1 className="ln-hero__title" id="ln-hero-title">
+          {tx(lang, 'lnHeroTitle')}
+        </h1>
+        <p className="ln-hero__text">{tx(lang, 'lnHeroText')}</p>
+        <div className="ln-hero__cta">
+          <ButtonLink href="/app/signup" variant="primary" size="lg" iconEnd={<IconChevronRight size={18} />}>
+            {tx(lang, 'lnStartFree')}
+          </ButtonLink>
+          <p className="ln-hero__have">
+            {tx(lang, 'lnHeroHave')} <a href="/app">{tx(lang, 'lnSignIn')}</a>
+          </p>
+        </div>
+        <p className="ln-hero__note">{tx(lang, 'lnHeroNote')}</p>
+        <JoinForm lang={lang} navigate={navigate} testId="landing-join" />
+      </div>
+      <div className="ln-hero__art">
+        <Davra className="ln-mandala" size={640} rings={4} petals={12} rotation={8} />
+        <figure className="ln-shot">
+          <img
+            src={HERO_SHOT[theme]}
+            width={HERO_SHOT.width}
+            height={HERO_SHOT.height}
+            alt={tx(lang, 'lnHeroShotAlt')}
+            decoding="async"
+            fetchPriority="high"
+          />
+        </figure>
+      </div>
+    </section>
+  );
+}

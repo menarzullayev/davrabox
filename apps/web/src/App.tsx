@@ -1,6 +1,8 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
-import { ApiError, api, type JoinedResult, type Meeting } from './api';
+import { api, type JoinedResult, type Meeting } from './api';
+import { appErrorKey as errorKey } from './errors';
+import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
 import { isOrgAdmin } from './admin/jwt';
 import { currentUser, freshToken, manager } from './auth';
@@ -14,20 +16,6 @@ import { applyTheme, readTheme, type ThemeChoice } from './ui';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
-
-function errorKey(e: unknown): Key {
-  if (e instanceof ApiError) {
-    if (e.status === 404) return 'errNotFound';
-    if (e.status === 429) return 'errTooMany';
-    if (e.status === 403) {
-      if (/passcode/i.test(e.detail)) return 'errWrongPasscode';
-      if (/locked/i.test(e.detail)) return 'errLocked';
-      if (/removed/i.test(e.detail)) return 'errRemoved';
-      if (/declined/i.test(e.detail)) return 'errDenied';
-    }
-  }
-  return 'errGeneric';
-}
 
 const THEME_COLOR: Record<ThemeChoice, string> = { dark: '#0a0d21', light: '#f4f5fb' };
 
@@ -82,6 +70,12 @@ export function App() {
   }, []);
 
   const token = user?.access_token ?? '';
+  // Free-trial end date of the organization (null for a paid one); drives the "ends soon" notice on the home screen.
+  const [trialEnds, setTrialEnds] = useState<string | null>(null);
+  useEffect(() => {
+    if (!token) return;
+    api.trial(token).then((s) => setTrialEnds(s.trial ? s.endsAt : null)).catch(() => setTrialEnds(null));
+  }, [token]);
   const refresh = useCallback(async () => {
     if (!token) return;
     try {
@@ -232,12 +226,14 @@ export function App() {
       profile={user.profile}
       isAdmin={isOrgAdmin(token)}
       meetings={meetings}
+      banner={trialBanner(trialEnds, Date.now())}
       error={err}
       onDismissError={() => setErr(null)}
       initialCode={pendingCode}
       onJoin={doJoin}
       onCreate={doCreate}
       onSignOut={() => void manager.signoutRedirect()}
+      calendarToken={token}
     />
   );
 }

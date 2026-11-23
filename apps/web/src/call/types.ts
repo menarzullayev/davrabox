@@ -28,6 +28,26 @@ export type Quality = 'excellent' | 'good' | 'poor' | 'lost' | 'unknown';
 export type PanelId = 'chat' | 'people' | null;
 export type Role = 'host' | 'cohost' | 'member';
 
+export interface RecordingItem {
+  id: string;
+  status: string;
+  startedAt: string;
+  sizeBytes: number | null;
+}
+
+/** Recording as the call screen sees it. `on` is the consent truth (server-set room metadata), shown to EVERY participant. */
+export interface RecordingView {
+  on: boolean;
+  /** The meeting is end-to-end encrypted: recording is refused. */
+  e2ee: boolean;
+  /** A start or stop request is in flight. */
+  busy: boolean;
+  /** Present only for the host or a co-host while recording is available. */
+  onToggle?(): void;
+  items?: RecordingItem[];
+  onDownload?(id: string): void;
+}
+
 export interface JoinRequestView {
   id: string;
   name: string;

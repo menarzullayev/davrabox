@@ -19,6 +19,28 @@ export interface NewIdentityUser {
   temporaryPassword: string;
 }
 
+/** A trial organization's first administrator, created by the public sign-up (permanent password, no required actions). */
+export interface NewOrgAdmin {
+  email: string;
+  name: string;
+  orgSlug: string;
+  password: string;
+}
+
+/** Removes the identity-provider users of a purged organization (personal data must not outlive the trial). */
+export interface OrgUserCleaner {
+  deleteUsersByOrgSlug(orgSlug: string): Promise<void>;
+}
+
+/** The part of the identity provider the public sign-up needs. Keycloak implements it; tests use a fake. */
+export interface SignupIdentity {
+  /** Creates the user with the org_slug attribute and the org_admin + member realm roles. Throws IdentityAdminError. */
+  createOrgAdmin(u: NewOrgAdmin): Promise<{ id: string }>;
+  deleteUser(sub: string): Promise<void>;
+  /** Best-effort cleanup after an ambiguous failure: deletes the user with this email ONLY if it carries this org_slug. */
+  deleteOrgAdminByEmail(email: string, orgSlug: string): Promise<void>;
+}
+
 /**
  * The part of the identity provider the admin console needs. Keycloak implements it; unit tests use a fake.
  * Methods that address an existing user take the provider's subject id and the organization slug the caller
@@ -67,7 +89,7 @@ interface KcUser {
 const TIMEOUT_MS = 10_000;
 
 /** Keycloak admin REST API client, authenticated as a confidential service account (client_credentials). */
-export class KeycloakAdmin implements IdentityAdmin {
+export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner {
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
@@ -155,6 +177,50 @@ export class KeycloakAdmin implements IdentityAdmin {
       throw e;
     }
     return { id };
+  }
+
+  async createOrgAdmin(u: NewOrgAdmin): Promise<{ id: string }> {
+    const [firstName = '', ...rest] = u.name.trim().split(/\s+/);
+    const res = await this.call('POST', '/users', {
+      username: u.email.toLowerCase(),
+      email: u.email,
+      firstName,
+      lastName: rest.join(' '),
+      enabled: true,
+      emailVerified: false, // no email is ever sent by the product, so nothing verifies it
+      attributes: { org_slug: [u.orgSlug] },
+      credentials: [{ type: 'password', value: u.password, temporary: false }],
+    });
+    if (res.status === 409) throw new IdentityAdminError(409, 'a user with this email already exists');
+    if (res.status === 400) throw new IdentityAdminError(400, 'identity provider rejected the user data');
+    if (res.status !== 201) throw new IdentityAdminError(502, 'identity provider could not create the user');
+    const id = res.headers.get('location')?.split('/').pop();
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) throw new IdentityAdminError(502, 'identity provider returned no user id');
+    try {
+      await this.setRole(id, 'org_admin');
+    } catch (e) {
+      await this.deleteUser(id).catch(() => undefined); // do not leave a user without a role behind
+      throw e;
+    }
+    return { id };
+  }
+
+  async deleteOrgAdminByEmail(email: string, orgSlug: string): Promise<void> {
+    const res = await this.call('GET', `/users?email=${encodeURIComponent(email)}&exact=true`);
+    if (!res.ok) return;
+    const users = (await res.json()) as KcUser[];
+    for (const user of users) {
+      // The slug of a sign-up in progress belongs to exactly one attempt, so this can never hit somebody else's account.
+      if (user.id && user.attributes?.['org_slug']?.[0] === orgSlug) await this.deleteUser(user.id);
+    }
+  }
+
+  async deleteUsersByOrgSlug(orgSlug: string): Promise<void> {
+    const res = await this.call('GET', `/users?q=${encodeURIComponent(`org_slug:${orgSlug}`)}&max=200`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not list the users');
+    for (const user of (await res.json()) as KcUser[]) {
+      if (user.id && user.attributes?.['org_slug']?.[0] === orgSlug) await this.deleteUser(user.id);
+    }
   }
 
   async updateUser(sub: string, orgSlug: string, patch: { role?: OrgRole; enabled?: boolean }): Promise<boolean> {

@@ -38,6 +38,8 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       // 53400: the organization has used all licensed seats and this would be a new user.
       if ((e as { code?: string }).code === '53400') throw new ForbiddenException('seat limit reached');
+      // DB001: the organization was a trial that has been purged; its slug is retired for good.
+      if ((e as { code?: string }).code === 'DB001') throw new ForbiddenException('organization closed');
       throw e;
     }
     if (!row) throw new UnauthorizedException();

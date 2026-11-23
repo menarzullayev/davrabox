@@ -26,7 +26,8 @@ import {
 } from '../ui';
 import { hintKey, type FallbackReason, type LayoutMode } from './layout';
 import { applyRoving, handleRovingKey } from './roving';
-import type { PanelId } from './types';
+import { IconRecord, RecordingList } from './RecordingBadge';
+import type { PanelId, RecordingView } from './types';
 
 export function useMedia(query: string, initial = false): boolean {
   const [m, setM] = useState(() => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(query).matches : initial));
@@ -69,6 +70,8 @@ export interface ControlBarProps {
   /** Called when the More panel opens, so the noise state can be re-read from the live microphone. */
   onMoreOpen(): void;
   onLeave(): void;
+  /** Recording: the consent state for everyone; `onToggle` is present only for the host or a co-host. */
+  recording?: RecordingView;
 }
 
 interface CtlProps {
@@ -81,6 +84,8 @@ interface CtlProps {
   danger?: boolean;
   badge?: number;
   disabled?: boolean;
+  /** Unavailable but still focusable and readable (the reason is part of the label); activating it does nothing. */
+  softDisabled?: boolean;
   testId?: string;
   haspopup?: boolean;
   expanded?: boolean;
@@ -90,7 +95,7 @@ interface CtlProps {
 }
 
 /** One control bar button: icon, optional visible text, 44 px minimum target, part of the toolbar's roving tabindex. */
-function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, testId, haspopup, expanded, onClick, buttonRef, extra }: CtlProps) {
+function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, softDisabled, testId, haspopup, expanded, onClick, buttonRef, extra }: CtlProps) {
   const btn = (
     <Button
       ref={buttonRef}
@@ -103,6 +108,7 @@ function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, tes
       aria-haspopup={haspopup ? 'true' : undefined}
       aria-expanded={haspopup ? !!expanded : undefined}
       disabled={disabled}
+      aria-disabled={softDisabled || undefined}
       data-testid={testId}
       onClick={onClick}
     >
@@ -148,6 +154,23 @@ export function LayoutSwitch({ lang, value, onChange, name }: { lang: Lang; valu
         </label>
       ))}
     </div>
+  );
+}
+
+/** The host's record button. In an E2EE meeting it stays focusable and says why it does nothing. */
+function RecordCtl({ p, showText }: { p: ControlBarProps; showText: boolean }) {
+  const r = p.recording!;
+  return (
+    <Ctl
+      label={r.on ? t(p.lang, 'clRecStop') : t(p.lang, 'clRecStart')}
+      extra={r.e2ee ? `, ${t(p.lang, 'clRecE2ee')}` : undefined}
+      icon={<IconRecord />}
+      showText={showText}
+      pressed={r.on}
+      softDisabled={r.e2ee || r.busy}
+      onClick={() => r.onToggle?.()}
+      testId="record"
+    />
   );
 }
 
@@ -214,6 +237,7 @@ export function ControlBar(p: ControlBarProps) {
         {!compact ? (
           <Ctl label={layoutName} extra={`, ${t(lang, 'clLayout')}`} icon={<LayoutIcon />} showText={wide} haspopup expanded={open === 'layout'} onClick={() => toggle('layout')} buttonRef={layoutBtn} testId="layout" />
         ) : null}
+        {!compact && p.recording?.onToggle ? <RecordCtl p={p} showText={wide} /> : null}
         <Ctl label={t(lang, 'clMore')} extra={`, ${t(lang, 'clMoreTitle')}`} icon={<IconMore />} showText={wide} haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
         <span className="dv-sep" aria-hidden="true" />
         <Ctl label={t(lang, 'leave')} icon={<IconPhoneOff />} showText={wide} danger onClick={p.onLeave} testId="leave" />
@@ -269,8 +293,28 @@ export function ControlBar(p: ControlBarProps) {
               {p.waiting ? ` (${p.waiting})` : ''}
             </Button>
           ) : null}
+          {compact && p.recording?.onToggle ? (
+            <Button
+              variant="secondary"
+              icon={<IconRecord size={18} />}
+              fullWidth
+              data-testid="record"
+              aria-pressed={p.recording.on}
+              aria-disabled={p.recording.e2ee || p.recording.busy || undefined}
+              onClick={() => p.recording?.onToggle?.()}
+            >
+              {p.recording.on ? t(lang, 'clRecStop') : t(lang, 'clRecStart')}
+              {p.recording.e2ee ? <span className="dx-sr-only">, {t(lang, 'clRecE2ee')}</span> : null}
+            </Button>
+          ) : null}
           {compact ? <LayoutSwitch lang={lang} value={p.layout} onChange={(m) => p.onLayout(m)} name="dv-layout-m" /> : null}
           {compact && p.fallback ? <p className="dv-pop__note">{t(lang, hintKey(p.fallback))}</p> : null}
+          {p.recording?.onToggle ? (
+            <>
+              {p.recording.e2ee ? <p className="dv-pop__note" data-testid="rec-e2ee-note">{t(lang, 'clRecE2ee')}</p> : <p className="dv-pop__note">{t(lang, 'clRecConsentNote')}</p>}
+              <RecordingList lang={lang} items={p.recording.items ?? []} onDownload={p.recording.onDownload} />
+            </>
+          ) : null}
           <div className="dv-more__switches">
             <Switch
               label={<span className="dv-more__lbl"><IconNoise size={16} />{t(lang, 'noiseSuppression')}</span>}

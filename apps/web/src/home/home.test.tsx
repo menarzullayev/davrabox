@@ -89,7 +89,7 @@ describe('HomeScreen content', () => {
     fireEvent.click(within(row).getByRole('button', { name: 'Copy link' }));
     await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
     const link = (writeText.mock.calls[0] as unknown as [string])[0];
-    expect(link).toMatch(/\/\?join=\d{11}$/);
+    expect(link).toMatch(/\/app\?join=\d{11}$/);
     await waitFor(() => expect(within(row).getByRole('button', { name: 'Link copied' })).toBeTruthy());
   });
 });

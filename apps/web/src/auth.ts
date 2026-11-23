@@ -4,8 +4,8 @@ import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts';
 export const manager = new UserManager({
   authority: `${location.origin}/auth/realms/davrabox`,
   client_id: 'davrabox-web',
-  redirect_uri: `${location.origin}/`,
-  post_logout_redirect_uri: `${location.origin}/`,
+  redirect_uri: `${location.origin}/app`, // the application lives at /app; "/" is the landing page
+  post_logout_redirect_uri: `${location.origin}/app`,
   response_type: 'code', // authorization code + PKCE (S256 is the library default)
   scope: 'openid profile email',
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),

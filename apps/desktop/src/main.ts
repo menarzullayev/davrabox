@@ -5,7 +5,8 @@ import { DEEP_LINK_SCHEME, appOriginFrom, isAllowedNavigation, isAllowedPermissi
 // The desktop app is a hardened shell around the web client. It opens no local port, exposes no Node.js to the page,
 // refuses navigation away from the app origin and only passes a minimal, fixed bridge through the preload script.
 const APP_ORIGIN = appOriginFrom(process.env.DAVRABOX_URL);
-const START_URL = `${APP_ORIGIN}/`;
+// The application lives at /app ("/" is the public landing page).
+const START_URL = `${APP_ORIGIN}/app`;
 
 let win: BrowserWindow | null = null;
 let pendingLink: string | null = null;

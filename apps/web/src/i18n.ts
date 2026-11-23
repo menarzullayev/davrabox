@@ -1,6 +1,9 @@
 import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
 import { homeEn, homeRu, homeUz } from './home/i18n-home';
 import { callEn, callRu, callUz } from './call/i18n-call';
+import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
+import { integrationsEn, integrationsRu, integrationsUz } from './admin/i18n-integrations';
+import { calEn, calRu, calUz } from './calendar/i18n-calendar';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -87,6 +90,9 @@ const uz = {
   uiThemeLight: 'Kunduzgi',
   ...homeUz,
   ...callUz,
+  ...landingUz,
+  ...integrationsUz,
+  ...calUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -173,6 +179,9 @@ const ru: Record<Key, string> = {
   uiThemeLight: 'Светлая',
   ...homeRu,
   ...callRu,
+  ...landingRu,
+  ...integrationsRu,
+  ...calRu,
 };
 
 const en: Record<Key, string> = {
@@ -257,6 +266,9 @@ const en: Record<Key, string> = {
   uiThemeLight: 'Light',
   ...homeEn,
   ...callEn,
+  ...landingEn,
+  ...integrationsEn,
+  ...calEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

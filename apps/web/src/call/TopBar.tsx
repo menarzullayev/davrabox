@@ -1,5 +1,6 @@
 import { t, type Lang } from '../i18n';
 import { Badge, Button, IconLock, IconShieldCheck, IconUnlock, IconUsers, LogoMark } from '../ui';
+import { RecordingBadge } from './RecordingBadge';
 import type { Quality, Role } from './types';
 
 const QUALITY_KEY = { excellent: 'clQExcellent', good: 'clQGood', poor: 'clQPoor', lost: 'clQLost', unknown: 'clQUnknown' } as const;
@@ -31,9 +32,11 @@ export interface TopBarProps {
   locked: boolean;
   onLock?: () => void;
   quality: Quality;
+  /** A recording is running: everyone sees the consent badge. */
+  recording?: boolean;
 }
 
-export function TopBar({ lang, title, count, role, locked, onLock, quality }: TopBarProps) {
+export function TopBar({ lang, title, count, role, locked, onLock, quality, recording }: TopBarProps) {
   const manages = role !== 'member';
   return (
     <header className="callbar dv-topbar">
@@ -42,6 +45,7 @@ export function TopBar({ lang, title, count, role, locked, onLock, quality }: To
       </span>
       <h1 className="dv-title" title={title}>{title}</h1>
       <div className="dv-top-right">
+        <RecordingBadge lang={lang} on={!!recording} />
         {manages ? (
           <Badge tone="gold" className="badge dv-role" data-testid="role-badge">
             {role === 'cohost' ? t(lang, 'cohostBadge') : t(lang, 'hostBadge')}

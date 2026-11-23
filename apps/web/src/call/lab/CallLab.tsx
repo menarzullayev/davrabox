@@ -47,6 +47,7 @@ export default function CallLab() {
   const [panel, setPanel] = useState<PanelId>((['chat', 'people'] as const).find((p) => p === q.get('panel')) ?? null);
   const [connected, setConnected] = useState(q.get('connecting') !== '1');
   const [locked, setLocked] = useState(q.get('locked') === '1');
+  const [recOn, setRecOn] = useState(q.get('rec') === '1');
   const [quality, setQuality] = useState<Quality>((['excellent', 'good', 'poor', 'lost', 'unknown'] as const).find((x) => x === q.get('quality')) ?? 'excellent');
   const [error, setError] = useState<string | null>(q.get('error') === '1' ? 'Xatolik yuz berdi' : null);
   const [mic, setMic] = useState(q.get('mic') !== '0');
@@ -176,6 +177,17 @@ export default function CallLab() {
         }}
         layout={layout}
         onLayout={setLayout}
+        recording={{
+          on: recOn,
+          e2ee: q.get('e2ee') === '1',
+          busy: false,
+          onToggle: role === 'member' ? undefined : () => setRecOn((r) => !r),
+          items: [
+            { id: 'r1', status: 'ready', startedAt: '2026-11-24T10:00:00Z', sizeBytes: 48_234_496 },
+            { id: 'r2', status: 'stopping', startedAt: '2026-11-24T11:30:00Z', sizeBytes: null },
+          ],
+          onDownload: () => undefined,
+        }}
       />
       {q.get('ui') === '0' ? null : (
         <details className="lab-panel" open={q.get('open') === '1'}>

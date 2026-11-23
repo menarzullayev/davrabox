@@ -76,7 +76,7 @@ try {
   if (process.env.E2E_DEBUG) console.log('page now:', page.url(), JSON.stringify(await page.locator('button').allInnerTexts()));
   // Sign in inside the app and join a meeting.
   // The refused navigation above leaves Playwright waiting for a navigation that never completes: reload from the main process.
-  await app.evaluate(({ BrowserWindow }, url) => BrowserWindow.getAllWindows()[0].loadURL(url), `${APP_URL}/`);
+  await app.evaluate(({ BrowserWindow }, url) => BrowserWindow.getAllWindows()[0].loadURL(url), `${APP_URL.replace(/\/+$/, '')}/app`);
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).waitFor({ timeout: 30000 });
   // noWaitAfter: in Electron the click starts a cross-document navigation that Playwright would otherwise wait on.
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click({ noWaitAfter: true });

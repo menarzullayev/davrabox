@@ -1,0 +1,11 @@
+@layer dx {
+  .cal { display: grid; gap: var(--space-4); min-width: 0; }
+  .cal__lead { margin: 0; }
+  .cal__loading { display: flex; align-items: center; gap: var(--space-3); margin: 0; }
+  .cal__form { display: grid; gap: var(--space-4); }
+  .cal__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .cal__connect { display: grid; gap: var(--space-3); justify-items: start; }
+  .cal__connect p { margin: 0; }
+  .cal__done { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); }
+  .cal__link { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; color: inherit; }
+}
