@@ -1,6 +1,6 @@
 # GOAL: Build DavraBox, a corporate video-conferencing platform (full plan, phases 0-7)
 
-Status: APPROVED by the user on 2026-11-23. Execution not started.
+Status: APPROVED by the user on 2026-11-23. In execution: phase 1 closed by user decision (see section 9), phase 2 in progress.
 Source of truth for scope: `E:\projects\davrabox\docs\Korporativ_videokonferens_platformasi_reja.docx` (PDF copy alongside). Read it fully before starting; this file only adds decisions and rules.
 
 ## 1. Mission
@@ -62,3 +62,7 @@ Still requires explicit user approval first (do not do, add to HELD.md and conti
 ## 8. Open items before starting
 - User approval of this file.
 - Confirm trademark/name: `davrabox` is free on .uz, .com and Telegram as of 2026-11-23; Instagram and Facebook not machine-checked; company-registry name unchecked.
+
+## 9. User decisions that amend the rules above
+- 2026-11-23, phase 1 closure: the user decided that phase 1 is closed even though five items stay open (Figma design system, Wazuh SIEM, real-device and external-network testing, admin passkey-or-TOTP, an independent staging environment), because none of them stops the system from working. They stay in `docs/HELD.md` with their blockers and are revisited when they matter (external reachability before any customer pilot, Wazuh in production, Figma with a designer). This is the gate-with-external-dependency case of section 6.3: the software part is done with evidence (see `docs/PROGRESS.md`), the remainder is recorded, not claimed.
+- 2026-11-23, repository and tunnel: the user approved a public GitHub repository and the Cloudflare Tunnel for `davrabox.bugvector.uz`; both are done (see PROGRESS.md).
