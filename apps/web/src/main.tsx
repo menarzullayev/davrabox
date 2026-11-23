@@ -1,6 +1,5 @@
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './App';
 import { isLandingPath, isSignupPath, legacyJoinRedirect } from './routes';
 import '@davrabox/design-tokens/tokens.css';
 import './fonts.css';
@@ -28,6 +27,8 @@ const isLab = Lab !== null && location.pathname.replace(/\/+$/, '') === '/lab/ho
 // other path (/app, /admin) is the application. Old meeting links (/j/<code>, /?join=<code>, /?code=<code>) are sent to /app.
 const legacy = legacyJoinRedirect(location);
 if (legacy) location.replace(legacy);
+// The application (call SDK, admin, OIDC) is a chunk of its own, so a visitor of the landing page does not download it.
+const App = lazy(() => import('./App').then((m) => ({ default: m.App })));
 const Landing = lazy(() => import('./landing/Landing'));
 const Signup = lazy(() => import('./landing/Signup'));
 const isLanding = !legacy && isLandingPath(location.pathname);
@@ -56,7 +57,9 @@ createRoot(document.getElementById('root')!).render(
         <Landing />
       </Suspense>
     ) : legacy ? null : (
-      <App />
+      <Suspense fallback={null}>
+        <App />
+      </Suspense>
     )}
   </StrictMode>,
 );

@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const e2eDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'e2e');
-const suites = readdirSync(e2eDir).filter((f) => f.endsWith('.e2e.mjs'));
+// signup.e2e.mjs starts at the landing page on purpose (a new visitor has no account yet).
+const suites = readdirSync(e2eDir).filter((f) => f.endsWith('.e2e.mjs') && f !== 'signup.e2e.mjs');
 
 describe('e2e suites open the application at /app', () => {
   it('finds the suites', () => expect(suites.length).toBeGreaterThan(5));
