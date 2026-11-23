@@ -27,6 +27,11 @@ export interface NewOrgAdmin {
   password: string;
 }
 
+/** Removes the identity-provider users of a purged organization (personal data must not outlive the trial). */
+export interface OrgUserCleaner {
+  deleteUsersByOrgSlug(orgSlug: string): Promise<void>;
+}
+
 /** The part of the identity provider the public sign-up needs. Keycloak implements it; tests use a fake. */
 export interface SignupIdentity {
   /** Creates the user with the org_slug attribute and the org_admin + member realm roles. Throws IdentityAdminError. */
@@ -84,7 +89,7 @@ interface KcUser {
 const TIMEOUT_MS = 10_000;
 
 /** Keycloak admin REST API client, authenticated as a confidential service account (client_credentials). */
-export class KeycloakAdmin implements IdentityAdmin, SignupIdentity {
+export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner {
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
@@ -206,6 +211,14 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity {
     const users = (await res.json()) as KcUser[];
     for (const user of users) {
       // The slug of a sign-up in progress belongs to exactly one attempt, so this can never hit somebody else's account.
+      if (user.id && user.attributes?.['org_slug']?.[0] === orgSlug) await this.deleteUser(user.id);
+    }
+  }
+
+  async deleteUsersByOrgSlug(orgSlug: string): Promise<void> {
+    const res = await this.call('GET', `/users?q=${encodeURIComponent(`org_slug:${orgSlug}`)}&max=200`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not list the users');
+    for (const user of (await res.json()) as KcUser[]) {
       if (user.id && user.attributes?.['org_slug']?.[0] === orgSlug) await this.deleteUser(user.id);
     }
   }

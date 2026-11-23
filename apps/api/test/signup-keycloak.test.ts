@@ -61,6 +61,18 @@ describe.skipIf(!enabled)('sign-up identity calls (real Keycloak)', () => {
     expect((err as IdentityAdminError).status).toBe(400);
   });
 
+  it('deleteUsersByOrgSlug removes every user of that organization and nobody else', async () => {
+    const slug = `su5-${sfx}`;
+    const a = await kc.createOrgAdmin({ email: `su5a-${sfx}@signup-test.example.org`, name: 'A', orgSlug: slug, password: `Pw-${sfx}-correct-horse` });
+    const b = await kc.createOrgAdmin({ email: `su5b-${sfx}@signup-test.example.org`, name: 'B', orgSlug: slug, password: `Pw-${sfx}-correct-horse` });
+    const other = await kc.createOrgAdmin({ email: `su5c-${sfx}@signup-test.example.org`, name: 'C', orgSlug: `su5x-${sfx}`, password: `Pw-${sfx}-correct-horse` });
+    created.push(a.id, b.id, other.id);
+    await kc.deleteUsersByOrgSlug(slug);
+    expect((await get(`/users/${a.id}`)).status).toBe(404);
+    expect((await get(`/users/${b.id}`)).status).toBe(404);
+    expect((await get(`/users/${other.id}`)).status).toBe(200);
+  });
+
   it('deleteOrgAdminByEmail removes only a user that carries the given org slug', async () => {
     const email = `su4-${sfx}@signup-test.example.org`;
     const { id } = await kc.createOrgAdmin({ email, name: 'Cleanup Me', orgSlug: `su4-${sfx}`, password: `Pw-${sfx}-correct-horse` });

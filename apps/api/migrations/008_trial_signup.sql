@@ -47,10 +47,19 @@ CREATE INDEX signup_events_ip_idx ON signup_events (ip_hash, at) WHERE kind = 'a
 CREATE INDEX signup_events_domain_idx ON signup_events (email_domain, at) WHERE kind = 'attempt';
 CREATE INDEX signup_events_at_idx ON signup_events (at);
 
+-- Slugs of purged organizations. A slug is the tenant key carried in sign-in tokens, so it must never be handed to a
+-- different organization (a leftover identity-provider user of the old one would otherwise land in the new one), and
+-- provision_user must not re-create a purged organization from such a token as a limit-free one.
+CREATE TABLE retired_slugs (
+  slug       text PRIMARY KEY,
+  retired_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE retired_slugs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE trial_signups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE altcha_used   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signup_events ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON trial_signups, altcha_used, signup_events FROM PUBLIC, davra_app;
+REVOKE ALL ON trial_signups, altcha_used, signup_events, retired_slugs FROM PUBLIC, davra_app;
 REVOKE ALL ON SEQUENCE signup_events_id_seq FROM PUBLIC, davra_app;
 
 -- The functions below run as the table owner. organizations and org_licenses have FORCE row-level security with
@@ -60,6 +69,7 @@ BEGIN
   EXECUTE format('CREATE POLICY signup_owner_insert_orgs ON organizations FOR INSERT TO %I WITH CHECK (true)', current_user);
   EXECUTE format('CREATE POLICY signup_owner_delete_orgs ON organizations FOR DELETE TO %I USING (true)', current_user);
   EXECUTE format('CREATE POLICY signup_owner_licenses ON org_licenses FOR ALL TO %I USING (true) WITH CHECK (true)', current_user);
+  EXECUTE format('CREATE POLICY signup_owner_read_meetings ON meetings FOR SELECT TO %I USING (true)', current_user);
 END $$;
 
 -- Marks a solved challenge as used. Returns false when it was used before (replay).
@@ -138,7 +148,7 @@ BEGIN
 
   LOOP
     v_try := CASE WHEN v_i = 0 THEN v_base ELSE v_base || '-' || (v_i + 1)::text END;
-    IF v_try IN ('admin', 'api', 'app', 'www', 'auth', 'demo', 'status') THEN
+    IF v_try IN ('admin', 'api', 'app', 'www', 'auth', 'demo', 'status') OR EXISTS (SELECT 1 FROM retired_slugs t WHERE t.slug = v_try) THEN
       v_i := v_i + 1; CONTINUE;
     END IF;
     INSERT INTO organizations (slug, name) VALUES (v_try, left(p_name, 200)) ON CONFLICT (slug) DO NOTHING RETURNING id INTO v_id;
@@ -168,19 +178,72 @@ BEGIN
     INSERT INTO signup_events (kind, reason, org_slug) VALUES ('retention', 'trial_purged', r.slug);
     INSERT INTO audit_log (org_id, actor_id, action, target) VALUES (r.id, NULL, 'trial.purge', r.slug);
     DELETE FROM organizations WHERE id = r.id;
+    INSERT INTO retired_slugs (slug) VALUES (r.slug) ON CONFLICT DO NOTHING;
     org_slug := r.slug;
     RETURN NEXT;
   END LOOP;
   DELETE FROM signup_events WHERE kind IN ('attempt', 'refusal') AND at < now() - interval '30 days';
 END $$;
 
+-- provision_user v4 (replaces 006): identical, except that it refuses to create an organization whose slug was retired by
+-- the trial retention job (SQLSTATE DB001; the API answers 403). Existing organizations are not affected.
+CREATE OR REPLACE FUNCTION provision_user(p_org_slug text, p_org_name text, p_sub text, p_email text, p_name text, p_role text)
+RETURNS TABLE (org_id uuid, user_id uuid, role text, disabled boolean)
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
+#variable_conflict use_column
+DECLARE v_org uuid; v_user uuid; v_role text; v_disabled boolean; v_limit integer; v_used integer;
+BEGIN
+  IF p_role NOT IN ('org_admin', 'member') THEN RAISE EXCEPTION 'invalid role'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM organizations o WHERE o.slug = p_org_slug)
+     AND EXISTS (SELECT 1 FROM retired_slugs t WHERE t.slug = p_org_slug) THEN
+    RAISE EXCEPTION 'organization closed' USING ERRCODE = 'DB001';
+  END IF;
+  INSERT INTO organizations (slug, name) VALUES (p_org_slug, p_org_name)
+    ON CONFLICT (slug) DO NOTHING;
+  SELECT o.id INTO v_org FROM organizations o WHERE o.slug = p_org_slug;
+
+  SELECT u.id, u.role, u.disabled INTO v_user, v_role, v_disabled
+    FROM users u WHERE u.org_id = v_org AND u.external_sub = p_sub;
+
+  IF v_user IS NULL THEN
+    PERFORM pg_advisory_xact_lock(hashtextextended('seats:' || v_org::text, 0));
+    SELECT l.seats_limit INTO v_limit FROM org_licenses l WHERE l.org_id = v_org;
+    IF v_limit IS NOT NULL THEN
+      SELECT count(*) INTO v_used FROM users u WHERE u.org_id = v_org AND NOT u.disabled;
+      IF v_used >= v_limit THEN
+        RAISE EXCEPTION 'seat limit reached' USING ERRCODE = '53400';
+      END IF;
+    END IF;
+    INSERT INTO users (org_id, external_sub, email, display_name, role)
+      VALUES (v_org, p_sub, p_email, p_name, p_role)
+      ON CONFLICT (org_id, external_sub)
+      DO UPDATE SET email = EXCLUDED.email, display_name = EXCLUDED.display_name, role = EXCLUDED.role;
+  ELSIF NOT v_disabled THEN
+    UPDATE users u SET email = p_email, display_name = p_name, role = p_role WHERE u.id = v_user;
+  END IF;
+
+  SELECT u.id, u.role, u.disabled INTO v_user, v_role, v_disabled
+    FROM users u WHERE u.org_id = v_org AND u.external_sub = p_sub;
+  RETURN QUERY SELECT v_org, v_user, v_role, v_disabled;
+END $$;
+
+-- For the room watchdog (no tenant context, it sweeps every room in the media server): the time limit of the given
+-- meetings, for meetings of organizations that have one. A meeting without a limit is not returned.
+CREATE FUNCTION trial_room_limits(p_meeting_ids uuid[]) RETURNS TABLE (meeting_id uuid, org_id uuid, code text, max_minutes integer)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
+  SELECT m.id, m.org_id, m.code, l.max_meeting_minutes FROM meetings m JOIN org_licenses l ON l.org_id = m.org_id
+   WHERE m.id = ANY (p_meeting_ids) AND l.max_meeting_minutes IS NOT NULL
+$$;
+
 REVOKE ALL ON FUNCTION altcha_consume(text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION signup_admit(text, text, integer, integer, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION signup_event_add(text, text, text, text, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION create_trial_org(text, text, text, text, integer, integer, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION purge_expired_trials(integer, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION trial_room_limits(uuid[]) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION altcha_consume(text) TO davra_app;
 GRANT EXECUTE ON FUNCTION signup_admit(text, text, integer, integer, integer) TO davra_app;
 GRANT EXECUTE ON FUNCTION signup_event_add(text, text, text, text, text) TO davra_app;
 GRANT EXECUTE ON FUNCTION create_trial_org(text, text, text, text, integer, integer, integer) TO davra_app;
 GRANT EXECUTE ON FUNCTION purge_expired_trials(integer, integer) TO davra_app;
+GRANT EXECUTE ON FUNCTION trial_room_limits(uuid[]) TO davra_app;

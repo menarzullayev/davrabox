@@ -9,6 +9,7 @@ import type { AuthedUser } from '../auth/auth.guard.js';
 import { joinResults, meetingsCreated } from '../metrics.js';
 import { livekitUrlFor } from './public-url.js';
 import { loadPolicies } from '../admin/policies.js';
+import { TrialLimits } from '../signup/trial.guard.js';
 
 export class MeetingError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -58,12 +59,15 @@ function newCode(): string {
 export class MeetingsService {
   private readonly limiter = new FailureLimiter(5, 15 * 60 * 1000);
   private readonly rooms: RoomServiceClient;
+  private readonly trial: TrialLimits;
 
   constructor(private readonly pool: Pool, private readonly cfg: Config) {
     this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET);
+    this.trial = new TrialLimits(pool);
   }
 
   async create(user: AuthedUser, input: CreateMeetingInput) {
+    await this.trial.assertTrialActive(user.orgId); // 402 once the organization's trial is over
     // Organization policies (admin console): a required passcode is enforced, the waiting-room default applies when the client is silent.
     const policy = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
     if (policy.requirePasscode && !input.passcode) throw new MeetingError(400, 'this organization requires a meeting passcode');
@@ -118,6 +122,7 @@ export class MeetingsService {
 
   private async joinInner(user: AuthedUser, code: string, passcode?: string, requestHost?: string): Promise<JoinResult> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
+    await this.trial.assertTrialActive(user.orgId);
     const key = `${user.userId}:${code}`;
     if (this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
 
@@ -160,6 +165,7 @@ export class MeetingsService {
   /** The waiting participant polls this until the host decides; an admission returns the token. */
   async requestStatus(user: AuthedUser, code: string, requestId: string, requestHost?: string) {
     if (!CODE_RE.test(code) || !UUID_RE.test(requestId)) throw new MeetingError(404, 'not found');
+    await this.trial.assertTrialActive(user.orgId);
     const found = await withTenant(this.pool, user.orgId, async (c) => {
       const meeting = await this.meetingByCode(c, code, user.userId);
       const r = await c.query('SELECT status FROM join_requests WHERE id = $1 AND meeting_id = $2 AND user_id = $3', [
@@ -330,6 +336,17 @@ export class MeetingsService {
     return r.rows[0] as MeetingRow;
   }
 
+  /** Friendly early refusal for a trial room that is full (the media server enforces the cap too, at connect time). */
+  private async assertRoomNotFull(roomName: string, userId: string, max: number): Promise<void> {
+    let present: Array<{ identity: string }> = [];
+    try {
+      present = await this.rooms.listParticipants(roomName);
+    } catch {
+      return; // the room does not exist yet (or the server is unreachable): nothing to count
+    }
+    if (present.length >= max && !present.some((p) => p.identity === userId)) throw new MeetingError(403, 'meeting is full');
+  }
+
   private audit(c: PoolClient, user: AuthedUser, action: string, target: string) {
     return c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [
       user.orgId,
@@ -344,12 +361,15 @@ export class MeetingsService {
     await withTenant(this.pool, user.orgId, (c) =>
       c.query('INSERT INTO meeting_access (meeting_id, user_id, org_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [meeting.id, user.userId, user.orgId]),
     );
-    const { maxParticipants } = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
-    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants });
+    // Participant cap and (for trials) the meeting time limit: the room is closed by TrialRoomSweeper, and the token
+    // never outlives the limit.
+    const limits = await this.trial.effectiveLimits(user.orgId);
+    if (limits.trial) await this.assertRoomNotFull(meeting.id, user.userId, limits.maxParticipants);
+    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: limits.maxParticipants });
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,
-      ttl: this.cfg.MEETING_TOKEN_TTL_SECONDS,
+      ttl: limits.maxMinutes ? Math.min(this.cfg.MEETING_TOKEN_TTL_SECONDS, limits.maxMinutes * 60) : this.cfg.MEETING_TOKEN_TTL_SECONDS,
     });
     at.addGrant({
       roomJoin: true,
