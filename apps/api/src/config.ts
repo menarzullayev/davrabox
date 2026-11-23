@@ -34,7 +34,18 @@ const schema = z.object({
   API_PORT: z.coerce.number().int().default(3000),
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
   MEETING_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).max(900).default(600),
-});
+  // SIEM forwarding of audit rows (off unless the URL is set). https only; plain http is accepted for localhost (tests).
+  AUDIT_WEBHOOK_URL: z
+    .string()
+    .url()
+    .refine((u) => {
+      const x = new URL(u);
+      return x.protocol === 'https:' || (x.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(x.hostname));
+    }, 'must be https (http only for localhost)')
+    .optional(),
+  AUDIT_WEBHOOK_SECRET: z.string().min(16).optional(),
+  AUDIT_FORWARD_INTERVAL_MS: z.coerce.number().int().min(100).max(3_600_000).default(5000),
+}).refine((c) => !c.AUDIT_WEBHOOK_URL || !!c.AUDIT_WEBHOOK_SECRET, { path: ['AUDIT_WEBHOOK_SECRET'], message: 'required when AUDIT_WEBHOOK_URL is set' });
 
 export type Config = z.infer<typeof schema>;
 
