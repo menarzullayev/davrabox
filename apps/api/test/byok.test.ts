@@ -287,6 +287,21 @@ describe('BYOK configuration', () => {
     expect((await auditActions(o.admin.orgId)).filter((a) => a === 'kms.denied').length).toBe(5);
   });
 
+  it('another organization never sees this configuration (row-level security)', async () => {
+    const a = await setupOrg('iso-a');
+    const b = await setupOrg('iso-b', false);
+    expect(await byok.get(b.admin)).toEqual({ configured: false });
+    const c = await pool.connect();
+    try {
+      await c.query('BEGIN');
+      await c.query("SELECT set_config('app.current_org', $1, true)", [b.admin.orgId]);
+      expect((await c.query('SELECT 1 FROM org_kms WHERE org_id = $1', [a.admin.orgId])).rowCount).toBe(0);
+    } finally {
+      await c.query('ROLLBACK');
+      c.release();
+    }
+  });
+
   it('refuses a configuration whose key cannot be used and stores nothing', async () => {
     const o = await setupOrg('bad', false);
     expect(await status(byok.put(o.admin, { addr: VAULT!, token: 'hvs.wrong', keyName: o.key }))).toBe(422);
