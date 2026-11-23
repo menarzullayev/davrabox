@@ -16,10 +16,13 @@ import { ADMIN, AdminController, AdminGuard } from './admin/admin.controller.js'
 import { AdminService } from './admin/admin.service.js';
 import { KeycloakAdmin } from './admin/identity-admin.js';
 
+import { ExtApiModule } from './ext-api/ext-api.module.js';
+
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
+  imports: [ExtApiModule],
   controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
