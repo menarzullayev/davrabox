@@ -3,7 +3,9 @@ import argon2 from 'argon2';
 import type { Pool, PoolClient } from 'pg';
 import { AccessToken, RoomServiceClient, TrackType } from 'livekit-server-sdk';
 import { withTenant } from '../db/tenant.js';
-import { FailureLimiter } from '../common/rate-limiter.js';
+import { livekitClientOptions } from '../common/timeouts.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import type { Config } from '../config.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { joinResults, meetingsCreated } from '../metrics.js';
@@ -62,12 +64,14 @@ function newCode(): string {
 }
 
 export class MeetingsService {
-  private readonly limiter = new FailureLimiter(5, 15 * 60 * 1000);
+  private readonly limiter: RateLimiter;
   private readonly rooms: RoomServiceClient;
   private readonly trial: TrialLimits;
 
-  constructor(private readonly pool: Pool, private readonly cfg: Config) {
-    this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET);
+  constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
+    // Join/passcode failures: 5 per user and meeting code in 15 minutes, shared between API instances when Redis is configured.
+    this.limiter = rate.limiter({ name: 'join', max: 5, windowMs: 15 * 60 * 1000 });
+    this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions());
     this.trial = new TrialLimits(pool);
   }
 
@@ -129,7 +133,7 @@ export class MeetingsService {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     await this.trial.assertTrialActive(user.orgId);
     const key = `${user.userId}:${code}`;
-    if (this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
+    if (await this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
 
     const decision = await withTenant(this.pool, user.orgId, async (c) => {
       const meeting = await this.meetingByCode(c, code, user.userId);
@@ -144,11 +148,11 @@ export class MeetingsService {
     if (meeting.passcode_hash && !manages) {
       const ok = passcode ? await argon2.verify(meeting.passcode_hash, passcode) : false;
       if (!ok) {
-        this.limiter.recordFailure(key);
+        await this.limiter.recordFailure(key);
         throw new MeetingError(403, 'wrong passcode');
       }
     }
-    this.limiter.reset(key);
+    await this.limiter.reset(key);
 
     if (meeting.waiting_room && !manages) {
       const state = await withTenant(this.pool, user.orgId, async (c) => {

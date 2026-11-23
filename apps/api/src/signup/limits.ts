@@ -1,5 +1,4 @@
 import { createHmac } from 'node:crypto';
-import { isIP } from 'node:net';
 import { z } from 'zod';
 import { DEFAULT_MAX_NUMBER } from './altcha.js';
 
@@ -62,40 +61,5 @@ const BIG_PROVIDERS = new Set([
 ]);
 export const domainLimit = (domain: string, base: number): number => (BIG_PROVIDERS.has(domain) ? base * 10 : base);
 
-interface ReqLike {
-  headers: Record<string, string | string[] | undefined>;
-  socket?: { remoteAddress?: string };
-}
-
-function clean(ip: string): string | null {
-  const trimmed = ip.trim().slice(0, 100).replace(/^::ffff:/i, '');
-  const zone = trimmed.indexOf('%');
-  const v = zone === -1 ? trimmed : trimmed.slice(0, zone);
-  return isIP(v) ? v : null;
-}
-
-/**
- * The client address as seen by the nearest trusted proxy: the `hops`-th entry from the RIGHT of X-Forwarded-For (entries
- * on the left are client-supplied and can be forged). Falls back to the socket address when the header is absent,
- * shorter than expected or not an address.
- */
-export function clientIp(req: ReqLike, hops: number): string {
-  const raw = req.headers['x-forwarded-for'];
-  const header = Array.isArray(raw) ? raw.join(',') : raw ?? '';
-  const parts = header.split(',').map((p) => p.trim()).filter(Boolean);
-  if (hops >= 1 && parts.length >= hops) {
-    const v = clean(parts[parts.length - hops]!);
-    if (v) return v;
-  }
-  return clean(req.socket?.remoteAddress ?? '') ?? '0.0.0.0';
-}
-
-/** Rate-limit key of an address: IPv4 as is, IPv6 reduced to its /64 (one customer line owns a whole /64). */
-export function ipKey(ip: string): string {
-  if (isIP(ip) !== 6) return ip;
-  const [head, tail = ''] = ip.split('::');
-  const h = head ? head.split(':') : [];
-  const t = tail ? tail.split(':') : [];
-  const full = ip.includes('::') ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t] : h;
-  return full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, '').toLowerCase()).join(':') + '::/64';
-}
+// One client-address rule for every limiter lives in rate-limit/client-ip.ts (same behaviour as before, now shared).
+export { clientIp, ipKey } from '../rate-limit/client-ip.js';

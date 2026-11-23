@@ -3,6 +3,8 @@ import { Readable } from 'node:stream';
 import type { Pool, PoolClient } from 'pg';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { withTenant } from '../db/tenant.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import { FORMATS, type AuditItem, type ExportFormat } from './format.js';
 
 export class AuditError extends Error {
@@ -34,24 +36,8 @@ export interface AuditOptions {
   exportsPerMinute?: number;
   exportChunk?: number;
   now?: () => number;
-}
-
-/** Sliding-window limiter: at most `max` hits per key within `windowMs` (in-memory, per API process). */
-export class WindowLimiter {
-  private readonly hits = new Map<string, number[]>();
-  constructor(private readonly max: number, private readonly windowMs: number, private readonly now: () => number = Date.now) {}
-  /** Records a hit and returns 0 when allowed, otherwise the number of milliseconds to wait. */
-  hit(key: string): number {
-    const t = this.now();
-    const recent = (this.hits.get(key) ?? []).filter((x) => t - x < this.windowMs);
-    if (recent.length >= this.max) {
-      this.hits.set(key, recent);
-      return this.windowMs - (t - recent[0]!);
-    }
-    recent.push(t);
-    this.hits.set(key, recent);
-    return 0;
-  }
+  /** Shared limiter store (Redis-backed when REDIS_URL is set); defaults to an in-process one. */
+  rate?: RateLimitService;
 }
 
 function str(q: Record<string, unknown>, key: string, max: number): string | undefined {
@@ -135,7 +121,7 @@ function toItem(r: Row): AuditItem {
 
 export class AuditService {
   private readonly key: Buffer;
-  private readonly limiter: WindowLimiter;
+  private readonly limiter: RateLimiter;
   readonly cap: number;
   private readonly chunk: number;
 
@@ -144,7 +130,7 @@ export class AuditService {
     this.key = createHmac('sha256', secret).update('davrabox.audit.cursor.v1').digest();
     this.cap = opts.exportCap ?? EXPORT_ROW_CAP;
     this.chunk = opts.exportChunk ?? 1000;
-    this.limiter = new WindowLimiter(opts.exportsPerMinute ?? 5, 60_000, opts.now);
+    this.limiter = (opts.rate ?? RateLimitService.memory({ now: opts.now })).limiter({ name: 'audit-export', max: opts.exportsPerMinute ?? 5, windowMs: 60_000 });
   }
 
   private mac(orgId: string, payload: string): string {
@@ -210,11 +196,8 @@ export class AuditService {
     if (typeof formatRaw !== 'string' || !(formatRaw in FORMATS)) throw new AuditError(400, 'format must be csv, json or cef');
     const format = formatRaw as ExportFormat;
     const f = parseFilters(q);
-    const wait = this.limiter.hit(user.userId);
-    if (wait > 0) {
-      const secs = Math.ceil(wait / 1000);
-      throw new AuditError(429, 'too many exports, try again later', { 'Retry-After': String(secs) });
-    }
+    const d = await this.limiter.hit(user.userId);
+    if (!d.allowed) throw new AuditError(429, 'too many exports, try again later', { 'Retry-After': String(d.retryAfterSec) });
     const total = await withTenant(this.pool, user.orgId, async (c) => {
       const params: unknown[] = [];
       const w = where(f, params);
