@@ -49,7 +49,9 @@ function useSize<T extends HTMLElement>(): [React.RefObject<T>, Size] {
 export function Stage({ lang, requested, participants, featuredId, sharer, renderMedia, manage, onResolved }: StageProps) {
   const [ref, size] = useSize<HTMLDivElement>();
   const reduced = useReducedMotion();
-  const ids = useMemo(() => participants.map((p) => p.id), [participants]);
+  // Stable identity while nobody joins or leaves: the layout is recomputed for the people, not for every re-render.
+  const idKey = participants.map((p) => p.id).join('\u0000');
+  const ids = useMemo(() => (idKey ? idKey.split('\u0000') : []), [idKey]);
   const resolved = useMemo(() => resolveMode(requested, participants.length, size), [requested, participants.length, size]);
   // One layout computation per change of inputs: nothing here reads the DOM.
   const layout = useMemo(

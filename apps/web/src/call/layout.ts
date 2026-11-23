@@ -134,7 +134,7 @@ function davra(input: LayoutInput): LayoutResult {
   const H = size.height;
   const short = Math.min(W, H);
   const margin = clamp(short * 0.025, 6, 20);
-  const gap = clamp(short * 0.014, 4, 12);
+  const gap = clamp(short * 0.024, 8, 20); // air between the ring and the centre stage
   const n = participants.length;
   const featured = !hasShare ? (input.featuredId && participants.includes(input.featuredId) ? input.featuredId : (participants[1] ?? participants[0] ?? null)) : null;
   const placements: Placement[] = [];

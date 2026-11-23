@@ -567,6 +567,7 @@
     .dv-request { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   }
   @media (max-width: 440px) {
+    .dv-mark { display: none; }
     .dv-secure { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); border: 0; }
   }
   @media (max-width: 559px) {

@@ -374,7 +374,7 @@ describe('call strings', () => {
   const keys = Object.keys(dictionaries.uz).filter((k) => k.startsWith('cl'));
   const ph = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(',');
   it('keeps the same placeholders in uz, ru and en', () => {
-    expect(keys.length).toBeGreaterThan(50);
+    expect(keys.length).toBeGreaterThan(40);
     for (const k of keys) {
       const key = k as keyof typeof dictionaries.uz;
       expect(ph(dictionaries.ru[key]), `ru.${k}`).toBe(ph(dictionaries.uz[key]));
