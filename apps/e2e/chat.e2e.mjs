@@ -28,7 +28,7 @@ async function open(username, password) {
   return { ctx, page, username };
 }
 const joinByCode = async (page, code) => {
-  const form = page.locator('form').nth(1);
+  const form = page.locator('[data-testid=join-form]');
   await form.locator('input[inputmode=numeric]').fill(code);
   await form.getByRole('button').click();
   await page.waitForSelector('.call', { timeout: 30000 });
@@ -44,7 +44,8 @@ try {
   const pc = await open(c.username, c.password);
 
   const title = `Chat ${Date.now()}`;
-  await host.page.fill('input[placeholder]:not([type=password])', title);
+  await host.page.getByTestId('new-meeting').click();
+  await host.page.fill('[data-testid=meeting-title]', title);
   await host.page.getByTestId('waiting-room').uncheck(); // keep this test about chat, not admission
   await host.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
   await host.page.waitForSelector(`li:has-text("${title}")`);

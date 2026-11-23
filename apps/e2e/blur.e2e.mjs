@@ -37,12 +37,13 @@ try {
   await page.click('#kc-login');
   await page.waitForSelector('.home', { timeout: 30000 });
   const title = `Blur ${Date.now()}`;
-  await page.fill('input[placeholder]:not([type=password])', title);
+  await page.getByTestId('new-meeting').click();
+  await page.fill('[data-testid=meeting-title]', title);
   await page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
   await page.waitForSelector(`li:has-text("${title}")`);
   const code = (await page.locator(`li:has-text("${title}") .code`).innerText()).replace(/\D/g, '');
-  await page.locator('form').nth(1).locator('input[inputmode=numeric]').fill(code);
-  await page.locator('form').nth(1).getByRole('button').click();
+  await page.locator('[data-testid=join-form]').locator('input[inputmode=numeric]').fill(code);
+  await page.locator('[data-testid=join-form]').getByRole('button').click();
   await page.waitForSelector('.call', { timeout: 30000 });
   await page.waitForFunction(() => document.querySelector('.tile[data-identity] video')?.videoWidth > 0, null, { timeout: 30000 });
   foreign.clear(); // only requests made from now on matter: the blur assets

@@ -1,0 +1,107 @@
+import { useEffect, useState, type FormEvent } from 'react';
+import { Alert, Button, Dialog, Switch, TextField } from '../ui';
+import { t, type Lang } from '../i18n';
+import type { Meeting } from '../api';
+import { tx } from './text';
+
+export interface NewMeetingData {
+  title: string;
+  passcode?: string;
+  waitingRoom: boolean;
+}
+
+export interface NewMeetingDialogProps {
+  lang: Lang;
+  open: boolean;
+  onClose: () => void;
+  /** Resolves with the created meeting; a rejection shows the generic error inside the dialog. */
+  onCreate: (data: NewMeetingData) => Promise<Meeting>;
+  onCreated: (m: Meeting) => void;
+}
+
+const FORM_ID = 'hm-new-form';
+
+export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated }: NewMeetingDialogProps) {
+  const [title, setTitle] = useState('');
+  const [passcode, setPasscode] = useState('');
+  const [waitingRoom, setWaitingRoom] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setFailed(false);
+    // showModal() focuses the close button first: put the caret in the title field once the dialog is shown.
+    const raf = requestAnimationFrame(() => document.getElementById('hm-new-title')?.focus());
+    return () => cancelAnimationFrame(raf);
+  }, [open]);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setFailed(false);
+    try {
+      const m = await onCreate({ title: title.trim(), passcode: passcode || undefined, waitingRoom });
+      setTitle('');
+      setPasscode('');
+      setWaitingRoom(true);
+      onCreated(m);
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      closeLabel={t(lang, 'uiClose')}
+      title={tx(lang, 'hNewTitle')}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            {t(lang, 'cancel')}
+          </Button>
+          <Button variant="primary" type="submit" form={FORM_ID} loading={busy}>
+            {t(lang, 'create')}
+          </Button>
+        </>
+      }
+    >
+      <form id={FORM_ID} className="hm-new__form" onSubmit={(e) => void submit(e)}>
+        <p className="hm-new__lead">{tx(lang, 'hNewLead')}</p>
+        {failed ? <Alert tone="danger">{t(lang, 'errGeneric')}</Alert> : null}
+        <TextField
+          label={t(lang, 'title')}
+          id="hm-new-title"
+          required
+          maxLength={200}
+          data-testid="meeting-title"
+          placeholder={tx(lang, 'hNewTitlePlaceholder')}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TextField
+          label={t(lang, 'passcode')}
+          type="password"
+          minLength={6}
+          maxLength={64}
+          autoComplete="new-password"
+          hint={tx(lang, 'hNewPasscodeHint')}
+          value={passcode}
+          onChange={(e) => setPasscode(e.target.value)}
+        />
+        <Switch
+          label={t(lang, 'waitingRoom')}
+          hint={tx(lang, 'hNewWaitingHint')}
+          checked={waitingRoom}
+          data-testid="waiting-room"
+          onChange={(e) => setWaitingRoom(e.target.checked)}
+        />
+      </form>
+    </Dialog>
+  );
+}

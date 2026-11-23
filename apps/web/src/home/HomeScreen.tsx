@@ -1,0 +1,188 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Meeting } from '../api';
+import { t, type Key, type Lang } from '../i18n';
+import { Alert, Avatar, Button, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
+import { JoinCard, type JoinCardHandle } from './JoinCard';
+import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
+import { SettingsMenu } from './SettingsMenu';
+import { TimelineView, copyJoinLink } from './Timeline';
+import { displayName, firstName, formatDay, greetingSlot, groupMeetings, type ProfileLike, type TimelineMeeting } from './logic';
+import { dayNames, tx } from './text';
+
+export interface HomeScreenProps {
+  lang: Lang;
+  onLang: (l: Lang) => void;
+  theme: ThemeChoice;
+  onTheme: (v: ThemeChoice) => void;
+  relayMode: boolean;
+  onRelayMode: (v: boolean) => void;
+  profile: ProfileLike | undefined;
+  isAdmin: boolean;
+  /** null while the first load is running. */
+  meetings: Meeting[] | null;
+  error: Key | null;
+  onDismissError: () => void;
+  /** Code carried by ?join= or kept across the sign-in redirect. */
+  initialCode: string;
+  onJoin: (code: string, passcode?: string) => Promise<void>;
+  onCreate: (data: NewMeetingData) => Promise<Meeting>;
+  onSignOut: () => void;
+  /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
+  now?: Date;
+}
+
+const GREETING: Record<ReturnType<typeof greetingSlot>, Key> = {
+  morning: 'hGreetMorning',
+  day: 'hGreetDay',
+  evening: 'hGreetEvening',
+  night: 'hGreetNight',
+};
+
+function useClock(fixed?: Date): Date {
+  const [clock, setClock] = useState(() => fixed ?? new Date());
+  useEffect(() => {
+    if (fixed) {
+      setClock(fixed);
+      return;
+    }
+    const id = setInterval(() => setClock(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, [fixed]);
+  return clock;
+}
+
+function HomeBody(props: HomeScreenProps) {
+  const { lang, meetings, onJoin, onCreate } = props;
+  const toast = useToast();
+  const clock = useClock(props.now);
+  const joinCard = useRef<JoinCardHandle>(null);
+  const [dialog, setDialog] = useState(false);
+  const [joiningCode, setJoiningCode] = useState<string | null>(null);
+
+  const timeline = useMemo(() => (meetings ? groupMeetings(meetings, clock) : null), [meetings, clock]);
+  const name = firstName(props.profile);
+  const greeting = tx(lang, GREETING[greetingSlot(clock)]);
+
+  const joinRow = useCallback(
+    async (m: TimelineMeeting) => {
+      // A protected meeting needs the passcode first: hand over to the join form instead of failing on the server.
+      if (m.has_passcode && !m.is_host) {
+        joinCard.current?.askPasscode(m.code);
+        document.getElementById('hm-join-h')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+        return;
+      }
+      setJoiningCode(m.code);
+      try {
+        await onJoin(m.code);
+      } finally {
+        setJoiningCode(null);
+      }
+    },
+    [onJoin],
+  );
+
+  const copyRow = useCallback(
+    async (m: TimelineMeeting) => {
+      const ok = await copyJoinLink(location.origin, m.code);
+      if (!ok) toast({ tone: 'danger', title: tx(lang, 'hCopyFailed') });
+      return ok;
+    },
+    [lang, toast],
+  );
+
+  return (
+    <>
+      <main id="hm-main" className="home hm-main" tabIndex={-1}>
+        <section className="hm-hero">
+          <p className="hm-date">{formatDay(clock, dayNames(lang))}</p>
+          <h1 className="hm-greeting">{name ? `${greeting}, ${name}` : greeting}</h1>
+        </section>
+
+        {props.error ? (
+          <Alert tone="danger" onDismiss={props.onDismissError} dismissLabel={t(lang, 'uiDismiss')} className="hm-error">
+            {t(lang, props.error)}
+          </Alert>
+        ) : null}
+
+        <div className="hm-actions">
+          <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} />
+          <section className="hm-card hm-new" aria-labelledby="hm-new-h">
+            <h2 className="hm-card__title" id="hm-new-h">
+              {tx(lang, 'hNewTitle')}
+            </h2>
+            <p className="hm-card__lead">{tx(lang, 'hNewLead')}</p>
+            <Button variant="highlight" size="lg" fullWidth icon={<IconPlus />} data-testid="new-meeting" onClick={() => setDialog(true)}>
+              {tx(lang, 'hNewAction')}
+            </Button>
+          </section>
+        </div>
+
+        <section className="hm-timeline" aria-labelledby="hm-meetings-h">
+          <h2 className="hm-section" id="hm-meetings-h">
+            {t(lang, 'meetings')}
+          </h2>
+          <TimelineView lang={lang} timeline={timeline} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} />
+        </section>
+
+        <footer className="hm-footer">{tx(lang, 'hBrandLine')}</footer>
+      </main>
+
+      <NewMeetingDialog
+        lang={lang}
+        open={dialog}
+        onClose={() => setDialog(false)}
+        onCreate={onCreate}
+        onCreated={(m) => {
+          setDialog(false);
+          toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: m.code.replace(/(\d{3})(\d{4})(\d+)/, '$1 $2 $3') }) });
+        }}
+      />
+    </>
+  );
+}
+
+/** The signed-in home screen: greeting, join by code or link, new meeting, and today's meetings as a timeline. */
+export function HomeScreen(props: HomeScreenProps) {
+  const { lang } = props;
+  const who = displayName(props.profile);
+  return (
+    <ToastProvider dismissLabel={t(lang, 'uiDismiss')} regionLabel={tx(lang, 'hToasts')}>
+      <div className="hm-page">
+        <a className="hm-skip" href="#hm-main">
+          {tx(lang, 'hSkip')}
+        </a>
+        <header className="hm-header">
+          <div className="hm-header__in">
+            <Logo height={30} title={t(lang, 'appName')} />
+            <span className="hm-spacer" />
+            {props.isAdmin ? (
+              <a href="/admin" className="dx-btn hm-admin" data-variant="ghost" data-size="sm" data-testid="admin-link">
+                <span className="dx-btn__label">
+                  <IconShieldCheck size={18} />
+                  {t(lang, 'admLink')}
+                </span>
+              </a>
+            ) : null}
+            {who ? (
+              <span className="hm-who" title={who}>
+                <Avatar name={who} size={32} decorative />
+                <span className="hm-who__name">{who}</span>
+              </span>
+            ) : null}
+            <SettingsMenu
+              lang={lang}
+              onLang={props.onLang}
+              theme={props.theme}
+              onTheme={props.onTheme}
+              relay={{ value: props.relayMode, onChange: props.onRelayMode }}
+            />
+            <Button variant="ghost" size="sm" icon={<IconLogout size={18} />} className="hm-signout" onClick={props.onSignOut}>
+              <span className="hm-signout__label">{t(lang, 'signOut')}</span>
+            </Button>
+          </div>
+        </header>
+        <HomeBody {...props} />
+      </div>
+    </ToastProvider>
+  );
+}

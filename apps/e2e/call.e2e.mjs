@@ -59,7 +59,8 @@ try {
 
   const title = `E2E ${Date.now()}`;
   const meetingPass = 'e2e-pass-123';
-  await admin.page.fill('input[placeholder]:not([type=password])', title);
+  await admin.page.getByTestId('new-meeting').click();
+  await admin.page.fill('[data-testid=meeting-title]', title);
   await admin.page.fill('input[type=password][minlength]', meetingPass);
   await admin.page.getByRole('button', { name: /Create|Yaratish|Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ/ }).click();
   await admin.page.waitForSelector(`li:has-text("${title}")`);
@@ -68,19 +69,19 @@ try {
 
   // Host joins by code (no passcode needed for the host).
   await admin.page.fill('input[inputmode=numeric]', code);
-  await admin.page.locator('form').nth(1).getByRole('button').click();
+  await admin.page.locator('[data-testid=join-form]').getByRole('button').click();
   await admin.page.waitForSelector('.call', { timeout: 20000 });
 
   // Wrong passcode is refused with a visible error, no call screen.
   await user.page.fill('input[inputmode=numeric]', code);
-  await user.page.locator('form').nth(1).locator('input[type=password]').fill('definitely-wrong');
-  await user.page.locator('form').nth(1).getByRole('button').click();
+  await user.page.locator('[data-testid=join-form]').locator('input[type=password]').fill('definitely-wrong');
+  await user.page.locator('[data-testid=join-form]').getByRole('button').click();
   await user.page.waitForSelector('[role=alert]', { timeout: 10000 });
   check('wrong passcode is rejected and shown to the user', (await user.page.locator('.call').count()) === 0);
 
   // Correct passcode joins.
-  await user.page.locator('form').nth(1).locator('input[type=password]').fill(meetingPass);
-  await user.page.locator('form').nth(1).getByRole('button').click();
+  await user.page.locator('[data-testid=join-form]').locator('input[type=password]').fill(meetingPass);
+  await user.page.locator('[data-testid=join-form]').getByRole('button').click();
   // The waiting room is on by default: the member waits, the host admits from the call screen.
   await user.page.waitForSelector('[data-testid=waiting]', { timeout: 20000 });
   check('with the correct passcode the member lands in the waiting room, not in the call', (await user.page.locator('.call').count()) === 0);
