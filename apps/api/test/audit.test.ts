@@ -147,7 +147,7 @@ describe('GET /v1/admin/audit', () => {
       cursor = body.next;
       pages++;
     } while (cursor && pages < 100);
-    const expected = await admin.query("SELECT id::text FROM audit_log WHERE org_id = $1 ORDER BY created_at DESC, id DESC", [adminA.orgId]);
+    const expected = await admin.query("SELECT id::text FROM audit_log WHERE org_id = $1 ORDER BY created_at DESC, audit_log.id DESC", [adminA.orgId]);
     expect(seen.map((s) => s.id)).toEqual(expected.rows.map((r) => r.id));
     expect(new Set(seen.map((s) => s.id)).size).toBe(seen.length);
     for (let i = 1; i < seen.length; i++) expect(seen[i - 1]!.at >= seen[i]!.at).toBe(true);
@@ -318,7 +318,7 @@ describe('GET /v1/admin/audit/export', () => {
     let text = '';
     for await (const part of out.stream) text += part;
     const ids = text.trim().split('\n').map((l) => (JSON.parse(l) as AuditItem).id);
-    const expected = await admin.query("SELECT id::text FROM audit_log WHERE org_id = $1 AND id <= $2 ORDER BY created_at DESC, id DESC", [adminA.orgId, ids.reduce((m, x) => (BigInt(x) > BigInt(m) ? x : m), '0')]);
+    const expected = await admin.query("SELECT id::text FROM audit_log WHERE org_id = $1 AND id <= $2 ORDER BY created_at DESC, audit_log.id DESC", [adminA.orgId, ids.reduce((m, x) => (BigInt(x) > BigInt(m) ? x : m), '0')]);
     expect(ids).toEqual(expected.rows.map((r) => r.id));
     expect(new Set(ids).size).toBe(ids.length);
   });

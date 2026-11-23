@@ -1,0 +1,93 @@
+-- HOME tab order from load (state=few)
+  Tab 1: a "Skip to main content" ring=outline 2px rgb(126, 233, 223) inView=true 170x42
+  Tab 2: a[admin-link] "Admin" ring=outline 2px rgb(126, 233, 223) inView=true 88x32
+  Tab 3: button[settings] "Settings" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 4: button "Sign out" ring=outline 2px rgb(126, 233, 223) inView=true 100x32
+  Tab 5: input#:r2: "123 4567 8901" ring=outline 2px rgb(126, 233, 223) inView=true 380x56
+  Tab 6: input#:r3: "" ring=outline 2px rgb(126, 233, 223) inView=true 254x40
+  Tab 7: button "Join" ring=outline 2px rgb(126, 233, 223) inView=true 83x48
+  Tab 8: button[new-meeting] "Start a meeting" ring=outline 2px rgb(126, 233, 223) inView=true 350x48
+  Tab 9: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 10: button "Join: Haftalik yig‘ilish" ring=outline 2px rgb(126, 233, 223) inView=true 50x32
+  Tab 11: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 12: button "Join: Loyiha taqdimoti" ring=outline 2px rgb(126, 233, 223) inView=true 50x32
+  Tab 13: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 14: button "Join: Mijozlar bilan uchrash" ring=outline 2px rgb(126, 233, 223) inView=true 50x32
+  Tab 15: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 16: button "Join: Qisqa rejalashtirish" ring=outline 2px rgb(126, 233, 223) inView=true 50x32
+  Tab 17: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 18: button "Join: Ertalabki sinxron" ring=outline 2px rgb(126, 233, 223) inView=true 50x32
+  Tab 19: body "Skip to main contentAdminANA" ring=NO-RING inView=true 1280x1329
+  Tab 20: a "Skip to main content" ring=outline 2px rgb(126, 233, 223) inView=true 170x42
+  Tab 21: a[admin-link] "Admin" ring=outline 2px rgb(126, 233, 223) inView=true 88x32
+  Tab 22: button[settings] "Settings" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+skip link focused: a "Skip to main content" ring=outline 2px rgb(126, 233, 223) inView=true 170x42
+after Enter on skip link: main#hm-main "Monday, 23 NovemberGood afte" ring=NO-RING inView=true 1120x1264
+settings opened, focus: select#:ra: "O‘zbekchaРусскийEnglish" ring=outline 2px rgb(126, 233, 223) inView=true 276x40
+-- settings popover Tab walk (does focus stay inside?)
+  Tab 1: button "Dark" ring=outline 2px rgb(126, 233, 223) inView=true 131x36
+  Tab 2: input[relay-mode]#:rb: "" ring=outline 2px rgb(126, 233, 223) inView=true 40x24
+  Tab 3: button "Sign out" ring=outline 2px rgb(126, 233, 223) inView=true 100x32
+  Tab 4: input#:r2: "123 4567 8901" ring=outline 2px rgb(126, 233, 223) inView=true 380x56
+  Tab 5: input#:r3: "" ring=outline 2px rgb(126, 233, 223) inView=true 254x40
+  Tab 6: button "Join" ring=outline 2px rgb(126, 233, 223) inView=true 83x48
+  Tab 7: button[new-meeting] "Start a meeting" ring=outline 2px rgb(126, 233, 223) inView=true 350x48
+  Tab 8: button "Copy link" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+focus inside popover? false
+after Escape: popover count=0 focus=button[settings] "Settings" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+dialog open, focus: input[meeting-title]#hm-new-title "For example, weekly sync" ring=outline 2px rgb(126, 233, 223) inView=true 478x40
+-- dialog Tab walk (trap?)
+  Tab 1: input#:rd: "" ring=outline 2px rgb(126, 233, 223) inView=true 478x40
+  Tab 2: input[waiting-room]#:re: "" ring=outline 2px rgb(126, 233, 223) inView=true 40x24
+  Tab 3: button "Cancel" ring=outline 2px rgb(126, 233, 223) inView=true 80x40
+  Tab 4: button "Create" ring=outline 2px rgb(126, 233, 223) inView=true 79x40
+  Tab 5: body "Skip to main contentAdminANA" ring=NO-RING inView=true 1280x1329
+  Tab 6: button "Close" ring=outline 2px rgb(126, 233, 223) inView=true 32x32
+  Tab 7: input[meeting-title]#hm-new-title "For example, weekly sync" ring=outline 2px rgb(126, 233, 223) inView=true 478x40
+  Tab 8: input#:rd: "" ring=outline 2px rgb(126, 233, 223) inView=true 478x40
+  Tab 9: input[waiting-room]#:re: "" ring=outline 2px rgb(126, 233, 223) inView=true 40x24
+focus still inside dialog? true
+after Escape: dialog open=false focus=button[new-meeting] "Start a meeting" ring=outline 2px rgb(126, 233, 223) inView=true 350x48
+join invalid + Enter: focus=input#:r2: "123 4567 8901" ring=outline 2px rgb(126, 233, 223) inView=true 380x56 | card text="Join a meeting\n\nEnter a meeting code or paste a link.\n\nMeeting code or link\nAn 11 or 12 digit code, for example 123 4567 8901\nA code contains digits only\nPasscode(optional)\nOnly for passcode-protected meetings\nA code contains digits only\nJoin"
+-- CALL tab order from load
+  Tab 1: button[lock] "Lock meeting" ring=outline 2px rgb(126, 233, 223) inView=true 127x32
+  Tab 2: button[cohost-toggle] "Make co-host" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 3: button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 4: button "Remove" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 5: button[cohost-toggle] "Make co-host" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 6: button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 7: button "Remove" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 8: button[cohost-toggle] "Make co-host" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 9: button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 10: button "Remove" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 11: button[cohost-toggle] "Make co-host" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 12: button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 13: button "Remove" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 14: button "Admit" ring=outline 2px rgb(126, 233, 223) inView=true 59x32
+mic aria-pressed before: null
+after Space: null
+after Enter: null
+ArrowRight from mic -> button[cam] "Camera, turn off" ring=outline 2px rgb(126, 233, 223) inView=true 58x50
+End -> button[leave] "Leave" ring=outline 2px rgb(126, 233, 223) inView=true 50x50
+Home -> button[mic] "Microphone, turn off" ring=outline 2px rgb(126, 233, 223) inView=true 80x50
+chat opened via Enter; focus: input[chat-input] "Type a message…" ring=outline 2px rgb(126, 233, 223) inView=true 231x40
+-- after chat open: Tab walk
+  Tab 1: button "Send" ring=outline 2px rgb(126, 233, 223) inView=true 40x40
+  Tab 2: button[chat-toggle] "Chat" ring=outline 2px rgb(126, 233, 223) inView=true 48x50
+  Tab 3: body "Choraklik hisobot yig‘ilishi" ring=NO-RING inView=true 1280x720
+  Tab 4: button[lock] "Lock meeting" ring=outline 2px rgb(126, 233, 223) inView=true 127x32
+  Tab 5: button[cohost-toggle] "Make co-host" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+  Tab 6: button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+after Escape: chat input count=0 focus=button "Mute" ring=outline 2px rgb(126, 233, 223) inView=true 28x28
+people opened; focus: button[people-toggle] "1People (1)" ring=outline 2px rgb(126, 233, 223) inView=true 54x50
+after Escape focus=button[people-toggle] "1People (1)" ring=outline 2px rgb(126, 233, 223) inView=true 54x50
+reactions popover: focus=button[react-👍] "👍" ring=outline 2px rgb(126, 233, 223) inView=true 44x44
+  12x Tab sequence: IN:react-👏 > IN:react-❤️ > IN:react-😂 > IN:react-🎉 > IN:react-😮 > OUT:body > OUT:lock > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle > OUT:button
+  Escape -> popover count=0 focus=button[reactions] "React" ring=outline 2px rgb(126, 233, 223) inView=true 48x50
+layout popover: focus=input "" ring=outline 2px rgb(61, 214, 200) inView=true 1x1
+  12x Tab sequence: OUT:body > OUT:lock > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle
+  Escape -> popover count=0 focus=button[layout] "Davra, View" ring=outline 2px rgb(126, 233, 223) inView=true 49x50
+more popover: focus=input[noise]#:r2: "" ring=outline 2px rgb(126, 233, 223) inView=true 40x24
+  12x Tab sequence: IN:blur > OUT:body > OUT:lock > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle > OUT:button > OUT:button > OUT:cohost-toggle > OUT:button > OUT:button
+  Escape -> popover count=0 focus=button[more] "More, More settings" ring=outline 2px rgb(126, 233, 223) inView=true 48x50
+leave focus: button[leave] "Leave" ring=outline 2px rgb(126, 233, 223) inView=true 50x50
