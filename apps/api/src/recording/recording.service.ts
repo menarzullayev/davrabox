@@ -9,7 +9,9 @@ import type { Pool, PoolClient } from 'pg';
 import { withTenant } from '../db/tenant.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { MeetingError } from '../meetings/meetings.service.js';
-import { decryptStream, encryptStream, newRecordingKey, unwrapRecordingKey } from './recording-crypto.js';
+import { decryptStream, encryptStream } from './recording-crypto.js';
+import { newDataKeyWith, unwrapDataKeyWith } from '../files/crypto.js';
+import { KeyResolver, KeyUnavailableError } from '../byok/key-resolver.js';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CODE_RE = /^[0-9]{11,12}$/;
@@ -37,6 +39,8 @@ export interface RecordingDeps {
   media: MediaPort;
   store: ObjectStore;
   master: Buffer;
+  /** Finds the key that wraps each recording's data key: the organization's own key (BYOK) or the master key. Defaults to a resolver on `master`. */
+  keys?: KeyResolver;
   /** Pause between polls of a stopped recording (default 3 s). */
   settleDelayMs?: number;
   /** After this long a recording whose file never arrives is marked failed (default 15 min). */
@@ -96,8 +100,10 @@ export class RecordingService {
   private readonly settleDelay: number;
   private readonly settleMax: number;
   private readonly watchers = new Set<string>();
+  private readonly keys: KeyResolver | null;
 
   constructor(private readonly pool: Pool, private readonly deps: RecordingDeps | null) {
+    this.keys = deps ? (deps.keys ?? new KeyResolver(pool, deps.master)) : null;
     this.settleDelay = deps?.settleDelayMs ?? 3000;
     this.settleMax = deps?.settleMaxMs ?? 15 * 60_000;
   }
@@ -129,6 +135,14 @@ export class RecordingService {
     const m = await this.meeting(user, code);
     if (!m.manages) await this.refuse(user, 'recording.start.denied', code, 'forbidden', 403, 'only the host can do this');
     if (m.e2ee) await this.refuse(user, 'recording.start.denied', code, 'e2ee', 409, 'end-to-end encrypted meetings cannot be recorded');
+
+    // Never record into a customer key that cannot wrap the result: refuse before anything starts.
+    try {
+      await this.keys!.assertUsable(user.orgId);
+    } catch (e) {
+      if (e instanceof KeyUnavailableError) await this.refuse(user, 'recording.start.denied', code, `kms_${e.reason}`, e.status, e.message);
+      throw e;
+    }
 
     // A recording whose Egress ended by itself must not block the next one.
     for (const old of await this.inFlight(user.orgId, m.id)) await this.settle(user.orgId, old);
@@ -210,7 +224,7 @@ export class RecordingService {
   }
 
   async download(user: AuthedUser, id: string): Promise<{ name: string; stream: Readable }> {
-    const { store, master } = this.require();
+    const { store } = this.require();
     if (!UUID_RE.test(id)) throw new MeetingError(404, 'recording not found');
     const row = await withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
@@ -224,9 +238,16 @@ export class RecordingService {
     if (!row) throw new MeetingError(404, 'recording not found'); // also another organization's recording (RLS)
     if (!(row.manages || user.role === 'org_admin')) await this.refuse(user, 'recording.download.denied', row.code, id, 403, 'only the host can do this');
     if (row.status === 'stopping' || row.status === 'active' || row.status === 'processing') await this.settle(user.orgId, id).catch(() => undefined);
-    const fresh = await withTenant(this.pool, user.orgId, async (c) => (await c.query('SELECT status, wrapped_key FROM recordings WHERE id = $1', [id])).rows[0] as { status: string; wrapped_key: string | null });
+    const fresh = await withTenant(this.pool, user.orgId, async (c) => (await c.query('SELECT status, wrapped_key, kek_id FROM recordings WHERE id = $1', [id])).rows[0] as { status: string; wrapped_key: string | null; kek_id: string | null });
     if (fresh.status !== 'ready' || !fresh.wrapped_key) throw new MeetingError(409, fresh.status === 'failed' ? 'the recording failed' : 'the recording is not ready yet');
-    const dataKey = unwrapRecordingKey(master, id, fresh.wrapped_key);
+    let dataKey: Buffer;
+    try {
+      dataKey = await unwrapDataKeyWith(await this.keys!.wrapperForRead(user.orgId, fresh.kek_id), id, fresh.wrapped_key);
+    } catch (e) {
+      // The customer key is disabled, revoked, unreachable or not the one this recording was written with: stop, never fall back.
+      if (e instanceof KeyUnavailableError) await this.refuse(user, 'recording.download.denied', row.code, `kms_${e.reason}`, e.status, e.status === 500 ? 'the recording failed its integrity check' : e.message);
+      throw new MeetingError(500, 'the recording failed its integrity check');
+    }
     let src: Readable;
     try {
       src = await store.get(row.object_key);
@@ -315,7 +336,7 @@ export class RecordingService {
   }
 
   private async finalize(orgId: string, row: RecRow): Promise<string> {
-    const { store, master } = this.require();
+    const { store } = this.require();
     const claimed = await withTenant(this.pool, orgId, async (c) => {
       const r = await c.query("UPDATE recordings SET status = 'processing', updated_at = now() WHERE id = $1 AND status IN ('active', 'stopping') RETURNING id", [row.id]);
       return (r.rowCount ?? 0) > 0;
@@ -323,7 +344,8 @@ export class RecordingService {
     if (!claimed) return 'processing';
     const tmp = join(tmpdir(), `davra-rec-${row.id}.enc`);
     try {
-      const { dataKey, wrappedKey } = newRecordingKey(master, row.id);
+      const wrapper = await this.keys!.wrapperForWrite(orgId);
+      const { dataKey, wrappedKey } = await newDataKeyWith(wrapper, row.id);
       let plainBytes = 0;
       const counter = new Transform({
         transform(chunk: Buffer, _e, cb) {
@@ -336,10 +358,19 @@ export class RecordingService {
       await store.put(row.object_key, createReadStream(tmp), size);
       await store.delete(row.staging_key); // from here on only ciphertext exists
       await withTenant(this.pool, orgId, (c) =>
-        c.query("UPDATE recordings SET status = 'ready', wrapped_key = $2, size_bytes = $3, ended_at = now(), updated_at = now() WHERE id = $1", [row.id, wrappedKey, plainBytes]),
+        c.query("UPDATE recordings SET status = 'ready', wrapped_key = $2, kek_id = $4, size_bytes = $3, ended_at = now(), updated_at = now() WHERE id = $1", [row.id, wrappedKey, plainBytes, wrapper.kekId]),
       );
       return 'ready';
-    } catch {
+    } catch (e) {
+      if (e instanceof KeyUnavailableError) {
+        await this.auditSystem(orgId, e.status === 503 ? 'recording.encrypt.unavailable' : 'recording.encrypt.denied', `${row.id}:kms_${e.reason}`, e.status === 503);
+        if (e.status !== 503) {
+          // The customer key is gone: the recording cannot be protected the way the organization chose, so it is dropped
+          // (with its plaintext staging file) rather than stored under the platform key.
+          await this.fail(orgId, row.id, row.meeting_id);
+          return 'failed';
+        }
+      }
       // Retryable: back to 'stopping' (the staging file is kept); watch() gives up and marks it failed after settleMaxMs.
       await withTenant(this.pool, orgId, (c) => c.query("UPDATE recordings SET status = 'stopping', updated_at = now() WHERE id = $1 AND status = 'processing'", [row.id]));
       return 'stopping';
@@ -396,6 +427,16 @@ export class RecordingService {
   private async refuse(user: AuthedUser, action: string, code: string, reason: string, status: number, message: string): Promise<never> {
     await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, action, `${code}:${reason}`));
     throw new MeetingError(status, message);
+  }
+
+  /** An audit row with no acting user (background work). `once` skips it when the same row already exists. */
+  private async auditSystem(orgId: string, action: string, target: string, once: boolean): Promise<void> {
+    await withTenant(this.pool, orgId, (c) =>
+      c.query(
+        `INSERT INTO audit_log (org_id, actor_id, action, target) SELECT $1, NULL, $2, $3 WHERE NOT ($4 AND EXISTS (SELECT 1 FROM audit_log WHERE org_id = $1 AND action = $2 AND target = $3))`,
+        [orgId, action, target, once],
+      ),
+    ).catch(() => undefined);
   }
 
   private audit(c: PoolClient, user: AuthedUser, action: string, target: string) {
