@@ -32,7 +32,7 @@ try {
   const a = await openAdmin('admin.demo', PASSWORD);
   await a.page.waitForSelector('.adm-nav', { timeout: 20000 });
   const items = await a.page.locator('.adm-nav button').count();
-  check('an organization admin sees the six sections', items === 6, `sections=${items}`);
+  check('an organization admin sees the seven sections', items === 7, `sections=${items}`);
 
   await a.page.waitForSelector('.stat', { timeout: 15000 });
   check('the overview shows the organization numbers', (await a.page.locator('.stat').count()) >= 4);
@@ -113,6 +113,29 @@ try {
   await a.page.locator('dialog.dx-dialog[open] button.danger').click();
   await a.page.waitForFunction(() => !document.querySelector('dialog.dx-dialog[open]'), null, { timeout: 10000 });
   check('the webhook can be deleted', !(await a.page.locator('[data-testid=int-hooks]').innerText().catch(() => '')).includes(hookUrl));
+
+  // Encryption keys (BYOK): the section opens; a private Vault address is refused by the server and the token never lingers.
+  await a.page.locator('.adm-nav button').nth(6).click();
+  await a.page.waitForSelector('#sec-encryption', { timeout: 15000 });
+  await a.page.waitForSelector('[data-testid=kms-platform], [data-testid=kms-status], [role=alert]', { timeout: 15000 });
+  check('the encryption keys section opens', (await a.page.locator('#sec-encryption').count()) === 1);
+  const unconfigured = (await a.page.locator('[data-testid=kms-platform]').count()) === 1;
+  if (unconfigured) {
+    const fakeToken = `hvs.e2e-${Date.now()}-not-a-real-token`;
+    await a.page.locator('[data-testid=kms-platform] ~ .toolbar button').first().click();
+    await a.page.waitForSelector('[data-testid=kms-form]', { timeout: 5000 });
+    await a.page.fill('[data-testid=kms-addr]', 'https://127.0.0.1:8200');
+    await a.page.fill('[data-testid=kms-token]', fakeToken);
+    await a.page.fill('[data-testid=kms-key]', 'e2e-key');
+    check('the token field is a password field', (await a.page.locator('[data-testid=kms-token]').getAttribute('type')) === 'password');
+    await a.page.locator('[data-testid=kms-form] button[type=submit]').click();
+    await a.page.waitForSelector('[data-testid=kms-form] [role=alert]', { timeout: 15000 });
+    check('a private Vault address is refused with a message and nothing is stored', (await a.page.locator('[data-testid=kms-form] [role=alert]').count()) === 1);
+    await a.page.keyboard.press('Escape');
+    await a.page.waitForFunction(() => !document.querySelector('dialog.dx-dialog[open]'), null, { timeout: 5000 });
+    check('the platform key stays in use after the refusal', (await a.page.locator('[data-testid=kms-platform]').count()) === 1);
+    check('the token is not left anywhere in the page', !(await a.page.content()).includes(fakeToken));
+  }
 
   const m = await openAdmin(member.username, member.password);
   const denied = await m.page

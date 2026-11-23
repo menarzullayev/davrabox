@@ -186,3 +186,9 @@ fieldset.checks { border: 1px solid var(--border); border-radius: var(--radius-m
 fieldset.checks legend { color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-medium); padding: 0 var(--space-1); }
 .wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
 .inline-label { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--text-sm); }
+
+/* ---- encryption keys (BYOK) ------------------------------------------------------------------------------ */
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: var(--space-2) var(--space-4); margin: 0 0 var(--space-4); }
+.kv dt { color: var(--text-muted); font-size: var(--text-sm); }
+.kv dd { margin: 0; min-width: 0; }
+@media (max-width: 560px) { .kv { grid-template-columns: 1fr; } .kv dd { margin-bottom: var(--space-2); } }
