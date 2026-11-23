@@ -56,6 +56,9 @@ const uz = {
   galleryView: 'Galereya ko‘rinishi',
   blurBackground: 'Fonni xiralashtirish',
   errBlur: 'Fonni xiralashtirib bo‘lmadi (brauzer qo‘llab-quvvatlamaydi)',
+  cohostBadge: 'Co-host',
+  makeCohost: 'Co-host qilish',
+  dismissCohost: 'Co-hostlikdan olish',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -116,6 +119,9 @@ const ru: Record<Key, string> = {
   galleryView: 'Вид галереи',
   blurBackground: 'Размыть фон',
   errBlur: 'Не удалось размыть фон (браузер не поддерживает)',
+  cohostBadge: 'Соорганизатор',
+  makeCohost: 'Назначить соорганизатором',
+  dismissCohost: 'Снять соорганизатора',
 };
 
 const en: Record<Key, string> = {
@@ -174,6 +180,9 @@ const en: Record<Key, string> = {
   galleryView: 'Gallery view',
   blurBackground: 'Blur background',
   errBlur: 'Could not blur the background (not supported by this browser)',
+  cohostBadge: 'Co-host',
+  makeCohost: 'Make co-host',
+  dismissCohost: 'Remove co-host',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

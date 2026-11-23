@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "test": "node call.e2e.mjs && node totp.e2e.mjs && node admin2fa.e2e.mjs && node passkey.e2e.mjs && node hostcontrols.e2e.mjs && node chat.e2e.mjs && node noise.e2e.mjs && node layout.e2e.mjs && node blur.e2e.mjs && node logini18n.e2e.mjs",
+    "test": "node call.e2e.mjs && node totp.e2e.mjs && node admin2fa.e2e.mjs && node passkey.e2e.mjs && node hostcontrols.e2e.mjs && node chat.e2e.mjs && node noise.e2e.mjs && node layout.e2e.mjs && node blur.e2e.mjs && node logini18n.e2e.mjs && node cohost.e2e.mjs",
     "typecheck": "echo e2e is plain JS",
     "lint": "echo e2e is plain JS"
   },

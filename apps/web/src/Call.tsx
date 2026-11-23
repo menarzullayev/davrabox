@@ -21,6 +21,8 @@ function Tile({
   handUp,
   reaction,
   featured,
+  isCohost,
+  onCohost,
   onMute,
   onRemove,
 }: {
@@ -28,6 +30,8 @@ function Tile({
   local: boolean;
   lang: Lang;
   featured?: boolean;
+  isCohost?: boolean;
+  onCohost?: () => void;
   handUp?: boolean;
   reaction?: Reaction;
   onMute?: () => void;
@@ -98,10 +102,12 @@ function Tile({
           {local ? ` (${t(lang, 'you')})` : ''}
           {audioPub?.isMuted !== false ? ' 🔇' : ''}
           {handUp ? ' ✋' : ''}
+          {isCohost ? ` ★ ${t(lang, 'cohostBadge')}` : ''}
         </span>
         {reaction && <span className="reaction" aria-live="polite" data-testid="reaction">{reaction}</span>}
-        {(onMute || onRemove) && (
+        {(onMute || onRemove || onCohost) && (
           <span className="tile-actions">
+            {onCohost && <button onClick={onCohost} data-testid="cohost-toggle">{isCohost ? t(lang, 'dismissCohost') : t(lang, 'makeCohost')}</button>}
             {onMute && <button onClick={onMute}>{t(lang, 'muteAudio')}</button>}
             {onRemove && <button className="danger" onClick={onRemove}>{t(lang, 'removeFromMeeting')}</button>}
           </span>
@@ -140,11 +146,14 @@ export function Call({
   const [hands, setHands] = useState<Record<string, boolean>>({});
   const [myHand, setMyHand] = useState(false);
   const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
+  const [role, setRole] = useState<'host' | 'cohost' | 'member'>(join.isHost ? 'host' : 'member');
+  const [cohostIds, setCohostIds] = useState<string[]>([]);
   const [blurOn, setBlurOn] = useState(false);
   const [layout, setLayout] = useState<'gallery' | 'speaker'>('gallery');
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
   const lineId = useRef(0);
+  const manages = role !== 'member';
   const chatOpenRef = useRef(false);
   chatOpenRef.current = chatOpen;
 
@@ -223,14 +232,25 @@ export function Call({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [join.token]);
 
-  // Host panel: poll the waiting room while the call is open.
+  // Role follows promotions and demotions while connected; managers also poll the waiting room and co-host list.
   useEffect(() => {
-    if (!join.isHost) return undefined;
     let stop = false;
     const tick = async () => {
       try {
-        const list = await api.listRequests(await getToken(), code);
-        if (!stop) setRequests(list);
+        const tk = await getToken();
+        const me = await api.me(tk, code);
+        if (stop) return;
+        setRole(me.role);
+        if (me.role !== 'member') {
+          const [list, co] = await Promise.all([api.listRequests(tk, code), api.cohosts(tk, code)]);
+          if (!stop) {
+            setRequests(list);
+            setCohostIds(co);
+          }
+        } else if (!stop) {
+          setRequests([]);
+          setCohostIds([]);
+        }
       } catch {
         /* transient: try again on the next tick */
       }
@@ -241,7 +261,7 @@ export function Call({
       stop = true;
       clearInterval(id);
     };
-  }, [join.isHost, code, getToken]);
+  }, [code, getToken]);
 
   const room = roomRef.current;
   // Speaker view features a screen sharer first, then the last active speaker, then the first remote participant.
@@ -363,11 +383,11 @@ export function Call({
     <div className="call">
       <header className="callbar">
         <strong>{join.title}</strong>
-        {join.isHost && <span className="badge">{t(lang, 'hostBadge')}</span>}
+        {manages && <span className="badge" data-testid="role-badge">{role === 'cohost' ? t(lang, 'cohostBadge') : t(lang, 'hostBadge')}</span>}
         <span className="count" data-testid="count">{participants.length}</span>
       </header>
       {error && <div className="error">{error}</div>}
-      {join.isHost && requests.length > 0 && (
+      {manages && requests.length > 0 && (
         <section className="requests" aria-label={t(lang, 'requests')}>
           <strong>{t(lang, 'requests')}</strong>
           {requests.map((r) => (
@@ -394,8 +414,10 @@ export function Call({
             lang={lang}
             handUp={i === 0 ? myHand : hands[p.identity]}
             reaction={reactions[p.identity]}
-            onMute={join.isHost && i > 0 ? () => void hostCall((tk) => api.mute(tk, code, p.identity)) : undefined}
-            onRemove={join.isHost && i > 0 ? () => void hostCall((tk) => api.remove(tk, code, p.identity)) : undefined}
+            onMute={manages && i > 0 ? () => void hostCall((tk) => api.mute(tk, code, p.identity)) : undefined}
+            onRemove={manages && i > 0 ? () => void hostCall((tk) => api.remove(tk, code, p.identity)) : undefined}
+            isCohost={cohostIds.includes(p.identity)}
+            onCohost={role === 'host' && i > 0 ? () => void hostCall((tk) => api.setCohost(tk, code, p.identity, !cohostIds.includes(p.identity)).then(() => setCohostIds((c) => (c.includes(p.identity) ? c.filter((x) => x !== p.identity) : [...c, p.identity])))) : undefined}
           />
         ))}
       </div>
@@ -453,7 +475,7 @@ export function Call({
             <button key={e} onClick={() => void react(e)} aria-label={e} data-testid={`react-${e}`}>{e}</button>
           ))}
         </span>
-        {join.isHost && (
+        {manages && (
           <button onClick={() => void hostCall((tk) => api.lock(tk, code, !locked).then((r) => setLocked(r.locked)))} aria-pressed={locked} data-testid="lock">
             {locked ? t(lang, 'unlockMeeting') : t(lang, 'lockMeeting')}
           </button>

@@ -135,5 +135,11 @@ The user decided that phase 1 is closed with these items left open because none 
 - Evidence: `apps/e2e/logini18n.e2e.mjs` 5/5 PASSED (Uzbek page without leftover English, Russian, English, and a wrong password reported in Uzbek). Helm lint and template PASSED (theme ConfigMap rendered).
 - Not verified: the theme inside the kind staging cluster (will roll out with this commit; check after); screens such as account console and admin console are not themed.
 
+## 2026-11-23 (phase 2, slice 7): co-host
+- Migration 004 `meeting_cohosts` (FORCE RLS). Host or org admin appoints/dismisses a co-host per meeting; a co-host gets the host controls (skips waiting room/passcode/lock, admits, locks, mutes, removes) but cannot appoint co-hosts, cannot remove the host or another co-host, and the rights are per meeting and revoked at once. `GET /me` lets clients follow promotions live; managers also get the co-host list. All audited.
+- Web: role polled every 2 s (no rejoin needed), role badge, "Make/Remove co-host" on tiles (real host only), lock/admit/mute/remove for co-hosts; uz/ru/en strings.
+- Evidence: API tests 68 PASSED (8 new: role transitions, co-host powers, co-host limits, immediate revocation, per-meeting scope, cross-organization 404, hostile ids, audit rows). `apps/e2e/cohost.e2e.mjs` 6/6 PASSED (promotion reaches the co-host live, no co-host button for non-hosts, co-host locks, dismissal removes the controls live). Web tests and typecheck PASSED.
+- Limits: LiveKit token `roomAdmin` is not used for anything (all controls go through our API), so promotion does not need a new token; the 2 s polling is simple, not push.
+
 Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.

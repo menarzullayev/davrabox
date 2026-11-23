@@ -95,4 +95,26 @@ export class MeetingsController {
   remove(@Req() req: Req, @Param('code') code: string, @Param('identity') identity: string) {
     return wrap(this.svc.removeParticipant(req.user, code, identity));
   }
+
+  @Get(':code/me')
+  me(@Req() req: Req, @Param('code') code: string) {
+    return wrap(this.svc.myRole(req.user, code));
+  }
+
+  @Get(':code/cohosts')
+  cohosts(@Req() req: Req, @Param('code') code: string) {
+    return wrap(this.svc.listCohosts(req.user, code));
+  }
+
+  @Post(':code/cohosts/:identity/grant')
+  @HttpCode(200)
+  grantCohost(@Req() req: Req, @Param('code') code: string, @Param('identity') identity: string) {
+    return wrap(this.svc.setCohost(req.user, code, identity, true));
+  }
+
+  @Post(':code/cohosts/:identity/revoke')
+  @HttpCode(200)
+  revokeCohost(@Req() req: Req, @Param('code') code: string, @Param('identity') identity: string) {
+    return wrap(this.svc.setCohost(req.user, code, identity, false));
+  }
 }

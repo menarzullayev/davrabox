@@ -43,6 +43,7 @@ interface MeetingRow {
   passcode_hash: string | null;
   locked: boolean;
   waiting_room: boolean;
+  is_cohost: boolean;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -117,7 +118,7 @@ export class MeetingsService {
     if (this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
 
     const decision = await withTenant(this.pool, user.orgId, async (c) => {
-      const meeting = await this.meetingByCode(c, code);
+      const meeting = await this.meetingByCode(c, code, user.userId);
       const banned = await c.query('SELECT 1 FROM meeting_bans WHERE meeting_id = $1 AND user_id = $2', [meeting.id, user.userId]);
       return { meeting, banned: (banned.rowCount ?? 0) > 0 };
     });
@@ -156,7 +157,7 @@ export class MeetingsService {
   async requestStatus(user: AuthedUser, code: string, requestId: string, requestHost?: string) {
     if (!CODE_RE.test(code) || !UUID_RE.test(requestId)) throw new MeetingError(404, 'not found');
     const found = await withTenant(this.pool, user.orgId, async (c) => {
-      const meeting = await this.meetingByCode(c, code);
+      const meeting = await this.meetingByCode(c, code, user.userId);
       const r = await c.query('SELECT status FROM join_requests WHERE id = $1 AND meeting_id = $2 AND user_id = $3', [
         requestId,
         meeting.id,
@@ -175,7 +176,7 @@ export class MeetingsService {
 
   async listRequests(user: AuthedUser, code: string) {
     return withTenant(this.pool, user.orgId, async (c) => {
-      const meeting = await this.meetingByCode(c, code);
+      const meeting = await this.meetingByCode(c, code, user.userId);
       this.mustManage(user, meeting);
       const r = await c.query(
         `SELECT jr.id, jr.user_id, u.display_name, u.email, jr.created_at
@@ -190,7 +191,7 @@ export class MeetingsService {
   async decide(user: AuthedUser, code: string, requestId: string, admit: boolean) {
     if (!UUID_RE.test(requestId)) throw new MeetingError(404, 'not found');
     return withTenant(this.pool, user.orgId, async (c) => {
-      const meeting = await this.meetingByCode(c, code);
+      const meeting = await this.meetingByCode(c, code, user.userId);
       this.mustManage(user, meeting);
       const r = await c.query(
         `UPDATE join_requests SET status = $1, decided_at = now(), decided_by = $2
@@ -205,7 +206,7 @@ export class MeetingsService {
 
   async setLocked(user: AuthedUser, code: string, locked: boolean) {
     return withTenant(this.pool, user.orgId, async (c) => {
-      const meeting = await this.meetingByCode(c, code);
+      const meeting = await this.meetingByCode(c, code, user.userId);
       this.mustManage(user, meeting);
       await c.query('UPDATE meetings SET locked = $1 WHERE id = $2', [locked, meeting.id]);
       await this.audit(c, user, locked ? 'meeting.lock' : 'meeting.unlock', code);
@@ -237,6 +238,9 @@ export class MeetingsService {
     await withTenant(this.pool, user.orgId, async (c) => {
       const target = await c.query('SELECT 1 FROM users WHERE id = $1', [identity]); // RLS: same organization only
       if (!target.rowCount) throw new MeetingError(404, 'participant not found');
+      const targetIsCohost = await c.query('SELECT 1 FROM meeting_cohosts WHERE meeting_id = $1 AND user_id = $2', [meeting.id, identity]);
+      const callerIsHostOrAdmin = meeting.host_user_id === user.userId || user.role === 'org_admin';
+      if (targetIsCohost.rowCount && !callerIsHostOrAdmin) throw new MeetingError(403, 'only the host can remove a co-host');
       await c.query(
         'INSERT INTO meeting_bans (meeting_id, user_id, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
         [meeting.id, identity, user.orgId, user.userId],
@@ -251,10 +255,52 @@ export class MeetingsService {
     return { removed: true };
   }
 
+  /** The caller's role in this meeting, so a client can follow promotions and demotions while connected. */
+  async myRole(user: AuthedUser, code: string): Promise<{ role: 'host' | 'cohost' | 'member' }> {
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const m = await this.meetingByCode(c, code, user.userId);
+      if (m.host_user_id === user.userId || user.role === 'org_admin') return { role: 'host' as const };
+      return { role: m.is_cohost ? ('cohost' as const) : ('member' as const) };
+    });
+  }
+
+  async listCohosts(user: AuthedUser, code: string): Promise<string[]> {
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const m = await this.meetingByCode(c, code, user.userId);
+      this.mustManage(user, m);
+      const r = await c.query('SELECT user_id FROM meeting_cohosts WHERE meeting_id = $1', [m.id]);
+      return r.rows.map((x: { user_id: string }) => x.user_id);
+    });
+  }
+
+  /** Only the host or an org admin can appoint or dismiss co-hosts; a co-host cannot promote anyone. */
+  async setCohost(user: AuthedUser, code: string, identity: string, grant: boolean) {
+    if (!UUID_RE.test(identity)) throw new MeetingError(404, 'participant not found');
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code, user.userId);
+      if (!(meeting.host_user_id === user.userId || user.role === 'org_admin')) throw new MeetingError(403, 'only the host can do this');
+      if (identity === meeting.host_user_id) throw new MeetingError(400, 'the host is already in charge');
+      const target = await c.query('SELECT 1 FROM users WHERE id = $1', [identity]); // RLS: same organization only
+      if (!target.rowCount) throw new MeetingError(404, 'participant not found');
+      if (grant) {
+        await c.query('INSERT INTO meeting_cohosts (meeting_id, user_id, org_id, granted_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING', [
+          meeting.id,
+          identity,
+          user.orgId,
+          user.userId,
+        ]);
+      } else {
+        await c.query('DELETE FROM meeting_cohosts WHERE meeting_id = $1 AND user_id = $2', [meeting.id, identity]);
+      }
+      await this.audit(c, user, grant ? 'meeting.cohost.grant' : 'meeting.cohost.revoke', `${code}:${identity}`);
+      return { cohost: grant };
+    });
+  }
+
   // --- helpers -----------------------------------------------------------------------------------------------
 
   private canManage(user: AuthedUser, m: MeetingRow): boolean {
-    return m.host_user_id === user.userId || user.role === 'org_admin';
+    return m.host_user_id === user.userId || user.role === 'org_admin' || m.is_cohost;
   }
 
   private mustManage(user: AuthedUser, m: MeetingRow): void {
@@ -263,16 +309,18 @@ export class MeetingsService {
 
   private async managedMeeting(user: AuthedUser, code: string): Promise<MeetingRow> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
-    const meeting = await withTenant(this.pool, user.orgId, (c) => this.meetingByCode(c, code));
+    const meeting = await withTenant(this.pool, user.orgId, (c) => this.meetingByCode(c, code, user.userId));
     this.mustManage(user, meeting);
     return meeting;
   }
 
-  private async meetingByCode(c: PoolClient, code: string): Promise<MeetingRow> {
+  private async meetingByCode(c: PoolClient, code: string, userId: string): Promise<MeetingRow> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     const r = await c.query(
-      'SELECT id, title, host_user_id, passcode_hash, locked, waiting_room FROM meetings WHERE code = $1',
-      [code],
+      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room,
+              EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2) AS is_cohost
+       FROM meetings m WHERE m.code = $1`,
+      [code, userId],
     );
     if (!r.rows[0]) throw new MeetingError(404, 'meeting not found');
     return r.rows[0] as MeetingRow;
