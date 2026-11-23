@@ -6,7 +6,7 @@ import { Pool } from 'pg';
 import { afterAll, describe, expect, it } from 'vitest';
 import { createPool, ManagedPool } from '../src/db/pool.js';
 import { loadConfig } from '../src/config.js';
-import { armShutdownWatchdog } from '../src/shutdown.js';
+import { installGracefulShutdown } from '../src/shutdown.js';
 import { AppModule } from '../src/app.module.js';
 
 // What a SIGTERM does is: Nest's shutdown hook calls app.close(). That must (1) let the request that is already being
@@ -93,18 +93,43 @@ describe('graceful shutdown', () => {
   });
 });
 
-describe('shutdown watchdog', () => {
-  it('force-exits with code 1 when the drain takes longer than the limit, and only after a signal', async () => {
+describe('installGracefulShutdown', () => {
+  const setup = (close: () => Promise<void>, limitMs = 150) => {
     const handlers = new Map<string, () => void>();
     const exits: number[] = [];
+    const logs: string[] = [];
     const proc = { once: (sig: string, fn: () => void) => void handlers.set(sig, fn), exit: (c: number) => void exits.push(c) };
-    armShutdownWatchdog(proc as never, 150, () => undefined);
-    await sleep(250);
-    expect(exits).toEqual([]); // nothing happens until a signal arrives
-    handlers.get('SIGTERM')!();
-    await sleep(100);
-    expect(exits).toEqual([]);
-    await sleep(150);
-    expect(exits).toEqual([1]);
+    let closes = 0;
+    installGracefulShutdown({ close: () => { closes++; return close(); } }, proc as never, limitMs, (m) => logs.push(m));
+    return { handlers, exits, logs, closes: () => closes };
+  };
+
+  it('does nothing until a signal; then closes the app once and exits 0 (explicitly: PID 1 ignores a re-raised signal)', async () => {
+    const t = setup(async () => { await sleep(20); });
+    await sleep(50);
+    expect(t.exits).toEqual([]);
+    t.handlers.get('SIGTERM')!();
+    t.handlers.get('SIGINT')!(); // a second signal during the drain does not start a second close
+    await sleep(80);
+    expect(t.closes()).toBe(1);
+    expect(t.exits).toEqual([0]);
+  });
+
+  it('exits 1 when close() fails', async () => {
+    const t = setup(async () => { throw new Error('pool.end failed'); });
+    t.handlers.get('SIGTERM')!();
+    await sleep(50);
+    expect(t.exits).toEqual([1]);
+    expect(t.logs.join(' ')).toMatch(/pool\.end failed/);
+  });
+
+  it('force-exits with code 1 when the drain takes longer than the limit', async () => {
+    const t = setup(() => new Promise(() => undefined), 120);
+    t.handlers.get('SIGTERM')!();
+    await sleep(60);
+    expect(t.exits).toEqual([]);
+    await sleep(120);
+    expect(t.exits).toEqual([1]);
+    expect(t.logs.join(' ')).toMatch(/forcing exit/);
   });
 });

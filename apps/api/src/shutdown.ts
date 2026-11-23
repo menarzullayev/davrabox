@@ -1,21 +1,40 @@
 /**
- * Graceful shutdown. Nest's enableShutdownHooks() turns SIGTERM/SIGINT into app.close(): the HTTP server stops accepting,
- * requests already in flight finish, then every provider's shutdown hook runs (pools end, Redis quits, background jobs stop).
- * This adds the one missing piece: a stuck drain must not hang a deploy, so after a signal the process is force-exited
- * (code 1) when the drain has not finished within `limitMs`. Docker/Kubernetes SIGKILL after their grace period anyway; this
- * stays below it so the exit is logged and ours (compose: stop_grace_period 30s, Kubernetes default 30s).
+ * Graceful shutdown: SIGTERM/SIGINT -> app.close() -> exit.
+ *
+ * app.close() stops the HTTP server from accepting, waits for requests already in flight, then runs every provider's
+ * shutdown hook (pools end, Redis quits, background jobs stop). Two things Nest's own enableShutdownHooks() does not give us:
+ *  - it finishes by re-sending the signal to ourselves, which does NOT terminate a process that is PID 1 in a container
+ *    (the kernel ignores default-action signals for PID 1): the API image then hung until Docker's SIGKILL. We exit explicitly.
+ *  - a stuck drain must not hang a deploy: after `limitMs` the process is force-exited (code 1). Docker and Kubernetes SIGKILL
+ *    after their grace period anyway (compose: stop_grace_period 30 s); this stays below it so the exit is ours and logged.
  */
-export function armShutdownWatchdog(
+export interface ClosableApp {
+  close(): Promise<void>;
+}
+
+export function installGracefulShutdown(
+  app: ClosableApp,
   proc: Pick<NodeJS.Process, 'once' | 'exit'> = process,
   limitMs = 25_000,
   log: (message: string) => void = (m) => console.error(m),
 ): void {
+  let started = false;
   for (const sig of ['SIGTERM', 'SIGINT'] as const) {
     proc.once(sig, () => {
-      setTimeout(() => {
+      if (started) return;
+      started = true;
+      const timer = setTimeout(() => {
         log(`shutdown did not finish within ${limitMs} ms after ${sig}; forcing exit`);
         proc.exit(1);
-      }, limitMs).unref();
+      }, limitMs);
+      timer.unref();
+      app.close().then(
+        () => proc.exit(0),
+        (e: unknown) => {
+          log(`shutdown failed: ${(e as Error).message}`);
+          proc.exit(1);
+        },
+      );
     });
   }
 }

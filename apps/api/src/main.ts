@@ -5,7 +5,7 @@ import { loadConfig } from './config.js';
 import { startMetricsServer } from './metrics.js';
 import { AUDIT_FORWARDER } from './app.module.js';
 import type { AuditForwarder } from './audit/forwarder.js';
-import { armShutdownWatchdog } from './shutdown.js'; // REL
+import { installGracefulShutdown } from './shutdown.js'; // REL
 
 async function bootstrap() {
   const cfg = loadConfig();
@@ -15,9 +15,10 @@ async function bootstrap() {
   await app.listen(cfg.API_PORT, '0.0.0.0');
   startMetricsServer(cfg.METRICS_PORT, cfg.METRICS_HOST);
   // SIEM forwarding runs in the background after the API is already serving; start() never blocks or throws.
-  app.enableShutdownHooks();
-  // --- REL: graceful shutdown (SIGTERM drains in-flight requests, closes pools; a stuck drain is force-exited after 25 s) ---
-  armShutdownWatchdog();
+  // --- REL: graceful shutdown. Replaces app.enableShutdownHooks(): SIGTERM drains in-flight requests, runs the shutdown hooks
+  // (pools, Redis, jobs) via app.close(), then exits explicitly (Nest's re-raised signal cannot kill PID 1 in a container);
+  // a drain stuck for 25 s is force-exited. ---
+  installGracefulShutdown(app);
   // --- end REL ---
   const forwarder = app.get<AuditForwarder | null>(AUDIT_FORWARDER);
   if (forwarder) {
