@@ -44,6 +44,7 @@ services:
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KC_HEALTH_ENABLED: "true"
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD}
+      ADMIN_API_CLIENT_SECRET: ${ADMIN_API_CLIENT_SECRET}
       PUBLIC_HOST: ${LAN_IP}:8443
     volumes:
       - ../keycloak/davrabox-realm.json:/opt/keycloak/data/import/davrabox-realm.json:ro

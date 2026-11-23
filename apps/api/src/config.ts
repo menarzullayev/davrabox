@@ -23,6 +23,12 @@ const schema = z.object({
   CLAMAV_HOST: z.string().min(1).optional(),
   CLAMAV_PORT: z.coerce.number().int().default(3310),
   FILE_MASTER_KEY: z.string().min(1).optional(),
+  // Admin console user management is optional: without these the user-management endpoints answer 503.
+  // The client is a confidential service-account client limited to view-users, manage-users, view-realm, query-users.
+  KEYCLOAK_ADMIN_URL: z.string().url().optional(), // e.g. http://host:8180/auth
+  KEYCLOAK_ADMIN_REALM: z.string().min(1).default('davrabox'),
+  KEYCLOAK_ADMIN_REALM_CLIENT_ID: z.string().min(1).default('davrabox-admin-api'),
+  KEYCLOAK_ADMIN_CLIENT_SECRET: z.string().min(8).optional(),
   METRICS_PORT: z.coerce.number().int().default(9100),
   METRICS_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().default(3000),

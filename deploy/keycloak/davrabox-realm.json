@@ -74,6 +74,19 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "davrabox-admin-api",
+      "name": "DavraBox Admin API (service account)",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${ADMIN_API_CLIENT_SECRET}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect"
     }
   ],
   "users": [
@@ -121,6 +134,19 @@
       "attributes": {
         "org_slug": [
           "demo"
+        ]
+      }
+    },
+    {
+      "username": "service-account-davrabox-admin-api",
+      "enabled": true,
+      "serviceAccountClientId": "davrabox-admin-api",
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "manage-users",
+          "view-realm",
+          "query-users"
         ]
       }
     }

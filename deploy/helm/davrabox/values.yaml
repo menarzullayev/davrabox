@@ -1,5 +1,5 @@
 # Secrets are NOT part of this chart. Create a Secret (by hand, Vault Agent, or External Secrets) with keys:
-# POSTGRES_PASSWORD, APP_DB_PASSWORD, KEYCLOAK_ADMIN_PASSWORD, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, DEMO_USER_PASSWORD
+# POSTGRES_PASSWORD, APP_DB_PASSWORD, KEYCLOAK_ADMIN_PASSWORD, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, DEMO_USER_PASSWORD, ADMIN_API_CLIENT_SECRET
 existingSecret: davrabox-secrets
 
 publicHost: davrabox.example.com   # host users reach (one origin: /, /api, /auth, /livekit)
