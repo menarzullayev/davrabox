@@ -94,6 +94,34 @@ export interface DeliveryItem {
   deliveredAt: string | null;
 }
 
+export interface KmsView {
+  configured: boolean;
+  provider?: 'vault-transit';
+  addr?: string;
+  keyName?: string;
+  mount?: string;
+  namespace?: string;
+  kekId?: string;
+  status?: 'unknown' | 'ok' | 'denied' | 'unreachable';
+  checkedAt?: string | null;
+  createdAt?: string;
+  rotatedAt?: string | null;
+  wrapped?: { files: number; recordings: number };
+}
+export interface KmsInput {
+  addr: string;
+  token: string;
+  keyName: string;
+  mount?: string;
+  namespace?: string;
+}
+export interface RewrapResult {
+  processed: number;
+  failed: number;
+  remaining: number;
+  next: string | null;
+}
+
 type Query = Record<string, string | number | null | undefined>;
 
 /** Builds `?a=1&b=x%20y`, skipping undefined, null and empty values; keys keep insertion order. */
@@ -199,6 +227,12 @@ export function createAdminClient(getToken: () => Promise<string>, fetchFn: Fetc
     deleteWebhook: (id: string) => call<void>(`/v1/admin/webhooks/${enc(id)}`, { method: 'DELETE' }),
     listDeliveries: (id: string, p: { status?: DeliveryStatus; limit?: number; cursor?: string | null }) =>
       call<Page<DeliveryItem>>(`/v1/admin/webhooks/${enc(id)}/deliveries${buildQuery({ status: p.status, limit: p.limit, cursor: p.cursor })}`),
+    // Encryption keys (BYOK). The token goes out in putKms only and is never returned by the server.
+    getKms: () => call<KmsView>('/v1/admin/kms'),
+    putKms: (body: KmsInput) => call<KmsView>('/v1/admin/kms', { method: 'PUT', body }),
+    removeKms: () => call<{ removed: true }>('/v1/admin/kms', { method: 'DELETE' }),
+    testKms: () => call<{ status: 'ok' | 'denied' | 'unreachable' }>('/v1/admin/kms/test', { method: 'POST' }),
+    rewrapKms: (body: { target: 'customer' | 'platform'; limit?: number; after?: string }) => call<RewrapResult>('/v1/admin/kms/rewrap', { method: 'POST', body }),
   };
 }
 
