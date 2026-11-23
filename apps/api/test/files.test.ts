@@ -97,12 +97,8 @@ const pool = new Pool({ connectionString: cfg.DATABASE_URL, max: 4 });
 const admin = new Pool({ connectionString: adminUrl, max: 2 });
 const meetings = new MeetingsService(pool, cfg);
 const files = new FilesService(pool, cfg);
-const s3 = new S3Client({
-  endpoint: cfg.S3_ENDPOINT,
-  region: 'us-east-1',
-  forcePathStyle: true,
-  credentials: { accessKeyId: cfg.S3_ACCESS_KEY!, secretAccessKey: cfg.S3_SECRET_KEY! },
-});
+const { S3_ACCESS_KEY: accessKeyId, S3_SECRET_KEY: secretAccessKey } = cfg;
+const s3 = new S3Client({ endpoint: cfg.S3_ENDPOINT, region: 'us-east-1', forcePathStyle: true, credentials: { accessKeyId: accessKeyId!, secretAccessKey: secretAccessKey! } });
 const sfx = Math.random().toString(36).slice(2, 8);
 const slugA = `fl-a-${sfx}`;
 const slugB = `fl-b-${sfx}`;

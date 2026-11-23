@@ -66,7 +66,13 @@ jobs:
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:7880/ >/dev/null && break; sleep 1; done
       - name: Start MinIO and ClamAV (file sharing tests use the real services)
         run: |
-          docker run -d --name minio -p 59000:9000 -e MINIO_ROOT_USER=ciminiouser -e MINIO_ROOT_PASSWORD=ciminiosecret123 cgr.dev/chainguard/minio:latest-dev server /data --address :9000
+          # Throw-away credentials generated for this run only; nothing secret-looking lives in the repository.
+          echo "S3_ACCESS_KEY=ci$(openssl rand -hex 6)" >> "$GITHUB_ENV"
+          echo "S3_SECRET_KEY=$(openssl rand -hex 16)" >> "$GITHUB_ENV"
+          echo "FILE_MASTER_KEY=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          S3_ACCESS_KEY=$(grep '^S3_ACCESS_KEY=' "$GITHUB_ENV" | cut -d= -f2)
+          S3_SECRET_KEY=$(grep '^S3_SECRET_KEY=' "$GITHUB_ENV" | cut -d= -f2)
+          docker run -d --name minio -p 59000:9000 -e MINIO_ROOT_USER="$S3_ACCESS_KEY" -e MINIO_ROOT_PASSWORD="$S3_SECRET_KEY" cgr.dev/chainguard/minio:latest-dev server /data --address :9000
           docker run -d --name clamav -p 53310:3310 clamav/clamav:1.4.7
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:59000/minio/health/live >/dev/null && break; sleep 2; done
           for i in $(seq 1 90); do docker exec clamav clamdcheck.sh >/dev/null 2>&1 && break; sleep 5; done
@@ -81,11 +87,8 @@ jobs:
           LIVEKIT_API_KEY: cikey
           LIVEKIT_API_SECRET: ci-livekit-secret-0123456789abcdef0123
           S3_ENDPOINT: http://127.0.0.1:59000
-          S3_ACCESS_KEY: ciminiouser
-          S3_SECRET_KEY: ciminiosecret123
           CLAMAV_HOST: 127.0.0.1
           CLAMAV_PORT: "53310"
-          FILE_MASTER_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: |
           pnpm --filter @davrabox/api migrate
           pnpm --filter @davrabox/api test

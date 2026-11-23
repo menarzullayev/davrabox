@@ -33,12 +33,8 @@ export class FilesService {
   constructor(private readonly pool: Pool, private readonly cfg: Config) {
     if (cfg.S3_ENDPOINT && cfg.S3_ACCESS_KEY && cfg.S3_SECRET_KEY && cfg.CLAMAV_HOST && cfg.FILE_MASTER_KEY) {
       this.master = masterKeyFrom(cfg.FILE_MASTER_KEY);
-      this.s3 = new S3Client({
-        endpoint: cfg.S3_ENDPOINT,
-        region: 'us-east-1',
-        forcePathStyle: true,
-        credentials: { accessKeyId: cfg.S3_ACCESS_KEY, secretAccessKey: cfg.S3_SECRET_KEY },
-      });
+      const { S3_ACCESS_KEY: accessKeyId, S3_SECRET_KEY: secretAccessKey } = cfg;
+      this.s3 = new S3Client({ endpoint: cfg.S3_ENDPOINT, region: 'us-east-1', forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
     }
   }
 
