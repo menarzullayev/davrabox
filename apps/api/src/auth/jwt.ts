@@ -25,8 +25,8 @@ export function identityFromClaims(p: JWTPayload): Identity {
   return { sub, email, name, orgSlug, role };
 }
 
-export function createVerifier(issuer: string, audience: string) {
-  const jwks = createRemoteJWKSet(new URL(`${issuer}/protocol/openid-connect/certs`));
+export function createVerifier(issuer: string, audience: string, jwksUrl?: string) {
+  const jwks = createRemoteJWKSet(new URL(jwksUrl ?? `${issuer}/protocol/openid-connect/certs`));
   return async (token: string): Promise<Identity> => {
     // Keycloak access tokens carry the client in azp; audience is enforced via azp below.
     const { payload } = await jwtVerify(token, jwks, { issuer, algorithms: ['RS256'], clockTolerance: 5 });

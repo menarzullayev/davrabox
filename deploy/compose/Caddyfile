@@ -1,0 +1,32 @@
+{
+	auto_https disable_redirects
+	# Browsers send no SNI for IP hosts; fall back to the LAN IP certificate.
+	default_sni {$LAN_IP}
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+https://{$LAN_IP}:8443, https://localhost:8443 {
+	tls internal
+
+	# Identity provider (Keycloak served under /auth)
+	handle /auth/* {
+		reverse_proxy keycloak:8080
+	}
+
+	# LiveKit signalling over WSS; media itself goes direct over UDP/TCP
+	handle_path /livekit/* {
+		reverse_proxy livekit:7880
+	}
+
+	# DavraBox API
+	handle_path /api/* {
+		reverse_proxy host.docker.internal:3000
+	}
+
+	# Web app (Vite dev server on the host, with websocket HMR)
+	handle {
+		reverse_proxy host.docker.internal:5173
+	}
+}

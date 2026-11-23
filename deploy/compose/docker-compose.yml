@@ -34,7 +34,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
     container_name: davra-keycloak
-    command: ["start-dev", "--import-realm", "--http-port=8080"]
+    command: ["start-dev", "--import-realm", "--http-port=8080", "--http-relative-path=/auth", "--proxy-headers=xforwarded", "--hostname=https://${LAN_IP}:8443/auth"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -42,7 +42,6 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: davra_admin
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_HOSTNAME_STRICT: "false"
       KC_HEALTH_ENABLED: "true"
       DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD}
     volumes:
@@ -70,5 +69,25 @@ services:
     mem_limit: 1g
     cpus: 2
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: davra-caddy
+    environment:
+      LAN_IP: ${LAN_IP}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - davra-caddy-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${LAN_IP}:8443:8443"
+      - "127.0.0.1:8443:8443"
+    depends_on:
+      - keycloak
+      - livekit
+    mem_limit: 128m
+    cpus: 0.5
+
 volumes:
   davra-pgdata:
+  davra-caddy-data:

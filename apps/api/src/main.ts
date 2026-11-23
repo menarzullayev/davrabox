@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
   app.enableCors({ origin: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()), methods: ['GET', 'POST'], maxAge: 600 });
   app.getHttpAdapter().getInstance().disable('x-powered-by');
-  await app.listen(cfg.PORT, '0.0.0.0');
-  console.log(`api listening on ${cfg.PORT}`);
+  await app.listen(cfg.API_PORT, '0.0.0.0');
+  console.log(`api listening on ${cfg.API_PORT}`);
 }
 bootstrap();

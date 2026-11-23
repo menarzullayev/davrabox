@@ -1,0 +1,15 @@
+{
+  "name": "@davrabox/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "test": "node call.e2e.mjs",
+    "typecheck": "echo e2e is plain JS",
+    "lint": "echo e2e is plain JS"
+  },
+  "dependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}

@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: davra_admin
+          POSTGRES_PASSWORD: ci-admin-password
+          POSTGRES_DB: davra
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U davra_admin -d davra"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm -r typecheck
+      - name: Build web
+        run: pnpm --filter @davrabox/web build
+      - name: Web tests
+        run: pnpm --filter @davrabox/web test
+      - name: Create application role
+        run: |
+          PGPASSWORD=ci-admin-password psql -h 127.0.0.1 -p 55432 -U davra_admin -d davra -v ON_ERROR_STOP=1 -c "CREATE DATABASE keycloak;" -c "CREATE ROLE davra_app LOGIN PASSWORD 'ci-app-password' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE;" -c "GRANT CONNECT ON DATABASE davra TO davra_app;"
+      - name: Start LiveKit
+        run: |
+          docker run -d --name lk -p 7880:7880 -e "LIVEKIT_KEYS=cikey: ci-livekit-secret-0123456789abcdef0123" livekit/livekit-server:v1.13.11 --dev --bind 0.0.0.0
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:7880/ >/dev/null && break; sleep 1; done
+      - name: Migrate and run API tests (real Postgres RLS + real LiveKit)
+        env:
+          MIGRATE_DATABASE_URL: postgres://davra_admin:ci-admin-password@127.0.0.1:55432/davra
+          DATABASE_URL: postgres://davra_app:ci-app-password@127.0.0.1:55432/davra
+          KEYCLOAK_ISSUER: https://localhost/auth/realms/davrabox
+          LIVEKIT_URL: ws://127.0.0.1:7880
+          LIVEKIT_API_URL: http://127.0.0.1:7880
+          LIVEKIT_API_KEY: cikey
+          LIVEKIT_API_SECRET: ci-livekit-secret-0123456789abcdef0123
+        run: |
+          pnpm --filter @davrabox/api migrate
+          pnpm --filter @davrabox/api test
+
+  security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Dependency audit (high and critical fail the build)
+        run: pnpm audit --audit-level high
+      - name: Secret scan
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks detect --source . --redact --no-banner
+      - name: Trivy filesystem scan (vulnerabilities, misconfiguration)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scanners: vuln,misconfig
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          skip-dirs: spike
+      - name: SBOM (CycloneDX)
+        run: npx --yes @cyclonedx/cdxgen@11 -o sbom.cdx.json -t js .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
