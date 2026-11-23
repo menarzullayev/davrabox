@@ -8,6 +8,8 @@ COPY packages/design-tokens/package.json packages/design-tokens/
 RUN pnpm install --frozen-lockfile --filter @davrabox/web...
 COPY packages/design-tokens packages/design-tokens
 COPY apps/web apps/web
+ARG ANDROID_SHA256_CERT_FINGERPRINT=""
+ENV ANDROID_SHA256_CERT_FINGERPRINT=$ANDROID_SHA256_CERT_FINGERPRINT
 RUN pnpm --filter @davrabox/design-tokens build && pnpm --filter @davrabox/web build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine

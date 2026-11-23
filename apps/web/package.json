@@ -11,7 +11,7 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "predev": "node scripts/prepare-assets.mjs",
-    "prebuild": "node scripts/prepare-assets.mjs",
+    "prebuild": "node scripts/prepare-assets.mjs && node scripts/write-assetlinks.mjs",
     "pretest": "node scripts/prepare-assets.mjs"
   },
   "dependencies": {

@@ -29,3 +29,4 @@ apps/web/dist-lab/
 docs/design/critic/*.jpg
 PRODUCTION-READINESS.md
 deploy/compose/*.cred.txt
+apps/web/public/.well-known/
