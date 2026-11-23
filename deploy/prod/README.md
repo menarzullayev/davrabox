@@ -48,9 +48,17 @@ Change the value in `.env`, then `docker compose --env-file .env up -d` (contain
 ## Meeting recording
 The `egress` service (LiveKit Egress, headless Chrome) records a meeting to the `davra-recordings` bucket in MinIO; the API then envelope-encrypts the file with `FILE_MASTER_KEY` and deletes the plaintext. Only the host, a co-host or an org admin can start, stop, list and download. A room composite recording at 720p30 needs about 4 CPUs and 4 GB of RAM on top of the rest of the stack. Egress reaches LiveKit over the internal network (`ws://livekit:7880`); with `use_external_ip: true` its media connection uses the host's public address, so the host must be able to reach its own public IP (hairpin). Check one 20-second recording after the first deploy.
 
+## Monitoring, alerts and error tracking
+```
+docker compose --env-file .env -f docker-compose.observability.yml up -d     # Prometheus, Alertmanager (to Telegram), Grafana, GlitchTip, blackbox, node-exporter
+```
+Self-hosted, nothing public except GlitchTip's event ingest through Caddy at `/_obs`. The Telegram bot token and chat id are files in `deploy/prod/secrets/` (git-ignored).
+Setup (BotFather, chat id, GlitchTip projects and DSNs, SSH tunnel to Grafana), the alert list and the verification record are in `docs/observability.md`.
+Validate the configuration with `deploy/prod/observability/check.sh`.
+
 ## Known limits (accepted or open)
 - **No backups** (decision 2026-11-24, to be reviewed after 12 months): losing the volumes loses all data. Volumes: `pgdata`, `minio-data`, `clamav-db`, `caddy-data`.
 - Single host, single instance of each service: no failover.
 - Postgres, MinIO and ClamAV traffic is unencrypted on the internal Docker network.
-- No alerting yet (planned: Prometheus, Grafana, Alertmanager, GlitchTip with Telegram notifications).
+- Monitoring and alerting are a separate, optional file (`docker-compose.observability.yml`): see `docs/observability.md`. Its data is not backed up either.
 - The MinIO image comes from `cgr.dev`; when that registry fails (it did on 2026-11-24, HTTP 500) pulls fail until it recovers.
