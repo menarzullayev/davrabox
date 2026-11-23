@@ -26,6 +26,22 @@ export interface JoinRequest {
   email: string;
 }
 
+export interface RecordingStatus {
+  enabled: boolean;
+  e2ee: boolean;
+  active: boolean;
+  canRecord: boolean;
+}
+
+export interface RecordingSummary {
+  id: string;
+  status: string;
+  startedAt: string;
+  endedAt: string | null;
+  sizeBytes: number | null;
+  startedBy: string;
+}
+
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly detail: string = '') {
     super(`api ${status} ${detail}`);
@@ -85,9 +101,20 @@ export interface TrialStatus {
   maxMinutes: number | null;
 }
 
+async function downloadRecording(token: string, id: string): Promise<Blob> {
+  const res = await fetch(`/api/v1/recordings/${enc(id)}/download`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new ApiError(res.status);
+  return res.blob();
+}
+
 export const api = {
   uploadFile,
   downloadFile,
+  downloadRecording,
+  recordingStatus: (token: string, code: string) => call<RecordingStatus>(token, `/v1/meetings/${enc(code)}/recording`),
+  startRecording: (token: string, code: string) => call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/start`, { method: 'POST', body: {} }),
+  stopRecording: (token: string, code: string) => call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/stop`, { method: 'POST', body: {} }),
+  recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
   create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean }) =>

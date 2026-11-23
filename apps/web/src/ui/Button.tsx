@@ -17,11 +17,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'secondary', size = 'md', loading = false, icon, iconEnd, fullWidth, className, children, onClick, disabled, type = 'button', ...rest },
+  { variant = 'secondary', size = 'md', loading = false, icon, iconEnd, fullWidth, className, children, onClick, disabled, type = 'button', 'aria-disabled': ariaDisabled, ...rest },
   ref,
 ) {
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (loading) {
+    if (loading || ariaDisabled === true || ariaDisabled === 'true') {
       e.preventDefault();
       return;
     }
@@ -38,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       data-full={fullWidth ? '' : undefined}
       disabled={disabled}
       aria-busy={loading || undefined}
-      aria-disabled={loading || undefined}
+      aria-disabled={loading || ariaDisabled === true || ariaDisabled === 'true' || undefined}
       onClick={handleClick}
     >
       <span className="dx-btn__label">

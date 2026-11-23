@@ -1,0 +1,51 @@
+/* Recording consent badge, record control extras and the manager's recording list. Same `dx` layer as call.css. */
+@layer legacy, dx;
+
+@layer dx {
+  .dv-rec {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: var(--danger-soft);
+    font-weight: var(--weight-semibold);
+  }
+  .dv-rec__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--danger);
+    animation: dv-rec-pulse 1.6s ease-in-out infinite;
+  }
+  .dv-rec__text { color: var(--danger); }
+  @keyframes dv-rec-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .dv-ctl[data-testid='record'][data-active] { background: var(--danger-soft); color: var(--danger); }
+  .dv-ctl[data-testid='record'][data-active] .dv-ctl__text { color: var(--danger); }
+
+  .dv-recs { display: grid; gap: var(--space-2); }
+  .dv-recs__title { margin: 0; color: var(--text); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+  .dv-recs__list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; max-height: 180px; overflow: auto; }
+  .dv-recs__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
+    font-size: var(--text-xs);
+    line-height: var(--leading-xs);
+  }
+  .dv-recs__what { display: grid; gap: 2px; min-width: 0; color: var(--text); }
+  .dv-recs__meta { color: var(--text-muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dv-rec__dot { animation: none; }
+  }
+  @media (forced-colors: active) {
+    .dv-rec { border: 1px solid CanvasText; }
+    .dv-rec__dot { background: CanvasText; forced-color-adjust: none; }
+  }
+}

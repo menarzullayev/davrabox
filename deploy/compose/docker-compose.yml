@@ -72,8 +72,32 @@ services:
       - "${LAN_IP}:3478:3478/udp"
       - "127.0.0.1:56789:6789"
       - "${LAN_IP}:52000-52019:52000-52019/udp"
+    depends_on:
+      - redis
     mem_limit: 1g
     cpus: 2
+
+  # Meeting recording. Joins the room as a hidden recorder (headless Chrome + GStreamer) and writes an MP4 to the
+  # `davra-recordings` bucket in MinIO; the API then encrypts it. Needs the shared redis and SYS_ADMIN for the Chrome sandbox.
+  # Room composite at 720p30 needs about 4 CPUs; verified 2026-11-24 (see docs/PROGRESS.md).
+  egress:
+    image: livekit/egress:v1.15.0
+    container_name: davra-egress
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      EGRESS_CONFIG_FILE: /etc/egress.yaml
+    volumes:
+      - ./egress.yaml:/etc/egress.yaml:ro
+    cap_add:
+      - SYS_ADMIN
+    shm_size: 1gb
+    depends_on:
+      - redis
+      - livekit
+      - minio
+    mem_limit: 4g
+    cpus: 4
 
   caddy:
     image: caddy:2-alpine

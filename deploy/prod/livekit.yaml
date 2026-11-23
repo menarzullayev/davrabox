@@ -6,6 +6,9 @@ rtc:
   udp_port: 7882
   # Production: advertise the public address found through STUN. Requires the ports published in docker-compose.yml.
   use_external_ip: true
+# Shared with LiveKit Egress (meeting recording): the egress service receives its jobs and reports status through Redis.
+redis:
+  address: redis:6379
 room:
   auto_create: false
   empty_timeout: 300
