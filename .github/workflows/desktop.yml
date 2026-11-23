@@ -1,0 +1,40 @@
+name: Desktop build
+
+# Builds the unsigned Electron app for Windows, macOS and Linux and checks the security fuses of the result.
+# Signing and notarisation need certificates that do not exist yet (see docs/HELD.md), so these builds are for testing only.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @davrabox/desktop test
+      - run: pnpm --filter @davrabox/desktop typecheck
+      - run: pnpm --filter @davrabox/desktop run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - name: Read the fuses of the built app
+        shell: bash
+        run: |
+          APP=$(ls -d apps/desktop/release/*-unpacked/DavraBox* apps/desktop/release/mac*/DavraBox.app apps/desktop/release/linux-unpacked/davrabox* 2>/dev/null | head -1)
+          echo "app: $APP"
+          pnpm dlx @electron/fuses read --app "$APP" | tee fuses.txt
+          grep -q "RunAsNode is Disabled" fuses.txt
+          grep -q "EnableNodeCliInspectArguments is Disabled" fuses.txt
+          grep -q "OnlyLoadAppFromAsar is Enabled" fuses.txt

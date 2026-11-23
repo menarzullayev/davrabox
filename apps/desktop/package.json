@@ -1,0 +1,72 @@
+{
+  "name": "@davrabox/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "DavraBox desktop app (secure Electron shell around the web client)",
+  "author": "DavraBox",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "pnpm build && electron .",
+    "dist": "pnpm build && electron-builder --dir --publish never"
+  },
+  "devDependencies": {
+    "@electron/fuses": "^1.8.0",
+    "@types/node": "^22.10.0",
+    "electron": "^45.4.1",
+    "electron-builder": "^26.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.12"
+  },
+  "build": {
+    "appId": "uz.davrabox.desktop",
+    "productName": "DavraBox",
+    "copyright": "All rights reserved",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**"
+    ],
+    "asar": true,
+    "protocols": [
+      {
+        "name": "DavraBox",
+        "schemes": [
+          "davrabox"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ]
+    },
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "grantFileProtocolExtraPrivileges": false
+    },
+    "mac": {
+      "target": [
+        "dir"
+      ],
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Network"
+    }
+  }
+}

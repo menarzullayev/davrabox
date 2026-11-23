@@ -4,3 +4,8 @@ packages:
 allowBuilds:
   argon2: true
   esbuild: true
+  electron: true
+  electron-winstaller: false
+overrides:
+  "app-builder-lib>minimatch": "^11.0.1"
+  "@electron/universal>minimatch": "^11.0.1"

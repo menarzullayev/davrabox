@@ -43,6 +43,7 @@ jobs:
         run: |
           pnpm --filter @davrabox/web test
           pnpm --filter @davrabox/design-tokens test
+          pnpm --filter @davrabox/desktop test
       - name: Helm chart lint and render
         run: |
           curl -sSfL https://get.helm.sh/helm-v4.3.2-linux-amd64.tar.gz | tar -xz --strip-components=1 linux-amd64/helm

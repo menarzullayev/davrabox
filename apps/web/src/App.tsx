@@ -84,7 +84,20 @@ export function App() {
       return false;
     }
   });
-  const [code, setCode] = useState('');
+  // A meeting link (?join=<code>, e.g. from the desktop deep link davrabox://join/<code>) pre-fills the code field and
+  // survives the sign-in redirect through sessionStorage. Only well-formed codes are accepted.
+  const [code, setCode] = useState(() => {
+    try {
+      const q = new URLSearchParams(location.search).get('join');
+      if (q && /^[0-9]{11,12}$/.test(q)) {
+        sessionStorage.setItem('pendingJoin', q);
+        history.replaceState({}, document.title, location.pathname);
+      }
+      return sessionStorage.getItem('pendingJoin') ?? '';
+    } catch {
+      return '';
+    }
+  });
   const [pass, setPass] = useState('');
   const [err, setErr] = useState<Key | null>(null);
   const [joined, setJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
@@ -128,6 +141,11 @@ export function App() {
     const clean = c.replace(/\s+/g, '');
     try {
       const res = await api.join(token, clean, p || undefined);
+      try {
+        sessionStorage.removeItem('pendingJoin');
+      } catch {
+        /* ignore */
+      }
       if (res.status === 'joined') setJoined({ result: res, code: clean });
       else setWaiting({ code: clean, requestId: res.requestId });
     } catch (e) {
