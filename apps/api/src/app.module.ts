@@ -8,18 +8,32 @@ import { MeetingsService } from './meetings/meetings.service.js';
 import { HealthController } from './health.controller.js';
 import { FILES, FilesController } from './files/files.controller.js';
 import { FilesService } from './files/files.service.js';
+import { AUDIT, AuditAdminGuard, AuditController } from './audit/audit.controller.js';
+import { AuditService } from './audit/audit.service.js';
+import { AuditForwarder } from './audit/forwarder.js';
 
+export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
-  controllers: [MeetingsController, FilesController, HealthController],
+  controllers: [MeetingsController, FilesController, AuditController, HealthController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },
     { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config) => new MeetingsService(pool, cfg), inject: [POOL, CONFIG] },
     { provide: FILES, useFactory: (pool: Pool, cfg: Config) => new FilesService(pool, cfg), inject: [POOL, CONFIG] },
+    { provide: AUDIT, useFactory: (pool: Pool, cfg: Config) => new AuditService(pool, cfg.LIVEKIT_API_SECRET), inject: [POOL, CONFIG] },
+    {
+      provide: AUDIT_FORWARDER,
+      useFactory: (pool: Pool, cfg: Config) =>
+        cfg.AUDIT_WEBHOOK_URL && cfg.AUDIT_WEBHOOK_SECRET
+          ? new AuditForwarder(pool, { url: cfg.AUDIT_WEBHOOK_URL, secret: cfg.AUDIT_WEBHOOK_SECRET, intervalMs: cfg.AUDIT_FORWARD_INTERVAL_MS })
+          : null,
+      inject: [POOL, CONFIG],
+    },
     AuthGuard,
+    AuditAdminGuard,
   ],
 })
 export class AppModule {}

@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { loadConfig } from './config.js';
 import { startMetricsServer } from './metrics.js';
+import { AUDIT_FORWARDER } from './app.module.js';
+import type { AuditForwarder } from './audit/forwarder.js';
 
 async function bootstrap() {
   const cfg = loadConfig();
@@ -11,6 +13,13 @@ async function bootstrap() {
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   await app.listen(cfg.API_PORT, '0.0.0.0');
   startMetricsServer(cfg.METRICS_PORT, cfg.METRICS_HOST);
+  // SIEM forwarding runs in the background after the API is already serving; start() never blocks or throws.
+  app.enableShutdownHooks();
+  const forwarder = app.get<AuditForwarder | null>(AUDIT_FORWARDER);
+  if (forwarder) {
+    forwarder.start();
+    console.log('audit forwarding enabled');
+  }
   console.log(`api listening on ${cfg.API_PORT}`);
 }
 bootstrap();
