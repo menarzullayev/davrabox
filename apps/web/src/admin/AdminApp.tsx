@@ -2,23 +2,25 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { User } from 'oidc-client-ts';
 import { freshToken } from '../auth';
 import { t, type Lang } from '../i18n';
-import { Avatar, Button, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
+import { Avatar, Button, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
 import { Audit } from './Audit';
 import { createAdminClient } from './client';
 import { Departments } from './Departments';
+import { Integrations } from './Integrations';
 import { Overview } from './Overview';
 import { Policies } from './Policies';
 import { Users } from './Users';
 import { AdminCtx, makeReport } from './ui';
 import './admin.css';
 
-const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit'] as const;
+const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations'] as const;
 type Section = (typeof SECTIONS)[number];
 const ICON = {
   overview: IconLayoutGrid,
   users: IconUsers,
   departments: IconLayoutRing,
   policies: IconShield,
+  integrations: IconLink,
   audit: IconShieldCheck,
 } as const;
 const LABEL = {
@@ -26,6 +28,7 @@ const LABEL = {
   users: 'admUsers',
   departments: 'admDepartments',
   policies: 'admPolicies',
+  integrations: 'admIntegrations',
   audit: 'admAudit',
 } as const;
 
@@ -95,6 +98,7 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
             {section === 'users' && <Users />}
             {section === 'departments' && <Departments />}
             {section === 'policies' && <Policies />}
+            {section === 'integrations' && <Integrations />}
             {section === 'audit' && <Audit />}
           </div>
         </div>

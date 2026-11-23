@@ -178,3 +178,11 @@ dialog.dx-dialog .dx-dialog__body > p { margin: 0 0 var(--space-3); }
   .adm input:not(.dx-input):not([type='checkbox']):not([type='radio']),
   .adm select:not(.dx-select__control) { min-height: var(--target-coarse); }
 }
+
+/* Integrations: API keys and webhooks */
+.int-block { margin: 0 0 var(--space-8, 2rem); }
+.sub-title { font-size: var(--text-lg); font-weight: var(--weight-semibold); color: var(--text); margin: 0 0 var(--space-2); }
+fieldset.checks { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-2); margin: 0; min-width: 0; }
+fieldset.checks legend { color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-medium); padding: 0 var(--space-1); }
+.wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
+.inline-label { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--text-sm); }
