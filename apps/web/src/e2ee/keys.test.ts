@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildShareLink, generateMeetingKey, keyToBytes, loadStoredKey, parseKeyFromHash, storeKey, takeKeyFromLocation } from './keys';
+import { buildShareLink, extractKeyFromText, generateMeetingKey, keyToBytes, loadStoredKey, parseKeyFromHash, storeKey, takeKeyFromLocation } from './keys';
 
 const CODE = '12345678901';
 
@@ -108,6 +108,19 @@ describe('session storage', () => {
     });
     expect(() => storeKey(CODE, generateMeetingKey())).not.toThrow();
     expect(loadStoredKey(CODE)).toBeNull();
+  });
+});
+
+describe('extractKeyFromText', () => {
+  it('takes the key from a pasted full link, a fragment or the bare key, and nothing else', () => {
+    const k = generateMeetingKey();
+    expect(extractKeyFromText(`https://davra.example/app?join=${CODE}#k=${k}`)).toBe(k);
+    expect(extractKeyFromText(`  #k=${k}  `)).toBe(k);
+    expect(extractKeyFromText(k)).toBe(k);
+    expect(extractKeyFromText(`https://davra.example/app?join=${CODE}`)).toBeNull();
+    expect(extractKeyFromText(`https://davra.example/app?k=${k}`)).toBeNull(); // a key in the query is never accepted as a share link
+    expect(extractKeyFromText('')).toBeNull();
+    expect(extractKeyFromText('#'.repeat(100_000))).toBeNull();
   });
 });
 

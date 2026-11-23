@@ -36,7 +36,7 @@ export function keyToBytes(key: string): Uint8Array {
 }
 
 /** True only for a canonical base64url encoding of exactly 32 bytes (the last character carries no stray bits). */
-export function isValidKey(key: unknown): key is string {
+export function isValidKey(key: unknown): boolean {
   if (typeof key !== 'string' || key.length !== KEY_CHARS || !B64URL.test(key)) return false;
   try {
     const bin = atob(key.replace(/-/g, '+').replace(/_/g, '/') + '=');
@@ -71,6 +71,17 @@ export function parseKeyFromHash(hash: string): string | null {
   return found !== null && isValidKey(found) ? found : null;
 }
 
+/**
+ * What people paste into the "I have the key" field: the whole share link, a fragment, or the bare key. Returns the key
+ * or null. Splits at the first `#` and parses the fragment, so there is no pattern that can backtrack.
+ */
+export function extractKeyFromText(text: string): string | null {
+  const s = text.trim();
+  if (isValidKey(s)) return s;
+  const i = s.indexOf('#');
+  return i >= 0 ? parseKeyFromHash(s.slice(i)) : null;
+}
+
 /** `https://host/app?join=<code>#k=<key>`; the key goes only after the `#`. */
 export function buildShareLink(origin: string, code: string, key: string): string {
   if (!CODE.test(code)) throw new Error('invalid meeting code');
@@ -91,7 +102,7 @@ export function loadStoredKey(code: string): string | null {
   if (!CODE.test(code)) return null;
   try {
     const v = sessionStorage.getItem(STORE_PREFIX + code);
-    return isValidKey(v) ? v : null;
+    return v !== null && isValidKey(v) ? v : null;
   } catch {
     return null;
   }
@@ -105,7 +116,7 @@ export function storedKeys(): string[] {
       const name = sessionStorage.key(i);
       if (name?.startsWith(STORE_PREFIX)) {
         const v = sessionStorage.getItem(name);
-        if (isValidKey(v)) out.push(v);
+        if (v !== null && isValidKey(v)) out.push(v);
       }
     }
   } catch {

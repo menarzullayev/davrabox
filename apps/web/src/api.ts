@@ -1,3 +1,5 @@
+import { assertNoMeetingKey } from './e2ee/guard';
+
 export interface Meeting {
   id: string;
   code: string;
@@ -7,6 +9,8 @@ export interface Meeting {
   scheduled_at: string | null;
   has_passcode: boolean;
   is_host?: boolean;
+  /** End-to-end encrypted meeting (absent on an API that predates the feature: treated as false). */
+  e2ee?: boolean;
 }
 
 export interface JoinedResult {
@@ -16,6 +20,8 @@ export interface JoinedResult {
   meetingId: string;
   title: string;
   isHost: boolean;
+  /** The media is end-to-end encrypted; the key comes from the link fragment and is never sent to the server. */
+  e2ee?: boolean;
 }
 export type JoinResult = JoinedResult | { status: 'waiting'; requestId: string };
 
@@ -49,11 +55,10 @@ export class ApiError extends Error {
 }
 
 async function call<T>(token: string, path: string, init?: { method?: string; body?: unknown }): Promise<T> {
-  const res = await fetch(`/api${path}`, {
-    method: init?.method ?? 'GET',
-    headers: { Authorization: `Bearer ${token}`, ...(init?.body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
-    body: init?.body !== undefined ? JSON.stringify(init.body) : undefined,
-  });
+  const headers = { Authorization: `Bearer ${token}`, ...(init?.body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
+  const body = init?.body !== undefined ? JSON.stringify(init.body) : undefined;
+  assertNoMeetingKey({ url: `/api${path}`, headers, body }); // an E2EE meeting key never leaves the browser
+  const res = await fetch(`/api${path}`, { method: init?.method ?? 'GET', headers, body });
   if (!res.ok) {
     let detail = '';
     try {
@@ -70,11 +75,10 @@ const enc = encodeURIComponent;
 
 /** Uploads a file to the meeting (raw body, authorised by the bearer token). */
 async function uploadFile(token: string, code: string, file: File): Promise<{ id: string; name: string; size: number }> {
-  const res = await fetch(`/api/v1/meetings/${enc(code)}/files?name=${enc(file.name)}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' },
-    body: file,
-  });
+  const url = `/api/v1/meetings/${enc(code)}/files?name=${enc(file.name)}`;
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' };
+  assertNoMeetingKey({ url, headers });
+  const res = await fetch(url, { method: 'PUT', headers, body: file });
   if (!res.ok) {
     let detail = '';
     try {
@@ -117,7 +121,7 @@ export const api = {
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
-  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean }) =>
+  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),
   join: (token: string, code: string, passcode?: string) =>
     call<JoinResult>(token, `/v1/meetings/${enc(code)}/join`, { method: 'POST', body: { passcode } }),
