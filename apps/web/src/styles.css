@@ -1,5 +1,8 @@
+/* Pre-design-system screens (home, call). Wrapped in the `legacy` layer so the `dx` layer in ui/ui.css always wins. */
+@layer legacy, dx;
+@layer legacy {
 * { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; background: var(--bg); color: var(--text); }
 h1 { font-size: 1.4rem; margin: 0; }
 h2 { font-size: 1rem; color: var(--muted); font-weight: 600; margin: 1.5rem 0 .6rem; }
 button, input, select { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: .55rem .8rem; }
@@ -59,3 +62,4 @@ button.danger { background: var(--danger); border-color: var(--danger); color: v
 .grid.speaker .tile.share { grid-column: 1 / -1; grid-row: span 4; }
 .file-chip { text-align: left; max-width: 100%; overflow-wrap: anywhere; }
 .chat-form input[hidden] { display: none; }
+}
