@@ -1,9 +1,16 @@
 name: Desktop build
 
-# Builds the unsigned Electron app for Windows, macOS and Linux and checks the security fuses of the result.
-# Signing and notarisation need certificates that do not exist yet (see docs/HELD.md), so these builds are for testing only.
+# Builds the Electron app for Windows, macOS and Linux.
+#  - All signing secrets of a platform present  -> signed (and notarised on macOS) artifacts.
+#  - None present                               -> artifacts named "-UNSIGNED-", flagged in the job summary, never published.
+#  - Only some present                          -> the job FAILS (see apps/desktop/scripts/signing-mode.mjs).
+# A tag "desktop-v*" additionally requires signed Windows and macOS builds (REQUIRE_SIGNED=true) and then creates a DRAFT
+# GitHub Release; the auto-updater only sees a release after a human publishes it. Details: docs/desktop-signing.md.
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "desktop-v*"
 
 permissions:
   contents: read
@@ -15,7 +22,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-24.04]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      REQUIRE_SIGNED: ${{ startsWith(github.ref, 'refs/tags/desktop-v') && 'true' || vars.REQUIRE_SIGNED }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -26,9 +35,46 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @davrabox/desktop test
       - run: pnpm --filter @davrabox/desktop typecheck
-      - run: pnpm --filter @davrabox/desktop run dist
+      - name: Build (signed only when the full secret set exists)
+        run: pnpm --filter @davrabox/desktop run dist:release
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGN_ENDPOINT: ${{ secrets.AZURE_SIGN_ENDPOINT }}
+          AZURE_SIGN_ACCOUNT: ${{ secrets.AZURE_SIGN_ACCOUNT }}
+          AZURE_SIGN_PROFILE: ${{ secrets.AZURE_SIGN_PROFILE }}
+          AZURE_SIGN_PUBLISHER: ${{ secrets.AZURE_SIGN_PUBLISHER }}
+          MAC_CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Read whether this build was signed
+        id: mode
+        shell: bash
+        run: echo "signed=$(node -p "require('./apps/desktop/dist/build-info.json').signed")" >> "$GITHUB_OUTPUT"
+      - name: Verify signatures (signed builds only)
+        if: steps.mode.outputs.signed == 'true'
+        shell: bash
+        working-directory: apps/desktop
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            for f in release/*.exe release/win-unpacked/DavraBox.exe; do node scripts/verify-signature.mjs "$f" --platform win; done
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            APP=$(find release -maxdepth 2 -name 'DavraBox.app' -type d | head -1)
+            test -n "$APP"
+            node scripts/verify-signature.mjs "$APP" --platform mac
+            for f in release/*.dmg; do node scripts/verify-signature.mjs "$f" --platform mac; done
+          fi
+      - name: Mark unsigned output
+        if: steps.mode.outputs.signed != 'true'
+        shell: bash
+        run: |
+          echo "::warning::UNSIGNED build (${RUNNER_OS}), test artifact only, do not distribute."
       - name: Read the fuses of the built app
         shell: bash
         run: |
@@ -40,3 +86,45 @@ jobs:
           grep -q "RunAsNode is Disabled" fuses.txt
           grep -q "EnableNodeCliInspectArguments is Disabled" fuses.txt
           grep -q "OnlyLoadAppFromAsar is Enabled" fuses.txt
+      - uses: actions/upload-artifact@v4
+        if: runner.os != 'Linux'
+        with:
+          name: desktop-${{ runner.os }}-${{ steps.mode.outputs.signed == 'true' && 'signed' || 'UNSIGNED' }}
+          if-no-files-found: error
+          path: |
+            apps/desktop/release/*.exe
+            apps/desktop/release/*.blockmap
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip
+            apps/desktop/release/latest*.yml
+
+  release:
+    # Only for a desktop-v* tag: all inputs must be signed, and the release is created as a draft.
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/desktop-v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+      - name: Refuse anything unsigned
+        run: |
+          set -euo pipefail
+          ls -R assets
+          if find assets -iname '*UNSIGNED*' | grep -q .; then echo "unsigned artifact present, refusing to release"; exit 1; fi
+          test -n "$(find assets -name 'latest.yml')"
+          test -n "$(find assets -name 'latest-mac.yml')"
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - name: Create a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # electron-updater (GitHub provider) only recognises releases tagged v<semver>; it skips other tags.
+          VERSION=$(node -p "require('./src/apps/desktop/package.json').version")
+          test "$GITHUB_REF_NAME" = "desktop-v${VERSION}" || { echo "tag $GITHUB_REF_NAME does not match package version $VERSION"; exit 1; }
+          gh release create "v${VERSION}" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title "DavraBox desktop ${VERSION}" --notes "Signed desktop build. Publish this draft to release it to auto-update clients." $(find assets -type f)
