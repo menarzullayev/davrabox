@@ -1,3 +1,4 @@
+import { s3ClientOptions } from '../common/timeouts.js';
 import type { Readable } from 'node:stream';
 import { CreateBucketCommand, DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import type { ObjectStore } from './recording.service.js';
@@ -7,7 +8,7 @@ export class S3Store implements ObjectStore {
   private ready = false;
 
   constructor(o: { endpoint: string; accessKey: string; secretKey: string; region: string }, private readonly bucket: string) {
-    this.s3 = new S3Client({ endpoint: o.endpoint, region: o.region, forcePathStyle: true, credentials: { accessKeyId: o.accessKey, secretAccessKey: o.secretKey } });
+    this.s3 = new S3Client({ endpoint: o.endpoint, region: o.region, forcePathStyle: true, credentials: { accessKeyId: o.accessKey, secretAccessKey: o.secretKey }, ...s3ClientOptions() });
   }
 
   async ensure(): Promise<void> {

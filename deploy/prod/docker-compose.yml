@@ -86,14 +86,28 @@ services:
       CALENDAR_PUBLIC_URL: https://${PUBLIC_HOST}
       CORS_ORIGINS: https://${PUBLIC_HOST}
       METRICS_HOST: 0.0.0.0 # reachable only on the internal network; the port is never published
+      # Shared rate-limit counters (keys are prefixed davra:rl:). The LiveKit redis below is reused; it has no persistence,
+      # so counters reset when it restarts. Without REDIS_URL the API counts in memory and logs a warning.
+      REDIS_URL: redis://redis:6379
+      # Proxies in front of the API that append to X-Forwarded-For: Caddy alone = 1 (Cloudflare tunnel + Caddy = 2).
+      SIGNUP_TRUSTED_PROXY_HOPS: ${SIGNUP_TRUSTED_PROXY_HOPS:-1}
     read_only: true
     tmpfs: [/tmp]
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
+    stop_grace_period: 30s # SIGTERM drains in-flight requests and closes pools (the API force-exits after 25 s)
     depends_on:
       migrate: { condition: service_completed_successfully }
       keycloak: { condition: service_started }
       livekit: { condition: service_started }
+      redis: { condition: service_started }
+    # The image is distroless (no shell, no curl): the check is a tiny node script. /readyz = Postgres + media server answer.
+    healthcheck:
+      test: ["CMD", "/nodejs/bin/node", "dist/healthcheck.js", "/readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     mem_limit: 512m
 
   keycloak:

@@ -1,6 +1,8 @@
 import { Inject, Module, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
+import { createPool } from '../db/pool.js';
 import { RoomServiceClient } from 'livekit-server-sdk';
+import { livekitClientOptions } from '../common/timeouts.js';
 import { KeycloakAdmin } from '../admin/identity-admin.js';
 import { AuthGuard, POOL, VERIFIER } from '../auth/auth.guard.js';
 import { createVerifier } from '../auth/jwt.js';
@@ -29,7 +31,7 @@ const SWEEPER = Symbol('TRIAL_SWEEPER');
   controllers: [SignupController, TrialController],
   providers: [
     { provide: SIGNUP_CONFIG, useFactory: () => loadConfig() },
-    { provide: SIGNUP_POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 4 }), inject: [SIGNUP_CONFIG] },
+    { provide: SIGNUP_POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 4), inject: [SIGNUP_CONFIG] },
     {
       provide: KEYCLOAK,
       useFactory: (cfg: Config) =>
@@ -56,7 +58,7 @@ const SWEEPER = Symbol('TRIAL_SWEEPER');
     { provide: RETENTION, useFactory: (pool: Pool, kc: KeycloakAdmin | null) => new TrialRetentionJob(pool, kc), inject: [SIGNUP_POOL, KEYCLOAK] },
     {
       provide: SWEEPER,
-      useFactory: (pool: Pool, cfg: Config) => new TrialRoomSweeper(pool, new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET)),
+      useFactory: (pool: Pool, cfg: Config) => new TrialRoomSweeper(pool, new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions())),
       inject: [SIGNUP_POOL, SIGNUP_CONFIG],
     },
   ],
@@ -77,6 +79,6 @@ export class SignupModule implements OnApplicationBootstrap, OnApplicationShutdo
   async onApplicationShutdown(): Promise<void> {
     this.retention.stop();
     this.sweeper.stop();
-    await this.pool.end();
+    if (!this.pool.ended) await this.pool.end(); // ManagedPool also closes itself; either order is safe
   }
 }

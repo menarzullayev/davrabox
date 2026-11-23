@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
+import { createPool } from '../db/pool.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import { loadConfig, type Config } from '../config.js';
 import { AuthGuard, POOL, VERIFIER } from '../auth/auth.guard.js';
 import { createVerifier } from '../auth/jwt.js';
@@ -33,7 +35,7 @@ import { WebhooksService } from './webhooks.service.js';
   providers: [
     { provide: EXT_CONFIG, useFactory: () => loadExtConfig() },
     { provide: EXT_CORE_CONFIG, useFactory: () => loadConfig() },
-    { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 6 }), inject: [EXT_CORE_CONFIG] },
+    { provide: POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 6), inject: [EXT_CORE_CONFIG] },
     {
       provide: VERIFIER,
       useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL),
@@ -42,8 +44,8 @@ import { WebhooksService } from './webhooks.service.js';
     { provide: EXT_KEYS, useFactory: (pool: Pool, ext: ExtConfig) => new ApiKeysService(pool, ext), inject: [POOL, EXT_CONFIG] },
     {
       provide: EXT_MEETINGS,
-      useFactory: (pool: Pool, cfg: Config) => new ExtMeetingsService(pool, new MeetingsService(pool, cfg), cfg),
-      inject: [POOL, EXT_CORE_CONFIG],
+      useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ExtMeetingsService(pool, new MeetingsService(pool, cfg, rate), cfg),
+      inject: [POOL, EXT_CORE_CONFIG, RateLimitService],
     },
     { provide: EXT_USERS, useFactory: (pool: Pool) => new ExtUsersService(pool), inject: [POOL] },
     {

@@ -77,6 +77,8 @@ interface KcConfig {
   realm: string;
   clientId: string;
   clientSecret: string;
+  /** Per-request limit; default 10 s. */
+  timeoutMs?: number;
 }
 
 interface KcUser {
@@ -93,8 +95,11 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
+  private readonly timeoutMs: number;
+
   constructor(private readonly cfg: KcConfig) {
     this.base = cfg.baseUrl.replace(/\/+$/, '');
+    this.timeoutMs = cfg.timeoutMs ?? TIMEOUT_MS;
   }
 
   private async accessToken(): Promise<string> {
@@ -108,7 +113,7 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
           client_id: this.cfg.clientId,
           client_secret: this.cfg.clientSecret,
         }),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch {
       throw new IdentityAdminError(502, 'identity provider is unreachable');
@@ -127,7 +132,7 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
         method,
         headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
         body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch {
       throw new IdentityAdminError(502, 'identity provider is unreachable');

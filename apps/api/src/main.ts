@@ -5,6 +5,7 @@ import { loadConfig } from './config.js';
 import { startMetricsServer } from './metrics.js';
 import { AUDIT_FORWARDER } from './app.module.js';
 import type { AuditForwarder } from './audit/forwarder.js';
+import { armShutdownWatchdog } from './shutdown.js'; // REL
 
 async function bootstrap() {
   const cfg = loadConfig();
@@ -15,6 +16,9 @@ async function bootstrap() {
   startMetricsServer(cfg.METRICS_PORT, cfg.METRICS_HOST);
   // SIEM forwarding runs in the background after the API is already serving; start() never blocks or throws.
   app.enableShutdownHooks();
+  // --- REL: graceful shutdown (SIGTERM drains in-flight requests, closes pools; a stuck drain is force-exited after 25 s) ---
+  armShutdownWatchdog();
+  // --- end REL ---
   const forwarder = app.get<AuditForwarder | null>(AUDIT_FORWARDER);
   if (forwarder) {
     forwarder.start();
