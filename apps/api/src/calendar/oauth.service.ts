@@ -88,7 +88,7 @@ export class CalendarOAuthService {
   }
 
   redirectUri(provider: Provider): string {
-    return `${this.cfg.CALENDAR_PUBLIC_URL!.replace(/\/+$/, '')}/v1/calendar/${provider}/callback`;
+    return `${this.cfg.CALENDAR_PUBLIC_URL!.replace(/\/+$/, '')}/api/v1/calendar/${provider}/callback`;
   }
 
   /** Where the browser is sent after the callback (a constant on our own origin; nothing from the request is reflected). */

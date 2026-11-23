@@ -120,6 +120,11 @@ async function connected(provider: 'google' | 'microsoft', user: AuthedUser, ref
 }
 
 describe('configuration', () => {
+  it('treats empty values (docker compose passes unset variables as empty strings) as not configured', () => {
+    const c = loadCalendarConfig({ GOOGLE_CLIENT_ID: '', GOOGLE_CLIENT_SECRET: '', MS_CLIENT_ID: '', MS_CLIENT_SECRET: '', CALENDAR_PUBLIC_URL: '', FILE_MASTER_KEY: '' });
+    expect(c.GOOGLE_CLIENT_ID).toBeUndefined();
+    expect(c.CALENDAR_PUBLIC_URL).toBeUndefined();
+  });
   it('reads optional keys and rejects a plain-http public url that is not localhost', () => {
     expect(loadCalendarConfig({}).GOOGLE_CLIENT_ID).toBeUndefined();
     expect(() => loadCalendarConfig({ CALENDAR_PUBLIC_URL: 'http://meet.example.com' })).toThrow(/CALENDAR_PUBLIC_URL/);
@@ -134,7 +139,7 @@ describe('K1 start: authorization request', () => {
     const g = new URL((await oauth.start(host, 'google')).url);
     expect(g.origin + g.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
     expect(g.searchParams.get('client_id')).toBe('g-client-id');
-    expect(g.searchParams.get('redirect_uri')).toBe('https://meet.example.test/v1/calendar/google/callback');
+    expect(g.searchParams.get('redirect_uri')).toBe('https://meet.example.test/api/v1/calendar/google/callback');
     expect(g.searchParams.get('response_type')).toBe('code');
     expect(g.searchParams.get('code_challenge_method')).toBe('S256');
     expect(g.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]{43}$/);
@@ -225,7 +230,7 @@ describe('K1 callback: state, PKCE and token storage', () => {
     mock.on(G_TOKEN, json(200, { access_token: 'a', refresh_token: 'r', expires_in: 3600, scope: GOOGLE_SCOPE }));
     await oauth.callback('google', { code: 'the-code', state: url.searchParams.get('state')! });
     const body = form(mock.to(G_TOKEN)[0]!);
-    expect(body).toMatchObject({ grant_type: 'authorization_code', code: 'the-code', client_id: 'g-client-id', client_secret: 'g-client-secret', redirect_uri: 'https://meet.example.test/v1/calendar/google/callback' });
+    expect(body).toMatchObject({ grant_type: 'authorization_code', code: 'the-code', client_id: 'g-client-id', client_secret: 'g-client-secret', redirect_uri: 'https://meet.example.test/api/v1/calendar/google/callback' });
     expect(createHash('sha256').update(body.code_verifier!).digest('base64url')).toBe(url.searchParams.get('code_challenge'));
   });
 
