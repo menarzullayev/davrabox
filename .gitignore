@@ -27,3 +27,4 @@ docs/Korporativ_*
 .claude/
 apps/web/dist-lab/
 docs/design/critic/*.jpg
+PRODUCTION-READINESS.md

@@ -27,6 +27,22 @@ const must = async (res, what) => {
   return res;
 };
 const enc = encodeURIComponent;
+
+// `--off` switches every second-factor prompt off (user decision 2026-11-24): the realm goes back to the built-in
+// browser flow and its conditional OTP step is disabled, so nobody is asked to enrol or enter an authenticator code.
+// The custom flow stays in the realm, so running this script without `--off` turns the enforcement back on.
+if (process.argv.includes('--off')) {
+  const realm0 = await (await must(await fetch(`${BASE}/admin/realms/${REALM}`, { headers: h }), 'get realm')).json();
+  if (realm0.browserFlow !== 'browser') {
+    await must(await fetch(`${BASE}/admin/realms/${REALM}`, { method: 'PUT', headers: h, body: JSON.stringify({ ...realm0, browserFlow: 'browser' }) }), 'bind built-in browser flow');
+  }
+  const ex = await (await must(await api('/authentication/flows/browser/executions'), 'list built-in executions')).json();
+  for (const e of ex.filter((x) => x.authenticationFlow && /conditional/i.test(x.displayName ?? '') && /(otp|2fa)/i.test(x.displayName ?? '') && x.requirement !== 'DISABLED')) {
+    await must(await api('/authentication/flows/browser/executions', { method: 'PUT', body: JSON.stringify({ ...e, requirement: 'DISABLED' }) }), `disable ${e.displayName}`);
+  }
+  console.log('2FA is OFF: built-in browser flow, conditional OTP disabled');
+  process.exit(0);
+}
 const list = async () => (await must(await api(`/authentication/flows/${enc(FLOW)}/executions`), 'list executions')).json();
 const put = async (e, requirement) =>
   must(await api(`/authentication/flows/${enc(FLOW)}/executions`, { method: 'PUT', body: JSON.stringify({ ...e, requirement }) }), `set ${e.displayName}`);
