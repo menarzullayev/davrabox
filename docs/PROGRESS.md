@@ -130,5 +130,10 @@ The user decided that phase 1 is closed with these items left open because none 
 - Limits: tested with Chromium's fake camera (no person in frame, so the whole frame counts as background); segmentation quality on real faces, CPU cost on weak laptops and Safari/Firefox support are not measured (the UI shows an error when `supportsBackgroundProcessors()` is false). The processed video is not yet usable together with the planned E2EE insertable-streams mode (phase 4 design question).
 - Still open in phase 2: TURN + TLS 443, file sharing in chat, co-host, Electron app, 50-participant load test, Keycloak login page i18n.
 
+## 2026-11-23 (phase 2, slice 6): Keycloak login page in uz/ru/en
+- Custom login theme `davrabox` (parent keycloak.v2) with Uzbek (Latin) messages for the login, authenticator-app, passkey, error and password-reset screens (single source: `deploy/helm/davrabox/files/keycloak-theme`, mounted by compose and rendered into a ConfigMap by the Helm chart); realm `loginTheme=davrabox`. Russian and English come from Keycloak itself. Keys missing from `messages_uz.properties` fall back to English (not every rarely used screen is translated).
+- Evidence: `apps/e2e/logini18n.e2e.mjs` 5/5 PASSED (Uzbek page without leftover English, Russian, English, and a wrong password reported in Uzbek). Helm lint and template PASSED (theme ConfigMap rendered).
+- Not verified: the theme inside the kind staging cluster (will roll out with this commit; check after); screens such as account console and admin console are not themed.
+
 Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.

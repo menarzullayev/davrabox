@@ -9,6 +9,18 @@ data:
   davrabox-realm.json: |
 {{ required "install with --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json" .Values.keycloak.realmJson | indent 4 }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-theme
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+data:
+  theme.properties: |
+{{ .Files.Get "files/keycloak-theme/login/theme.properties" | indent 4 }}
+  messages_uz.properties: |
+{{ .Files.Get "files/keycloak-theme/login/messages/messages_uz.properties" | indent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,8 +58,15 @@ spec:
           resources: {{ toYaml .Values.keycloak.resources | nindent 12 }}
           volumeMounts:
             - { name: realm, mountPath: /opt/keycloak/data/import, readOnly: true }
+            - { name: theme, mountPath: /opt/keycloak/themes/davrabox/login, readOnly: true }
       volumes:
         - { name: realm, configMap: { name: keycloak-realm } }
+        - name: theme
+          configMap:
+            name: keycloak-theme
+            items:
+              - { key: theme.properties, path: theme.properties }
+              - { key: messages_uz.properties, path: messages/messages_uz.properties }
 ---
 apiVersion: v1
 kind: Service

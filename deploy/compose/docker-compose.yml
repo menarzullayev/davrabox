@@ -47,6 +47,7 @@ services:
       PUBLIC_HOST: ${LAN_IP}:8443
     volumes:
       - ../keycloak/davrabox-realm.json:/opt/keycloak/data/import/davrabox-realm.json:ro
+      - ../helm/davrabox/files/keycloak-theme:/opt/keycloak/themes/davrabox:ro
     ports:
       - "${LAN_IP}:8180:8080"
     depends_on:
