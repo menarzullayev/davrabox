@@ -42,6 +42,15 @@ const uz = {
   removeFromMeeting: 'Chiqarib yuborish',
   errDenied: 'Host so‘rovingizni rad etdi',
   errRemoved: 'Siz bu uchrashuvdan chiqarilgansiz',
+  chat: 'Chat',
+  chatPlaceholder: 'Xabar yozing…',
+  send: 'Yuborish',
+  toEveryone: 'Hammaga',
+  privateTag: 'shaxsiy',
+  privateTo: 'shaxsiy →',
+  raiseHand: 'Qo‘l ko‘tarish',
+  lowerHand: 'Qo‘lni tushirish',
+  reactions: 'Reaksiyalar',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -88,6 +97,15 @@ const ru: Record<Key, string> = {
   removeFromMeeting: 'Удалить из встречи',
   errDenied: 'Хост отклонил ваш запрос',
   errRemoved: 'Вы удалены из этой встречи',
+  chat: 'Чат',
+  chatPlaceholder: 'Напишите сообщение…',
+  send: 'Отправить',
+  toEveryone: 'Всем',
+  privateTag: 'личное',
+  privateTo: 'личное →',
+  raiseHand: 'Поднять руку',
+  lowerHand: 'Опустить руку',
+  reactions: 'Реакции',
 };
 
 const en: Record<Key, string> = {
@@ -132,6 +150,15 @@ const en: Record<Key, string> = {
   removeFromMeeting: 'Remove',
   errDenied: 'The host declined your request',
   errRemoved: 'You were removed from this meeting',
+  chat: 'Chat',
+  chatPlaceholder: 'Type a message…',
+  send: 'Send',
+  toEveryone: 'Everyone',
+  privateTag: 'private',
+  privateTo: 'private →',
+  raiseHand: 'Raise hand',
+  lowerHand: 'Lower hand',
+  reactions: 'Reactions',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
