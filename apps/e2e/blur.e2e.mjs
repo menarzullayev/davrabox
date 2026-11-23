@@ -29,7 +29,7 @@ try {
     if (m.type() === 'error' && /Content.Security.Policy|Refused to/i.test(m.text())) consoleErrors.push(m.text().slice(0, 160));
   });
 
-  await page.goto(BASE + '/');
+  await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', 'user.demo');

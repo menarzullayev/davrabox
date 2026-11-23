@@ -46,9 +46,9 @@ export function parseJoinInput(raw: string): JoinParse {
   return { status: 'invalid', reason: 'notCode' };
 }
 
-/** Link that opens the home screen with the join field pre-filled (handled by App through ?join=). */
+/** Link that opens the application with the join field pre-filled (handled by App through ?join=; the app lives at /app). */
 export function joinLink(origin: string, code: string): string {
-  return `${origin.replace(/\/+$/, '')}/?join=${encodeURIComponent(code)}`;
+  return `${origin.replace(/\/+$/, '')}/app?join=${encodeURIComponent(code)}`;
 }
 
 // ---- day timeline -------------------------------------------------------------------------------------------

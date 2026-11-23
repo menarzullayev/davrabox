@@ -29,7 +29,7 @@ async function open(username, password, relay) {
     window.RTCPeerConnection.prototype = Native.prototype;
   });
   const page = await ctx.newPage();
-  await page.goto(BASE + '/');
+  await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);

@@ -15,7 +15,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 async function openAdmin(username, password, locale = 'en-US') {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale });
   const page = await ctx.newPage();
-  await page.goto(BASE + '/');
+  await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);

@@ -1,6 +1,7 @@
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { isLandingPath, isSignupPath, legacyJoinRedirect } from './routes';
 import '@davrabox/design-tokens/tokens.css';
 import './fonts.css';
 import './styles.css';
@@ -23,6 +24,15 @@ const isCallLab = LAB_ENABLED && location.pathname.replace(/\/+$/, '') === '/lab
 const Lab = import.meta.env.DEV || import.meta.env.VITE_HOME_LAB === '1' ? lazy(() => import('./home/HomeLab')) : null;
 const isLab = Lab !== null && location.pathname.replace(/\/+$/, '') === '/lab/home';
 
+// "/" is the landing page and "/app/signup" the trial sign-up, both lazy chunks that cost the application nothing; every
+// other path (/app, /admin) is the application. Old meeting links (/j/<code>, /?join=<code>, /?code=<code>) are sent to /app.
+const legacy = legacyJoinRedirect(location);
+if (legacy) location.replace(legacy);
+const Landing = lazy(() => import('./landing/Landing'));
+const Signup = lazy(() => import('./landing/Signup'));
+const isLanding = !legacy && isLandingPath(location.pathname);
+const isSignup = isSignupPath(location.pathname);
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {isCallLab && CallLab ? (
@@ -37,7 +47,15 @@ createRoot(document.getElementById('root')!).render(
       <Suspense fallback={null}>
         <Lab />
       </Suspense>
-    ) : (
+    ) : isSignup ? (
+      <Suspense fallback={null}>
+        <Signup />
+      </Suspense>
+    ) : isLanding ? (
+      <Suspense fallback={null}>
+        <Landing />
+      </Suspense>
+    ) : legacy ? null : (
       <App />
     )}
   </StrictMode>,
