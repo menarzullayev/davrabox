@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { t } from '../i18n';
+import { Avatar, Badge } from '../ui';
 import type { AdminUser, Department, Role } from './client';
 import { createFlowReducer, mergePage, type PagedState } from './helpers';
 import { ConfirmDialog, ErrorBox, Modal, Status, TableWrap, tf, useAdmin } from './ui';
@@ -250,11 +251,16 @@ export function Users() {
           <tbody>
             {state.items.map((u) => (
               <tr key={u.id} className={u.disabled ? 'is-disabled' : undefined}>
-                <td>{u.email}</td>
+                <td>
+                  <span className="who-cell">
+                    <Avatar name={u.displayName || u.email} id={u.id} size={28} decorative />
+                    <span>{u.email}</span>
+                  </span>
+                </td>
                 <td>{u.displayName}</td>
-                <td>{roleLabel(lang, u.role)}</td>
+                <td><Badge tone={u.role === 'org_admin' ? 'gold' : 'neutral'}>{roleLabel(lang, u.role)}</Badge></td>
                 <td>{u.department?.name ?? <span className="muted">{t(lang, 'admNoDepartment')}</span>}</td>
-                <td>{u.disabled ? t(lang, 'admDisabled') : t(lang, 'admActive')}</td>
+                <td><Badge tone={u.disabled ? 'neutral' : 'success'} dot>{u.disabled ? t(lang, 'admDisabled') : t(lang, 'admActive')}</Badge></td>
                 <td className="actions">
                   <button onClick={() => setEditing(u)} aria-label={`${t(lang, 'admEdit')}: ${u.email}`}>{t(lang, 'admEdit')}</button>
                   <button onClick={() => { setToggleErr(null); setToggling(u); }} aria-label={`${t(lang, u.disabled ? 'admEnable' : 'admDisable')}: ${u.email}`}>

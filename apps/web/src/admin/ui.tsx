@@ -44,15 +44,17 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
   return (
     <dialog
       ref={ref}
-      className={wide ? 'modal wide' : 'modal'}
+      className={wide ? 'dx-dialog dx-dialog--wide' : 'dx-dialog'}
       aria-labelledby={id}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
       }}
     >
-      <h2 id={id} className="modal-title">{title}</h2>
-      {children}
+      <div className="dx-dialog__head">
+        <h2 id={id} className="dx-dialog__title">{title}</h2>
+      </div>
+      <div className="dx-dialog__body">{children}</div>
     </dialog>
   );
 }

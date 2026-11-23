@@ -58,6 +58,7 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
   const hint = parsed.status === 'incomplete' ? tx(lang, 'hJoinIncomplete', { n: parsed.missing }) : tx(lang, 'hJoinHint');
 
   const onChange = (raw: string) => {
+    if (raw.trim() === '') setAttempted(false);
     const p = parseJoinInput(raw);
     // A pasted link is replaced by the code it contains, so people see what will be joined.
     if (p.status === 'valid' && p.fromLink) {
