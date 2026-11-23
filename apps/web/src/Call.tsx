@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Room, RoomEvent, Track, type Participant, type RemoteParticipant, type RemoteTrack, type TrackPublication } from 'livekit-client';
+import { Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant, type RemoteTrack, type TrackPublication } from 'livekit-client';
 import { t, type Lang } from './i18n';
+import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { api, type JoinedResult, type JoinRequest } from './api';
 import { REACTIONS, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
 
@@ -139,6 +140,7 @@ export function Call({
   const [hands, setHands] = useState<Record<string, boolean>>({});
   const [myHand, setMyHand] = useState(false);
   const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
+  const [blurOn, setBlurOn] = useState(false);
   const [layout, setLayout] = useState<'gallery' | 'speaker'>('gallery');
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
@@ -258,6 +260,7 @@ export function Call({
       } else {
         await room.localParticipant.setCameraEnabled(!cam);
         setCam(!cam);
+        setBlurOn(false); // a new camera track starts without the processor
       }
     } catch {
       setError(t(lang, 'errMedia'));
@@ -307,6 +310,32 @@ export function Call({
       readNoise();
     } catch {
       setError(t(lang, 'errMedia'));
+    }
+  };
+  // Background blur runs in the browser (MediaPipe segmentation). Model and WASM are served from our own origin.
+  const toggleBlur = async () => {
+    const track = room?.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack as LocalVideoTrack | undefined;
+    if (!track) return;
+    try {
+      if (!blurOn) {
+        if (!supportsBackgroundProcessors()) {
+          setError(t(lang, 'errBlur'));
+          return;
+        }
+        await track.setProcessor(
+          BackgroundProcessor({
+            mode: 'background-blur',
+            blurRadius: 12,
+            assetPaths: { tasksVisionFileSet: '/mediapipe/wasm', modelAssetPath: '/mediapipe/selfie_segmenter.tflite' },
+          }),
+        );
+        setBlurOn(true);
+      } else {
+        await track.stopProcessor();
+        setBlurOn(false);
+      }
+    } catch {
+      setError(t(lang, 'errBlur'));
     }
   };
   const toggleHand = async () => {
@@ -411,6 +440,9 @@ export function Call({
         </button>
         <button onClick={() => setLayout(layout === 'gallery' ? 'speaker' : 'gallery')} aria-pressed={layout === 'speaker'} data-testid="layout">
           ▦ {layout === 'gallery' ? t(lang, 'speakerView') : t(lang, 'galleryView')}
+        </button>
+        <button onClick={toggleBlur} aria-pressed={blurOn} disabled={!cam} data-testid="blur" data-state={String(blurOn)}>
+          🌫 {t(lang, 'blurBackground')}
         </button>
         <button onClick={toggleNoise} onFocus={readNoise} onMouseEnter={readNoise} aria-pressed={noiseOn ?? true} disabled={!mic} data-testid="noise" data-state={String(noiseOn)}>
           🎧 {t(lang, 'noiseSuppression')}

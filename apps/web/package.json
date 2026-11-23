@@ -9,10 +9,14 @@
     "build": "tsc -p tsconfig.json && vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "predev": "node scripts/prepare-assets.mjs",
+    "prebuild": "node scripts/prepare-assets.mjs",
+    "pretest": "node scripts/prepare-assets.mjs"
   },
   "dependencies": {
     "@davrabox/design-tokens": "workspace:*",
+    "@livekit/track-processors": "^0.8.3",
     "livekit-client": "^2.6.0",
     "oidc-client-ts": "^3.1.0",
     "react": "^18.3.1",

@@ -54,6 +54,8 @@ const uz = {
   noiseSuppression: 'Shovqinni kamaytirish',
   speakerView: 'Spiker ko‘rinishi',
   galleryView: 'Galereya ko‘rinishi',
+  blurBackground: 'Fonni xiralashtirish',
+  errBlur: 'Fonni xiralashtirib bo‘lmadi (brauzer qo‘llab-quvvatlamaydi)',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -112,6 +114,8 @@ const ru: Record<Key, string> = {
   noiseSuppression: 'Шумоподавление',
   speakerView: 'Вид докладчика',
   galleryView: 'Вид галереи',
+  blurBackground: 'Размыть фон',
+  errBlur: 'Не удалось размыть фон (браузер не поддерживает)',
 };
 
 const en: Record<Key, string> = {
@@ -168,6 +172,8 @@ const en: Record<Key, string> = {
   noiseSuppression: 'Noise suppression',
   speakerView: 'Speaker view',
   galleryView: 'Gallery view',
+  blurBackground: 'Blur background',
+  errBlur: 'Could not blur the background (not supported by this browser)',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
