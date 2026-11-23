@@ -12,6 +12,13 @@ export const manager = new UserManager({
   automaticSilentRenew: true,
 });
 
+/** Fresh access token for long-lived screens (the library renews it silently). */
+export async function freshToken(): Promise<string> {
+  const u = await manager.getUser();
+  if (!u || u.expired) throw new Error('signed out');
+  return u.access_token;
+}
+
 let pending: Promise<User | null> | null = null;
 
 /**

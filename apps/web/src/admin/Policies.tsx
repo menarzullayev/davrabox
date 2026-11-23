@@ -1,0 +1,86 @@
+import { useCallback, useEffect, useState } from 'react';
+import { t } from '../i18n';
+import type { Policies as PolicyData } from './client';
+import { MAX_PARTICIPANTS, MIN_PARTICIPANTS, parseMaxParticipants } from './helpers';
+import { ErrorBox, Status, useAdmin } from './ui';
+
+export function Policies() {
+  const { client, lang, report } = useAdmin();
+  const [form, setForm] = useState<{ requirePasscode: boolean; waitingRoomDefault: boolean; requireTotp: boolean; max: string } | null>(null);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
+  const [fieldErr, setFieldErr] = useState<string | null>(null);
+  const [saved, setSaved] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const apply = (p: PolicyData) =>
+    setForm({ requirePasscode: p.requirePasscode, waitingRoomDefault: p.waitingRoomDefault, requireTotp: p.requireTotp, max: String(p.maxParticipants) });
+
+  const load = useCallback(async () => {
+    setLoadErr(null);
+    try {
+      apply(await client.getPolicies());
+    } catch (e) {
+      setLoadErr(t(lang, report(e)));
+    }
+  }, [client, lang, report]);
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client]);
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form) return;
+    setSaved('');
+    setSaveErr(null);
+    const max = parseMaxParticipants(form.max);
+    if (max === null) {
+      setFieldErr(t(lang, 'admErrMax'));
+      return;
+    }
+    setFieldErr(null);
+    setBusy(true);
+    try {
+      apply(await client.putPolicies({ requirePasscode: form.requirePasscode, waitingRoomDefault: form.waitingRoomDefault, maxParticipants: max, requireTotp: form.requireTotp }));
+      setSaved(t(lang, 'admPolSaved'));
+    } catch (x) {
+      setSaveErr(`${t(lang, 'admPolFailed')}: ${t(lang, report(x))}`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section aria-labelledby="sec-policies">
+      <h2 id="sec-policies" className="sec-title">{t(lang, 'admPolicies')}</h2>
+      <ErrorBox text={loadErr} />
+      {loadErr && <button onClick={() => void load()}>{t(lang, 'admRetry')}</button>}
+      {!form && !loadErr && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
+      {form && (
+        <form onSubmit={(e) => void save(e)} className="form narrow" noValidate>
+          <label className="check"><input type="checkbox" checked={form.requirePasscode} onChange={(e) => setForm({ ...form, requirePasscode: e.target.checked })} /> {t(lang, 'admPolPasscode')}</label>
+          <label className="check"><input type="checkbox" checked={form.waitingRoomDefault} onChange={(e) => setForm({ ...form, waitingRoomDefault: e.target.checked })} /> {t(lang, 'admPolWaiting')}</label>
+          <label className="check"><input type="checkbox" checked={form.requireTotp} onChange={(e) => setForm({ ...form, requireTotp: e.target.checked })} /> {t(lang, 'admPolTotp')}</label>
+          <label>{t(lang, 'admPolMax')}
+            <input
+              inputMode="numeric"
+              min={MIN_PARTICIPANTS}
+              max={MAX_PARTICIPANTS}
+              value={form.max}
+              aria-invalid={fieldErr ? true : undefined}
+              aria-describedby={fieldErr ? 'max-err' : undefined}
+              onChange={(e) => setForm({ ...form, max: e.target.value })}
+            />
+          </label>
+          {fieldErr && <div id="max-err" className="field-error" role="alert">{fieldErr}</div>}
+          <ErrorBox text={saveErr} />
+          <div className="row">
+            <button type="submit" className="primary" disabled={busy}>{busy ? t(lang, 'admSaving') : t(lang, 'admPolSave')}</button>
+          </div>
+        </form>
+      )}
+      <Status text={saved} />
+    </section>
+  );
+}

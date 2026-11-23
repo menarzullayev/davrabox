@@ -1,3 +1,5 @@
+import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
+
 export type Lang = 'uz' | 'ru' | 'en';
 
 const uz = {
@@ -66,6 +68,7 @@ const uz = {
   errFileSize: 'Fayl juda katta (25 MB gacha)',
   relayMode: 'Xavfsizlik devori rejimi',
   relayHint: 'Barcha video va ovoz TURN relay orqali o‘tadi (to‘g‘ridan-to‘g‘ri UDP bloklangan tarmoqlar uchun)',
+  ...adminUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -136,6 +139,7 @@ const ru: Record<Key, string> = {
   errFileSize: 'Файл слишком большой (до 25 МБ)',
   relayMode: 'Режим за брандмауэром',
   relayHint: 'Весь звук и видео идут через TURN-ретранслятор (для сетей, где заблокирован прямой UDP)',
+  ...adminRu,
 };
 
 const en: Record<Key, string> = {
@@ -204,6 +208,7 @@ const en: Record<Key, string> = {
   errFileSize: 'File is too large (up to 25 MB)',
   relayMode: 'Firewall mode',
   relayHint: 'All audio and video go through the TURN relay (for networks that block direct UDP)',
+  ...adminEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };
