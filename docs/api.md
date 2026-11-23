@@ -39,7 +39,7 @@ Create a meeting:
 curl -X POST https://<host>/api/v1/ext/meetings \
   -H "Authorization: Bearer $DAVRA_KEY" \
   -H "Content-Type: application/json" \
-  -H "Idempotency-Key: 6f1c0a52-0f06-4d6a-a2c5-1e0e8c1b7d33" \
+  -H "Idempotency-Key: $(uuidgen)" \
   -d '{"title":"Weekly sync","waitingRoom":true}'
 ```
 
