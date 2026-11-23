@@ -5,11 +5,12 @@ import { AuthGuard, POOL, VERIFIER } from './auth/auth.guard.js';
 import { createVerifier } from './auth/jwt.js';
 import { MEETINGS, MeetingsController } from './meetings/meetings.controller.js';
 import { MeetingsService } from './meetings/meetings.service.js';
+import { HealthController } from './health.controller.js';
 
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
-  controllers: [MeetingsController],
+  controllers: [MeetingsController, HealthController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },

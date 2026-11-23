@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app.kubernetes.io/name: api
+    {{- include "dvr.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector: { matchLabels: { app.kubernetes.io/name: api } }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: api, app.kubernetes.io/part-of: davrabox }
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      {{- include "dvr.podSecurity" . | nindent 6 }}
+      containers:
+        - name: api
+          image: {{ .Values.image.api }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- include "dvr.containerSecurity" . | nindent 10 }}
+          ports: [{ name: http, containerPort: 3000 }]
+          env:
+            - { name: APP_DB_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: APP_DB_PASSWORD } } }
+            - { name: LIVEKIT_API_KEY, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: LIVEKIT_API_KEY } } }
+            - { name: LIVEKIT_API_SECRET, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: LIVEKIT_API_SECRET } } }
+            - { name: DATABASE_URL, value: "postgres://davra_app:$(APP_DB_PASSWORD)@{{ include "dvr.dbHost" . }}:5432/davra" }
+            - { name: KEYCLOAK_ISSUER, value: "https://{{ .Values.publicHost }}/auth/realms/davrabox" }
+            - { name: KEYCLOAK_JWKS_URL, value: "http://keycloak:8080/auth/realms/davrabox/protocol/openid-connect/certs" }
+            - { name: LIVEKIT_URL, value: "wss://{{ .Values.publicHost }}/livekit" }
+            - { name: LIVEKIT_API_URL, value: "http://livekit:7880" }
+            - { name: CORS_ORIGINS, value: {{ default (printf "https://%s" .Values.publicHost) .Values.api.corsOrigins | quote }} }
+            - { name: API_PORT, value: "3000" }
+          readinessProbe: { httpGet: { path: /healthz, port: http }, periodSeconds: 5 }
+          livenessProbe: { httpGet: { path: /healthz, port: http }, initialDelaySeconds: 10, periodSeconds: 10 }
+          resources: {{ toYaml .Values.api.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+spec:
+  selector: { app.kubernetes.io/name: api }
+  ports: [{ name: http, port: 3000, targetPort: http }]
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate-{{ .Release.Revision }}
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+  annotations: { "helm.sh/hook": "post-install,post-upgrade", "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded" }
+spec:
+  backoffLimit: 20
+  template:
+    metadata: { labels: { app.kubernetes.io/name: db-migrate, app.kubernetes.io/part-of: davrabox } }
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      {{- include "dvr.podSecurity" . | nindent 6 }}
+      containers:
+        - name: migrate
+          image: {{ .Values.image.api }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["dist/db/migrate-cli.js"]
+          {{- include "dvr.containerSecurity" . | nindent 10 }}
+          env:
+            - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: POSTGRES_PASSWORD } } }
+            - { name: MIGRATE_DATABASE_URL, value: "postgres://davra_admin:$(POSTGRES_PASSWORD)@{{ include "dvr.dbHost" . }}:5432/davra" }

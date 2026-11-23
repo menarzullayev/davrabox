@@ -30,4 +30,30 @@ Not done / not verified (honest list):
 - Known dev-only choices: Keycloak runs start-dev; Caddy uses its internal CA; LiveKit TURN not configured (phase 2).
 - Gate "code goes to staging every day" cannot be met until there is a staging environment and a remote repo.
 
-Next: kind cluster + Helm chart skeleton, TURN (coturn/LiveKit TURN) and TLS 443, enforce 2FA for admins, waiting room, host controls (phase 2).
+## 2026-11-23 (later): Phase 1 infrastructure part
+Done, with evidence:
+- Docker images: `davra/api:dev` (distroless nonroot, compiled), `davra/web:dev` (nginx-unprivileged). Both built.
+- Helm chart `deploy/helm/davrabox` (api, web, livekit, optional dev postgres+keycloak, network policies, ingress, migration hook Job). `helm lint`: 0 failed.
+- Validated on a real local cluster (kind v0.33.0, cluster `davra-kind`, now deleted): helm install/upgrade succeeded; all 5 pods Running; migration hook applied 001+002; app DB role is not superuser/BYPASSRLS; API /healthz 200 and /v1/meetings 401 unauthenticated; web 200; LiveKit 200; Keycloak realm discovery 200. Real faults found and fixed by the cluster: LiveKit image runs as root (set numeric UID 65532), Kubernetes service-link env `LIVEKIT_PORT` crashed LiveKit (`enableServiceLinks: false` on all pods), nginx location-level `add_header` silently dropped the security headers (fixed; CSP, X-Frame-Options, nosniff, Referrer/Permissions-Policy verified on `/` and SPA routes).
+- Terraform `deploy/terraform/environments/dev` (namespace with pod-security labels, secret from variable, resource quota, helm_release): `terraform init -backend=false`, `validate`, `fmt -check` PASSED. NOT planned or applied against a cluster.
+- ArgoCD Application manifest written (`deploy/argocd/application.yaml`); NOT applied (ArgoCD not installed, repo URL placeholder).
+- Observability add-on (`docker-compose.observability.yml`): Prometheus scrapes the API metrics endpoint (target `davra-api` up, separate internal port 9100, not routed by the edge), Grafana with Prometheus+Loki datasources provisioned, Loki ready, Vault dev mode (kv put/get round trip verified).
+- API: `/healthz`, Prometheus metrics (default + meetings/join counters). API tests 32 PASSED.
+- 2FA: `node apps/e2e/totp.e2e.mjs` 5/5 PASSED: new user forced to enrol TOTP, valid code signs in, second login asks for a code, wrong code refused, correct code signs in.
+- Design tokens package (`packages/design-tokens`): dark + light themes, generated CSS, 14 PASSED tests incl. WCAG 2.1 AA contrast (4.5:1) for every text pair in both themes; web app now uses the tokens. Call e2e re-run after the change: 8/8 PASSED.
+- CI now also lints/renders the Helm chart and validates Terraform (not yet executed on GitHub).
+- Local checks at the end: api 32, web 5, design-tokens 14 tests PASSED; `pnpm audit --audit-level moderate`: no known vulnerabilities; no generated dev secret in any tracked file.
+
+Not done / not verified (honest list, supersedes the earlier list where it overlaps):
+- GitHub: nothing pushed, so CI/CodeQL/Dependabot and the gitleaks/Trivy/SBOM steps have never run; the plan gate "code reaches staging every day" needs a remote repo, a staging cluster and ArgoCD, none of which exist.
+- Production web image (nginx CSP) has not been exercised by the browser e2e; the e2e runs against the Vite dev server. CSP `worker-src blob:` was added without a browser test.
+- Keycloak login inside the kind cluster was not tested (only realm discovery); full login is tested in the compose stack.
+- 2FA is available and tested but not enforced for admins (needs a custom authentication flow; planned with the admin console in phase 3); passkeys (WebAuthn) not configured.
+- Vault is dev-mode only, nothing reads secrets from it yet; no HSM. Wazuh SIEM not deployed (needs ~4 GB; held for a dedicated host). Loki has no log shipper yet.
+- Figma design system cannot be produced here; tokens are the code-side source of truth (listed in HELD.md).
+- Real phone/camera/LAN-device call and the Cloudflare Tunnel (davrabox.bugvector.uz) are still untested; TURN not configured (phase 2).
+- Three third-party images could not be preloaded into kind (kind load failed); the cluster pulled them from the registries instead.
+- The local cluster was deleted after validation to free resources; Terraform/Helm paths need a cluster to be exercised again.
+
+Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced; the gate itself ("daily auto-deploy to staging") is BLOCKED on external items (remote repo, staging environment).
+Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.

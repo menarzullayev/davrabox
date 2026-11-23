@@ -39,10 +39,26 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Typecheck
         run: pnpm -r typecheck
-      - name: Build web
-        run: pnpm --filter @davrabox/web build
-      - name: Web tests
-        run: pnpm --filter @davrabox/web test
+      - name: Build web (and the design tokens it depends on)
+        run: pnpm --filter "@davrabox/web..." build
+      - name: Web and design-token tests
+        run: |
+          pnpm --filter @davrabox/web test
+          pnpm --filter @davrabox/design-tokens test
+      - name: Helm chart lint and render
+        run: |
+          curl -sSfL https://get.helm.sh/helm-v4.3.2-linux-amd64.tar.gz | tar -xz --strip-components=1 linux-amd64/helm
+          ./helm lint deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json
+          ./helm template davrabox deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json > /dev/null
+      - name: Terraform fmt and validate
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.17.2
+      - run: |
+          cd deploy/terraform/environments/dev
+          terraform fmt -check -recursive
+          terraform init -backend=false -input=false
+          terraform validate
       - name: Create application role
         run: |
           PGPASSWORD=ci-admin-password psql -h 127.0.0.1 -p 55432 -U davra_admin -d davra -v ON_ERROR_STOP=1 -c "CREATE DATABASE keycloak;" -c "CREATE ROLE davra_app LOGIN PASSWORD 'ci-app-password' NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE;" -c "GRANT CONNECT ON DATABASE davra TO davra_app;"

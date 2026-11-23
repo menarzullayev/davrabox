@@ -1,0 +1,60 @@
+{{- if .Values.keycloak.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+data:
+  davrabox-realm.json: |
+{{ required "install with --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json" .Values.keycloak.realmJson | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/name: keycloak
+    {{- include "dvr.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector: { matchLabels: { app.kubernetes.io/name: keycloak } }
+  template:
+    metadata: { labels: { app.kubernetes.io/name: keycloak, app.kubernetes.io/part-of: davrabox } }
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext: { runAsNonRoot: true, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: keycloak
+          image: {{ .Values.keycloak.image }}
+          # Dev mode (start-dev). Production uses an optimized image with `start`, TLS at the edge and a hardened realm.
+          args: ["start-dev", "--import-realm", "--http-port=8080", "--http-relative-path=/auth", "--proxy-headers=xforwarded", "--hostname=https://{{ .Values.publicHost }}/auth"]
+          securityContext: { allowPrivilegeEscalation: false, capabilities: { drop: ["ALL"] } }
+          env:
+            - { name: KC_BOOTSTRAP_ADMIN_USERNAME, value: admin }
+            - { name: KC_BOOTSTRAP_ADMIN_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: KEYCLOAK_ADMIN_PASSWORD } } }
+            - { name: KC_DB, value: postgres }
+            - { name: KC_DB_URL, value: "jdbc:postgresql://{{ include "dvr.dbHost" . }}:5432/keycloak" }
+            - { name: KC_DB_USERNAME, value: davra_admin }
+            - { name: KC_DB_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: POSTGRES_PASSWORD } } }
+            - { name: DEMO_USER_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: DEMO_USER_PASSWORD } } }
+            - { name: KC_HEALTH_ENABLED, value: "true" }
+          ports: [{ name: http, containerPort: 8080 }, { name: mgmt, containerPort: 9000 }]
+          readinessProbe: { httpGet: { path: /auth/health/ready, port: mgmt }, initialDelaySeconds: 20, periodSeconds: 5, failureThreshold: 30 }
+          resources: {{ toYaml .Values.keycloak.resources | nindent 12 }}
+          volumeMounts:
+            - { name: realm, mountPath: /opt/keycloak/data/import, readOnly: true }
+      volumes:
+        - { name: realm, configMap: { name: keycloak-realm } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+spec:
+  selector: { app.kubernetes.io/name: keycloak }
+  ports: [{ name: http, port: 8080, targetPort: http }]
+{{- end }}

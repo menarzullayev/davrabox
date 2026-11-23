@@ -6,6 +6,7 @@ import { withTenant } from '../db/tenant.js';
 import { FailureLimiter } from '../common/rate-limiter.js';
 import type { Config } from '../config.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
+import { joinResults, meetingsCreated } from '../metrics.js';
 
 export class MeetingError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -50,6 +51,7 @@ export class MeetingsService {
             'meeting.create',
             code,
           ]);
+          meetingsCreated.inc();
           return r.rows[0];
         });
       } catch (err) {
@@ -72,6 +74,17 @@ export class MeetingsService {
 
   /** Returns a short-lived LiveKit token. Same-organization members only; guests come in a later phase. */
   async join(user: AuthedUser, code: string, passcode?: string) {
+    try {
+      const result = await this.joinInner(user, code, passcode);
+      joinResults.inc({ outcome: 'ok' });
+      return result;
+    } catch (e) {
+      joinResults.inc({ outcome: e instanceof MeetingError ? String(e.status) : 'error' });
+      throw e;
+    }
+  }
+
+  private async joinInner(user: AuthedUser, code: string, passcode?: string) {
     if (!/^[0-9]{11,12}$/.test(code)) throw new MeetingError(404, 'meeting not found');
     const key = `${user.userId}:${code}`;
     if (this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');

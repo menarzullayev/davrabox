@@ -1,0 +1,23 @@
+# ArgoCD Application for the dev/staging environment (GitOps). Requires ArgoCD installed in the cluster and
+# the davrabox-secrets Secret provisioned out of band (Vault / External Secrets). Not applied in local validation.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: davrabox-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/CHANGE-ME/davrabox.git   # set after the repository is created
+    targetRevision: main
+    path: deploy/helm/davrabox
+    helm:
+      valueFiles: [values.yaml]
+      parameters:
+        - { name: publicHost, value: staging.example.com }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: davrabox
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [CreateNamespace=true]

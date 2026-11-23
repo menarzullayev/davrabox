@@ -10,6 +10,8 @@ const schema = z.object({
   LIVEKIT_API_URL: z.string().url(), // http(s):// URL used by the server
   LIVEKIT_API_KEY: z.string().min(1),
   LIVEKIT_API_SECRET: z.string().min(32),
+  METRICS_PORT: z.coerce.number().int().default(9100),
+  METRICS_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().default(3000),
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
   MEETING_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).max(900).default(600),

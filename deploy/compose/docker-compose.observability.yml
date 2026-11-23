@@ -1,0 +1,57 @@
+# Optional dev add-on: metrics, dashboards, log store and a dev-mode Vault.
+# Run: docker compose --env-file dev.env -f docker-compose.yml -f docker-compose.observability.yml up -d prometheus grafana loki vault
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: davra-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=7d", "--web.enable-lifecycle"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - davra-prom-data:/prometheus
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    ports: ["127.0.0.1:59090:9090"]
+    mem_limit: 384m
+    cpus: 0.5
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: davra-loki
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - davra-loki-data:/loki
+    ports: ["127.0.0.1:53100:3100"]
+    mem_limit: 384m
+    cpus: 0.5
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: davra-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./observability/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - davra-grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:53000:3000"]
+    depends_on: [prometheus, loki]
+    mem_limit: 384m
+    cpus: 0.5
+
+  # Dev-mode Vault: in-memory, auto-unsealed, root token from dev.env. Production uses an HA Vault with auto-unseal/HSM.
+  vault:
+    image: hashicorp/vault:1.18
+    container_name: davra-vault
+    command: ["server", "-dev", "-dev-listen-address=0.0.0.0:8200"]
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN}
+    cap_add: [IPC_LOCK]
+    ports: ["127.0.0.1:58200:8200"]
+    mem_limit: 192m
+    cpus: 0.5
+
+volumes:
+  davra-prom-data:
+  davra-loki-data:
+  davra-grafana-data:

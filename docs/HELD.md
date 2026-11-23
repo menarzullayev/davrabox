@@ -10,3 +10,6 @@
 | Data-centre provider, production servers, 1-2 Gbit link | user, budget | LAN/PC hosting for now |
 | EV code-signing cert, Apple Developer account | user, budget | none |
 | Hiring, sales, support, 24/7 on-call | user | none |
+| Figma design system (UI kit, brand identity, logo) | designer/user | design tokens with WCAG-tested light/dark palettes in packages/design-tokens |
+| Wazuh SIEM host (about 4 GB RAM) | user, server | none |
+| Staging cluster, remote repository, ArgoCD | user | Helm chart validated on kind, Terraform validated, ArgoCD manifest written |

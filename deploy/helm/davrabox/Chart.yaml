@@ -1,0 +1,6 @@
+apiVersion: v2
+name: davrabox
+description: DavraBox video conferencing platform (api, web, livekit; optional dev postgres and keycloak)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

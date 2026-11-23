@@ -1,0 +1,49 @@
+{{- if .Values.networkPolicy.enabled }}
+# Default deny for ingress, then explicit allows. Egress policies are applied per environment (CNI-specific).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: default-deny-ingress }
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-edge-to-public-services }
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [web, api, keycloak, livekit] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: { matchLabels: { kubernetes.io/metadata.name: {{ .Values.networkPolicy.ingressNamespace }} } }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-internal-app-traffic }
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [api, keycloak, livekit] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app.kubernetes.io/part-of: davrabox } }
+      ports: [{ port: 8080 }, { port: 3000 }, { port: 7880 }]
+{{- if .Values.postgres.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: { name: allow-db-from-app }
+spec:
+  podSelector: { matchLabels: { app.kubernetes.io/name: postgres } }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - { key: app.kubernetes.io/name, operator: In, values: [api, keycloak, db-migrate] }
+      ports: [{ port: 5432 }]
+{{- end }}
+{{- end }}

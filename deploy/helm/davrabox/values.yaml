@@ -1,0 +1,49 @@
+# Secrets are NOT part of this chart. Create a Secret (by hand, Vault Agent, or External Secrets) with keys:
+# POSTGRES_PASSWORD, APP_DB_PASSWORD, KEYCLOAK_ADMIN_PASSWORD, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, DEMO_USER_PASSWORD
+existingSecret: davrabox-secrets
+
+publicHost: davrabox.example.com   # host users reach (one origin: /, /api, /auth, /livekit)
+
+image:
+  api: davra/api:dev
+  web: davra/web:dev
+  pullPolicy: IfNotPresent
+
+api:
+  replicas: 2
+  resources: { requests: { cpu: 100m, memory: 192Mi }, limits: { cpu: "1", memory: 512Mi } }
+  # Set when postgres is external (production). With postgres.enabled the in-cluster service is used.
+  databaseHost: ""
+  corsOrigins: ""
+
+web:
+  replicas: 2
+  resources: { requests: { cpu: 25m, memory: 32Mi }, limits: { cpu: 250m, memory: 128Mi } }
+
+livekit:
+  image: livekit/livekit-server:v1.13.11
+  replicas: 1                  # one node per pod; scale with a Redis-backed cluster later
+  nodeIp: ""                   # externally reachable IP for ICE (required for media)
+  resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "2", memory: 1Gi } }
+
+# Development-only building blocks. Production uses managed/HA Postgres and a hardened Keycloak.
+postgres:
+  enabled: true
+  image: postgres:17-alpine
+  storage: 2Gi
+  resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: "1", memory: 512Mi } }
+
+keycloak:
+  enabled: true
+  image: quay.io/keycloak/keycloak:26.0
+  realmJson: ""                # install with --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json
+  resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: "1500m", memory: 1Gi } }
+
+ingress:
+  enabled: false
+  className: nginx
+  tlsSecret: ""
+
+networkPolicy:
+  enabled: true
+  ingressNamespace: ingress-nginx

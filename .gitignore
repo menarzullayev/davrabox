@@ -19,3 +19,5 @@ dev.env
 !dev.env.example
 .api.log
 .web.log
+.tools/
+apps/api/dist/
