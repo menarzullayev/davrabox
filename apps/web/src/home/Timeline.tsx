@@ -3,6 +3,7 @@ import { Badge, Button, EmptyState, IconButton, IconCalendar, IconCheck, IconLin
 import type { Key, Lang } from '../i18n';
 import { GROUP_ORDER, formatClock, formatCode, joinLink, timelineSize, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
 import { tx } from './text';
+import { buildShareLink, loadStoredKey } from '../e2ee/keys';
 
 const GROUP_KEY: Record<TimelineGroup, Key> = {
   now: 'hGroupNow',
@@ -61,6 +62,12 @@ function MeetingRow({ lang, m, group, busy, onJoin, onCopy, onCalendar }: Meetin
               <Badge tone="warning">
                 <IconLock size={12} />
                 {tx(lang, 'hLocked')}
+              </Badge>
+            ) : null}
+            {m.e2ee ? (
+              <Badge tone="success">
+                <IconLock size={12} />
+                {tx(lang, 'e2eeRowBadge')}
               </Badge>
             ) : null}
             {m.is_host ? <Badge tone="gold">{tx(lang, 'hHostYou')}</Badge> : null}
@@ -153,7 +160,9 @@ export function TimelineView({ lang, timeline, joiningCode, onJoin, onCopy, onNe
 
 /** Copies the join link; true on success. Falls back to a temporary textarea where the async clipboard is unavailable. */
 export async function copyJoinLink(origin: string, code: string): Promise<boolean> {
-  const link = joinLink(origin, code);
+  // An encrypted meeting's link carries its key after the #, when this tab holds it (the creator's or a joiner's tab).
+  const key = loadStoredKey(code);
+  const link = key ? buildShareLink(origin, code, key) : joinLink(origin, code);
   try {
     await navigator.clipboard.writeText(link);
     return true;

@@ -12,6 +12,8 @@ import { LoadingScreen, SignInScreen } from './home/AuthScreens';
 import { HomeScreen } from './home/HomeScreen';
 import type { NewMeetingData } from './home/NewMeetingDialog';
 import { Waiting } from './home/Waiting';
+import { createMeetingWithKey } from './e2ee/create';
+import { takeKeyFromLocation } from './e2ee/keys';
 import { applyTheme, readTheme, type ThemeChoice } from './ui';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
@@ -36,6 +38,8 @@ export function App() {
   // survives the sign-in redirect through sessionStorage. Only well-formed codes are accepted.
   const [pendingCode, setPendingCode] = useState(() => {
     try {
+      // An E2EE link carries its key after the #: move it into sessionStorage and drop it from the address bar first.
+      takeKeyFromLocation(location, history);
       const q = new URLSearchParams(location.search).get('join');
       if (q && /^[0-9]{11,12}$/.test(q)) {
         sessionStorage.setItem('pendingJoin', q);
@@ -142,7 +146,7 @@ export function App() {
 
   const doCreate = async (d: NewMeetingData): Promise<Meeting> => {
     setErr(null);
-    const m = await api.create(token, { title: d.title, passcode: d.passcode, waitingRoom: d.waitingRoom });
+    const m = await createMeetingWithKey((body) => api.create(token, body), d); // E2EE: the key is made here and never sent
     await refresh();
     return m;
   };
