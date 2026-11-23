@@ -20,12 +20,15 @@ docker compose --env-file .env up -d
 ```
 `migrate` runs once and must finish with exit 0 before `api` starts. Check: `docker compose ps`, then `curl -sf https://$PUBLIC_HOST/api/healthz`.
 
-### Enforce the admin second factor (once, after Keycloak is up)
+### Second factor (currently OFF by user decision 2026-11-24)
+The production realm uses the built-in Keycloak browser flow: nobody is asked to enrol or enter an authenticator code. To switch enforcement on later (TOTP mandatory for `org_admin`, OTP or passkey for members who enrolled), once Keycloak is up:
 ```
 ssh -L 8180:127.0.0.1:8180 <host>          # in another terminal
-KEYCLOAK_URL=http://127.0.0.1:8180/auth KEYCLOAK_ADMIN_PASSWORD=... node scripts/keycloak-admin-2fa.mjs
+KEYCLOAK_URL=http://127.0.0.1:8180/auth KEYCLOAK_ADMIN_PASSWORD=... node scripts/keycloak-admin-2fa.mjs          # ON
+KEYCLOAK_URL=http://127.0.0.1:8180/auth KEYCLOAK_ADMIN_PASSWORD=... node scripts/keycloak-admin-2fa.mjs --off   # OFF again
 ```
-Create the first organization admin in the Keycloak console (same tunnel, realm `davrabox`): attribute `org_slug`, realm role `org_admin`. The admin must enrol an authenticator at the first login.
+The e2e suites for the second factor are not part of `pnpm test`; run `pnpm --filter @davrabox/e2e test:2fa` after turning it ON.
+Create the first organization admin in the Keycloak console (same tunnel, realm `davrabox`): attribute `org_slug`, realm role `org_admin`.
 
 ## Update
 Pick a tag from the Publish workflow (`sha-<commit>` or `vX.Y.Z`), set `DAVRA_TAG` in `.env`, then:
