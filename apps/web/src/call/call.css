@@ -198,7 +198,7 @@
   .dv-stage .label .mk-muted { color: #ff9aa5; }
   .dv-stage .label .mk-cohost { color: var(--gold); }
   .dv-stage .label .mk-speaking { color: var(--gold); flex: none; }
-  .tile[data-shape='circle'] .label { left: 50%; transform: translateX(-50%); bottom: 4px; max-width: 94%; }
+  .tile[data-shape='circle'] .label { left: 50%; transform: translateX(-50%); bottom: -6px; max-width: max(94%, 168px); }
   .tile[data-size='sm'] .label { padding: 2px 7px; font-size: 11px; }
   /* Tiny tiles keep only the markers visible; the name stays in the DOM (and in the group's accessible name). */
   .tile[data-size='xs'] .label { padding: 2px 4px; bottom: 2px; }
@@ -219,7 +219,8 @@
   .tile[data-shape='circle'] .tile-actions { right: auto; left: 50%; top: 4px; transform: translateX(-50%); }
   .tile:hover .tile-actions,
   .tile:focus-within .tile-actions { opacity: 1; }
-  @media (hover: none) { .tile-actions { opacity: 1; } }
+  /* On touch screens the host taps a tile to reveal its actions (focus-within), instead of leaving them over the video. */
+  .tile:focus { outline: none; }
   /* Small tiles: the actions cover the tile on hover/focus (two rows of round buttons) instead of sitting on its edge. */
   .tile[data-size='sm'] .tile-actions {
     inset: 0;
@@ -579,6 +580,7 @@
     .dv-top-right { gap: 6px; }
   }
   @media (pointer: coarse) {
+    .tile-actions .dx-btn { --btn-h: var(--target-coarse); width: var(--target-coarse); min-height: var(--target-coarse); }
     .dv-ctl { min-height: 48px; }
     .dv-seg__face { min-height: 60px; }
   }

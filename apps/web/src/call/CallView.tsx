@@ -7,7 +7,7 @@ import '../ui/ui.css';
 import './call.css';
 import { ControlBar } from './ControlBar';
 import { LiveRegion, useCallAnnouncements } from './LiveRegion';
-import { pickFeatured, type FallbackReason, type LayoutMode } from './layout';
+import { hintKey, pickFeatured, type FallbackReason, type LayoutMode } from './layout';
 import { ChatPanel, PeoplePanel, RequestsTray, type ChatPanelProps } from './Panels';
 import { Stage } from './Stage';
 import { TopBar } from './TopBar';
@@ -117,7 +117,7 @@ export function CallView(p: CallViewProps) {
             {p.reconnecting ? <Alert tone="warning" className="dv-notice">{t(lang, 'clReconnecting')}</Alert> : null}
             {showHint ? (
               <Alert tone="info" className="dv-notice" onDismiss={() => setDismissed(resolved.reason)} dismissLabel={t(lang, 'uiDismiss')}>
-                {t(lang, resolved.reason === 'too-many' ? 'clHintTooMany' : 'clHintCompact')}
+                {t(lang, hintKey(resolved.reason))}
               </Alert>
             ) : null}
             {p.sharing ? <Alert tone="info" className="dv-notice">{t(lang, 'clYouShare')}</Alert> : null}

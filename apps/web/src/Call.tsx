@@ -5,6 +5,7 @@ import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/trac
 import { ApiError, api, type JoinedResult } from './api';
 import { MAX_FILE_BYTES, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
 import { CallView } from './call/CallView';
+import { Button, Dialog } from './ui';
 import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
@@ -71,6 +72,7 @@ export function Call({
   const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
   const [role, setRole] = useState<'host' | 'cohost' | 'member'>(join.isHost ? 'host' : 'member');
   const [cohostIds, setCohostIds] = useState<string[]>([]);
+  const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
   const [blurOn, setBlurOn] = useState(false);
   const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
@@ -134,7 +136,9 @@ export function Call({
       .on(RoomEvent.DataReceived, onData)
       .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
         // Keep the last person who spoke featured instead of flipping back when everyone is silent.
-        if (speakers.length > 0) setSpeakerId(speakers[0]!.identity);
+        // Never yourself: the centre stage is for the others (you are always on your own screen).
+        const other = speakers.find((s) => !s.isLocal);
+        if (other) setSpeakerId(other.identity);
       })
       .on(RoomEvent.ConnectionQualityChanged, (q, p) => {
         if (p.isLocal) setQuality(QUALITY[q] ?? 'unknown');
@@ -377,7 +381,7 @@ export function Call({
     ? {
         isHost: role === 'host',
         onMute: (id) => void hostCall((tk) => api.mute(tk, code, id)),
-        onRemove: (id) => void hostCall((tk) => api.remove(tk, code, id)),
+        onRemove: (id) => setRemoveTarget({ id, name: views.find((v) => v.id === id)?.name || id }),
         onToggleCohost: (id) => void hostCall((tk) => api.setCohost(tk, code, id, !cohostIds.includes(id)).then(() => setCohostIds((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id])))),
       }
     : null;
@@ -389,6 +393,7 @@ export function Call({
   }
 
   return (
+    <>
     <CallView
       lang={lang}
       title={join.title}
@@ -437,5 +442,30 @@ export function Call({
       layout={layout}
       onLayout={setLayout}
     />
+    <Dialog
+      open={removeTarget !== null}
+      onClose={() => setRemoveTarget(null)}
+      title={t(lang, 'removeConfirmTitle')}
+      closeLabel={t(lang, 'cancel')}
+      footer={
+        <>
+          <Button variant="secondary" data-testid="remove-cancel" onClick={() => setRemoveTarget(null)}>{t(lang, 'cancel')}</Button>
+          <Button
+            variant="danger"
+            data-testid="remove-confirm"
+            onClick={() => {
+              const id = removeTarget?.id;
+              setRemoveTarget(null);
+              if (id) void hostCall((tk) => api.remove(tk, code, id));
+            }}
+          >
+            {t(lang, 'removeFromMeeting')}
+          </Button>
+        </>
+      }
+    >
+      <p>{t(lang, 'removeConfirmBody')} <strong>{removeTarget?.name}</strong></p>
+    </Dialog>
+    </>
   );
 }

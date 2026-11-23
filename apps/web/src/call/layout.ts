@@ -60,11 +60,18 @@ export const COMPACT_RING_MAX = 8;
 /** A stage narrower than this (CSS px) counts as a phone. */
 export const COMPACT_WIDTH = 520;
 
-export type FallbackReason = 'too-many' | 'compact' | null;
+/** Translation key of the note explaining why another view than the requested one is drawn. */
+export function hintKey(r: FallbackReason): 'clHintTooMany' | 'clHintCompact' | 'clHintShare' {
+  return r === 'too-many' ? 'clHintTooMany' : r === 'share' ? 'clHintShare' : 'clHintCompact';
+}
+
+export type FallbackReason = 'too-many' | 'compact' | 'share' | null;
 
 /** Pure policy: which mode to draw for a requested one. Only Davra is ever replaced. */
-export function resolveMode(requested: LayoutMode, count: number, size: Size): { mode: LayoutMode; reason: FallbackReason } {
+export function resolveMode(requested: LayoutMode, count: number, size: Size, hasShare = false): { mode: LayoutMode; reason: FallbackReason } {
   if (requested !== 'davra') return { mode: requested, reason: null };
+  // A shared screen needs the room: the ring would shrink it to about a fifth of the stage (critic D-04).
+  if (hasShare) return { mode: 'speaker', reason: 'share' };
   if (count > RING_MAX) return { mode: 'gallery', reason: 'too-many' };
   if (size.width < COMPACT_WIDTH && count > COMPACT_RING_MAX) return { mode: 'speaker', reason: 'compact' };
   return { mode: 'davra', reason: null };

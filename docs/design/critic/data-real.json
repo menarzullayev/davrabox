@@ -1,0 +1,346 @@
+{
+ "notes": [
+  "A signed-out shots done",
+  "B host home loaded; existing meeting rows: 71",
+  "join error text (after nonexistent code): \"Uchrashuv topilmadi\"",
+  "real call established with 3 participants",
+  "screen share tiles seen by host: 1",
+  "REAL call n=3 perf (8 s, headed-less Edge, fake media): {\"fps\":50.1,\"longTasks\":0,\"longTaskMs\":0,\"worstFrameMs\":20,\"p95FrameMs\":20}"
+ ],
+ "axe": [
+  {
+   "name": "real signed-out",
+   "v": []
+  },
+  {
+   "name": "real home signed-in initial",
+   "v": []
+  },
+  {
+   "name": "real create dialog",
+   "v": []
+  },
+  {
+   "name": "real home with meetings",
+   "v": []
+  },
+  {
+   "name": "real waiting room",
+   "v": []
+  },
+  {
+   "name": "real call host with join-request tray",
+   "v": []
+  },
+  {
+   "name": "real call n=3",
+   "v": []
+  },
+  {
+   "name": "real call chat open",
+   "v": []
+  },
+  {
+   "name": "real call people open",
+   "v": []
+  },
+  {
+   "name": "real call more open",
+   "v": []
+  },
+  {
+   "name": "real call member view",
+   "v": []
+  }
+ ],
+ "metrics": [
+  {
+   "name": "real signed-out",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=settings] \"Sozlamalar\" 40x40"
+    ],
+    "clipped": [],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real home signed-in initial",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=settings] \"Sozlamalar\" 40x40",
+     "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+     "input.dx-input \"\" 254x40",
+     "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+     "button.dx-btn \"Qo‘shilish: Desktop 1795\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Cohost 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Layout 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795457\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Noise 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Chat 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Controls 179\" 82x32",
+     "button.dx-btn \"Qo‘shilish: E2E 17954563\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179544\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179544\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795447\" 82x32"
+    ],
+    "clipped": [],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real create dialog",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=settings] \"Sozlamalar\" 40x40",
+     "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+     "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 32x32",
+     "input.dx-input \"\" 254x40",
+     "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+     "button.dx-btn \"Qo‘shilish: Desktop 1795\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Cohost 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Layout 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795457\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Noise 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Chat 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Controls 179\" 82x32",
+     "button.dx-btn \"Qo‘shilish: E2E 17954563\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179544\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179544\" 82x32",
+     "button.dx-btn.dx-btn--icon \"Yopish\" 32x32",
+     "input[data-testid=meeting-title] \"\" 478x40",
+     "input.dx-input \"\" 478x40",
+     "input[data-testid=waiting-room] \"\" 40x24",
+     "button.dx-btn \"Bekor qilish\" 112x40",
+     "button.dx-btn \"Yaratish\" 88x40"
+    ],
+    "clipped": [
+     "span.dx-sr-only \"Uchrashuv kodini yoki ha\" scrollW 284 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real home with meetings",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=settings] \"Sozlamalar\" 40x40",
+     "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+     "input.dx-input \"\" 254x40",
+     "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+     "button.dx-btn \"Qo‘shilish: Ochiq davra \" 82x32",
+     "button.dx-btn \"Qo‘shilish: Haftalik sin\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Desktop 1795\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Cohost 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Layout 17954\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795457\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Noise 179545\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Blur 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Chat 1795456\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Controls 179\" 82x32",
+     "button.dx-btn \"Qo‘shilish: E2E 17954563\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Relay 179544\" 82x32",
+     "button.dx-btn \"Qo‘shilish: Files 179544\" 82x32",
+     "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 32x32"
+    ],
+    "clipped": [
+     "span.dx-sr-only \"Uchrashuv kodini yoki ha\" scrollW 284 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real waiting room",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [],
+    "clipped": [],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call host with join-request tray",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+     "button.dx-btn.primary \"Kiritish\" 65x32",
+     "button.dx-btn \"Rad etish\" 80x32"
+    ],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"(1)\" scrollW 11 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"Kirishni kutayotganlar: \" scrollW 177 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call n=3",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+     "button[data-testid=cohost-toggle] \"Co-host qilish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 28x28"
+    ],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.label-name \"User Demo (Siz)\" scrollW 89 > clientW 87 (overflow:hidden, textOverflow:ellipsis)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"E2E User gapirmoqda\" scrollW 160 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call chat open",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+     "button[data-testid=cohost-toggle] \"Co-host qilish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Yopish\" 40x40",
+     "select[data-testid=chat-target] \"HammagaE2E UserE2E User\" 327x40",
+     "button[data-testid=attach] \"Fayl biriktirish\" 40x40",
+     "input[data-testid=chat-input] \"Xabar yozing…\" 231x40",
+     "button.dx-btn.dx-btn--icon \"Yuborish\" 40x40"
+    ],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.label-name \"User Demo (Siz)\" scrollW 89 > clientW 75 (overflow:hidden, textOverflow:ellipsis)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"E2E User gapirmoqda\" scrollW 160 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call people open",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+     "button[data-testid=cohost-toggle] \"Co-host qilish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Yopish\" 40x40",
+     "button[data-testid=roster-cohost] \"Co-host qilish: E2E User\" 32x32",
+     "button[data-testid=roster-mute] \"Ovozni o‘chirish: E2E Us\" 32x32",
+     "button[data-testid=roster-remove] \"Chiqarib yuborish: E2E U\" 32x32"
+    ],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.label-name \"User Demo (Siz)\" scrollW 89 > clientW 75 (overflow:hidden, textOverflow:ellipsis)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"E2E User gapirmoqda\" scrollW 160 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call more open",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [
+     "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+     "button[data-testid=cohost-toggle] \"Co-host qilish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 28x28",
+     "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 28x28",
+     "input[data-testid=noise] \"\" 40x24",
+     "input[data-testid=blur] \"\" 40x24"
+    ],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.label-name \"User Demo (Siz)\" scrollW 89 > clientW 75 (overflow:hidden, textOverflow:ellipsis)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"E2E User gapirmoqda\" scrollW 160 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  },
+  {
+   "name": "real call member view",
+   "m": {
+    "vw": 1280,
+    "docW": 1280,
+    "overflowX": false,
+    "small": [],
+    "clipped": [
+     "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \"(1)\" scrollW 11 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+     "div[data-testid=call-live] \"User Demo qo‘lni tushird\" scrollW 186 > clientW 1 (overflow:hidden, textOverflow:clip)"
+    ],
+    "tinyFont": []
+   }
+  }
+ ],
+ "perfReal": {
+  "fps": 50.1,
+  "longTasks": 0,
+  "longTaskMs": 0,
+  "worstFrameMs": 20,
+  "p95FrameMs": 20
+ }
+}

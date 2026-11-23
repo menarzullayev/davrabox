@@ -485,6 +485,8 @@
   @media (pointer: coarse) {
     .dx-btn { --btn-h: var(--target-coarse); min-width: var(--target-coarse); }
     .dx-btn[data-size='lg'] { --btn-h: 52px; }
+    .dx-btn[data-size='sm'] { --btn-h: var(--target-coarse); }
+    .dx-btn--icon[data-size='sm'] { width: var(--target-coarse); }
     .dx-input,
     .dx-select__control { min-height: var(--target-coarse); }
     .dx-tab { min-height: var(--target-coarse); }

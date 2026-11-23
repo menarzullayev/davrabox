@@ -52,7 +52,7 @@ export function Stage({ lang, requested, participants, featuredId, sharer, rende
   // Stable identity while nobody joins or leaves: the layout is recomputed for the people, not for every re-render.
   const idKey = participants.map((p) => p.id).join('\u0000');
   const ids = useMemo(() => (idKey ? idKey.split('\u0000') : []), [idKey]);
-  const resolved = useMemo(() => resolveMode(requested, participants.length, size), [requested, participants.length, size]);
+  const resolved = useMemo(() => resolveMode(requested, participants.length, size, !!sharer), [requested, participants.length, size, sharer]);
   // One layout computation per change of inputs: nothing here reads the DOM.
   const layout = useMemo(
     () => computeLayout({ mode: resolved.mode, participants: ids, featuredId, hasShare: !!sharer, size }),

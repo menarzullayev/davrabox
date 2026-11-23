@@ -67,8 +67,8 @@ describe('Tile', () => {
   it('shows manager actions on remote tiles only, by accessible name', () => {
     const { rerender } = render(<ParticipantTile p={person(1)} {...base} />);
     const tile = document.querySelector('.tile') as HTMLElement;
-    fireEvent.click(within(tile).getByRole('button', { name: 'Mute' }));
-    fireEvent.click(within(tile).getByRole('button', { name: 'Remove' }));
+    fireEvent.click(within(tile).getByRole('button', { name: 'Mute: Aziz Karimov' }));
+    fireEvent.click(within(tile).getByRole('button', { name: 'Remove: Aziz Karimov' }));
     fireEvent.click(within(tile).getByTestId('cohost-toggle'));
     expect(manage.onMute).toHaveBeenCalledWith('p1');
     expect(manage.onRemove).toHaveBeenCalledWith('p1');
@@ -139,10 +139,9 @@ describe('Stage', () => {
   });
 
   it('shows a shared screen as a tile without data-identity in the centre', () => {
-    render(<Stage {...props(4, { sharer: person(2) })} />);
+    render(<Stage {...props(4, { sharer: person(2), requested: 'gallery' })} />);
     const share = document.querySelector('.tile.share') as HTMLElement;
     expect(share.dataset.identity).toBeUndefined();
-    expect(share.dataset.slot).toBe('center');
     expect(share.getAttribute('aria-label')).toBe('Dilnoza Yusupova’s screen');
     expect(document.querySelectorAll('.tile[data-identity]')).toHaveLength(4);
   });

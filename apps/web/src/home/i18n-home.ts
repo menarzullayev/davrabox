@@ -42,6 +42,8 @@ export const homeUz = {
 
   hToasts: 'Xabarlar',
   hListLoading: 'Uchrashuvlar yuklanmoqda…',
+  hShowAll: 'Hammasini ko‘rsatish ({n})',
+  hShowLess: 'Kamroq ko‘rsatish',
   hGroupNow: 'Hozir',
   hGroupLater: 'Bugun keyinroq',
   hGroupUpcoming: 'Kelgusi kunlar',
@@ -111,6 +113,8 @@ export const homeRu: Record<HomeKey, string> = {
 
   hToasts: 'Уведомления',
   hListLoading: 'Загружаем встречи…',
+  hShowAll: 'Показать все ({n})',
+  hShowLess: 'Показать меньше',
   hGroupNow: 'Сейчас',
   hGroupLater: 'Позже сегодня',
   hGroupUpcoming: 'Ближайшие дни',
@@ -178,6 +182,8 @@ export const homeEn: Record<HomeKey, string> = {
 
   hToasts: 'Notifications',
   hListLoading: 'Loading meetings…',
+  hShowAll: 'Show all ({n})',
+  hShowLess: 'Show fewer',
   hGroupNow: 'Now',
   hGroupLater: 'Later today',
   hGroupUpcoming: 'Coming days',

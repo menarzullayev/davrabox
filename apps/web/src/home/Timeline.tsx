@@ -12,6 +12,9 @@ const GROUP_KEY: Record<TimelineGroup, Key> = {
   earlier: 'hGroupEarlier',
 };
 
+/** A group longer than this is folded behind a "show all" button (the list used to grow without bound). */
+export const GROUP_CAP = 6;
+
 export interface MeetingRowProps {
   lang: Lang;
   m: TimelineMeeting;
@@ -89,6 +92,7 @@ export interface TimelineViewProps {
 
 /** Meetings as a day timeline: a rail with a dot per meeting, grouped now / later today / upcoming / recent / earlier. */
 export function TimelineView({ lang, timeline, joiningCode, onJoin, onCopy, onNew }: TimelineViewProps) {
+  const [open, setOpen] = useState<Partial<Record<TimelineGroup, boolean>>>({});
   if (!timeline) {
     return (
       <div className="hm-skeletons" aria-busy="true" aria-label={tx(lang, 'hListLoading')} role="status">
@@ -126,10 +130,15 @@ export function TimelineView({ lang, timeline, joiningCode, onJoin, onCopy, onNe
             <span className="hm-group__count dx-tabular">{timeline[g].length}</span>
           </h3>
           <ul className="hm-list">
-            {timeline[g].map((m) => (
+            {(open[g] || timeline[g].length <= GROUP_CAP ? timeline[g] : timeline[g].slice(0, GROUP_CAP)).map((m) => (
               <MeetingRow key={m.id} lang={lang} m={m} group={g} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} />
             ))}
           </ul>
+          {timeline[g].length > GROUP_CAP ? (
+            <Button variant="ghost" size="sm" data-testid={`group-more-${g}`} aria-expanded={!!open[g]} onClick={() => setOpen((o) => ({ ...o, [g]: !o[g] }))}>
+              {open[g] ? tx(lang, 'hShowLess') : tx(lang, 'hShowAll', { n: timeline[g].length })}
+            </Button>
+          ) : null}
         </section>
       ))}
     </div>

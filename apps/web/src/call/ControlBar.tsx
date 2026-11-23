@@ -24,7 +24,7 @@ import {
   IconSmile,
   IconUsers,
 } from '../ui';
-import type { FallbackReason, LayoutMode } from './layout';
+import { hintKey, type FallbackReason, type LayoutMode } from './layout';
 import { applyRoving, handleRovingKey } from './roving';
 import type { PanelId } from './types';
 
@@ -252,7 +252,7 @@ export function ControlBar(p: ControlBarProps) {
       <Popover open={open === 'layout'} anchorRef={layoutBtn} onClose={close} role="group" aria-label={t(lang, 'clLayout')}>
         <div ref={layoutBox} className="dv-pop">
           <LayoutSwitch lang={lang} value={p.layout} onChange={(m) => p.onLayout(m)} name="dv-layout" />
-          {p.fallback ? <p className="dv-pop__note">{t(lang, p.fallback === 'too-many' ? 'clHintTooMany' : 'clHintCompact')}</p> : null}
+          {p.fallback ? <p className="dv-pop__note">{t(lang, hintKey(p.fallback))}</p> : null}
         </div>
       </Popover>
 
@@ -270,7 +270,7 @@ export function ControlBar(p: ControlBarProps) {
             </Button>
           ) : null}
           {compact ? <LayoutSwitch lang={lang} value={p.layout} onChange={(m) => p.onLayout(m)} name="dv-layout-m" /> : null}
-          {compact && p.fallback ? <p className="dv-pop__note">{t(lang, p.fallback === 'too-many' ? 'clHintTooMany' : 'clHintCompact')}</p> : null}
+          {compact && p.fallback ? <p className="dv-pop__note">{t(lang, hintKey(p.fallback))}</p> : null}
           <div className="dv-more__switches">
             <Switch
               label={<span className="dv-more__lbl"><IconNoise size={16} />{t(lang, 'noiseSuppression')}</span>}

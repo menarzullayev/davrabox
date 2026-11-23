@@ -151,6 +151,10 @@ describe('fallback policy', () => {
     expect(resolveMode('davra', COMPACT_RING_MAX, phone).mode).toBe('davra');
     expect(resolveMode('davra', COMPACT_RING_MAX + 1, phone)).toEqual({ mode: 'speaker', reason: 'compact' });
   });
+  it('draws the speaker view instead of Davra while a screen is shared', () => {
+    expect(resolveMode('davra', 3, { width: 1200, height: 700 }, true)).toEqual({ mode: 'speaker', reason: 'share' });
+    expect(resolveMode('gallery', 3, { width: 1200, height: 700 }, true).mode).toBe('gallery');
+  });
   it('never replaces a mode the user picked explicitly', () => {
     expect(resolveMode('gallery', 3, { width: 300, height: 300 }).mode).toBe('gallery');
     expect(resolveMode('speaker', 30, { width: 300, height: 300 }).mode).toBe('speaker');

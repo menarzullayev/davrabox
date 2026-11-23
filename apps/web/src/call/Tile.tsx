@@ -83,6 +83,7 @@ export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantVi
       data-size={size}
       role="group"
       aria-label={tileDescription(p, c.lang)}
+      tabIndex={showActions ? -1 : undefined}
       hidden={c.hidden}
       style={boxStyle(c.rect)}
     >
@@ -134,17 +135,18 @@ export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantVi
         <span className="tile-actions">
           {manage.isHost ? (
             <IconButton
-              label={p.isCohost ? t(c.lang, 'dismissCohost') : t(c.lang, 'makeCohost')}
+              label={`${p.isCohost ? t(c.lang, 'dismissCohost') : t(c.lang, 'makeCohost')}: ${p.name || p.id}`}
               icon={<IconUser size={16} />}
               size="sm"
               variant="secondary"
               tooltip={false}
+              tabIndex={-1}
               data-testid="cohost-toggle"
               onClick={() => manage.onToggleCohost(p.id)}
             />
           ) : null}
-          <IconButton label={t(c.lang, 'muteAudio')} icon={<IconMicOff size={16} />} size="sm" variant="secondary" tooltip={false} onClick={() => manage.onMute(p.id)} />
-          <IconButton label={t(c.lang, 'removeFromMeeting')} icon={<IconX size={16} />} size="sm" variant="danger" tooltip={false} onClick={() => manage.onRemove(p.id)} />
+          <IconButton label={`${t(c.lang, 'muteAudio')}: ${p.name || p.id}`} icon={<IconMicOff size={16} />} size="sm" variant="secondary" tooltip={false} tabIndex={-1} onClick={() => manage.onMute(p.id)} />
+          <IconButton label={`${t(c.lang, 'removeFromMeeting')}: ${p.name || p.id}`} icon={<IconX size={16} />} size="sm" variant="danger" tooltip={false} tabIndex={-1} onClick={() => manage.onRemove(p.id)} />
         </span>
       ) : null}
     </div>

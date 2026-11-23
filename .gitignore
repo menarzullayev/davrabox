@@ -26,3 +26,4 @@ docs/Korporativ_*
 .tunnel.log
 .claude/
 apps/web/dist-lab/
+docs/design/critic/*.jpg

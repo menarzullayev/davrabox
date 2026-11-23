@@ -93,6 +93,7 @@ try {
 
   // Remove B: B's call ends, rejoining is refused.
   await bTile.getByRole('button', { name: /Remove|Chiqarib yuborish|Удалить из встречи/ }).click();
+  await host.page.getByTestId('remove-confirm').click();
   await userB.page.waitForSelector('.home', { timeout: 30000 });
   check('a removed participant is dropped from the call', (await userB.page.locator('.call').count()) === 0);
   await joinByCode(userB.page, code);

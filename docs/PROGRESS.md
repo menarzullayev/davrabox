@@ -185,3 +185,9 @@ Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, n
 - Full real e2e against the redesigned UI: call, totp, admin2fa, passkey, hostcontrols, chat, noise, layout, blur, logini18n, cohost, files, turn, desktop, sso — all PASSED on the local stack (Edge via Playwright; desktop = Electron against the tunnel host).
 - Fixes found by e2e: the switch input is visually hidden, so noise/blur e2e now click its label; a stale local `packages/design-tokens/dist/tokens.css` (after a power cut) lacked z-index tokens and the More popover rendered under the stage video — rebuilt (`pnpm --filter @davrabox/design-tokens build`; Docker/CI always rebuild it).
 - Still untested for the redesign: Safari, Firefox, real touch devices, Davra with many real video streams. Admin console not yet restyled; critic agent (stage 3) not run.
+
+## Critic review (independent agent) and first fixes — 2026-11-23
+- Report: `docs/design/critic/REPORT.md` (no blocker; axe clean in 412 runs; 50 fps, 0 long tasks; 6 majors, 11 minors).
+- Fixed now: D-01 host tile actions carry the participant name and Remove asks for confirmation (dialog `remove-confirm`); D-02 tile actions left out of the tab order (People panel keeps them); D-03 ring name pill wider than the circle; D-04 Davra switches to Speaker while a screen is shared (hint note); D-05 44 px targets for small/icon buttons and tile actions on coarse pointers, tile actions no longer always visible on touch (tap focuses the tile); D-06 home groups fold after 6 rows with "show all". Also: the active-speaker feature never picks yourself.
+- Verification: web 483 unit tests, typecheck, build; e2e hostcontrols, cohost, layout, call, chat, files PASSED.
+- Open: minors D-07..D-17, polish P-01..P-08, Uzbek wording review by a native editor, visual re-check of D-03/D-04 on screenshots, admin console restyle.

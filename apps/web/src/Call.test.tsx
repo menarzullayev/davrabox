@@ -312,14 +312,17 @@ describe('Call with a fake room', () => {
       r.emit('participantConnected', a);
     });
     const tile = document.querySelector('.tile[data-identity="a"]') as HTMLElement;
-    fireEvent.click(within(tile).getByRole('button', { name: 'Mute' }));
+    fireEvent.click(within(tile).getByRole('button', { name: /^Mute/ }));
     await flush();
     expect(api.mute).toHaveBeenCalledWith('jwt', '12345678901', 'a');
     fireEvent.click(within(tile).getByTestId('cohost-toggle'));
     await flush();
     expect(api.setCohost).toHaveBeenCalledWith('jwt', '12345678901', 'a', true);
-    await waitFor(() => expect(within(document.querySelector('.tile[data-identity="a"]') as HTMLElement).getByTestId('cohost-toggle').getAttribute('aria-label')).toBe('Remove co-host'));
-    fireEvent.click(within(tile).getByRole('button', { name: 'Remove' }));
+    await waitFor(() => expect(within(document.querySelector('.tile[data-identity="a"]') as HTMLElement).getByTestId('cohost-toggle').getAttribute('aria-label')).toMatch(/^Remove co-host/));
+    fireEvent.click(within(tile).getByRole('button', { name: /^Remove(?! co-host)/ }));
+    await flush();
+    expect(api.remove).not.toHaveBeenCalled(); // asks for confirmation first
+    fireEvent.click(screen.getByTestId('remove-confirm'));
     await flush();
     expect(api.remove).toHaveBeenCalledWith('jwt', '12345678901', 'a');
   });
