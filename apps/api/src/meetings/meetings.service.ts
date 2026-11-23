@@ -22,6 +22,8 @@ export interface CreateMeetingInput {
   passcode?: string;
   scheduledAt?: string;
   waitingRoom?: boolean;
+  /** End-to-end encrypted meeting. Chosen at creation and never changed afterwards. */
+  e2ee?: boolean;
 }
 
 export interface JoinedResult {
@@ -31,6 +33,8 @@ export interface JoinedResult {
   meetingId: string;
   title: string;
   isHost: boolean;
+  /** The media is end-to-end encrypted with a key the server never sees; the client needs it from the link fragment. */
+  e2ee: boolean;
 }
 export interface WaitingResult {
   status: 'waiting';
@@ -45,6 +49,7 @@ interface MeetingRow {
   passcode_hash: string | null;
   locked: boolean;
   waiting_room: boolean;
+  e2ee: boolean;
   is_cohost: boolean;
 }
 
@@ -77,10 +82,10 @@ export class MeetingsService {
       try {
         return await withTenant(this.pool, user.orgId, async (c) => {
           const r = await c.query(
-            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING id, code, title, waiting_room, locked, scheduled_at, (passcode_hash IS NOT NULL) AS has_passcode`,
-            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault],
+            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room, e2ee)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING id, code, title, waiting_room, locked, scheduled_at, e2ee, (passcode_hash IS NOT NULL) AS has_passcode`,
+            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault, input.e2ee === true],
           );
           await this.audit(c, user, 'meeting.create', code);
           meetingsCreated.inc();
@@ -97,7 +102,7 @@ export class MeetingsService {
   async list(user: AuthedUser) {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT id, code, title, waiting_room, locked, scheduled_at, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
+        `SELECT id, code, title, waiting_room, locked, scheduled_at, e2ee, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
          FROM meetings ORDER BY created_at DESC LIMIT 100`,
         [user.userId],
       );
@@ -214,6 +219,24 @@ export class MeetingsService {
     });
   }
 
+  /**
+   * The only change a client can ask for here is turning E2EE on or off, and that is never allowed: a meeting that has
+   * run unencrypted cannot be made private after the fact (the server cannot know who already holds recordings or
+   * transcripts), and an encrypted one must not be downgraded. The attempt is audited.
+   */
+  async update(user: AuthedUser, code: string, patch: Record<string, unknown>): Promise<never> {
+    // The audit row must be committed, so the refusal is thrown after the transaction, not inside it.
+    const touchesE2ee = await withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code, user.userId);
+      this.mustManage(user, meeting);
+      if (!Object.prototype.hasOwnProperty.call(patch, 'e2ee')) return false;
+      await this.audit(c, user, 'meeting.e2ee.change.denied', code);
+      return true;
+    });
+    if (touchesE2ee) throw new MeetingError(409, 'end-to-end encryption cannot be changed after the meeting is created');
+    throw new MeetingError(400, 'nothing can be updated');
+  }
+
   async setLocked(user: AuthedUser, code: string, locked: boolean) {
     return withTenant(this.pool, user.orgId, async (c) => {
       const meeting = await this.meetingByCode(c, code, user.userId);
@@ -327,7 +350,7 @@ export class MeetingsService {
   private async meetingByCode(c: PoolClient, code: string, userId: string): Promise<MeetingRow> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     const r = await c.query(
-      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room,
+      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room, m.e2ee,
               EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2) AS is_cohost
        FROM meetings m WHERE m.code = $1`,
       [code, userId],
@@ -380,6 +403,6 @@ export class MeetingsService {
       roomAdmin: manages,
     });
     const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
-    return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages };
+    return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages, e2ee: meeting.e2ee };
   }
 }
