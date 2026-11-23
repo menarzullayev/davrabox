@@ -155,6 +155,19 @@ describe('E2EE meetings over HTTP', () => {
   });
 });
 
+describe('E2EE meetings and file sharing', () => {
+  it('shared files pass through the server, so an upload into an E2EE meeting is refused (409) and nothing is stored', async () => {
+    const { FilesService } = await import('../src/files/files.service.js');
+    const files = new FilesService(pool, cfg);
+    const u = await pool.query('SELECT org_id, user_id FROM provision_user($1,$2,$3,$4,$5,$6)', [slug, slug, `host-${sfx}`, `host-${sfx}@t.local`, 'host', 'member']);
+    const user = { sub: 'h', email: 'h', name: 'h', orgSlug: slug, role: 'member' as const, orgId: u.rows[0].org_id, userId: u.rows[0].user_id };
+    const m = await http('POST', '/v1/meetings', 'host', { title: 'No files', waitingRoom: false, e2ee: true });
+    await expect(files.upload(user, m.json.code as unknown as string, 'plan.txt', Buffer.from('plain text'))).rejects.toMatchObject({ status: 409 });
+    const n = await admin.query('SELECT count(*)::int AS n FROM meeting_files WHERE meeting_id = $1', [m.json.id]);
+    expect(n.rows[0].n).toBe(0);
+  });
+});
+
 describe('E2EE meetings and recording', () => {
   it('server-side recording is refused for an E2EE meeting created through the API (409)', async () => {
     const media: MediaPort = {
