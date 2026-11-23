@@ -15,11 +15,13 @@ import { AuditForwarder } from './audit/forwarder.js';
 import { ADMIN, AdminController, AdminGuard } from './admin/admin.controller.js';
 import { AdminService } from './admin/admin.service.js';
 import { KeycloakAdmin } from './admin/identity-admin.js';
+import { SignupModule } from './signup/signup.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
+  imports: [SignupModule],
   controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
