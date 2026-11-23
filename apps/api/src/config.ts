@@ -31,6 +31,9 @@ const schema = z.object({
   // The storage endpoint as Egress reaches it (inside the compose network); defaults to S3_ENDPOINT.
   RECORDING_S3_ENDPOINT: z.string().url().optional(),
   RECORDING_S3_REGION: z.string().min(1).default('us-east-1'),
+  // BYOK (customer-held keys, Vault Transit): by default a customer's Vault address must be public https (SSRF guard).
+  // Self-hosted installations whose Vault lives on a private network set this to 1 (private addresses and http accepted).
+  BYOK_ALLOW_PRIVATE_VAULT: z.enum(['0', '1', 'true', 'false']).default('0').transform((v) => v === '1' || v === 'true'),
   // Admin console user management is optional: without these the user-management endpoints answer 503.
   // The client is a confidential service-account client limited to view-users, manage-users, view-realm, query-users.
   KEYCLOAK_ADMIN_URL: z.string().url().optional(), // e.g. http://host:8180/auth

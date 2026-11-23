@@ -1,0 +1,25 @@
+# Disposable HashiCorp Vault in dev mode, for the BYOK tests only (apps/api/test/byok.test.ts).
+# Dev mode keeps everything in memory, is unsealed and uses the root token below: never use it for real data.
+# Loopback only, no volumes. The root token is supplied by the caller and is not stored in the repository:
+#   export BYOK_TEST_VAULT_TOKEN="root-$(openssl rand -hex 16)"
+#   docker compose -f deploy/compose/docker-compose.byok.yml up -d
+#   curl -s -H "X-Vault-Token: $BYOK_TEST_VAULT_TOKEN" -X POST -d '{"type":"transit"}' http://127.0.0.1:58200/v1/sys/mounts/transit
+#   export BYOK_TEST_VAULT_ADDR=http://127.0.0.1:58200
+#   ... run the tests ...
+#   docker compose -f deploy/compose/docker-compose.byok.yml down
+name: davra-byok-test
+services:
+  vault:
+    image: hashicorp/vault:2.2.2
+    container_name: davra-vault-test
+    cap_add: [IPC_LOCK]
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${BYOK_TEST_VAULT_TOKEN:?set BYOK_TEST_VAULT_TOKEN to a random throw-away value}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    ports:
+      - "127.0.0.1:58200:8200"
+    mem_limit: 256m
+    cpus: 0.5
+    tmpfs:
+      - /vault/file
+      - /vault/logs
