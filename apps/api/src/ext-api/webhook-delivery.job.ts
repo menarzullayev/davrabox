@@ -3,6 +3,7 @@ import { open } from '../files/crypto.js';
 import type { Poster } from './http-poster.js';
 import { UrlRejectedError, defaultResolver, resolvePublicHttpsUrl, type Resolver } from './url-guard.js';
 import { MAX_ATTEMPTS, backoffSeconds, signPayload } from './webhook-signature.js';
+import { webhookDeliveries } from '../metrics.js';
 
 export interface DeliveryJobOptions {
   /** Without the master key a worker cannot decrypt signing secrets, so it claims nothing. */
@@ -70,6 +71,7 @@ export class WebhookDeliveryJob {
     } catch {
       result = this.failed(row, null, 'delivery error'); // never let one bad row stop the batch
     }
+    webhookDeliveries.inc({ outcome: result.outcome });
     const retryIn = result.outcome === 'retry' ? backoffSeconds(row.attempts, this.opts.random) : 0;
     await this.pool.query('SELECT webhook_record_result($1, $2, $3, $4, $5)', [row.id, result.outcome, result.status, result.error, retryIn]);
   }

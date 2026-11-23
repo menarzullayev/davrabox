@@ -40,6 +40,10 @@ const schema = z.object({
   KEYCLOAK_ADMIN_REALM: z.string().min(1).default('davrabox'),
   KEYCLOAK_ADMIN_REALM_CLIENT_ID: z.string().min(1).default('davrabox-admin-api'),
   KEYCLOAK_ADMIN_CLIENT_SECRET: z.string().min(8).optional(),
+  // Error tracking (GlitchTip, Sentry-compatible): empty = disabled, nothing is loaded or sent. Validated at start-up, never fatal.
+  GLITCHTIP_DSN: z.string().optional(),
+  GLITCHTIP_ENVIRONMENT: z.string().optional(),
+  GLITCHTIP_RELEASE: z.string().optional(),
   METRICS_PORT: z.coerce.number().int().default(9100),
   METRICS_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().default(3000),
