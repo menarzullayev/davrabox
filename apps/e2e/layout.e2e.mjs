@@ -1,5 +1,5 @@
-// End-to-end: gallery and speaker views. Speaker view features another participant first (a screen sharer,
-// then the last active speaker, then the first remote participant); the toggle switches back to gallery order.
+// End-to-end: Davra, grid and speaker views. The featured tile is a screen sharer, else the last active speaker,
+// else the first remote participant (never yourself unless nobody else is there); the view switch is a segmented control.
 import { chromium } from 'playwright-core';
 import { BASE, createUser } from './kc.mjs';
 
@@ -51,14 +51,27 @@ try {
   await host.page.waitForFunction(() => document.querySelectorAll('.grid .tile[data-identity]').length >= 2, null, { timeout: 40000 });
 
   const layout = () => host.page.getByTestId('grid').getAttribute('data-layout');
-  check('gallery view is the default and lists yourself first', (await layout()) === 'gallery' && /\((You|Siz|Вы)\)/.test(await firstLabel(host.page)));
+  // The view switch is a popover with a three-way segmented control (Davra / Grid / Speaker).
+  const pick = async (mode) => {
+    if (!(await host.page.getByTestId(`layout-${mode}`).isVisible())) await host.page.getByTestId('layout').click();
+    await host.page.getByTestId(`layout-${mode}`).click();
+    await host.page.waitForFunction((m) => document.querySelector('[data-testid=grid]')?.getAttribute('data-layout') === m, mode, { timeout: 5000 });
+  };
+  const featured = () => host.page.locator('.grid .tile.featured:not(.share)');
+  const isSelf = async (loc) => /\((You|Siz|Вы)\)/.test(await loc.locator('.label').innerText());
 
-  await host.page.getByTestId('layout').click();
-  check('speaker view features another participant, not yourself', (await layout()) === 'speaker' && !/\((You|Siz|Вы)\)/.test(await firstLabel(host.page)));
-  check('exactly one tile is featured and it is the first one', (await host.page.locator('.tile.featured').count()) === 1 && (await host.page.locator('.grid .tile[data-identity]').first().getAttribute('class')).includes('featured'));
+  // DOM order is stable in every view (yourself first); the layout only moves tiles with transforms.
+  check('Davra is the default: yourself first in the DOM, another participant in the centre', (await layout()) === 'davra' && /\((You|Siz|Вы)\)/.test(await firstLabel(host.page)) && (await featured().count()) === 1 && !(await isSelf(featured())) && (await featured().getAttribute('data-slot')) === 'center');
+  check('in Davra mode the participants are on the ring', (await host.page.locator('.grid .tile[data-slot=ring]').count()) === 1);
 
-  await host.page.getByTestId('layout').click();
-  check('switching back restores the gallery order', (await layout()) === 'gallery' && /\((You|Siz|Вы)\)/.test(await firstLabel(host.page)) && (await host.page.locator('.tile.featured').count()) === 0);
+  await pick('speaker');
+  check('speaker view features another participant, not yourself', (await layout()) === 'speaker' && (await featured().count()) === 1 && !(await isSelf(featured())) && (await featured().getAttribute('data-slot')) === 'main');
+
+  await pick('gallery');
+  check('grid view has no featured tile and keeps yourself first', (await layout()) === 'gallery' && (await featured().count()) === 0 && /\((You|Siz|Вы)\)/.test(await firstLabel(host.page)));
+
+  await pick('davra');
+  check('switching back restores Davra', (await layout()) === 'davra' && (await featured().count()) === 1);
 
   for (const x of [host, pb]) await x.ctx.close();
 } catch (e) {

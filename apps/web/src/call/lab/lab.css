@@ -1,0 +1,9 @@
+/* Development-only lab panel; intentionally plain. */
+@layer dx {
+  .lab-panel { position: fixed; left: 8px; top: 64px; z-index: 900; max-width: 300px; padding: 6px 10px; border: 1px dashed var(--border-strong); border-radius: 10px; background: color-mix(in srgb, var(--surface-1) 92%, transparent); color: var(--text); font-size: 12px; }
+  .lab-panel summary { cursor: pointer; }
+  .lab-grid { display: grid; gap: 6px; padding-top: 8px; }
+  .lab-grid label { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .lab-grid input[type='number'] { width: 56px; padding: 2px 4px; }
+  .lab-grid button, .lab-grid select { padding: 3px 6px; font-size: 12px; border-radius: 6px; }
+}
