@@ -8,13 +8,15 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/CHANGE-ME/davrabox.git   # set after the repository is created
+    repoURL: https://github.com/menarzullayev/davrabox.git
     targetRevision: main
     path: deploy/helm/davrabox
     helm:
       valueFiles: [values.yaml]
       parameters:
         - { name: publicHost, value: staging.example.com }
+      fileParameters:
+        - { name: keycloak.realmJson, path: ../../keycloak/davrabox-realm.json }
   destination:
     server: https://kubernetes.default.svc
     namespace: davrabox

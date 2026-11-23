@@ -3,8 +3,8 @@
 //
 // Flow "browser-admin-2fa" is a copy of the built-in browser flow whose forms step has two conditional
 // sub-flows, evaluated independently:
-//   A "Admin OTP":    [ Condition user-role = org_admin ,               OTP Form ]  -> admins, always
-//   B "Conditional OTP" (built in): [ user configured , NOT org_admin , OTP Form ]  -> members who enrolled
+//   A "Admin OTP":    [ Condition user-role = org_admin ,               OTP Form ]            -> admins, always
+//   B "Conditional OTP" (built in): [ user configured , NOT org_admin , ( OTP Form | passkey ) ] -> members who enrolled
 // An admin therefore meets exactly one OTP step (A); the OTP form enrols a new authenticator when none exists.
 //
 // Usage: KEYCLOAK_URL=http://127.0.0.1:8180/auth KEYCLOAK_ADMIN_PASSWORD=... node scripts/keycloak-admin-2fa.mjs
@@ -67,35 +67,50 @@ if (!ex.some((e) => e.displayName === ADMIN_SUB)) {
   );
   ex = await list();
 }
-let adminSub = ex.find((e) => e.displayName === ADMIN_SUB);
+const adminSub = ex.find((e) => e.displayName === ADMIN_SUB);
 if (adminSub.requirement !== 'CONDITIONAL') await put(adminSub, 'CONDITIONAL');
 
 const addIf = async (flowAlias, provider) => {
   await must(await api(`/authentication/flows/${enc(flowAlias)}/executions/execution`, { method: 'POST', body: JSON.stringify({ provider }) }), `add ${provider}`);
   ex = await list();
 };
+const flowEx = (alias) => ex.find((e) => e.displayName === alias);
+const kids = (alias) => childrenOf(ex, flowEx(alias));
+const direct = (alias) => kids(alias).filter((k) => k.level === flowEx(alias).level + 1);
+const remove = async (e) => {
+  await must(await api(`/authentication/executions/${e.id}`, { method: 'DELETE' }), `remove ${e.displayName}`);
+  ex = await list();
+};
 
-let aKids = childrenOf(ex, adminSub);
-if (!aKids.some((e) => e.providerId === 'conditional-user-role')) await addIf(ADMIN_SUB, 'conditional-user-role');
-aKids = childrenOf(ex, ex.find((e) => e.displayName === ADMIN_SUB));
-if (!aKids.some((e) => e.providerId === 'auth-otp-form')) await addIf(ADMIN_SUB, 'auth-otp-form');
-aKids = childrenOf(ex, ex.find((e) => e.displayName === ADMIN_SUB));
-for (const e of aKids) {
-  if (e.requirement !== 'REQUIRED') await put(e, 'REQUIRED');
-}
-const aRole = aKids.find((e) => e.providerId === 'conditional-user-role');
-await configure(aRole, 'is-org-admin', { condUserRole: 'org_admin', negate: 'false' });
+// A: admins always meet the OTP form, which enrols an authenticator-app when none exists.
+if (!kids(ADMIN_SUB).some((e) => e.providerId === 'conditional-user-role')) await addIf(ADMIN_SUB, 'conditional-user-role');
+// Clean up the nested method sub-flow tried by an earlier version (a REQUIRED/ALTERNATIVE mix fails for users
+// without any enrolled factor, and this Keycloak has no condition for "has a passkey").
+const oldMethod = ex.find((e) => e.displayName === `${FLOW} 2FA method`);
+if (oldMethod) await remove(oldMethod);
+if (!kids(ADMIN_SUB).some((e) => e.providerId === 'auth-otp-form')) await addIf(ADMIN_SUB, 'auth-otp-form');
+for (const e of direct(ADMIN_SUB)) if (e.requirement !== 'REQUIRED') await put(e, 'REQUIRED');
+await configure(kids(ADMIN_SUB).find((e) => e.providerId === 'conditional-user-role'), 'is-org-admin', { condUserRole: 'org_admin', negate: 'false' });
 
-// Sub-flow B: members who enrolled their own authenticator (admins are excluded: they meet step A).
+// B: members who enrolled any second factor (authenticator app OR passkey) are challenged with whichever they have.
+// Same shape as Keycloak's own conditional 2FA flow: conditions (REQUIRED) plus the two factors as ALTERNATIVEs
+// directly in the flow. A nested sub-flow would break the "user configured" check, which only looks at the
+// authenticators that are direct children of the conditional flow.
+const bAlias = memberSub.displayName;
+const MEMBER_METHOD = `${FLOW} member 2FA method`;
 ex = await list();
-const bKids = childrenOf(ex, ex.find((e) => e.id === memberSub.id));
-for (const e of bKids.filter((k) => k.providerId === 'conditional-user-configured' || k.providerId === 'auth-otp-form')) {
-  if (e.requirement !== 'REQUIRED') await put(e, 'REQUIRED');
+const nested = ex.find((e) => e.displayName === MEMBER_METHOD);
+if (nested) await remove(nested);
+if (!direct(bAlias).some((e) => e.providerId === 'auth-otp-form')) await addIf(bAlias, 'auth-otp-form');
+if (!direct(bAlias).some((e) => e.providerId === 'webauthn-authenticator')) await addIf(bAlias, 'webauthn-authenticator');
+for (const e of direct(bAlias).filter((k) => k.providerId === 'auth-otp-form' || k.providerId === 'webauthn-authenticator')) {
+  if (e.requirement !== 'ALTERNATIVE') await put(e, 'ALTERNATIVE');
 }
-let bRole = bKids.find((e) => e.providerId === 'conditional-user-role');
+for (const e of direct(bAlias).filter((k) => k.providerId === 'conditional-user-configured')) if (e.requirement !== 'REQUIRED') await put(e, 'REQUIRED');
+let bRole = direct(bAlias).find((e) => e.providerId === 'conditional-user-role');
 if (!bRole) {
-  await addIf(memberSub.displayName, 'conditional-user-role');
-  bRole = childrenOf(ex, ex.find((e) => e.id === memberSub.id)).find((e) => e.providerId === 'conditional-user-role');
+  await addIf(bAlias, 'conditional-user-role');
+  bRole = direct(bAlias).find((e) => e.providerId === 'conditional-user-role');
 }
 if (bRole.requirement !== 'REQUIRED') await put(bRole, 'REQUIRED');
 await configure(bRole, 'is-not-org-admin', { condUserRole: 'org_admin', negate: 'true' });
