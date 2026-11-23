@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from 'oidc-client-ts';
 import { ApiError, api, type JoinedResult, type Meeting } from './api';
-import { currentUser, manager } from './auth';
+import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
+import { isOrgAdmin } from './admin/jwt';
+import { currentUser, freshToken, manager } from './auth';
 import { Call } from './Call';
 import { detectLang, t, type Key, type Lang } from './i18n';
+
+// Loaded on demand so the home/call bundle does not grow for non-admins.
+const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
 
 function errorKey(e: unknown): Key {
   if (e instanceof ApiError) {
@@ -17,13 +22,6 @@ function errorKey(e: unknown): Key {
     }
   }
   return 'errGeneric';
-}
-
-/** Fresh access token for long-lived screens (the library renews it silently). */
-async function freshToken(): Promise<string> {
-  const u = await manager.getUser();
-  if (!u || u.expired) throw new Error('signed out');
-  return u.access_token;
 }
 
 function Waiting({ lang, code, requestId, onAdmitted, onFailed, onCancel }: {
@@ -103,9 +101,18 @@ export function App() {
   const [joined, setJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
   const [waiting, setWaiting] = useState<{ code: string; requestId: string } | null>(null);
 
+  const [adminView, setAdminView] = useState(() => isAdminPath(location.pathname));
+
   useEffect(() => {
     currentUser()
-      .then(setUser)
+      .then((u) => {
+        // The Keycloak redirect always lands on "/": go back to the admin console if that is where the user was headed.
+        if (u && consumeReturnPath()) {
+          history.replaceState({}, document.title, '/admin');
+          setAdminView(true);
+        }
+        setUser(u);
+      })
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
     const onRenew = (u: User) => setUser(u);
@@ -180,9 +187,25 @@ export function App() {
     return (
       <main className="center">
         <h1>{t(lang, 'appName')}</h1>
-        <button className="primary" onClick={() => manager.signinRedirect()}>{t(lang, 'signIn')}</button>
+        <button
+          className="primary"
+          onClick={() => {
+            rememberReturnPath(location.pathname);
+            void manager.signinRedirect();
+          }}
+        >
+          {t(lang, 'signIn')}
+        </button>
         {langPicker}
       </main>
+    );
+  }
+
+  if (adminView && !joined && !waiting) {
+    return (
+      <Suspense fallback={<main className="center">{t(lang, 'admLoading')}</main>}>
+        <AdminApp lang={lang} langPicker={langPicker} user={user} onSignOut={() => void manager.signoutRedirect()} />
+      </Suspense>
     );
   }
 
@@ -241,6 +264,7 @@ export function App() {
           />{' '}
           {t(lang, 'relayMode')}
         </label>
+        {isOrgAdmin(token) && <a href="/admin" className="btn-link" data-testid="admin-link">{t(lang, 'admLink')}</a>}
         {langPicker}
         <button onClick={() => manager.signoutRedirect()}>{t(lang, 'signOut')}</button>
       </header>

@@ -1,0 +1,167 @@
+import { ApiError } from '../api';
+
+export type Role = 'org_admin' | 'member';
+export interface AdminUser {
+  id: string;
+  email: string;
+  displayName: string;
+  role: Role;
+  department: { id: string; name: string } | null;
+  disabled: boolean;
+  createdAt: string;
+}
+export interface Overview {
+  org: { name: string; slug: string };
+  users: number;
+  seatsLimit: number | null;
+  meetingsLast30d: number;
+}
+export interface Department {
+  id: string;
+  name: string;
+  userCount: number;
+}
+export interface Policies {
+  requirePasscode: boolean;
+  waitingRoomDefault: boolean;
+  maxParticipants: number;
+  requireTotp: boolean;
+}
+export interface AuditEntry {
+  id: string;
+  at: string;
+  actorId: string | null;
+  actorEmail: string | null;
+  action: string;
+  target: string | null;
+}
+export interface Page<T> {
+  items: T[];
+  next: string | null;
+}
+export interface AuditFilters {
+  from?: string;
+  to?: string;
+  action?: string;
+  actor?: string;
+  target?: string;
+}
+export type ExportFormat = 'csv' | 'json' | 'cef';
+export interface VerifyResult {
+  ok: boolean;
+  checked: number;
+  firstBrokenId: string | null;
+}
+export interface NewUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  departmentId?: string;
+}
+export interface UserPatch {
+  role?: Role;
+  departmentId?: string | null;
+  disabled?: boolean;
+}
+
+type Query = Record<string, string | number | null | undefined>;
+
+/** Builds `?a=1&b=x%20y`, skipping undefined, null and empty values; keys keep insertion order. */
+export function buildQuery(params: Query): string {
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === '') continue;
+    parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+  }
+  return parts.length ? `?${parts.join('&')}` : '';
+}
+
+/** Pulls `message` out of a `{statusCode,message}` error body (Nest validation errors use an array). */
+export function errorDetail(body: unknown): string {
+  if (body === null || typeof body !== 'object') return '';
+  const m = (body as { message?: unknown }).message;
+  if (Array.isArray(m)) return m.map(String).join('; ');
+  return typeof m === 'string' ? m : '';
+}
+
+export function filenameFromDisposition(header: string | null, fallback: string): string {
+  if (!header) return fallback;
+  const star = /filename\*\s*=\s*(?:UTF-8|utf-8)''([^;]+)/.exec(header);
+  if (star?.[1]) {
+    try {
+      const n = decodeURIComponent(star[1].trim());
+      if (n) return safeName(n, fallback);
+    } catch {
+      /* fall through */
+    }
+  }
+  const plain = /filename\s*=\s*"?([^";]+)"?/.exec(header);
+  return plain?.[1] ? safeName(plain[1].trim(), fallback) : fallback;
+}
+
+/** Strips path parts so a server-supplied name can never point outside the downloads folder. */
+function safeName(name: string, fallback: string): string {
+  const base = name.split(/[\\/]/).pop() ?? '';
+  return base && base !== '.' && base !== '..' ? base : fallback;
+}
+
+const EXPORT_EXT: Record<ExportFormat, string> = { csv: 'csv', json: 'jsonl', cef: 'cef' };
+
+export type FetchFn = (input: string, init?: RequestInit) => Promise<Response>;
+
+const enc = encodeURIComponent;
+
+export function createAdminClient(getToken: () => Promise<string>, fetchFn: FetchFn = (i, init) => fetch(i, init)) {
+  async function raw(path: string, init?: { method?: string; body?: unknown }): Promise<Response> {
+    const token = await getToken();
+    const res = await fetchFn(`/api${path}`, {
+      method: init?.method ?? 'GET',
+      headers: { Authorization: `Bearer ${token}`, ...(init?.body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
+      body: init?.body !== undefined ? JSON.stringify(init.body) : undefined,
+    });
+    if (!res.ok) {
+      let detail = '';
+      try {
+        detail = errorDetail(await res.json());
+      } catch {
+        /* body was not JSON */
+      }
+      throw new ApiError(res.status, detail);
+    }
+    return res;
+  }
+
+  async function call<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
+    const res = await raw(path, init);
+    const text = await res.text();
+    return (text ? JSON.parse(text) : undefined) as T;
+  }
+
+  return {
+    overview: () => call<Overview>('/v1/admin/overview'),
+    listUsers: (p: { search?: string; limit?: number; cursor?: string | null }) =>
+      call<Page<AdminUser>>(`/v1/admin/users${buildQuery({ search: p.search?.trim(), limit: p.limit, cursor: p.cursor })}`),
+    createUser: (body: NewUser) => call<{ user: AdminUser; temporaryPassword: string }>('/v1/admin/users', { method: 'POST', body }),
+    updateUser: (id: string, body: UserPatch) => call<AdminUser>(`/v1/admin/users/${enc(id)}`, { method: 'PATCH', body }),
+    listDepartments: () => call<Department[]>('/v1/admin/departments'),
+    createDepartment: (name: string) => call<Department>('/v1/admin/departments', { method: 'POST', body: { name } }),
+    renameDepartment: (id: string, name: string) => call<Department>(`/v1/admin/departments/${enc(id)}`, { method: 'PATCH', body: { name } }),
+    deleteDepartment: (id: string) => call<void>(`/v1/admin/departments/${enc(id)}`, { method: 'DELETE' }),
+    getPolicies: () => call<Policies>('/v1/admin/policies'),
+    putPolicies: (body: Policies) => call<Policies>('/v1/admin/policies', { method: 'PUT', body }),
+    listAudit: (f: AuditFilters & { limit?: number; cursor?: string | null }) =>
+      call<Page<AuditEntry>>(
+        `/v1/admin/audit${buildQuery({ from: f.from, to: f.to, action: f.action?.trim(), actor: f.actor?.trim(), target: f.target?.trim(), limit: f.limit, cursor: f.cursor })}`,
+      ),
+    /** Downloads through fetch so the Authorization header is sent; the caller saves the blob. */
+    async exportAudit(format: ExportFormat, f: Pick<AuditFilters, 'from' | 'to' | 'action'>): Promise<{ blob: Blob; filename: string }> {
+      const res = await raw(`/v1/admin/audit/export${buildQuery({ format, from: f.from, to: f.to, action: f.action?.trim() })}`);
+      const blob = await res.blob();
+      return { blob, filename: filenameFromDisposition(res.headers.get('Content-Disposition'), `audit.${EXPORT_EXT[format]}`) };
+    },
+    verifyAudit: () => call<VerifyResult>('/v1/admin/audit/verify'),
+  };
+}
+
+export type AdminClient = ReturnType<typeof createAdminClient>;
