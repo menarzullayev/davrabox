@@ -55,5 +55,12 @@ Not done / not verified (honest list, supersedes the earlier list where it overl
 - Three third-party images could not be preloaded into kind (kind load failed); the cluster pulled them from the registries instead.
 - The local cluster was deleted after validation to free resources; Terraform/Helm paths need a cluster to be exercised again.
 
-Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced; the gate itself ("daily auto-deploy to staging") is BLOCKED on external items (remote repo, staging environment).
+## 2026-11-23 (latest): mandatory 2FA for org_admin
+- `scripts/keycloak-admin-2fa.mjs` (idempotent) builds Keycloak flow `browser-admin-2fa`: sub-flow A forces the OTP form for role org_admin (enrols an authenticator if none); built-in sub-flow B still challenges non-admin members who enrolled their own TOTP. Two real faults found by the tests and fixed: first version disabled the wrong "user configured" condition (organization sub-flow) and dropped OTP for self-enrolled members; an existing execution config was not updated on rerun (now read/compared/PUT).
+- `pnpm --filter @davrabox/e2e test` (system Edge, fake media): call suite 8/8, TOTP suite 5/5, admin-2FA suite 3/3 PASSED (16 checks). The call suite now uses two plain members because `admin.demo` must pass 2FA.
+- Caveats: the script must be run after Keycloak first starts (it is not part of the realm import and not yet a Helm hook); demo admin `admin.demo` now has to enrol an authenticator at first login; passkeys (WebAuthn) still not configured.
+
+The earlier "2FA not enforced for admins" item is therefore closed. Remaining open items are the ones listed above, all external (remote repo, staging, ArgoCD install, Figma, real devices, Cloudflare Tunnel, SIEM host).
+
+Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate itself ("daily auto-deploy to staging") is BLOCKED on external items (remote repo, staging environment).
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.

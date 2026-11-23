@@ -5,6 +5,7 @@
 import { chromium } from 'playwright-core';
 import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { createUser } from './kc.mjs';
 
 const BASE = process.env.E2E_BASE_URL ?? 'https://localhost:8443';
 const PASSWORD = process.env.DEMO_USER_PASSWORD;
@@ -32,7 +33,7 @@ const browser = await chromium.launch({
   args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'],
 });
 
-async function newUser(username) {
+async function newUser(username, password = PASSWORD) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
   const page = await ctx.newPage();
   if (process.env.E2E_DEBUG) page.on('response', (r) => { if (r.status() >= 400) console.log(`[${username}] HTTP ${r.status()} ${r.url().slice(0, 140)}`); });
@@ -41,7 +42,7 @@ async function newUser(username) {
   await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);
-  await page.fill('#password', PASSWORD);
+  await page.fill('#password', password);
   await page.click('#kc-login');
   await page.waitForSelector('.home', { timeout: 30000 });
   return { ctx, page };
@@ -49,10 +50,12 @@ async function newUser(username) {
 
 let exitCode = 0;
 try {
-  const admin = await newUser('admin.demo');
-  check('admin signs in via Keycloak and reaches the app', true);
-  const user = await newUser('user.demo');
-  check('member signs in via Keycloak and reaches the app', true);
+  // Both participants are plain members: organization admins must pass 2FA (see admin2fa.e2e.mjs).
+  const second = await createUser();
+  const admin = await newUser('user.demo'); // acts as host
+  check('host (member) signs in via Keycloak and reaches the app', true);
+  const user = await newUser(second.username, second.password);
+  check('second member signs in via Keycloak and reaches the app', true);
 
   const title = `E2E ${Date.now()}`;
   const meetingPass = 'e2e-pass-123';
@@ -102,6 +105,7 @@ try {
 
   await admin.ctx.close();
   await user.ctx.close();
+  await second.cleanup();
 } catch (e) {
   console.log('FAILED  unexpected error :: ' + String(e).split('\n')[0]);
   exitCode = 1;
