@@ -26,6 +26,7 @@ import {
   TextField,
   ToastProvider,
   Tooltip,
+  IconCheck,
   applyTheme,
   readTheme,
   useToast,
@@ -465,7 +466,7 @@ function ToastButtons({ s }: { s: S }) {
   const toast = useToast();
   return (
     <div className="sg-row">
-      <Button onClick={() => toast({ tone: 'success', title: s('toastSaved') })}>{s('toastShow')}: ✓</Button>
+      <Button onClick={() => toast({ tone: 'success', title: s('toastSaved') })}>{s('toastShow')}: <IconCheck size={16} /></Button>
       <Button onClick={() => toast({ tone: 'danger', title: s('toastFailed'), description: s('alertDangerText') })}>{s('toastShow')}: !</Button>
     </div>
   );

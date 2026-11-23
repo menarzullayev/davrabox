@@ -108,6 +108,17 @@ export function ellipsePoints(rx: number, ry: number, count: number): Array<{ x:
   return out;
 }
 
+/**
+ * Two people on a wide stage: the other person and the empty seat sit opposite each other on the diagonal (upper right,
+ * lower left) instead of on top of the centre tile, so the pair reads as a composition and not as a leftover (critic P-05).
+ */
+function pairPoints(rx: number, ry: number): Array<{ x: number; y: number }> {
+  const th = 0.95; // about 54 degrees clockwise from the top
+  const x = rx * Math.sin(th);
+  const y = -ry * Math.cos(th);
+  return [{ x, y }, { x: -x, y: -y }];
+}
+
 /** Smallest Chebyshev distance between any two points: the boxes of side d are apart when this is >= d + gap. */
 function minSeparation(pts: ReadonlyArray<{ x: number; y: number }>): number {
   let best = Infinity;
@@ -168,9 +179,10 @@ function davra(input: LayoutInput): LayoutResult {
     const rx = W / 2 - margin - d / 2;
     const ry = H / 2 - margin - d / 2;
     if (rx <= 0 || ry <= 0) continue;
-    const pts = ellipsePoints(rx, ry, n);
+    const pts = n === 2 && W / H > 1.2 ? pairPoints(rx, ry) : ellipsePoints(rx, ry, n);
     if (n > 1 && minSeparation(pts) < d + gap) continue;
-    const c = centerRect(W, H, aspect, pts, d, margin, gap);
+    // With two people the single name pill hangs below its circle: leave room for it so it never touches the centre tile.
+    const c = centerRect(W, H, aspect, pts, d, margin, n === 2 ? gap + 14 : gap);
     if (!best || c.h > best.c.h) best = { d, pts, c };
     if (c.h >= minCenterH) {
       best = { d, pts, c };

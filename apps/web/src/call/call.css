@@ -29,10 +29,18 @@
   .dv-main.with-chat { grid-template-columns: minmax(0, 1fr) 360px; }
   .dv-stagewrap {
     position: relative;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     min-height: 0;
     background: radial-gradient(ellipse 60% 55% at 50% 48%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%), var(--bg);
   }
+
+  /* The stage proper: the notices, the connecting screen and the stage itself are positioned inside it. */
+  .dv-stagebox { position: relative; flex: 1 1 auto; min-width: 0; min-height: 0; }
+  /* A hint that needs its own row (never over the tiles). */
+  .dv-hintbar { flex: none; box-sizing: border-box; padding: var(--space-2) var(--space-3) 0; }
+  .dv-hintbar .dv-notice { box-shadow: none; }
 
   /* ---- top bar --------------------------------------------------------------------------------------------- */
   .dv-topbar {
@@ -194,6 +202,8 @@
     line-height: 16px;
     white-space: nowrap;
   }
+  /* A shared screen is mostly white: the translucent pill would read as light grey there, unlike the pills on video (critic P-04). */
+  .dv-stage .tile.share .label { background: rgba(5, 6, 15, 0.92); }
   .dv-stage .label-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .dv-stage .label .mk { display: inline-flex; align-items: center; flex: none; }
   .dv-stage .label .mk-muted { color: #ff9aa5; }
@@ -457,6 +467,20 @@
     line-height: 17px;
     text-align: center;
   }
+  /* Narrow screens: the More button carries the current view (the layout button is folded into More there). */
+  .dv-ctl__mode {
+    position: absolute;
+    right: -9px;
+    bottom: -5px;
+    display: inline-grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
   .dv-ctl[data-testid='people-toggle'] .dv-ctl__badge { background: var(--gold); color: var(--text-on-gold); }
 
   .dv-reactions { display: flex; gap: var(--space-1); padding: 2px; }
@@ -501,7 +525,8 @@
   }
   .dv-seg__opt:hover .dv-seg__face { background: var(--surface-3); }
   .dv-seg__input:checked + .dv-seg__face { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .dv-seg__input:focus-visible + .dv-seg__face { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  /* Drawn inside the face: the popover clips anything outside its box, and the input itself is 1 px and invisible. */
+  .dv-seg__input:focus-visible + .dv-seg__face { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
   .dv-more__switches { display: grid; gap: var(--space-1); }
   .dv-more__lbl { display: inline-flex; align-items: center; gap: var(--space-2); }
   .dv-more__info { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-1); border: 1px solid var(--border); color: var(--text-muted); font-size: var(--text-xs); line-height: var(--leading-xs); }
