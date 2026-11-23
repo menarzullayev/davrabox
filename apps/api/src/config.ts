@@ -3,7 +3,12 @@ import { z } from 'zod';
 const schema = z.object({
   DATABASE_URL: z.string().min(1),
   MIGRATE_DATABASE_URL: z.string().min(1).optional(),
-  KEYCLOAK_ISSUER: z.string().url(),
+  // One or more accepted token issuers (comma separated): the same Keycloak is reached by several public hosts.
+  KEYCLOAK_ISSUER: z
+    .string()
+    .min(1)
+    .transform((v) => v.split(',').map((x) => x.trim()).filter(Boolean))
+    .pipe(z.array(z.string().url()).min(1)),
   KEYCLOAK_JWKS_URL: z.string().url().optional(), // internal URL for key fetch; defaults to issuer-based
   KEYCLOAK_AUDIENCE: z.string().default('davrabox-web'),
   LIVEKIT_URL: z.string().url(), // ws(s):// URL handed to clients

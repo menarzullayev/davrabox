@@ -34,7 +34,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
     container_name: davra-keycloak
-    command: ["start-dev", "--import-realm", "--http-port=8080", "--http-relative-path=/auth", "--proxy-headers=xforwarded", "--hostname=https://${LAN_IP}:8443/auth"]
+    command: ["start-dev", "--import-realm", "--http-port=8080", "--http-relative-path=/auth", "--proxy-headers=xforwarded"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -83,6 +83,7 @@ services:
     ports:
       - "${LAN_IP}:8443:8443"
       - "127.0.0.1:8443:8443"
+      - "127.0.0.1:58081:8081"
     depends_on:
       - keycloak
       - livekit

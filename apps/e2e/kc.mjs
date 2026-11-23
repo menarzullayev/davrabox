@@ -3,7 +3,8 @@ import { randomBytes } from 'node:crypto';
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Caddy internal CA, local dev stack only
 export const BASE = process.env.E2E_BASE_URL ?? 'https://localhost:8443';
-export const KC = `${BASE}/auth`;
+// Keycloak admin calls go to the internal direct port, never through the public domain (blocked at the edge).
+export const KC = process.env.KEYCLOAK_ADMIN_URL ?? `http://${process.env.LAN_IP ?? '127.0.0.1'}:8180/auth`;
 const ADMIN_PASSWORD = process.env.KEYCLOAK_ADMIN_PASSWORD;
 if (!ADMIN_PASSWORD) throw new Error('KEYCLOAK_ADMIN_PASSWORD is required (source scripts/devenv.sh)');
 

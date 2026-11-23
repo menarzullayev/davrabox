@@ -6,7 +6,7 @@ import { chromium } from 'playwright-core';
 import { createHmac, randomBytes } from 'node:crypto';
 
 const BASE = process.env.E2E_BASE_URL ?? 'https://localhost:8443';
-const KC = `${BASE}/auth`;
+const KC = process.env.KEYCLOAK_ADMIN_URL ?? `http://${process.env.LAN_IP ?? '127.0.0.1'}:8180/auth`; // internal admin port
 const ADMIN_PASSWORD = process.env.KEYCLOAK_ADMIN_PASSWORD;
 if (!ADMIN_PASSWORD) throw new Error('KEYCLOAK_ADMIN_PASSWORD is required (source scripts/devenv.sh)');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // local dev stack only: Caddy internal CA

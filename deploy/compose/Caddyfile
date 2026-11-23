@@ -30,3 +30,36 @@ https://{$LAN_IP}:8443, https://localhost:8443 {
 		reverse_proxy host.docker.internal:5173
 	}
 }
+
+# Public domain through Cloudflare Tunnel: plain HTTP on loopback (TLS ends at Cloudflare). The forwarded
+# proto/port headers make Keycloak build https://<domain>/auth URLs. Media (UDP) does not travel this path.
+http://davrabox.bugvector.uz:8081 {
+	bind 0.0.0.0
+
+	# The identity provider's admin console/API and master realm must never be reachable from the internet.
+	@keycloak_admin path /auth/admin /auth/admin/* /auth/realms/master /auth/realms/master/*
+	handle @keycloak_admin {
+		respond 404
+	}
+
+	handle /auth/* {
+		reverse_proxy keycloak:8080 {
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Port 443
+		}
+	}
+	handle_path /livekit/* {
+		reverse_proxy livekit:7880 {
+			header_up X-Forwarded-Proto https
+		}
+	}
+	handle_path /api/* {
+		reverse_proxy host.docker.internal:3000 {
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Port 443
+		}
+	}
+	handle {
+		reverse_proxy host.docker.internal:5173
+	}
+}

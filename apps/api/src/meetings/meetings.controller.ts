@@ -37,9 +37,11 @@ export class MeetingsController {
   }
 
   @Post(':code/join')
-  join(@Req() req: { user: AuthedUser }, @Param('code') code: string, @Body() body: unknown) {
+  join(@Req() req: { user: AuthedUser; headers: Record<string, string | string[] | undefined> }, @Param('code') code: string, @Body() body: unknown) {
     const parsed = joinSchema.safeParse(body ?? {});
     if (!parsed.success) throw new HttpException('invalid input', 400);
-    return wrap(this.svc.join(req.user, code, parsed.data.passcode));
+    const fwd = req.headers['x-forwarded-host'];
+    const host = (Array.isArray(fwd) ? fwd[0] : fwd) ?? (req.headers['host'] as string | undefined);
+    return wrap(this.svc.join(req.user, code, parsed.data.passcode, host));
   }
 }

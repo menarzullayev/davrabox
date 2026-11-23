@@ -23,3 +23,4 @@ dev.env
 apps/api/dist/
 # internal business plan (budget and strategy): kept locally, never published
 docs/Korporativ_*
+.tunnel.log
