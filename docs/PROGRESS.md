@@ -119,6 +119,7 @@ The user decided that phase 1 is closed with these items left open because none 
 
 ## 2026-11-23 (phase 2, slice 4): gallery and speaker views
 - Toggle between gallery (yourself first) and speaker view (features a screen sharer, else the last active speaker, else the first remote participant; one featured tile, others in a strip). uz/ru/en strings. `apps/e2e/layout.e2e.mjs` 4/4 PASSED (default gallery, speaker view features someone else, exactly one featured tile first, switching back restores order). Web tests 32 PASSED, typecheck PASSED.
+- Pipeline: CI success -> publish -> ArgoCD rolled staging web to `sha-aa957e5`, Synced/Healthy.
 - Not verified: featuring a real screen sharer (the fake devices cannot share a screen), and behaviour with 20+ tiles (no pagination yet: planned with the 50-participant load test).
 - Still open in phase 2: background blur, TURN + TLS 443, file sharing in chat, co-host, Electron app, 50-participant load test, Keycloak login page i18n.
 
