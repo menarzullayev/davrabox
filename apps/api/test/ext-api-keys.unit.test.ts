@@ -14,7 +14,7 @@ vi.mock('node:crypto', async (orig) => {
   };
 });
 
-import { createHash } from 'node:crypto';
+import { createHmac } from 'node:crypto';
 import { generateApiKey, hashSecret, parseApiKey, secretMatches, DUMMY_HASH } from '../src/ext-api/api-keys.service.js';
 
 beforeEach(() => {
@@ -26,7 +26,7 @@ describe('api key format', () => {
     const k = generateApiKey();
     expect(k.token).toMatch(/^dbx_[0-9a-f]{8}_[A-Za-z0-9_-]{43}$/);
     expect(k.token).toBe(`dbx_${k.prefix}_${k.secret}`);
-    expect(k.hash.equals(createHash('sha256').update(k.secret).digest())).toBe(true);
+    expect(k.hash.equals(createHmac('sha256', 'davrabox.ext-api.key.v1').update(k.secret).digest())).toBe(true);
     expect(generateApiKey().token).not.toBe(k.token);
   });
 
@@ -66,7 +66,8 @@ describe('constant-time comparison', () => {
     expect(tse.calls).toEqual([[32, 32]]);
   });
 
-  it('hashSecret is deterministic SHA-256', () => {
-    expect(hashSecret('abc').toString('hex')).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+  it('hashSecret is a deterministic keyed SHA-256 (HMAC) and differs from the plain hash', () => {
+    expect(hashSecret('abc').toString('hex')).toBe('728b20329eea9277f89d3ca6395c7b9403fdbd01fb005de1201cdf4a43786ed6');
+    expect(hashSecret('abc').toString('hex')).not.toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
   });
 });

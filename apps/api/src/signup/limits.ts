@@ -68,7 +68,9 @@ interface ReqLike {
 }
 
 function clean(ip: string): string | null {
-  const v = ip.trim().replace(/^::ffff:/i, '').replace(/%.*$/, '');
+  const trimmed = ip.trim().slice(0, 100).replace(/^::ffff:/i, '');
+  const zone = trimmed.indexOf('%');
+  const v = zone === -1 ? trimmed : trimmed.slice(0, zone);
   return isIP(v) ? v : null;
 }
 

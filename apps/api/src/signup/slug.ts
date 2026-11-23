@@ -14,12 +14,20 @@ const CYRILLIC: Record<string, string> = {
 
 const MAX_LEN = 48;
 
+function trimDashes(s: string): string {
+  let a = 0;
+  let b = s.length;
+  while (a < b && s[a] === '-') a++;
+  while (b > a && s[b - 1] === '-') b--;
+  return s.slice(a, b);
+}
+
 export function slugify(name: string): string {
-  let s = name.toLowerCase().replace(/[а-яёўқғҳ]/g, (c) => CYRILLIC[c] ?? '');
+  let s = name.slice(0, 256).toLowerCase().replace(/[а-яёўқғҳ]/g, (c) => CYRILLIC[c] ?? '');
   s = s.normalize('NFKD').replace(/[̀-ͯ]/g, '');
   s = s.replace(/['`’‘ʻʼ´]/g, ''); // O‘zbekiston -> ozbekiston
-  s = s.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  s = s.slice(0, MAX_LEN).replace(/-+$/g, '');
+  s = trimDashes(s.replace(/[^a-z0-9]+/g, '-'));
+  s = trimDashes(s.slice(0, MAX_LEN));
   if (s.length === 0) s = 'org';
   if (s.length < 2) s = `${s}-org`;
   if (RESERVED_SLUGS.includes(s)) s = `${s}-org`;

@@ -1,4 +1,4 @@
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { withTenant } from '../db/tenant.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
@@ -11,8 +11,12 @@ export const MAX_ACTIVE_KEYS_PER_ORG = 20;
 const KEY_RE = /^dbx_([0-9a-f]{8})_([A-Za-z0-9_-]{43})$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+// API key secrets are 256-bit random values, not user passwords: a fast keyed hash is the right tool (a slow password hash
+// would only add latency to every request). The fixed key is a domain-separation label, not a secret.
+const KEY_HASH_LABEL = 'davrabox.ext-api.key.v1';
+
 export function hashSecret(secret: string): Buffer {
-  return createHash('sha256').update(secret, 'utf8').digest();
+  return createHmac('sha256', KEY_HASH_LABEL).update(secret, 'utf8').digest();
 }
 
 /** Compared against when the prefix is unknown, so a lookup miss costs the same as a wrong secret. */
