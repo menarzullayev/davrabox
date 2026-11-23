@@ -1,0 +1,34 @@
+Onest (self-hosted subset)
+=========================
+
+Typeface    Onest, variable weight axis, version 2.001
+Designers   Dmitri Voloshin, Andrey Kudryavtsev (The Onest Project Authors)
+Licence     SIL Open Font License 1.1, full text in OFL.txt next to this file
+Copyright   Copyright 2021 The Onest Project Authors (https://github.com/simpals/onest)
+
+Source of the files we derive from
+  Release archive : https://github.com/simpals/onest/releases/download/2.001/onest-2.001.zip
+                    sha256 17b59e19c349e603b7d113a596b6d8e08427e97a7b5235668b69e9d8a06a4267
+  Member used     : onest-2.001/fonts/variable/Onest[wght].ttf (193 056 bytes)
+                    sha256 966c5c29b4755da84b6854d5c21dd4eaa2420225d0e9874de602de176d4a9f31
+                    (byte-identical to the copy in the Google Fonts repository, ofl/onest/)
+
+Modifications (allowed by the OFL; the copyright line in OFL.txt declares no Reserved Font Name):
+  - weight axis limited to 400-700 (fontTools.varLib.instancer)
+  - subset by script (fontTools.subset), hinting removed, OpenType features kept: tnum pnum case ccmp locl calt
+    ss01 ss02 kern liga
+  - compressed to WOFF2
+  Reproduce with: python apps/web/scripts/build-fonts.py <Onest[wght].ttf> apps/web/public/fonts
+
+Files in this folder
+  onest-latin.woff2     24 356 bytes  sha256 f1ff4133cd18c3905b517465ea9799190491491c5118a62d090adf8671ef2459
+                        Basic Latin, Latin-1, Turkish extras, U+02BB U+02BC, punctuation, currency, arrows, maths
+  onest-cyrillic.woff2  12 344 bytes  sha256 b53f28643b6fe114a648ece2ca96f98acd18dfec5eabbfafb6e4ae3d0846a2a0
+                        Russian Cyrillic plus the Uzbek Cyrillic letters (Ў Қ Ғ Ҳ and lower case)
+
+Why Onest (glyph coverage measured with fontTools on the shipped files, see apps/web/src/fonts.test.ts)
+  Needed for Uzbek Latin: o‘ g‘ (U+2018), the modifier apostrophes U+02BB (ʻ) and U+02BC (ʼ), U+2019 (’),
+  U+0027, plus S/Ch/Sh/ng built from plain Latin letters.
+  Onest        : all present (only the rarely used U+02B9 and U+02BF are absent). Cyrillic and Uzbek Cyrillic complete.
+  Geologica    : U+02BB and U+02BF missing, so oʻ gʻ with the official modifier letter would fall back to another font.
+  Manrope      : U+02BB, U+02BC, U+02B9, U+02BF missing and no Uzbek Cyrillic letters (Қ Ғ Ҳ).
