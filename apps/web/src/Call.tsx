@@ -10,6 +10,7 @@ import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, RecordingItem } from './call/types';
+import { mediaErrorText } from './platform/capacitor';
 
 type ChatLine = ChatLineView;
 
@@ -172,7 +173,7 @@ export function Call({
           const v = room.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack?.mediaStreamTrack.getSettings().noiseSuppression;
           setNoiseOn(typeof v === 'boolean' ? v : null);
         } catch {
-          setError(t(lang, 'errMedia'));
+          setError(mediaErrorText(lang));
           setMic(false);
           setCam(false);
         }
@@ -249,7 +250,7 @@ export function Call({
         setBlurOn(false); // a new camera track starts without the processor
       }
     } catch {
-      setError(t(lang, 'errMedia'));
+      setError(mediaErrorText(lang));
     }
   };
   const toggleShare = async () => {
@@ -295,7 +296,7 @@ export function Call({
       await track.restartTrack({ noiseSuppression: next, echoCancellation: true, autoGainControl: true });
       readNoise();
     } catch {
-      setError(t(lang, 'errMedia'));
+      setError(mediaErrorText(lang));
     }
   };
   // Background blur runs in the browser (MediaPipe segmentation). Model and WASM are served from our own origin.
