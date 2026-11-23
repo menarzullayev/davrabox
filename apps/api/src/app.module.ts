@@ -15,12 +15,13 @@ import { AuditForwarder } from './audit/forwarder.js';
 import { ADMIN, AdminController, AdminGuard } from './admin/admin.controller.js';
 import { AdminService } from './admin/admin.service.js';
 import { KeycloakAdmin } from './admin/identity-admin.js';
+import { calendarControllers, calendarProviders } from './calendar/calendar.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
-  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController],
+  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...calendarControllers],
   providers: [
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },
@@ -52,6 +53,7 @@ export const CONFIG = Symbol('CONFIG');
           : null,
       inject: [POOL, CONFIG],
     },
+    ...calendarProviders,
     AuthGuard,
     AdminGuard,
     AuditAdminGuard,
