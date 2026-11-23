@@ -82,5 +82,15 @@ The earlier "2FA not enforced for admins" item is therefore closed. Remaining op
 - GATE PROOF ("code reaches staging automatically"): commit `a5fd782` pushed -> CI success -> publish workflow success (images for sha-a5fd782, bump commit) -> ArgoCD (no manual action) changed the running api Deployment from `davrabox-api:sha-1dda5e0` to `davrabox-api:sha-a5fd782`.
 - Caveats: this "staging" is a kind cluster on the developer PC, not an independent environment; ArgoCD polls (about 3 minutes); the staging host name `staging.davrabox.local` is not resolvable from outside and Keycloak login inside staging was not exercised (only discovery earlier); TURN/UDP media to outsiders still untested.
 
+## 2026-11-23 (final): production web image CSP verified in a browser
+- The production image `davra/web:dev` (nginx-unprivileged, strict CSP incl. `worker-src blob:`) was served on the app port behind Caddy and `node apps/e2e/call.e2e.mjs` run against it with console capture: 8/8 PASSED (Keycloak login, API, LiveKit WSS, two participants with live video) and 0 Content-Security-Policy violation lines in the browser console. The previously open "CSP not browser-tested" item is closed. (The Vite dev server was stopped for the test and restarted afterwards.)
+
+Open items, each with its precise blocker (all recorded in HELD.md):
+- Figma design system: needs a designer or Figma access; code-side tokens (WCAG-tested) exist.
+- Wazuh SIEM: needs a host with ~4 GB RAM beyond the 10 GB Docker budget that already runs other projects.
+- Real phone/camera and an external-network participant: need the user's devices and a reachable address or TURN relay (public IP or small VPS; paid, needs approval).
+- Passkey-or-TOTP for org_admin: Keycloak 26.0.8 has no "has passkey" condition; needs a custom Java authenticator (SPI) or a Keycloak upgrade; admins keep mandatory TOTP meanwhile.
+- Independent staging environment: current staging is a local kind cluster.
+
 Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.
