@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, Track, type Participant, type RemoteTrack, type TrackPublication } from 'livekit-client';
 import { t, type Lang } from './i18n';
-import type { JoinResult } from './api';
+import { api, type JoinedResult, type JoinRequest } from './api';
 
-function Tile({ p, local, lang }: { p: Participant; local: boolean; lang: Lang }) {
+function Tile({ p, local, lang, onMute, onRemove }: { p: Participant; local: boolean; lang: Lang; onMute?: () => void; onRemove?: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const shareRef = useRef<HTMLVideoElement>(null);
   const [, bump] = useState(0);
@@ -61,7 +61,7 @@ function Tile({ p, local, lang }: { p: Participant; local: boolean; lang: Lang }
           <span className="label">{p.name || p.identity}</span>
         </div>
       )}
-      <div className={`tile${p.isSpeaking ? ' speaking' : ''}`}>
+      <div className={`tile${p.isSpeaking ? ' speaking' : ''}`} data-identity={p.identity}>
         {camTrack && !cam?.isMuted ? <video ref={videoRef} autoPlay playsInline muted={local} /> : <div className="avatar">{(p.name || '?').slice(0, 1).toUpperCase()}</div>}
         <audio ref={audioRef} autoPlay />
         <span className="label">
@@ -69,17 +69,37 @@ function Tile({ p, local, lang }: { p: Participant; local: boolean; lang: Lang }
           {local ? ` (${t(lang, 'you')})` : ''}
           {audioPub?.isMuted !== false ? ' 🔇' : ''}
         </span>
+        {(onMute || onRemove) && (
+          <span className="tile-actions">
+            {onMute && <button onClick={onMute}>{t(lang, 'muteAudio')}</button>}
+            {onRemove && <button className="danger" onClick={onRemove}>{t(lang, 'removeFromMeeting')}</button>}
+          </span>
+        )}
       </div>
     </>
   );
 }
 
-export function Call({ join, lang, onLeave }: { join: JoinResult; lang: Lang; onLeave: () => void }) {
+export function Call({
+  join,
+  code,
+  getToken,
+  lang,
+  onLeave,
+}: {
+  join: JoinedResult;
+  code: string;
+  getToken: () => Promise<string>;
+  lang: Lang;
+  onLeave: () => void;
+}) {
   const roomRef = useRef<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [mic, setMic] = useState(true);
   const [cam, setCam] = useState(true);
   const [sharing, setSharing] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -118,6 +138,26 @@ export function Call({ join, lang, onLeave }: { join: JoinResult; lang: Lang; on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [join.token]);
 
+  // Host panel: poll the waiting room while the call is open.
+  useEffect(() => {
+    if (!join.isHost) return undefined;
+    let stop = false;
+    const tick = async () => {
+      try {
+        const list = await api.listRequests(await getToken(), code);
+        if (!stop) setRequests(list);
+      } catch {
+        /* transient: try again on the next tick */
+      }
+    };
+    void tick();
+    const id = setInterval(tick, 2000);
+    return () => {
+      stop = true;
+      clearInterval(id);
+    };
+  }, [join.isHost, code, getToken]);
+
   const room = roomRef.current;
   const toggle = async (kind: 'mic' | 'cam') => {
     if (!room) return;
@@ -142,24 +182,59 @@ export function Call({ join, lang, onLeave }: { join: JoinResult; lang: Lang; on
       /* user cancelled the picker */
     }
   };
+  const hostCall = async (fn: (token: string) => Promise<unknown>) => {
+    try {
+      await fn(await getToken());
+    } catch {
+      setError(t(lang, 'errGeneric'));
+    }
+  };
 
   return (
     <div className="call">
       <header className="callbar">
         <strong>{join.title}</strong>
         {join.isHost && <span className="badge">{t(lang, 'hostBadge')}</span>}
-        <span className="count">{participants.length}</span>
+        <span className="count" data-testid="count">{participants.length}</span>
       </header>
       {error && <div className="error">{error}</div>}
+      {join.isHost && requests.length > 0 && (
+        <section className="requests" aria-label={t(lang, 'requests')}>
+          <strong>{t(lang, 'requests')}</strong>
+          {requests.map((r) => (
+            <div className="request" key={r.id} data-testid="join-request">
+              <span>{r.display_name || r.email}</span>
+              <button className="primary" onClick={() => hostCall((tk) => api.decide(tk, code, r.id, true).then(() => setRequests((x) => x.filter((y) => y.id !== r.id))))}>
+                {t(lang, 'admit')}
+              </button>
+              <button onClick={() => hostCall((tk) => api.decide(tk, code, r.id, false).then(() => setRequests((x) => x.filter((y) => y.id !== r.id))))}>
+                {t(lang, 'deny')}
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
       <div className="grid" data-testid="grid">
         {participants.map((p, i) => (
-          <Tile key={p.identity} p={p} local={i === 0} lang={lang} />
+          <Tile
+            key={p.identity}
+            p={p}
+            local={i === 0}
+            lang={lang}
+            onMute={join.isHost && i > 0 ? () => void hostCall((tk) => api.mute(tk, code, p.identity)) : undefined}
+            onRemove={join.isHost && i > 0 ? () => void hostCall((tk) => api.remove(tk, code, p.identity)) : undefined}
+          />
         ))}
       </div>
       <footer className="controls">
         <button onClick={() => toggle('mic')} aria-pressed={mic}>{mic ? '🎤' : '🔇'} {t(lang, 'mic')}</button>
         <button onClick={() => toggle('cam')} aria-pressed={cam}>{cam ? '📷' : '🚫'} {t(lang, 'camera')}</button>
         <button onClick={toggleShare}>{sharing ? t(lang, 'stopShare') : t(lang, 'share')}</button>
+        {join.isHost && (
+          <button onClick={() => void hostCall((tk) => api.lock(tk, code, !locked).then((r) => setLocked(r.locked)))} aria-pressed={locked} data-testid="lock">
+            {locked ? t(lang, 'unlockMeeting') : t(lang, 'lockMeeting')}
+          </button>
+        )}
         <button className="danger" onClick={onLeave}>{t(lang, 'leave')}</button>
       </footer>
     </div>

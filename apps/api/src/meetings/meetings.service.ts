@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import argon2 from 'argon2';
-import type { Pool } from 'pg';
-import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
+import type { Pool, PoolClient } from 'pg';
+import { AccessToken, RoomServiceClient, TrackType } from 'livekit-server-sdk';
 import { withTenant } from '../db/tenant.js';
 import { FailureLimiter } from '../common/rate-limiter.js';
 import type { Config } from '../config.js';
@@ -19,7 +19,34 @@ export interface CreateMeetingInput {
   title: string;
   passcode?: string;
   scheduledAt?: string;
+  waitingRoom?: boolean;
 }
+
+export interface JoinedResult {
+  status: 'joined';
+  token: string;
+  url: string;
+  meetingId: string;
+  title: string;
+  isHost: boolean;
+}
+export interface WaitingResult {
+  status: 'waiting';
+  requestId: string;
+}
+export type JoinResult = JoinedResult | WaitingResult;
+
+interface MeetingRow {
+  id: string;
+  title: string;
+  host_user_id: string;
+  passcode_hash: string | null;
+  locked: boolean;
+  waiting_room: boolean;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const CODE_RE = /^[0-9]{11,12}$/;
 
 function newCode(): string {
   // 11 digits, first digit non-zero, from a CSPRNG.
@@ -41,17 +68,12 @@ export class MeetingsService {
       try {
         return await withTenant(this.pool, user.orgId, async (c) => {
           const r = await c.query(
-            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at)
-             VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING id, code, title, waiting_room, locked, scheduled_at, (passcode_hash IS NOT NULL) AS has_passcode`,
-            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null],
+            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? true],
           );
-          await c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [
-            user.orgId,
-            user.userId,
-            'meeting.create',
-            code,
-          ]);
+          await this.audit(c, user, 'meeting.create', code);
           meetingsCreated.inc();
           return r.rows[0];
         });
@@ -66,18 +88,22 @@ export class MeetingsService {
   async list(user: AuthedUser) {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT id, code, title, waiting_room, locked, scheduled_at, (passcode_hash IS NOT NULL) AS has_passcode
+        `SELECT id, code, title, waiting_room, locked, scheduled_at, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
          FROM meetings ORDER BY created_at DESC LIMIT 100`,
+        [user.userId],
       );
       return r.rows;
     });
   }
 
-  /** Returns a short-lived LiveKit token. Same-organization members only; guests come in a later phase. */
-  async join(user: AuthedUser, code: string, passcode?: string, requestHost?: string) {
+  /**
+   * Joins a meeting. Same-organization members only; guests come in a later phase. Hosts and organization admins
+   * manage the meeting; everybody else is subject to ban, lock, passcode and waiting room, in that order.
+   */
+  async join(user: AuthedUser, code: string, passcode?: string, requestHost?: string): Promise<JoinResult> {
     try {
       const result = await this.joinInner(user, code, passcode, requestHost);
-      joinResults.inc({ outcome: 'ok' });
+      joinResults.inc({ outcome: result.status === 'joined' ? 'ok' : 'waiting' });
       return result;
     } catch (e) {
       joinResults.inc({ outcome: e instanceof MeetingError ? String(e.status) : 'error' });
@@ -85,22 +111,22 @@ export class MeetingsService {
     }
   }
 
-  private async joinInner(user: AuthedUser, code: string, passcode?: string, requestHost?: string) {
-    if (!/^[0-9]{11,12}$/.test(code)) throw new MeetingError(404, 'meeting not found');
+  private async joinInner(user: AuthedUser, code: string, passcode?: string, requestHost?: string): Promise<JoinResult> {
+    if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     const key = `${user.userId}:${code}`;
     if (this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
 
-    const meeting = await withTenant(this.pool, user.orgId, async (c) => {
-      const r = await c.query('SELECT id, title, host_user_id, passcode_hash, locked FROM meetings WHERE code = $1', [code]);
-      return r.rows[0] as
-        | { id: string; title: string; host_user_id: string; passcode_hash: string | null; locked: boolean }
-        | undefined;
+    const decision = await withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code);
+      const banned = await c.query('SELECT 1 FROM meeting_bans WHERE meeting_id = $1 AND user_id = $2', [meeting.id, user.userId]);
+      return { meeting, banned: (banned.rowCount ?? 0) > 0 };
     });
-    if (!meeting) throw new MeetingError(404, 'meeting not found');
+    const { meeting } = decision;
+    const manages = this.canManage(user, meeting);
 
-    const isHost = meeting.host_user_id === user.userId;
-    if (meeting.locked && !isHost) throw new MeetingError(403, 'meeting is locked');
-    if (meeting.passcode_hash && !isHost) {
+    if (decision.banned && !manages) throw new MeetingError(403, 'removed from this meeting');
+    if (meeting.locked && !manages) throw new MeetingError(403, 'meeting is locked');
+    if (meeting.passcode_hash && !manages) {
       const ok = passcode ? await argon2.verify(meeting.passcode_hash, passcode) : false;
       if (!ok) {
         this.limiter.recordFailure(key);
@@ -109,8 +135,160 @@ export class MeetingsService {
     }
     this.limiter.reset(key);
 
-    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: 300 });
+    if (meeting.waiting_room && !manages) {
+      const state = await withTenant(this.pool, user.orgId, async (c) => {
+        const r = await c.query(
+          `INSERT INTO join_requests (org_id, meeting_id, user_id) VALUES ($1, $2, $3)
+           ON CONFLICT (meeting_id, user_id) DO UPDATE SET meeting_id = EXCLUDED.meeting_id
+           RETURNING id, status`,
+          [user.orgId, meeting.id, user.userId],
+        );
+        return r.rows[0] as { id: string; status: string };
+      });
+      if (state.status === 'denied') throw new MeetingError(403, 'the host declined your request');
+      if (state.status === 'pending') return { status: 'waiting', requestId: state.id };
+      // admitted earlier: fall through and issue a token
+    }
+    return this.issueToken(user, meeting, manages, requestHost);
+  }
 
+  /** The waiting participant polls this until the host decides; an admission returns the token. */
+  async requestStatus(user: AuthedUser, code: string, requestId: string, requestHost?: string) {
+    if (!CODE_RE.test(code) || !UUID_RE.test(requestId)) throw new MeetingError(404, 'not found');
+    const found = await withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code);
+      const r = await c.query('SELECT status FROM join_requests WHERE id = $1 AND meeting_id = $2 AND user_id = $3', [
+        requestId,
+        meeting.id,
+        user.userId,
+      ]);
+      const banned = await c.query('SELECT 1 FROM meeting_bans WHERE meeting_id = $1 AND user_id = $2', [meeting.id, user.userId]);
+      return { meeting, status: r.rows[0]?.status as string | undefined, banned: (banned.rowCount ?? 0) > 0 };
+    });
+    if (!found.status) throw new MeetingError(404, 'not found');
+    if (found.banned) throw new MeetingError(403, 'removed from this meeting');
+    if (found.status === 'pending') return { status: 'waiting' as const };
+    if (found.status === 'denied') throw new MeetingError(403, 'the host declined your request');
+    if (found.meeting.locked && !this.canManage(user, found.meeting)) throw new MeetingError(403, 'meeting is locked');
+    return this.issueToken(user, found.meeting, false, requestHost);
+  }
+
+  async listRequests(user: AuthedUser, code: string) {
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code);
+      this.mustManage(user, meeting);
+      const r = await c.query(
+        `SELECT jr.id, jr.user_id, u.display_name, u.email, jr.created_at
+         FROM join_requests jr JOIN users u ON u.id = jr.user_id
+         WHERE jr.meeting_id = $1 AND jr.status = 'pending' ORDER BY jr.created_at`,
+        [meeting.id],
+      );
+      return r.rows;
+    });
+  }
+
+  async decide(user: AuthedUser, code: string, requestId: string, admit: boolean) {
+    if (!UUID_RE.test(requestId)) throw new MeetingError(404, 'not found');
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code);
+      this.mustManage(user, meeting);
+      const r = await c.query(
+        `UPDATE join_requests SET status = $1, decided_at = now(), decided_by = $2
+         WHERE id = $3 AND meeting_id = $4 AND status = 'pending' RETURNING user_id`,
+        [admit ? 'admitted' : 'denied', user.userId, requestId, meeting.id],
+      );
+      if (!r.rowCount) throw new MeetingError(404, 'no pending request');
+      await this.audit(c, user, admit ? 'meeting.admit' : 'meeting.deny', `${code}:${r.rows[0].user_id}`);
+      return { status: admit ? 'admitted' : 'denied' };
+    });
+  }
+
+  async setLocked(user: AuthedUser, code: string, locked: boolean) {
+    return withTenant(this.pool, user.orgId, async (c) => {
+      const meeting = await this.meetingByCode(c, code);
+      this.mustManage(user, meeting);
+      await c.query('UPDATE meetings SET locked = $1 WHERE id = $2', [locked, meeting.id]);
+      await this.audit(c, user, locked ? 'meeting.lock' : 'meeting.unlock', code);
+      return { locked };
+    });
+  }
+
+  /** Mutes every published microphone track of a participant. The participant can unmute themselves later. */
+  async muteParticipant(user: AuthedUser, code: string, identity: string) {
+    const meeting = await this.managedMeeting(user, code);
+    if (!UUID_RE.test(identity)) throw new MeetingError(404, 'participant not found');
+    let participant;
+    try {
+      participant = await this.rooms.getParticipant(meeting.id, identity);
+    } catch {
+      throw new MeetingError(404, 'participant not found');
+    }
+    const audio = participant.tracks.filter((t) => t.type === TrackType.AUDIO && !t.muted);
+    for (const t of audio) await this.rooms.mutePublishedTrack(meeting.id, identity, t.sid, true);
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'meeting.mute', `${code}:${identity}`));
+    return { muted: audio.length };
+  }
+
+  /** Removes a participant and bans them from rejoining this meeting. The host cannot be removed. */
+  async removeParticipant(user: AuthedUser, code: string, identity: string) {
+    if (!UUID_RE.test(identity)) throw new MeetingError(404, 'participant not found');
+    const meeting = await this.managedMeeting(user, code);
+    if (identity === meeting.host_user_id || identity === user.userId) throw new MeetingError(400, 'cannot remove the host or yourself');
+    await withTenant(this.pool, user.orgId, async (c) => {
+      const target = await c.query('SELECT 1 FROM users WHERE id = $1', [identity]); // RLS: same organization only
+      if (!target.rowCount) throw new MeetingError(404, 'participant not found');
+      await c.query(
+        'INSERT INTO meeting_bans (meeting_id, user_id, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
+        [meeting.id, identity, user.orgId, user.userId],
+      );
+      await this.audit(c, user, 'meeting.remove', `${code}:${identity}`);
+    });
+    try {
+      await this.rooms.removeParticipant(meeting.id, identity);
+    } catch {
+      /* not connected right now: the ban still applies */
+    }
+    return { removed: true };
+  }
+
+  // --- helpers -----------------------------------------------------------------------------------------------
+
+  private canManage(user: AuthedUser, m: MeetingRow): boolean {
+    return m.host_user_id === user.userId || user.role === 'org_admin';
+  }
+
+  private mustManage(user: AuthedUser, m: MeetingRow): void {
+    if (!this.canManage(user, m)) throw new MeetingError(403, 'only the host can do this');
+  }
+
+  private async managedMeeting(user: AuthedUser, code: string): Promise<MeetingRow> {
+    if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
+    const meeting = await withTenant(this.pool, user.orgId, (c) => this.meetingByCode(c, code));
+    this.mustManage(user, meeting);
+    return meeting;
+  }
+
+  private async meetingByCode(c: PoolClient, code: string): Promise<MeetingRow> {
+    if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
+    const r = await c.query(
+      'SELECT id, title, host_user_id, passcode_hash, locked, waiting_room FROM meetings WHERE code = $1',
+      [code],
+    );
+    if (!r.rows[0]) throw new MeetingError(404, 'meeting not found');
+    return r.rows[0] as MeetingRow;
+  }
+
+  private audit(c: PoolClient, user: AuthedUser, action: string, target: string) {
+    return c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [
+      user.orgId,
+      user.userId,
+      action,
+      target,
+    ]);
+  }
+
+  private async issueToken(user: AuthedUser, meeting: MeetingRow, manages: boolean, requestHost?: string): Promise<JoinedResult> {
+    await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: 300 });
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,
@@ -122,9 +300,9 @@ export class MeetingsService {
       canSubscribe: true,
       canPublish: true,
       canPublishData: true,
-      roomAdmin: isHost,
+      roomAdmin: manages,
     });
     const url = livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
-    return { token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost };
+    return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages };
   }
 }

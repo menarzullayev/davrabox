@@ -29,6 +29,19 @@ const uz = {
   errMedia: 'Kamera yoki mikrofonga ruxsat berilmadi',
   hostBadge: 'Host',
   lang: 'Til',
+  waitingRoom: 'Kutish xonasi',
+  waitingTitle: 'Host sizni kiritishini kutmoqdasiz…',
+  waitingHint: 'Host ruxsat bergach, uchrashuvga avtomatik kirasiz.',
+  cancel: 'Bekor qilish',
+  lockMeeting: 'Uchrashuvni qulflash',
+  unlockMeeting: 'Qulfni ochish',
+  requests: 'Kirish so‘rovlari',
+  admit: 'Kiritish',
+  deny: 'Rad etish',
+  muteAudio: 'Ovozni o‘chirish',
+  removeFromMeeting: 'Chiqarib yuborish',
+  errDenied: 'Host so‘rovingizni rad etdi',
+  errRemoved: 'Siz bu uchrashuvdan chiqarilgansiz',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -62,6 +75,19 @@ const ru: Record<Key, string> = {
   errMedia: 'Нет доступа к камере или микрофону',
   hostBadge: 'Хост',
   lang: 'Язык',
+  waitingRoom: 'Комната ожидания',
+  waitingTitle: 'Ожидайте, пока хост вас впустит…',
+  waitingHint: 'Когда хост разрешит, вы войдёте во встречу автоматически.',
+  cancel: 'Отмена',
+  lockMeeting: 'Закрыть встречу',
+  unlockMeeting: 'Открыть встречу',
+  requests: 'Запросы на вход',
+  admit: 'Впустить',
+  deny: 'Отклонить',
+  muteAudio: 'Выключить звук',
+  removeFromMeeting: 'Удалить из встречи',
+  errDenied: 'Хост отклонил ваш запрос',
+  errRemoved: 'Вы удалены из этой встречи',
 };
 
 const en: Record<Key, string> = {
@@ -93,6 +119,19 @@ const en: Record<Key, string> = {
   errMedia: 'Camera or microphone access was denied',
   hostBadge: 'Host',
   lang: 'Language',
+  waitingRoom: 'Waiting room',
+  waitingTitle: 'Waiting for the host to let you in…',
+  waitingHint: 'You will join automatically once the host admits you.',
+  cancel: 'Cancel',
+  lockMeeting: 'Lock meeting',
+  unlockMeeting: 'Unlock meeting',
+  requests: 'Join requests',
+  admit: 'Admit',
+  deny: 'Deny',
+  muteAudio: 'Mute',
+  removeFromMeeting: 'Remove',
+  errDenied: 'The host declined your request',
+  errRemoved: 'You were removed from this meeting',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

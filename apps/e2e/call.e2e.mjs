@@ -37,9 +37,9 @@ async function newUser(username, password = PASSWORD) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
   const page = await ctx.newPage();
   if (process.env.E2E_DEBUG) page.on('response', (r) => { if (r.status() >= 400) console.log(`[${username}] HTTP ${r.status()} ${r.url().slice(0, 140)}`); });
-  if (process.env.E2E_DEBUG) page.on('console', (m) => console.log(`[${username}] ${m.type()}: ${(m.text().length > 300 ? m.text().slice(0, 60) + ' � ' + m.text().slice(-220) : m.text())}`));
+  if (process.env.E2E_DEBUG) page.on('console', (m) => console.log(`[${username}] ${m.type()}: ${(m.text().length > 300 ? m.text().slice(0, 60) + ' … ' + m.text().slice(-220) : m.text())}`));
   await page.goto(BASE + '/');
-  await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
+  await page.getByRole('button', { name: /Sign in|Kirish|Ð’Ð¾Ð¹Ñ‚Ð¸/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);
   await page.fill('#password', password);
@@ -61,7 +61,7 @@ try {
   const meetingPass = 'e2e-pass-123';
   await admin.page.fill('input[placeholder]:not([type=password])', title);
   await admin.page.fill('input[type=password][minlength]', meetingPass);
-  await admin.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
+  await admin.page.getByRole('button', { name: /Create|Yaratish|Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ/ }).click();
   await admin.page.waitForSelector(`li:has-text("${title}")`);
   const code = (await admin.page.locator(`li:has-text("${title}") .code`).innerText()).replace(/\D/g, '');
   check('meeting created with an 11-digit code', /^[1-9]\d{10}$/.test(code), code);
@@ -81,11 +81,16 @@ try {
   // Correct passcode joins.
   await user.page.locator('form').nth(1).locator('input[type=password]').fill(meetingPass);
   await user.page.locator('form').nth(1).getByRole('button').click();
-  await user.page.waitForSelector('.call', { timeout: 20000 });
-  check('member joins with the correct passcode', true);
+  // The waiting room is on by default: the member waits, the host admits from the call screen.
+  await user.page.waitForSelector('[data-testid=waiting]', { timeout: 20000 });
+  check('with the correct passcode the member lands in the waiting room, not in the call', (await user.page.locator('.call').count()) === 0);
+  await admin.page.waitForSelector('[data-testid=join-request]', { timeout: 20000 });
+  await admin.page.locator('[data-testid=join-request] button.primary').click();
+  await user.page.waitForSelector('.call', { timeout: 30000 });
+  check('after the host admits, the member joins the call', true);
 
   await admin.page.waitForTimeout(8000);
-  if (process.env.E2E_DEBUG) for (const [w, p] of [['admin', admin.page], ['member', user.page]]) console.log(w, 'tiles=', await p.locator('.grid .tile').count(), 'err=', await p.locator('.error').allInnerTexts(), 'count=', await p.locator('.count').innerText());
+  if (process.env.E2E_DEBUG) for (const [w, p] of [['admin', admin.page], ['member', user.page]]) console.log(w, 'tiles=', await p.locator('.grid .tile').count(), 'err=', await p.locator('.error').allInnerTexts(), 'count=', await p.locator('[data-testid=count]').innerText());
   // Both sides must show two participants and a playing remote video.
   for (const [who, p] of [['admin', admin.page], ['member', user.page]]) {
     await p.waitForFunction(() => document.querySelectorAll('.grid .tile').length >= 2, null, { timeout: 30000 });

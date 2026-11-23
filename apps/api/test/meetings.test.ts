@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { decodeJwt } from 'jose';
 import { RoomServiceClient } from 'livekit-server-sdk';
 import { loadConfig } from '../src/config.js';
-import { MeetingError, MeetingsService } from '../src/meetings/meetings.service.js';
+import { MeetingError, MeetingsService, type JoinResult, type JoinedResult } from '../src/meetings/meetings.service.js';
 import type { AuthedUser } from '../src/auth/auth.guard.js';
 
 // Integration: real Postgres (RLS) and real LiveKit server.
@@ -20,6 +20,11 @@ async function mkUser(slug: string, sub: string, role: 'org_admin' | 'member'): 
     slug, slug, sub, `${sub}@t.local`, sub, role,
   ]);
   return { sub, email: `${sub}@t.local`, name: sub, orgSlug: slug, role, orgId: r.rows[0].org_id, userId: r.rows[0].user_id };
+}
+
+function joined(r: JoinResult): JoinedResult {
+  if (r.status !== 'joined') throw new Error('expected an immediate join');
+  return r;
 }
 
 async function status(p: Promise<unknown>): Promise<number> {
@@ -49,15 +54,15 @@ afterAll(async () => {
 
 describe('meetings against real Postgres and LiveKit', () => {
   it('creates a meeting with an 11-digit code and hides the passcode hash', async () => {
-    const m = await svc.create(host, { title: 'Standup', passcode: 'secret-pass' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Standup', passcode: 'secret-pass' });
     expect(m.code).toMatch(/^[1-9][0-9]{10}$/);
     expect(m.has_passcode).toBe(true);
     expect(JSON.stringify(m)).not.toContain('argon2');
   });
 
   it('host joins and gets a short-lived, room-scoped admin token; the room exists in LiveKit', async () => {
-    const m = await svc.create(host, { title: 'Room test', passcode: 'secret-pass' });
-    const j = await svc.join(host, m.code);
+    const m = await svc.create(host, { waitingRoom: false, title: 'Room test', passcode: 'secret-pass' });
+    const j = joined(await svc.join(host, m.code));
     const claims = decodeJwt(j.token) as { exp: number; nbf: number; video: { room: string; roomAdmin: boolean; roomJoin: boolean } };
     expect(claims.exp - claims.nbf).toBeLessThanOrEqual(900);
     expect(claims.video.room).toBe(m.id);
@@ -68,28 +73,28 @@ describe('meetings against real Postgres and LiveKit', () => {
   });
 
   it('a member needs the right passcode and is not an admin', async () => {
-    const m = await svc.create(host, { title: 'Pass', passcode: 'secret-pass' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Pass', passcode: 'secret-pass' });
     expect(await status(svc.join(member, m.code))).toBe(403);
     expect(await status(svc.join(member, m.code, 'nope-nope'))).toBe(403);
-    const j = await svc.join(member, m.code, 'secret-pass');
+    const j = joined(await svc.join(member, m.code, 'secret-pass'));
     expect((decodeJwt(j.token) as { video: { roomAdmin: boolean } }).video.roomAdmin).toBe(false);
   });
 
   it('blocks after repeated wrong passcodes, even with the right one', async () => {
-    const m = await svc.create(host, { title: 'Brute', passcode: 'secret-pass' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Brute', passcode: 'secret-pass' });
     for (let i = 0; i < 5; i++) expect(await status(svc.join(member, m.code, `wrong-${i}-xx`))).toBe(403);
     expect(await status(svc.join(member, m.code, 'secret-pass'))).toBe(429);
   });
 
   it('a locked meeting refuses members but not the host', async () => {
-    const m = await svc.create(host, { title: 'Locked' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Locked' });
     await admin.query('UPDATE meetings SET locked = true WHERE id = $1', [m.id]);
     expect(await status(svc.join(member, m.code))).toBe(403);
     expect(await status(svc.join(host, m.code))).toBe(200);
   });
 
   it('another organization cannot find the meeting at all', async () => {
-    const m = await svc.create(host, { title: 'Private' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Private' });
     expect(await status(svc.join(outsider, m.code))).toBe(404);
     expect((await svc.list(outsider)).some((x: { code: string }) => x.code === m.code)).toBe(false);
   });
@@ -101,7 +106,7 @@ describe('meetings against real Postgres and LiveKit', () => {
   });
 
   it('writes an audit record when a meeting is created', async () => {
-    const m = await svc.create(host, { title: 'Audited' });
+    const m = await svc.create(host, { waitingRoom: false, title: 'Audited' });
     const r = await admin.query("SELECT count(*)::int AS n FROM audit_log WHERE action = 'meeting.create' AND target = $1", [m.code]);
     expect(r.rows[0].n).toBe(1);
   });
