@@ -12,9 +12,7 @@ spec:
     targetRevision: main
     path: deploy/helm/davrabox
     helm:
-      valueFiles: [values.yaml]
-      parameters:
-        - { name: publicHost, value: staging.example.com }
+      valueFiles: [values.yaml, values-staging.yaml]
       fileParameters:
         - { name: keycloak.realmJson, path: ../../keycloak/davrabox-realm.json }
   destination:

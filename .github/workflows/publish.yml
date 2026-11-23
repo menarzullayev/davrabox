@@ -1,0 +1,76 @@
+name: Publish images and bump staging
+
+# Runs only after the CI workflow succeeded on main. Builds the api and web images, pushes them to GHCR
+# tagged with the commit, then records those tags in values-staging.yaml; ArgoCD (watching main) rolls
+# staging forward from that file. The bump commit carries [skip ci] so it does not start another cycle.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: docker/setup-buildx-action@v4.4.1
+      - uses: docker/login-action@v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image tag
+        id: tag
+        run: echo "sha=sha-${GITHUB_EVENT_SHA:0:7}" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
+      - uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/davrabox-api:${{ steps.tag.outputs.sha }}
+            ghcr.io/${{ github.repository_owner }}/davrabox-api:main
+      - uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/davrabox-web:${{ steps.tag.outputs.sha }}
+            ghcr.io/${{ github.repository_owner }}/davrabox-web:main
+      - name: Bump staging image tags
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
+          python3 - <<'PY'
+          import os, re
+          owner = os.environ["OWNER"].lower()
+          tag = os.environ["TAG"]
+          p = "deploy/helm/davrabox/values-staging.yaml"
+          s = open(p).read()
+          s = re.sub(r"(api: ghcr\.io/[^:\n]+):\S+", rf"api: ghcr.io/{owner}/davrabox-api:{tag}", s)
+          s = re.sub(r"(web: ghcr\.io/[^:\n]+):\S+", rf"web: ghcr.io/{owner}/davrabox-web:{tag}", s)
+          open(p, "w").write(s)
+          PY
+          git config user.name "davrabox-ci"
+          git config user.email "ci@davrabox.invalid"
+          git add deploy/helm/davrabox/values-staging.yaml
+          git diff --cached --quiet || (git commit -m "chore(staging): deploy ${TAG} [skip ci]" && git push origin main)
+        env:
+          OWNER: ${{ github.repository_owner }}
+          TAG: ${{ steps.tag.outputs.sha }}
