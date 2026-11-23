@@ -15,6 +15,7 @@ RUN pnpm --filter @davrabox/design-tokens build && pnpm --filter @davrabox/web b
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
+COPY --chmod=755 apps/web/docker/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
 LABEL org.opencontainers.image.source="https://github.com/menarzullayev/davrabox"
 EXPOSE 8080
 USER 101

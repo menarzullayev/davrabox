@@ -6,6 +6,10 @@ import './fonts.css';
 import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
+import { initErrorTracking } from './observability/errorTracking';
+
+// Error tracking (GlitchTip) is off unless the deployment serves a DSN in /runtime-config.json; see docs/observability.md.
+void initErrorTracking();
 
 // /styleguide is a separate lazy chunk: it needs no sign-in and no backend, and costs the product screens nothing.
 // Like the labs below it is compiled out of a normal production build (development or VITE_CALL_LAB=1 only).
