@@ -1,0 +1,119 @@
+groups:
+  - name: davrabox-availability
+    rules:
+      - alert: ApiDown
+        expr: up{job="api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "API is down"
+          description: "Prometheus cannot scrape the API ({{ $labels.instance }}) for 2 minutes. Check: docker compose ps api; docker compose logs --tail 100 api."
+
+      - alert: LiveKitDown
+        expr: up{job="livekit"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "LiveKit media server is down"
+          description: "The LiveKit metrics endpoint has not answered for 2 minutes: new meetings cannot start. Check: docker compose logs --tail 100 livekit."
+
+      - alert: PublicProbeDown
+        expr: probe_success{job="blackbox-public"} == 0
+        for: 3m
+        labels: { severity: critical }
+        annotations:
+          summary: "Public URL check failed: {{ $labels.instance }}"
+          description: "{{ $labels.instance }} has not answered with 2xx over valid TLS for 3 minutes (probed from this host). Check Caddy, DNS and the certificate."
+
+      - alert: ScrapeTargetDown
+        expr: up{job=~"caddy|node|blackbox|alertmanager"} == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Monitoring target {{ $labels.job }} is down"
+          description: "{{ $labels.job }} ({{ $labels.instance }}) has not been scraped for 5 minutes; its alerts are blind until it is back."
+
+  - name: davrabox-api
+    rules:
+      # Needs at least 20 requests in the window so that one failed request on a quiet site does not page anybody.
+      - alert: ApiHigh5xxRate
+        expr: |
+          (
+            sum(rate(davra_http_request_duration_seconds_count{status=~"5.."}[5m]))
+            / sum(rate(davra_http_request_duration_seconds_count[5m]))
+          ) > 0.02
+          and sum(increase(davra_http_request_duration_seconds_count[5m])) >= 20
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "API 5xx rate above 2%"
+          description: "{{ $value | humanizePercentage }} of API requests failed with 5xx over the last 5 minutes. Find the cause by request id in the logs and in GlitchTip."
+
+      - alert: ApiLatencyP95High
+        expr: histogram_quantile(0.95, sum by (le) (rate(davra_http_request_duration_seconds_bucket[5m]))) > 1.5
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "API p95 latency above 1.5 s"
+          description: "p95 request latency is {{ $value | humanizeDuration }} (10 minutes in a row). Look at the latency panel by route and at the database pool."
+
+      - alert: DbPoolSaturated
+        expr: |
+          sum by (pool) (davra_db_pool_connections{state="waiting"}) > 0
+          or (
+            sum by (pool) (davra_db_pool_connections{state="total"}) >= max by (pool) (davra_db_pool_max_connections)
+            and sum by (pool) (davra_db_pool_connections{state="idle"}) == 0
+          )
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Database pool {{ $labels.pool }} saturated"
+          description: "All connections of the {{ $labels.pool }} pool are in use (or requests are queueing for one) for 5 minutes. Slow queries, a lock or too little pool for the load."
+
+      - alert: SignupRefusalsSpike
+        expr: sum(increase(davra_signup_refusals_total[15m])) > 30
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "Many refused trial sign-ups"
+          description: "{{ $value | humanize }} sign-ups refused in 15 minutes. Break it down by reason on the dashboard: captcha, disposable domain, rate limit, daily cap, or an abuse wave."
+
+      - alert: WebhookDeliveriesFailing
+        expr: sum(increase(davra_webhook_deliveries_total{outcome="dead"}[1h])) > 10
+        for: 0m
+        labels: { severity: warning }
+        annotations:
+          summary: "Customer webhooks are being abandoned"
+          description: "{{ $value | humanize }} webhook deliveries gave up after all retries in the last hour."
+
+  - name: davrabox-host
+    rules:
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs|nsfs|devtmpfs|fuse.*"}
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs|nsfs|devtmpfs|fuse.*"}
+          ) < 0.15
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Disk almost full on {{ $labels.mountpoint }}"
+          description: "{{ $value | humanizePercentage }} free on {{ $labels.mountpoint }} ({{ $labels.device }}). Postgres, MinIO and the Docker images share it; there are no backups, so free space before it fills."
+
+      - alert: CertificateExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry{job="blackbox-public"} - time()) < 14 * 86400
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: "TLS certificate of {{ $labels.instance }} expires in under 14 days"
+          description: "Caddy renews automatically about 30 days before expiry, so this means renewal is failing. Check: docker compose logs caddy | grep -i acme; ports 80 and 443; DNS."
+
+  - name: davrabox-monitoring
+    rules:
+      - alert: AlertNotificationsFailing
+        expr: sum by (integration) (rate(alertmanager_notifications_failed_total[10m])) > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Alertmanager cannot deliver alerts ({{ $labels.integration }})"
+          description: "Notifications through {{ $labels.integration }} have been failing for 10 minutes: check the Telegram bot token and chat id files and that the bot is a member of the chat. Other alerts may be going unseen."
