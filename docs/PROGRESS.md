@@ -92,5 +92,8 @@ Open items, each with its precise blocker (all recorded in HELD.md):
 - Passkey-or-TOTP for org_admin: Keycloak 26.0.8 has no "has passkey" condition; needs a custom Java authenticator (SPI) or a Keycloak upgrade; admins keep mandatory TOTP meanwhile.
 - Independent staging environment: current staging is a local kind cluster.
 
+## 2026-11-23: user decision closing phase 1
+The user decided that phase 1 is closed with these items left open because none of them stops the system from working: Figma design system, Wazuh SIEM (production monitoring, not needed for function), admin passkey-or-TOTP (admins keep mandatory TOTP), independent staging environment, real-device and external-network testing. The only one with product impact is external reachability (public IP / VPS / TURN): it is NOT needed for LAN development and demos, but is required before real customers outside the LAN can see video. It stays in HELD.md and is revisited in phase 2 (TURN) and before any customer pilot.
+
 Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.
