@@ -14,3 +14,4 @@
 | Wazuh SIEM host (about 4 GB RAM) | user, server | none |
 | Staging cluster, remote repository, ArgoCD | user | Helm chart validated on kind, Terraform validated, ArgoCD manifest written |
 | Media for participants outside the LAN (UDP/TCP reach to the server or a TURN relay on a public IP) | user: public IP / port forwarding or a small VPS (paid, needs approval) | tunnel carries web + signalling only; TURN is a phase 2 task |
+| Media through TURN end to end, and TURN over TLS on 443 | a Linux host or public IP with media ports reachable, a domain and certificate | TURN enabled and verified up to relay allocation; Helm values for UDP and TLS; firewall-mode switch in the app |

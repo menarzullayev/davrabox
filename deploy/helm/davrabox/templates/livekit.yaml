@@ -17,6 +17,19 @@ data:
       empty_timeout: 300
       max_participants: 300
     logging: { level: info }
+    {{- if .Values.livekit.turn.enabled }}
+    turn:
+      enabled: true
+      udp_port: {{ .Values.livekit.turn.udpPort }}
+      relay_range_start: {{ .Values.livekit.turn.relayRangeStart }}
+      relay_range_end: {{ .Values.livekit.turn.relayRangeEnd }}
+      {{- if .Values.livekit.turn.tlsPort }}
+      tls_port: {{ .Values.livekit.turn.tlsPort }}
+      domain: {{ required "livekit.turn.domain is required with tlsPort" .Values.livekit.turn.domain | quote }}
+      cert_file: /etc/livekit-tls/tls.crt
+      key_file: /etc/livekit-tls/tls.key
+      {{- end }}
+    {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,12 +64,21 @@ spec:
             - { name: http, containerPort: 7880 }
             - { name: rtc-tcp, containerPort: 7881 }
             - { name: rtc-udp, containerPort: 7882, protocol: UDP }
+            {{- if .Values.livekit.turn.enabled }}
+            - { name: turn-udp, containerPort: {{ .Values.livekit.turn.udpPort }}, protocol: UDP }
+            {{- end }}
           readinessProbe: { httpGet: { path: /, port: http }, periodSeconds: 5 }
           resources: {{ toYaml .Values.livekit.resources | nindent 12 }}
           volumeMounts:
             - { name: cfg, mountPath: /etc/livekit }
+            {{- if .Values.livekit.turn.tlsPort }}
+            - { name: turn-tls, mountPath: /etc/livekit-tls, readOnly: true }
+            {{- end }}
       volumes:
         - { name: cfg, configMap: { name: livekit-config } }
+        {{- if .Values.livekit.turn.tlsPort }}
+        - { name: turn-tls, secret: { secretName: {{ required "livekit.turn.tlsSecret is required with tlsPort" .Values.livekit.turn.tlsSecret }} } }
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -70,3 +92,6 @@ spec:
     - { name: http, port: 7880, targetPort: http }
     - { name: rtc-tcp, port: 7881, targetPort: rtc-tcp }
     - { name: rtc-udp, port: 7882, targetPort: rtc-udp, protocol: UDP }
+    {{- if .Values.livekit.turn.enabled }}
+    - { name: turn-udp, port: {{ .Values.livekit.turn.udpPort }}, targetPort: turn-udp, protocol: UDP }
+    {{- end }}

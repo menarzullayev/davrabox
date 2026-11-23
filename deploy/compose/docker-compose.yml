@@ -68,6 +68,8 @@ services:
       - "${LAN_IP}:7880:7880"
       - "${LAN_IP}:7881:7881"
       - "${LAN_IP}:7882:7882/udp"
+      - "${LAN_IP}:3478:3478/udp"
+      - "${LAN_IP}:52000-52019:52000-52019/udp"
     mem_limit: 1g
     cpus: 2
 

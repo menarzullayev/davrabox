@@ -32,6 +32,15 @@ livekit:
   image: livekit/livekit-server:v1.13.11
   replicas: 1                  # one node per pod; scale with a Redis-backed cluster later
   nodeIp: ""                   # externally reachable IP for ICE (required for media)
+  turn:
+    enabled: false             # built-in TURN relay for clients behind firewalls that block direct UDP
+    udpPort: 3478
+    relayRangeStart: 52000
+    relayRangeEnd: 52019
+    # TURN over TLS (443/5349) needs a public domain and a certificate Secret; see docs/HELD.md
+    tlsPort: 0
+    domain: ""
+    tlsSecret: ""              # Secret with tls.crt and tls.key when tlsPort is set
   resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "2", memory: 1Gi } }
 
 # Development-only building blocks. Production uses managed/HA Postgres and a hardened Keycloak.

@@ -64,6 +64,8 @@ const uz = {
   errFileVirus: 'Fayl antivirus tomonidan rad etildi',
   errFileType: 'Bu turdagi fayllarga ruxsat yo‘q',
   errFileSize: 'Fayl juda katta (25 MB gacha)',
+  relayMode: 'Xavfsizlik devori rejimi',
+  relayHint: 'Barcha video va ovoz TURN relay orqali o‘tadi (to‘g‘ridan-to‘g‘ri UDP bloklangan tarmoqlar uchun)',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -132,6 +134,8 @@ const ru: Record<Key, string> = {
   errFileVirus: 'Файл отклонён антивирусом',
   errFileType: 'Этот тип файлов запрещён',
   errFileSize: 'Файл слишком большой (до 25 МБ)',
+  relayMode: 'Режим за брандмауэром',
+  relayHint: 'Весь звук и видео идут через TURN-ретранслятор (для сетей, где заблокирован прямой UDP)',
 };
 
 const en: Record<Key, string> = {
@@ -198,6 +202,8 @@ const en: Record<Key, string> = {
   errFileVirus: 'The file was rejected by the antivirus',
   errFileType: 'This file type is not allowed',
   errFileSize: 'File is too large (up to 25 MB)',
+  relayMode: 'Firewall mode',
+  relayHint: 'All audio and video go through the TURN relay (for networks that block direct UDP)',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

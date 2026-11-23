@@ -77,6 +77,13 @@ export function App() {
   const [title, setTitle] = useState('');
   const [newPass, setNewPass] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
+  const [relayMode, setRelayMode] = useState(() => {
+    try {
+      return localStorage.getItem('relayMode') === '1';
+    } catch {
+      return false;
+    }
+  });
   const [code, setCode] = useState('');
   const [pass, setPass] = useState('');
   const [err, setErr] = useState<Key | null>(null);
@@ -200,6 +207,22 @@ export function App() {
       <header className="topbar">
         <h1>{t(lang, 'appName')}</h1>
         <span className="who">{user.profile.name ?? user.profile.email}</span>
+        <label className="check" title={t(lang, 'relayHint')}>
+          <input
+            type="checkbox"
+            checked={relayMode}
+            data-testid="relay-mode"
+            onChange={(e) => {
+              setRelayMode(e.target.checked);
+              try {
+                localStorage.setItem('relayMode', e.target.checked ? '1' : '0');
+              } catch {
+                /* ignore */
+              }
+            }}
+          />{' '}
+          {t(lang, 'relayMode')}
+        </label>
         {langPicker}
         <button onClick={() => manager.signoutRedirect()}>{t(lang, 'signOut')}</button>
       </header>

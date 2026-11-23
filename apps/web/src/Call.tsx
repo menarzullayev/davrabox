@@ -212,7 +212,14 @@ export function Call({
       .on(RoomEvent.Disconnected, onDisconnected);
     (async () => {
       try {
-        await room.connect(join.url, join.token);
+        // "Firewall mode": all media goes through the TURN relay (for networks that block direct UDP).
+        let relay = false;
+        try {
+          relay = localStorage.getItem('relayMode') === '1';
+        } catch {
+          /* storage unavailable */
+        }
+        await room.connect(join.url, join.token, relay ? { rtcConfig: { iceTransportPolicy: 'relay' } } : undefined);
         if (cancelled) return;
         sync();
         try {
