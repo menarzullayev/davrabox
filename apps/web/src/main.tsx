@@ -8,8 +8,10 @@ import './ui/ui.css';
 import './home/home.css';
 
 // /styleguide is a separate lazy chunk: it needs no sign-in and no backend, and costs the product screens nothing.
-const Styleguide = lazy(() => import('./styleguide/Styleguide'));
-const isStyleguide = location.pathname.replace(/\/+$/, '') === '/styleguide';
+// Like the labs below it is compiled out of a normal production build (development or VITE_CALL_LAB=1 only).
+const STYLEGUIDE_ENABLED = import.meta.env.DEV || import.meta.env.VITE_CALL_LAB === '1';
+const Styleguide = STYLEGUIDE_ENABLED ? lazy(() => import('./styleguide/Styleguide')) : null;
+const isStyleguide = Styleguide !== null && location.pathname.replace(/\/+$/, '') === '/styleguide';
 // /lab/call renders the call screen with fake participants. Development builds (or VITE_CALL_LAB=1) only: in a normal
 // production build the condition is a compile-time false and the whole lab is dropped from the bundle.
 const LAB_ENABLED = import.meta.env.DEV || import.meta.env.VITE_CALL_LAB === '1';
@@ -27,7 +29,7 @@ createRoot(document.getElementById('root')!).render(
       <Suspense fallback={null}>
         <CallLab />
       </Suspense>
-    ) : isStyleguide ? (
+    ) : isStyleguide && Styleguide ? (
       <Suspense fallback={null}>
         <Styleguide />
       </Suspense>

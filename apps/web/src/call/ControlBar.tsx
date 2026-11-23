@@ -100,7 +100,7 @@ function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, tes
       data-off={off ? '' : undefined}
       data-active={pressed ? '' : undefined}
       aria-pressed={pressed}
-      aria-haspopup={haspopup ? 'dialog' : undefined}
+      aria-haspopup={haspopup ? 'true' : undefined}
       aria-expanded={haspopup ? !!expanded : undefined}
       disabled={disabled}
       data-testid={testId}

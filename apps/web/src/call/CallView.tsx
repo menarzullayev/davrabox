@@ -122,7 +122,7 @@ export function CallView(p: CallViewProps) {
             ) : null}
             {p.sharing ? <Alert tone="info" className="dv-notice">{t(lang, 'clYouShare')}</Alert> : null}
           </div>
-          {p.manage ? <RequestsTray lang={lang} requests={p.requests} onDecide={p.onDecide} /> : null}
+          {p.manage && p.panel !== 'people' ? <RequestsTray lang={lang} requests={p.requests} onDecide={p.onDecide} /> : null}
         </main>
         {p.panel === 'chat' ? <ChatPanel lang={lang} {...p.chat} others={others} onClose={closePanel} /> : null}
         {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onClose={closePanel} /> : null}
