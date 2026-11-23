@@ -74,7 +74,14 @@ function main(argv) {
   }
   for (const step of plan) {
     console.log(`> ${step.command} ${step.args.join(' ')}`);
-    const r = spawnSync(step.command, step.args, { stdio: 'inherit', shell: false });
+    let r = spawnSync(step.command, step.args, { stdio: 'inherit', shell: false });
+    if (r.error && step.command === 'signtool' && r.error.code === 'ENOENT') {
+      // No Windows SDK on this machine: fall back to the built-in Authenticode check (Status must be Valid).
+      const file = step.args[step.args.length - 1].replace(/'/g, "''");
+      const ps = `$s = Get-AuthenticodeSignature -LiteralPath '${file}'; Write-Output $s.Status; if ($s.Status -eq 'Valid') { exit 0 } else { exit 1 }`;
+      console.log('signtool not found, using Get-AuthenticodeSignature');
+      r = spawnSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', ps], { stdio: 'inherit', shell: false });
+    }
     if (r.error) {
       console.error(`UNSIGNED/UNVERIFIED: could not run ${step.command}: ${r.error.message}`);
       return 1;
