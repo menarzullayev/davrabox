@@ -7,6 +7,9 @@ import { AUDIT_FORWARDER } from './app.module.js';
 import type { AuditForwarder } from './audit/forwarder.js';
 import { POOL } from './auth/auth.guard.js';
 import { RoomServiceClient } from 'livekit-server-sdk';
+import type { Pool } from 'pg';
+import { ExtApiModule } from './ext-api/ext-api.module.js';
+import { SIGNUP_POOL, SignupModule } from './signup/signup.module.js';
 import { AllExceptionsFilter } from './observability/exception.filter.js';
 import { captureServerError, initErrorTracking } from './observability/error-tracking.js';
 import { createRequestLogger } from './observability/request-logger.js';
@@ -19,7 +22,9 @@ async function bootstrap() {
   // --- observability (docs/observability.md): JSON request log, X-Request-Id, safe error bodies, pool and room gauges ---
   app.use(createRequestLogger());
   app.useGlobalFilters(new AllExceptionsFilter({ report: captureServerError }));
-  registerPoolMetrics(app.get(POOL));
+  registerPoolMetrics('main', app.select(AppModule).get<Pool>(POOL, { strict: true }));
+  registerPoolMetrics('ext_api', app.select(ExtApiModule).get<Pool>(POOL, { strict: true }));
+  registerPoolMetrics('signup', app.select(SignupModule).get<Pool>(SIGNUP_POOL, { strict: true }));
   registerRoomMetrics(new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET));
   // --- end observability ---
   app.enableCors({ origin: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()), methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], maxAge: 600 });

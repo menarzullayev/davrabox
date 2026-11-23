@@ -48,11 +48,12 @@ export function scrubBrowserEvent<T extends object>(event: T): T {
   return event;
 }
 
+// The SDK key must be word characters only: GlitchTip shows it without dashes, and the SDK rejects a dashed key.
 function acceptable(dsn: string): boolean {
   try {
     const u = new URL(dsn);
     const local = u.hostname === 'localhost' || u.hostname === '127.0.0.1';
-    return (u.protocol === 'https:' || (u.protocol === 'http:' && local)) && u.username.length > 0 && /^\d+$/.test(u.pathname.split('/').pop() ?? '');
+    return (u.protocol === 'https:' || (u.protocol === 'http:' && local)) && /^\w+$/.test(u.username) && /^\d+$/.test(u.pathname.split('/').pop() ?? '');
   } catch {
     return false;
   }

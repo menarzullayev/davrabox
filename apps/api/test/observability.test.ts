@@ -211,12 +211,14 @@ describe('helpers', () => {
 
 describe('business metrics', () => {
   it('exposes database pool gauges', async () => {
-    registerPoolMetrics({ totalCount: 7, idleCount: 2, waitingCount: 3, options: { max: 10 } });
+    registerPoolMetrics('main', { totalCount: 7, idleCount: 2, waitingCount: 3, options: { max: 10 } });
+    registerPoolMetrics('signup', { totalCount: 1, idleCount: 1, waitingCount: 0, options: { max: 4 } });
     const text = await register.metrics();
-    expect(text).toContain('davra_db_pool_connections{state="total"} 7');
-    expect(text).toContain('davra_db_pool_connections{state="idle"} 2');
-    expect(text).toContain('davra_db_pool_connections{state="waiting"} 3');
-    expect(text).toContain('davra_db_pool_max_connections 10');
+    expect(text).toContain('davra_db_pool_connections{pool="main",state="total"} 7');
+    expect(text).toContain('davra_db_pool_connections{pool="main",state="idle"} 2');
+    expect(text).toContain('davra_db_pool_connections{pool="main",state="waiting"} 3');
+    expect(text).toContain('davra_db_pool_max_connections{pool="main"} 10');
+    expect(text).toContain('davra_db_pool_max_connections{pool="signup"} 4');
   });
 
   it('exposes active rooms and participants from the media server, cached between scrapes', async () => {

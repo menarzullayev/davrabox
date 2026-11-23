@@ -60,7 +60,7 @@ describe('initErrorTracking (web)', () => {
 
   it('refuses a DSN that is not https (or http on localhost)', async () => {
     const load = vi.fn();
-    for (const dsn of ['http://key@glitchtip.example/1', 'ftp://key@h/1', 'https://h/1', 'https://key@h/notanumber', 'javascript:alert(1)']) {
+    for (const dsn of ['http://key@glitchtip.example/1', 'ftp://key@h/1', 'https://h/1', 'https://key@h/notanumber', 'javascript:alert(1)', 'https://aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee@h/1']) {
       expect(await initErrorTracking({ fetchConfig: async () => ({ glitchtipDsn: dsn }), loadSdk: load })).toBe(false);
     }
     expect(load).not.toHaveBeenCalled();

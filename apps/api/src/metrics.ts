@@ -39,27 +39,30 @@ export interface PoolStats {
   waitingCount: number;
   options: { max?: number };
 }
-let poolSource: PoolStats | null = null;
+const pools = new Map<string, PoolStats>();
 new Gauge({
   name: 'davra_db_pool_connections',
-  help: 'Database pool connections by state (total, idle, waiting)',
-  labelNames: ['state'] as const,
+  help: 'Database pool connections by pool and state (total, idle, waiting)',
+  labelNames: ['pool', 'state'] as const,
   collect() {
-    if (!poolSource) return;
-    this.set({ state: 'total' }, poolSource.totalCount);
-    this.set({ state: 'idle' }, poolSource.idleCount);
-    this.set({ state: 'waiting' }, poolSource.waitingCount);
+    for (const [pool, p] of pools) {
+      this.set({ pool, state: 'total' }, p.totalCount);
+      this.set({ pool, state: 'idle' }, p.idleCount);
+      this.set({ pool, state: 'waiting' }, p.waitingCount);
+    }
   },
 });
 new Gauge({
   name: 'davra_db_pool_max_connections',
-  help: 'Configured maximum size of the database pool',
+  help: 'Configured maximum size of each database pool',
+  labelNames: ['pool'] as const,
   collect() {
-    if (poolSource) this.set(poolSource.options.max ?? 10);
+    for (const [pool, p] of pools) this.set({ pool }, p.options.max ?? 10);
   },
 });
-export function registerPoolMetrics(pool: PoolStats): void {
-  poolSource = pool;
+/** The API has several pools (main, external API, sign-up); each is registered under its own name. */
+export function registerPoolMetrics(name: string, pool: PoolStats): void {
+  pools.set(name, pool);
 }
 
 // --- meetings in progress (from the media server) ----------------------------------------------------------------------

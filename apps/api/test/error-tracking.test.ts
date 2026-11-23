@@ -58,6 +58,7 @@ describe('initErrorTracking', () => {
 
   it('stays disabled (no throw) for a malformed DSN', async () => {
     let loaded = false;
+    expect(await initErrorTracking({ GLITCHTIP_DSN: 'http://aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee@h/1' }, async () => ((loaded = true), {} as never))).toBe(false); // dashed key: the SDK would reject it
     expect(await initErrorTracking({ GLITCHTIP_DSN: 'not a dsn' }, async () => ((loaded = true), {} as never))).toBe(false);
     expect(loaded).toBe(false);
   });
