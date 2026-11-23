@@ -67,6 +67,8 @@ export interface CallViewProps {
 
   /** Recording consent state (every participant) and the host's controls. Absent in the lab and older tests. */
   recording?: RecordingView;
+  /** End-to-end encrypted meeting: a persistent badge; `on` turns true once the encryption is confirmed active. */
+  e2ee?: { on: boolean };
 }
 
 /** The whole call screen as a pure function of its props: no LiveKit, no network. Call.tsx and the lab feed it. */
@@ -94,7 +96,7 @@ export function CallView(p: CallViewProps) {
 
   return (
     <div className="call dv-call" data-panel={p.panel ?? 'none'}>
-      <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} recording={p.recording?.on} />
+      <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} recording={p.recording?.on} e2ee={p.e2ee} />
       <div className={`stage dv-main${p.panel ? ' with-chat' : ''}`}>
         <main className="dv-stagewrap" aria-label={t(lang, 'clStage')}>
           <Stage

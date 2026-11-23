@@ -1,6 +1,8 @@
 // Route decisions of the single-page build: the landing page lives at "/", the application at "/app", the admin
 // console at "/admin". Pure functions (no DOM) so they can be tested; main.tsx and auth.ts use them.
 
+import { parseKeyFromHash } from './e2ee/keys';
+
 const CODE = /^[0-9]{11,12}$/;
 
 const trim = (p: string) => p.replace(/\/+$/, '');
@@ -26,6 +28,12 @@ export function appUrl(path = ''): string {
   return `/app/${path.replace(/^\/+/, '')}`;
 }
 
+/** The E2EE meeting key of a link survives the redirect (rebuilt from the validated key, so nothing else rides along). */
+function withKey(hash: string | undefined): string {
+  const key = hash ? parseKeyFromHash(hash) : null;
+  return key ? `#k=${key}` : '';
+}
+
 /**
  * Old meeting links keep working: `/j/<code>`, `/?code=<code>` and the pre-/app `/?join=<code>` (also what the desktop
  * deep link opens) map to `/app?join=<code>`, the parameter the application already understands. Only well-formed
@@ -35,10 +43,11 @@ export function appUrl(path = ''): string {
 export function legacyJoinRedirect(loc: { pathname: string; search: string; hash?: string }): string | null {
   const p = trim(loc.pathname);
   const m = /^\/j\/([^/]+)$/.exec(p);
-  if (m) return CODE.test(m[1]!) ? appUrl(`?join=${m[1]}`) : null;
+  const keep = withKey(loc.hash);
+  if (m) return CODE.test(m[1]!) ? appUrl(`?join=${m[1]}`) + keep : null;
   if (p !== '') return null;
   const q = new URLSearchParams(loc.search);
   if (q.has('state')) return null;
   const code = q.get('join') ?? q.get('code');
-  return code !== null && CODE.test(code) ? appUrl(`?join=${code}`) : null;
+  return code !== null && CODE.test(code) ? appUrl(`?join=${code}`) + keep : null;
 }

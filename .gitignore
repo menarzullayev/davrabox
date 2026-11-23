@@ -13,6 +13,7 @@ spike/
 node_modules/
 dist/
 build/
+!apps/desktop/build/
 coverage/
 .DS_Store
 dev.env
@@ -29,3 +30,4 @@ apps/web/dist-lab/
 docs/design/critic/*.jpg
 PRODUCTION-READINESS.md
 deploy/compose/*.cred.txt
+apps/web/public/.well-known/

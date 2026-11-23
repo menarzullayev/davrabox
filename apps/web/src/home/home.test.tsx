@@ -165,7 +165,7 @@ describe('new meeting dialog', () => {
     fireEvent.change(dlg.querySelector('input[type=password]')!, { target: { value: 'abcdef1' } });
     fireEvent.click(within(dlg).getByTestId('waiting-room'));
     fireEvent.submit(dlg.querySelector('form')!);
-    await waitFor(() => expect(onCreate).toHaveBeenCalledWith({ title: 'Planning', passcode: 'abcdef1', waitingRoom: false }));
+    await waitFor(() => expect(onCreate).toHaveBeenCalledWith({ title: 'Planning', passcode: 'abcdef1', waitingRoom: false, e2ee: false }));
     await waitFor(() => expect(screen.getByText('Meeting created')).toBeTruthy());
   });
 

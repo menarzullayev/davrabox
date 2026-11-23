@@ -12,7 +12,9 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "start": "pnpm build && electron .",
-    "dist": "pnpm build && electron-builder --dir --publish never"
+    "dist": "pnpm build && node scripts/dist.mjs --dir",
+    "dist:release": "pnpm build && node scripts/dist.mjs",
+    "verify-signature": "node scripts/verify-signature.mjs"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
@@ -44,8 +46,9 @@
     ],
     "win": {
       "target": [
-        "dir"
-      ]
+        "nsis"
+      ],
+      "verifyUpdateCodeSignature": true
     },
     "electronFuses": {
       "runAsNode": false,
@@ -58,9 +61,19 @@
     },
     "mac": {
       "target": [
-        "dir"
+        "dmg",
+        "zip"
       ],
-      "category": "public.app-category.business"
+      "category": "public.app-category.business",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true,
+      "extendInfo": {
+        "NSCameraUsageDescription": "DavraBox uses the camera for video meetings.",
+        "NSMicrophoneUsageDescription": "DavraBox uses the microphone for meetings."
+      }
     },
     "linux": {
       "target": [
@@ -68,6 +81,19 @@
       ],
       "category": "Network",
       "executableName": "davrabox"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "menarzullayev",
+      "repo": "davrabox",
+      "releaseType": "release"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
     }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
   }
 }

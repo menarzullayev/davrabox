@@ -1,0 +1,76 @@
+apply plugin: 'com.android.application'
+
+// Build-time inputs (see docs/android.md). The host of DAVRA_APP_URL feeds the App Links intent filter and the
+// deep-link guard in MainActivity; capacitor.config.ts reads the same variable for server.url.
+def davraAppUrl = System.getenv('DAVRA_APP_URL') ?: 'https://davrabox.bugvector.uz/app'
+def davraUri = new URI(davraAppUrl)
+if (davraUri.scheme != 'https' || !davraUri.host) {
+    throw new GradleException('DAVRA_APP_URL must be an absolute https URL')
+}
+
+// Release signing only when the keystore secrets are present; never committed, never defaulted.
+def ksPath = System.getenv('ANDROID_KEYSTORE_PATH')
+def ksPassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def ksAlias = System.getenv('ANDROID_KEY_ALIAS')
+def ksKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+def hasSigning = ksPath && ksPassword && ksAlias && ksKeyPassword
+def davraVersionCode = Integer.parseInt(System.getenv('ANDROID_VERSION_CODE') ?: '1')
+def davraVersionName = System.getenv('ANDROID_VERSION_NAME') ?: '0.1.0'
+
+android {
+    namespace = "uz.davrabox.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+    buildFeatures {
+        buildConfig = true
+    }
+    defaultConfig {
+        applicationId "uz.davrabox.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode davraVersionCode
+        versionName davraVersionName
+        manifestPlaceholders = [davraHost: davraUri.host]
+        buildConfigField "String", "APP_HOST", "\"${davraUri.host}\""
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        if (hasSigning) {
+            release {
+                storeFile file(ksPath)
+                storePassword ksPassword
+                keyAlias ksAlias
+                keyPassword ksKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'

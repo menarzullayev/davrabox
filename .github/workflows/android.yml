@@ -1,0 +1,120 @@
+name: Android build
+
+# Checks the Capacitor shell (scripted config and manifest assertions) and builds the Android app on a GitHub runner.
+# Nothing here is assumed to exist on a developer machine: JDK 21 and the Android SDK are installed by the job.
+# The debug APK is built on every run. A release APK and AAB are built only when the signing secrets exist.
+# The result has not been run on a device or emulator by this workflow; it only proves that the project builds.
+on:
+  push:
+    branches: [main, feat/android]
+    paths:
+      - "apps/mobile/**"
+      - "apps/web/scripts/assetlinks*"
+      - "apps/web/src/platform/**"
+      - ".github/workflows/android.yml"
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "apps/web/scripts/assetlinks*"
+      - "apps/web/src/platform/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Config and manifest assertions
+        run: |
+          pnpm --filter @davrabox/mobile typecheck
+          pnpm --filter @davrabox/mobile test
+      - name: App Links file generator and shell detection (web side)
+        run: pnpm --filter @davrabox/web exec vitest run scripts/assetlinks.test.mjs src/platform
+
+  build:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      # Optional repository variable; the default is the pilot host. Must be an https URL (checked at build time).
+      DAVRA_APP_URL: ${{ vars.DAVRA_APP_URL }}
+      HAS_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      # The ubuntu runner image ships the Android SDK; the setup action failed on 'sdkmanager tools' (run 45279337325).
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - uses: gradle/actions/setup-gradle@v4
+      - run: pnpm install --frozen-lockfile
+      - name: Sync Capacitor (writes capacitor.config.json with server.url)
+        working-directory: apps/mobile
+        run: pnpm exec cap sync android
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        env:
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: davrabox-debug-apk
+          path: apps/mobile/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+      - name: Decode upload keystore
+        if: env.HAS_SIGNING == 'true'
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/upload.keystore"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.keystore" >> "$GITHUB_ENV"
+      - name: Build signed release APK and AAB
+        if: env.HAS_SIGNING == 'true'
+        working-directory: apps/mobile/android
+        env:
+          ANDROID_VERSION_CODE: ${{ github.run_number }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon assembleRelease bundleRelease
+      - name: Upload release artifacts
+        if: env.HAS_SIGNING == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: davrabox-release
+          path: |
+            apps/mobile/android/app/build/outputs/apk/release/*.apk
+            apps/mobile/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+      - name: Summary
+        run: |
+          {
+            echo "### Android build"
+            echo "- Debug APK built (not run on a device or emulator)."
+            if [ "$HAS_SIGNING" = "true" ]; then echo "- Release APK and AAB built and signed with the upload key."; else echo "- RELEASE NOT BUILT: signing secrets are not set (see docs/android.md)."; fi
+          } >> "$GITHUB_STEP_SUMMARY"

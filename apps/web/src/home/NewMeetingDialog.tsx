@@ -8,6 +8,8 @@ export interface NewMeetingData {
   title: string;
   passcode?: string;
   waitingRoom: boolean;
+  /** End-to-end encrypted meeting; chosen here and never changed afterwards. */
+  e2ee: boolean;
 }
 
 export interface NewMeetingDialogProps {
@@ -27,6 +29,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
   const [title, setTitle] = useState('');
   const [passcode, setPasscode] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
+  const [e2ee, setE2ee] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [addCalendar, setAddCalendar] = useState(false);
@@ -45,10 +48,11 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
     setBusy(true);
     setFailed(false);
     try {
-      const m = await onCreate({ title: title.trim(), passcode: passcode || undefined, waitingRoom });
+      const m = await onCreate({ title: title.trim(), passcode: passcode || undefined, waitingRoom, e2ee });
       setTitle('');
       setPasscode('');
       setWaitingRoom(true);
+      setE2ee(false);
       onCreated(m, calendar && addCalendar ? { calendar: true } : undefined);
       setAddCalendar(false);
     } catch {
@@ -105,6 +109,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
           data-testid="waiting-room"
           onChange={(e) => setWaitingRoom(e.target.checked)}
         />
+        <Switch label={t(lang, 'e2eeToggle')} hint={t(lang, 'e2eeToggleHint')} checked={e2ee} data-testid="e2ee-toggle" onChange={(e) => setE2ee(e.target.checked)} />
         {calendar ? <Checkbox label={tx(lang, 'calAfterCreate')} checked={addCalendar} data-testid="cal-after-create" onChange={(e) => setAddCalendar(e.target.checked)} /> : null}
       </form>
     </Dialog>

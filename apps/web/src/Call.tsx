@@ -9,7 +9,10 @@ import { Button, Dialog } from './ui';
 import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
+import { E2eeGate } from './e2ee/E2eeGate';
+import { loadStoredKey, storeKey } from './e2ee/keys';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, RecordingItem } from './call/types';
+import { mediaErrorText } from './platform/capacitor';
 
 type ChatLine = ChatLineView;
 
@@ -82,6 +85,11 @@ export function Call({
   const [recStatus, setRecStatus] = useState({ enabled: false, e2ee: false });
   const [recBusy, setRecBusy] = useState(false);
   const [recItems, setRecItems] = useState<RecordingItem[]>([]);
+  // End-to-end encryption: the key comes from this tab (link fragment, kept in sessionStorage), never from the server.
+  const [e2eeKey, setE2eeKey] = useState<string | null>(() => (join.e2ee ? loadStoredKey(code) : null));
+  const [e2eeMod, setE2eeMod] = useState<typeof import('./e2ee/provider') | null>(null);
+  const [e2eeOn, setE2eeOn] = useState(false);
+  const [e2eeUnsupported, setE2eeUnsupported] = useState(false);
   const lineId = useRef(0);
   const manages = role !== 'member';
   const chatOpenRef = useRef(false);
@@ -92,14 +100,50 @@ export function Call({
   };
   useParticipantEvents(participants);
 
+  // The E2EE provider (and its worker) is a separate chunk that only E2EE meetings download.
   useEffect(() => {
+    if (!join.e2ee || !e2eeKey || e2eeMod) return;
+    let stop = false;
+    import('./e2ee/provider').then((m) => !stop && setE2eeMod(m)).catch(() => !stop && setE2eeUnsupported(true));
+    return () => {
+      stop = true;
+    };
+  }, [join.e2ee, e2eeKey, e2eeMod]);
+
+  useEffect(() => {
+    // An encrypted meeting is never joined without its key (the gate below is shown instead) and never without the
+    // encryption code loaded: there is no plaintext fallback.
+    if (join.e2ee && (!e2eeKey || !e2eeMod)) return;
     // Browser audio DSP is on by default; the toggle below restarts the microphone with the chosen setting.
-    const room = new Room({
-      adaptiveStream: true,
-      dynacast: true,
-      audioCaptureDefaults: { noiseSuppression: true, echoCancellation: true, autoGainControl: true },
-    });
+    let e2ee: ReturnType<NonNullable<typeof e2eeMod>['createE2eeRoomOptions']> | null = null;
+    let room: Room;
+    try {
+      e2ee = join.e2ee && e2eeMod && e2eeKey ? e2eeMod.createE2eeRoomOptions(e2eeKey) : null;
+      room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+        audioCaptureDefaults: { noiseSuppression: true, echoCancellation: true, autoGainControl: true },
+        ...(e2ee?.options ?? {}),
+      });
+    } catch {
+      // The browser cannot encrypt media (Room refuses to be built): say so, do not fall back to an unencrypted call.
+      e2ee?.dispose();
+      setE2eeUnsupported(true);
+      return;
+    }
     roomRef.current = room;
+    let keyErrorShown = false;
+    if (e2ee) {
+      room
+        .on(RoomEvent.EncryptionError, () => {
+          if (cancelled || keyErrorShown) return;
+          keyErrorShown = true;
+          setError(t(lang, 'e2eeWrongKey'));
+        })
+        .on(RoomEvent.ParticipantEncryptionStatusChanged, (enabled: boolean, p?: Participant) => {
+          if (!cancelled && p?.isLocal) setE2eeOn(enabled);
+        });
+    }
     const sync = () => setParticipants([room.localParticipant, ...Array.from(room.remoteParticipants.values())]);
     // Only a disconnect of the room that is still current may leave the call. React StrictMode mounts,
     // unmounts and remounts this effect in development; the discarded room's disconnect must be ignored.
@@ -161,6 +205,12 @@ export function Call({
         } catch {
           /* storage unavailable */
         }
+        if (e2ee) {
+          // Order matters: the key is in the provider and encryption is on BEFORE connecting and before any track is
+          // published, so no frame leaves this browser unencrypted. A failure here throws and nothing connects.
+          await e2ee.installKey();
+          await room.setE2EEEnabled(true);
+        }
         await room.connect(join.url, join.token, relay ? { rtcConfig: { iceTransportPolicy: 'relay' } } : undefined);
         if (cancelled) return;
         setConnected(true);
@@ -172,7 +222,7 @@ export function Call({
           const v = room.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack?.mediaStreamTrack.getSettings().noiseSuppression;
           setNoiseOn(typeof v === 'boolean' ? v : null);
         } catch {
-          setError(t(lang, 'errMedia'));
+          setError(mediaErrorText(lang));
           setMic(false);
           setCam(false);
         }
@@ -184,10 +234,10 @@ export function Call({
     })();
     return () => {
       cancelled = true;
-      void room.disconnect();
+      void room.disconnect().finally(() => e2ee?.dispose());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [join.token]);
+  }, [join.token, e2eeKey, e2eeMod]);
 
   // Role follows promotions and demotions while connected; managers also poll the waiting room and co-host list.
   useEffect(() => {
@@ -237,6 +287,20 @@ export function Call({
   }, [code, getToken]);
 
   const room = roomRef.current;
+  if (join.e2ee && (!e2eeKey || e2eeUnsupported)) {
+    return (
+      <E2eeGate
+        lang={lang}
+        title={join.title}
+        unsupported={e2eeUnsupported}
+        onKey={(k) => {
+          storeKey(code, k);
+          setE2eeKey(k);
+        }}
+        onLeave={onLeave}
+      />
+    );
+  }
   const toggle = async (kind: 'mic' | 'cam') => {
     if (!room) return;
     try {
@@ -249,7 +313,7 @@ export function Call({
         setBlurOn(false); // a new camera track starts without the processor
       }
     } catch {
-      setError(t(lang, 'errMedia'));
+      setError(mediaErrorText(lang));
     }
   };
   const toggleShare = async () => {
@@ -295,7 +359,7 @@ export function Call({
       await track.restartTrack({ noiseSuppression: next, echoCancellation: true, autoGainControl: true });
       readNoise();
     } catch {
-      setError(t(lang, 'errMedia'));
+      setError(mediaErrorText(lang));
     }
   };
   // Background blur runs in the browser (MediaPipe segmentation). Model and WASM are served from our own origin.
@@ -507,9 +571,10 @@ export function Call({
         if (id === 'chat') setUnread(0);
       }}
       unread={unread}
-      chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f) }}
+      chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f), noFiles: join.e2ee === true }}
       layout={layout}
       onLayout={setLayout}
+      e2ee={join.e2ee ? { on: e2eeOn } : undefined}
       recording={{
         on: recOn,
         e2ee: recStatus.e2ee,

@@ -10,6 +10,8 @@ import { displayName, firstName, formatDay, greetingSlot, groupMeetings, type Pr
 import { dayNames, tx } from './text';
 import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
 import { useCalendarReturn } from '../calendar/useCalendarReturn';
+import { E2eeLinkDialog } from '../e2ee/E2eeLinkDialog';
+import { buildShareLink, loadStoredKey } from '../e2ee/keys';
 
 export interface HomeScreenProps {
   lang: Lang;
@@ -65,6 +67,7 @@ function HomeBody(props: HomeScreenProps) {
   const [dialog, setDialog] = useState(false);
   const [joiningCode, setJoiningCode] = useState<string | null>(null);
   const [calendarFor, setCalendarFor] = useState<Meeting | null>(null);
+  const [e2eeLink, setE2eeLink] = useState<string | null>(null);
   useCalendarReturn(lang, toast);
 
   const timeline = useMemo(() => (meetings ? groupMeetings(meetings, clock) : null), [meetings, clock]);
@@ -149,10 +152,16 @@ function HomeBody(props: HomeScreenProps) {
         calendar={Boolean(props.calendarToken)}
         onCreated={(m, opts) => {
           setDialog(false);
+          if (m.e2ee) {
+            // The host's tab holds the key (made at creation): show the full link once so it can be shared.
+            const key = loadStoredKey(m.code);
+            if (key) setE2eeLink(buildShareLink(location.origin, m.code, key));
+          }
           if (opts?.calendar) setCalendarFor(m);
           toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: m.code.replace(/(\d{3})(\d{4})(\d+)/, '$1 $2 $3') }) });
         }}
       />
+      <E2eeLinkDialog lang={lang} link={e2eeLink} onClose={() => setE2eeLink(null)} />
       {props.calendarToken ? <AddToCalendarDialog lang={lang} token={props.calendarToken} meeting={calendarFor} onClose={() => setCalendarFor(null)} /> : null}
     </>
   );

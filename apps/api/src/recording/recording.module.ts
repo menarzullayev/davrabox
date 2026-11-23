@@ -7,13 +7,16 @@ import { RECORDING, RecordingController } from './recording.controller.js';
 import { LiveKitMedia } from './livekit-media.js';
 import { RecordingService } from './recording.service.js';
 import { S3Store } from './s3-store.js';
+import { KeyResolver } from '../byok/key-resolver.js';
 
 /** Builds the recording service from the configuration; without Egress/S3/master key every endpoint answers 503. */
 export function createRecordingService(pool: Pool, cfg: Config): RecordingService {
   if (!cfg.RECORDING_ENABLED || !cfg.S3_ENDPOINT || !cfg.S3_ACCESS_KEY || !cfg.S3_SECRET_KEY || !cfg.FILE_MASTER_KEY) return new RecordingService(pool, null);
   const base = { accessKey: cfg.S3_ACCESS_KEY, secretKey: cfg.S3_SECRET_KEY, region: cfg.RECORDING_S3_REGION };
+  const master = masterKeyFrom(cfg.FILE_MASTER_KEY);
   return new RecordingService(pool, {
-    master: masterKeyFrom(cfg.FILE_MASTER_KEY),
+    master,
+    keys: new KeyResolver(pool, master, { allowPrivate: cfg.BYOK_ALLOW_PRIVATE_VAULT }),
     store: new S3Store({ endpoint: cfg.S3_ENDPOINT, accessKey: base.accessKey, secretKey: base.secretKey, region: base.region }, cfg.RECORDING_BUCKET),
     media: new LiveKitMedia({
       apiUrl: cfg.LIVEKIT_API_URL,

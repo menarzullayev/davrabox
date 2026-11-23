@@ -4,6 +4,9 @@ import { callEn, callRu, callUz } from './call/i18n-call';
 import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
 import { integrationsEn, integrationsRu, integrationsUz } from './admin/i18n-integrations';
 import { calEn, calRu, calUz } from './calendar/i18n-calendar';
+import { platformEn, platformRu, platformUz } from './platform/i18n-platform';
+import { byokEn, byokRu, byokUz } from './admin/i18n-byok';
+import { e2eeEn, e2eeRu, e2eeUz } from './e2ee/i18n-e2ee';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -92,7 +95,10 @@ const uz = {
   ...callUz,
   ...landingUz,
   ...integrationsUz,
+  ...byokUz,
   ...calUz,
+  ...platformUz,
+  ...e2eeUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -181,7 +187,10 @@ const ru: Record<Key, string> = {
   ...callRu,
   ...landingRu,
   ...integrationsRu,
+  ...byokRu,
   ...calRu,
+  ...platformRu,
+  ...e2eeRu,
 };
 
 const en: Record<Key, string> = {
@@ -268,7 +277,10 @@ const en: Record<Key, string> = {
   ...callEn,
   ...landingEn,
   ...integrationsEn,
+  ...byokEn,
   ...calEn,
+  ...platformEn,
+  ...e2eeEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

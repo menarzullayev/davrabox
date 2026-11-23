@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Button, IconCheckCircle, TextField } from '../ui';
 import type { Lang } from '../i18n';
+import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { formatCode, parseJoinInput, type JoinInvalidReason } from './logic';
 import { tx } from './text';
 
@@ -62,6 +63,9 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
     const p = parseJoinInput(raw);
     // A pasted link is replaced by the code it contains, so people see what will be joined.
     if (p.status === 'valid' && p.fromLink) {
+      // A pasted E2EE share link carries the meeting key after the #: keep it for this meeting (tab only) and show only the code.
+      const key = extractKeyFromText(raw);
+      if (key) storeKey(p.code, key);
       setValue(formatCode(p.code));
       setFromLink(true);
     } else {
