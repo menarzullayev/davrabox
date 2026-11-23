@@ -17,4 +17,5 @@ COPY --from=build /repo/apps/api/migrations ./migrations
 COPY --from=build /repo/apps/api/package.json ./package.json
 ENV NODE_ENV=production API_PORT=3000
 EXPOSE 3000
+USER 65532:65532
 CMD ["dist/main.js"]
