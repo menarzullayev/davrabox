@@ -11,3 +11,7 @@ All rights reserved. See `docs/GOAL.md` for scope and rules, `docs/PROGRESS.md` 
 4. API: `API_PORT=3000 pnpm --filter @davrabox/api start`; web: `pnpm --filter @davrabox/web dev`
 5. Open `https://localhost:8443` (accept the local certificate).
 6. Tests: `pnpm --filter @davrabox/api test`, `pnpm --filter @davrabox/web test`, ``pnpm --filter @davrabox/e2e test` (call, TOTP and admin-2FA suites).
+
+## Staging flow
+A green CI run on `main` publishes `ghcr.io/menarzullayev/davrabox-{api,web}:sha-<commit>`, a bot commit rewrites the tags in
+`deploy/helm/davrabox/values-staging.yaml`, and ArgoCD (watching `main`, application in `deploy/argocd/application.yaml`) rolls staging forward.
