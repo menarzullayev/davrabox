@@ -11,6 +11,8 @@ room:
   max_participants: 300
 logging:
   level: info
+# Internal metrics for Prometheus and the load test (published on loopback only).
+prometheus_port: 6789
 turn:
   # Built-in TURN relay for participants behind firewalls that block direct UDP. UDP here; TURN over TLS (port 443/5349)
   # additionally needs a public domain and a certificate: see the commented block and docs/HELD.md.

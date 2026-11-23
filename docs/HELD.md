@@ -15,3 +15,5 @@
 | Staging cluster, remote repository, ArgoCD | user | Helm chart validated on kind, Terraform validated, ArgoCD manifest written |
 | Media for participants outside the LAN (UDP/TCP reach to the server or a TURN relay on a public IP) | user: public IP / port forwarding or a small VPS (paid, needs approval) | tunnel carries web + signalling only; TURN is a phase 2 task |
 | Media through TURN end to end, and TURN over TLS on 443 | a Linux host or public IP with media ports reachable, a domain and certificate | TURN enabled and verified up to relay allocation; Helm values for UDP and TLS; firewall-mode switch in the app |
+| Real capacity and quality numbers (100-300 participants per node, KPIs under load) | a separate load-generator machine and a dedicated Linux media server | load test tool exists (apps/loadtest); results so far in PROGRESS.md |
+| Desktop code signing (Windows EV certificate, Apple Developer ID and notarisation) and a signed auto-update channel | user, budget | unsigned builds for Windows, macOS and Linux build in CI with verified fuses |

@@ -1,0 +1,16 @@
+{
+  "name": "@davrabox/loadtest",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "typecheck": "echo loadtest is plain JS",
+    "lint": "echo loadtest is plain JS",
+    "load": "node run.mjs"
+  },
+  "dependencies": {
+    "@livekit/rtc-node": "^0.13.0",
+    "livekit-server-sdk": "^2.9.0"
+  }
+}
