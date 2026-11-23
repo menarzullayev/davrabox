@@ -49,3 +49,21 @@ describe('decode rejects untrusted garbage', () => {
     expect(s && s.t === 'chat' && s.text.length).toBe(MAX_CHAT_LENGTH);
   });
 });
+
+describe('file signal', () => {
+  const id = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+  it('round-trips and lower-cases the id', () => {
+    expect(decode(raw({ t: 'file', id: id.toUpperCase(), name: 'a.pdf', size: 10 }))).toEqual({ t: 'file', id, name: 'a.pdf', size: 10 });
+  });
+  it.each([
+    ['id is not a uuid', { t: 'file', id: '../../x', name: 'a', size: 1 }],
+    ['id with a path', { t: 'file', id: `${id}/../x`, name: 'a', size: 1 }],
+    ['empty name', { t: 'file', id, name: '  ', size: 1 }],
+    ['name over 200 characters', { t: 'file', id, name: 'x'.repeat(201), size: 1 }],
+    ['zero size', { t: 'file', id, name: 'a', size: 0 }],
+    ['negative size', { t: 'file', id, name: 'a', size: -5 }],
+    ['fractional size', { t: 'file', id, name: 'a', size: 1.5 }],
+    ['size above the limit', { t: 'file', id, name: 'a', size: 26 * 1024 * 1024 }],
+    ['size as a string', { t: 'file', id, name: 'a', size: '10' }],
+  ])('rejects %s', (_n, v) => expect(decode(raw(v))).toBeNull());
+});

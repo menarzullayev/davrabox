@@ -9,6 +9,14 @@ image:
   web: davra/web:dev
   pullPolicy: IfNotPresent
 
+# File sharing in the meeting chat needs S3-compatible storage, a ClamAV daemon and a master key. Disabled by default:
+# the API then answers 503 to file requests. When enabled, the Secret must also contain S3_ACCESS_KEY, S3_SECRET_KEY, FILE_MASTER_KEY.
+files:
+  enabled: false
+  s3Endpoint: ""      # e.g. https://s3.example.com
+  s3Bucket: davra-files
+  clamavHost: ""      # host of a clamd daemon (port 3310)
+
 api:
   replicas: 2
   resources: { requests: { cpu: 100m, memory: 192Mi }, limits: { cpu: "1", memory: 512Mi } }

@@ -59,6 +59,11 @@ const uz = {
   cohostBadge: 'Co-host',
   makeCohost: 'Co-host qilish',
   dismissCohost: 'Co-hostlikdan olish',
+  attach: 'Fayl biriktirish',
+  errFilesOff: 'Fayl almashish bu muhitda yoqilmagan',
+  errFileVirus: 'Fayl antivirus tomonidan rad etildi',
+  errFileType: 'Bu turdagi fayllarga ruxsat yo‘q',
+  errFileSize: 'Fayl juda katta (25 MB gacha)',
 } as const;
 
 export type Key = keyof typeof uz;
@@ -122,6 +127,11 @@ const ru: Record<Key, string> = {
   cohostBadge: 'Соорганизатор',
   makeCohost: 'Назначить соорганизатором',
   dismissCohost: 'Снять соорганизатора',
+  attach: 'Прикрепить файл',
+  errFilesOff: 'Обмен файлами в этой среде не включён',
+  errFileVirus: 'Файл отклонён антивирусом',
+  errFileType: 'Этот тип файлов запрещён',
+  errFileSize: 'Файл слишком большой (до 25 МБ)',
 };
 
 const en: Record<Key, string> = {
@@ -183,6 +193,11 @@ const en: Record<Key, string> = {
   cohostBadge: 'Co-host',
   makeCohost: 'Make co-host',
   dismissCohost: 'Remove co-host',
+  attach: 'Attach a file',
+  errFilesOff: 'File sharing is not enabled in this environment',
+  errFileVirus: 'The file was rejected by the antivirus',
+  errFileType: 'This file type is not allowed',
+  errFileSize: 'File is too large (up to 25 MB)',
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

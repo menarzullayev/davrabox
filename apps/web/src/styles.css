@@ -46,7 +46,7 @@ button.danger { background: var(--danger); border-color: var(--danger); color: v
 .chat-line .tag { margin-left: .4rem; color: var(--muted); font-size: .8rem; }
 .chat-line.mine strong { color: var(--accent); }
 .chat-text { white-space: pre-wrap; overflow-wrap: anywhere; }
-.chat-form { display: grid; grid-template-columns: 1fr auto; gap: .4rem; padding: .5rem; border-top: 1px solid var(--line); }
+.chat-form { display: grid; grid-template-columns: auto 1fr auto; gap: .4rem; padding: .5rem; border-top: 1px solid var(--line); }
 .chat-form select { grid-column: 1 / -1; }
 .reaction-bar { display: inline-flex; gap: .2rem; }
 .reaction-bar button { padding: .35rem .5rem; }
@@ -57,3 +57,5 @@ button.danger { background: var(--danger); border-color: var(--danger); color: v
 .grid.speaker { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: 120px; }
 .grid.speaker .tile.featured { grid-column: 1 / -1; grid-row: span 4; }
 .grid.speaker .tile.share { grid-column: 1 / -1; grid-row: span 4; }
+.file-chip { text-align: left; max-width: 100%; overflow-wrap: anywhere; }
+.chat-form input[hidden] { display: none; }

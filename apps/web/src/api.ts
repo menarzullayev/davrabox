@@ -52,7 +52,34 @@ async function call<T>(token: string, path: string, init?: { method?: string; bo
 
 const enc = encodeURIComponent;
 
+/** Uploads a file to the meeting (raw body, authorised by the bearer token). */
+async function uploadFile(token: string, code: string, file: File): Promise<{ id: string; name: string; size: number }> {
+  const res = await fetch(`/api/v1/meetings/${enc(code)}/files?name=${enc(file.name)}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' },
+    body: file,
+  });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      detail = String(((await res.json()) as { message?: unknown }).message ?? '');
+    } catch {
+      /* not JSON */
+    }
+    throw new ApiError(res.status, detail);
+  }
+  return (await res.json()) as { id: string; name: string; size: number };
+}
+
+async function downloadFile(token: string, code: string, id: string): Promise<Blob> {
+  const res = await fetch(`/api/v1/meetings/${enc(code)}/files/${enc(id)}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new ApiError(res.status);
+  return res.blob();
+}
+
 export const api = {
+  uploadFile,
+  downloadFile,
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),

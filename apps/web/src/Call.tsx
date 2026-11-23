@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant, type RemoteTrack, type TrackPublication } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
-import { api, type JoinedResult, type JoinRequest } from './api';
-import { REACTIONS, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
+import { ApiError, api, type JoinedResult, type JoinRequest } from './api';
+import { MAX_FILE_BYTES, REACTIONS, cleanChatText, decode, encode, type Reaction, type Signal } from './signals';
 
 interface ChatLine {
   id: number;
   from: string;
   text: string;
   mine: boolean;
+  file?: { id: string; name: string; size: number };
   to?: string; // set for private messages: the recipient's display name (or 'me' for received ones)
   priv: boolean;
 }
@@ -189,6 +190,10 @@ export function Call({
         const line: ChatLine = { id: ++lineId.current, from: participant.name || id, text: sig.text, mine: false, priv: topic === 'chat-private' };
         setLines((l) => [...l.slice(-199), line]);
         if (!chatOpenRef.current) setUnread((n) => n + 1);
+      } else if (sig.t === 'file') {
+        const line: ChatLine = { id: ++lineId.current, from: participant.name || id, text: '', mine: false, priv: topic === 'chat-private', file: { id: sig.id, name: sig.name, size: sig.size } };
+        setLines((l) => [...l.slice(-199), line]);
+        if (!chatOpenRef.current) setUnread((n) => n + 1);
       } else if (sig.t === 'hand') {
         setHands((h) => ({ ...h, [id]: sig.up }));
       } else {
@@ -222,7 +227,8 @@ export function Call({
         }
         sync();
       } catch {
-        setError(t(lang, 'errGeneric'));
+        // An aborted attempt of a discarded room (React StrictMode remount) is not an error for the user.
+        if (!cancelled) setError(t(lang, 'errGeneric'));
       }
     })();
     return () => {
@@ -358,6 +364,45 @@ export function Call({
       setError(t(lang, 'errBlur'));
     }
   };
+  const fileInput = useRef<HTMLInputElement>(null);
+  const fileError = (e: unknown): string => {
+    const d = e instanceof ApiError ? e.detail : '';
+    if (/not configured/i.test(d)) return t(lang, 'errFilesOff');
+    if (/antivirus/i.test(d)) return t(lang, 'errFileVirus');
+    if (/type is not allowed/i.test(d)) return t(lang, 'errFileType');
+    if (/too large/i.test(d)) return t(lang, 'errFileSize');
+    return t(lang, 'errGeneric');
+  };
+  const attach = async (file: File | undefined) => {
+    if (!file || !room) return;
+    if (file.size > MAX_FILE_BYTES) {
+      setError(t(lang, 'errFileSize'));
+      return;
+    }
+    try {
+      const up = await api.uploadFile(await getToken(), code, file);
+      await send({ t: 'file', id: up.id, name: up.name, size: up.size }, target ? { to: target, topic: 'chat-private' } : { topic: 'chat' });
+      const toName = target ? participants.find((p) => p.identity === target)?.name || target : undefined;
+      setLines((l) => [...l.slice(-199), { id: ++lineId.current, from: t(lang, 'you'), text: '', mine: true, to: toName, priv: Boolean(target), file: up }]);
+    } catch (e) {
+      setError(fileError(e));
+    }
+  };
+  const saveFile = async (f: { id: string; name: string }) => {
+    try {
+      const blob = await api.downloadFile(await getToken(), code, f.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = f.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch {
+      setError(t(lang, 'errGeneric'));
+    }
+  };
   const toggleHand = async () => {
     const up = !myHand;
     setMyHand(up);
@@ -429,7 +474,13 @@ export function Call({
                 <strong>{l.from}</strong>
                 {l.priv && <em className="tag">{l.mine && l.to ? `${t(lang, 'privateTo')} ${l.to}` : t(lang, 'privateTag')}</em>}
                 {/* Plain text only: React escapes it, nothing is parsed as HTML or turned into a link. */}
-                <div className="chat-text">{l.text}</div>
+                {l.file ? (
+                  <button className="file-chip" onClick={() => void saveFile(l.file!)} data-testid="file-chip">
+                    📎 {l.file.name} <span className="muted">({(l.file.size / 1024).toFixed(l.file.size < 10240 ? 1 : 0)} KB)</span>
+                  </button>
+                ) : (
+                  <div className="chat-text">{l.text}</div>
+                )}
               </div>
             ))}
           </div>
@@ -440,6 +491,8 @@ export function Call({
                 <option key={p.identity} value={p.identity}>{p.name || p.identity}</option>
               ))}
             </select>
+            <input ref={fileInput} type="file" hidden onChange={(e) => { void attach(e.target.files?.[0]); e.target.value = ''; }} data-testid="file-input" />
+            <button type="button" onClick={() => fileInput.current?.click()} aria-label={t(lang, 'attach')} data-testid="attach">📎</button>
             <input value={draft} maxLength={1000} placeholder={t(lang, 'chatPlaceholder')} onChange={(e) => setDraft(e.target.value)} data-testid="chat-input" />
             <button className="primary" type="submit">{t(lang, 'send')}</button>
           </form>

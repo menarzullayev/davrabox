@@ -336,6 +336,10 @@ export class MeetingsService {
   }
 
   private async issueToken(user: AuthedUser, meeting: MeetingRow, manages: boolean, requestHost?: string): Promise<JoinedResult> {
+    // Record that this user really passed passcode, lock and waiting room: shared files are tied to this record.
+    await withTenant(this.pool, user.orgId, (c) =>
+      c.query('INSERT INTO meeting_access (meeting_id, user_id, org_id) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [meeting.id, user.userId, user.orgId]),
+    );
     await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: 300 });
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,

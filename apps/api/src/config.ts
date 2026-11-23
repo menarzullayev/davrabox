@@ -15,6 +15,14 @@ const schema = z.object({
   LIVEKIT_API_URL: z.string().url(), // http(s):// URL used by the server
   LIVEKIT_API_KEY: z.string().min(1),
   LIVEKIT_API_SECRET: z.string().min(32),
+  // File sharing is optional: without S3, ClamAV and a master key the endpoints answer 503 instead of storing anything.
+  S3_ENDPOINT: z.string().url().optional(),
+  S3_BUCKET: z.string().min(3).default('davra-files'),
+  S3_ACCESS_KEY: z.string().min(1).optional(),
+  S3_SECRET_KEY: z.string().min(8).optional(),
+  CLAMAV_HOST: z.string().min(1).optional(),
+  CLAMAV_PORT: z.coerce.number().int().default(3310),
+  FILE_MASTER_KEY: z.string().min(1).optional(),
   METRICS_PORT: z.coerce.number().int().default(9100),
   METRICS_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().default(3000),

@@ -91,6 +91,40 @@ services:
     mem_limit: 128m
     cpus: 0.5
 
+  # Dev object store for shared files (S3 API). Production: managed S3-compatible storage.
+  minio:
+    image: cgr.dev/chainguard/minio:latest-dev@sha256:5735e8125c4af7dd310dc5780508bfb850f0b68783a1a56089b5c64316a8f603
+    container_name: davra-minio
+    command: ["server", "/data", "--address", ":9000"]
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    volumes:
+      - davra-minio-data:/data
+    ports:
+      - "127.0.0.1:59000:9000"
+    mem_limit: 512m
+    cpus: 1
+
+  # Antivirus for uploaded files (clamd on 3310). Needs ~1.5 GB RAM and downloads signatures on first start.
+  clamav:
+    image: clamav/clamav:1.4.7
+    container_name: davra-clamav
+    ports:
+      - "127.0.0.1:53310:3310"
+    volumes:
+      - davra-clamav-db:/var/lib/clamav
+    mem_limit: 2g
+    cpus: 1.5
+    healthcheck:
+      test: ["CMD", "clamdcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 60s
+
 volumes:
   davra-pgdata:
+  davra-minio-data:
+  davra-clamav-db:
   davra-caddy-data:
