@@ -191,3 +191,10 @@ Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, n
 - Fixed now: D-01 host tile actions carry the participant name and Remove asks for confirmation (dialog `remove-confirm`); D-02 tile actions left out of the tab order (People panel keeps them); D-03 ring name pill wider than the circle; D-04 Davra switches to Speaker while a screen is shared (hint note); D-05 44 px targets for small/icon buttons and tile actions on coarse pointers, tile actions no longer always visible on touch (tap focuses the tile); D-06 home groups fold after 6 rows with "show all". Also: the active-speaker feature never picks yourself.
 - Verification: web 483 unit tests, typecheck, build; e2e hostcontrols, cohost, layout, call, chat, files PASSED.
 - Open: minors D-07..D-17, polish P-01..P-08, Uzbek wording review by a native editor, visual re-check of D-03/D-04 on screenshots, admin console restyle.
+
+## 2026-11-24: production-launch scoping (user decisions)
+- Launch type: open paid launch. Deferred by the user to later phases: mobile app, signed desktop app, E2EE/recording/BYOK, calendar integrations, REST API and webhooks. Admin console restyle and all UI polish are done before launch.
+- Observability: self-hosted Prometheus + Grafana + Alertmanager + GlitchTip, alerts to a Telegram bot.
+- Domain: davrabox.bugvector.uz for now. Backups: OFF for the first 12 months by user decision (accepted risk, recorded in the local readiness ledger).
+- Hosting decision postponed: the user will first evaluate an existing server; details are kept in the local, git-ignored readiness ledger (the repository is public).
+- Production readiness audit (107 items): PASS 41, FAIL 39, NA 14, TODO 13; 8 P0 items (public host served by the dev server without CSP/HSTS/TLS redirect, Keycloak start-dev, no backups/DR (accepted risk), no alerting, incomplete production deployment manifests). Ledger is local only (public repo).
