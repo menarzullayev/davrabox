@@ -65,7 +65,7 @@ export class CalendarEventsService {
     this.limiter.recordFailure(user.userId); // counts every attempt
 
     const base = this.cfg.CALENDAR_PUBLIC_URL!.replace(/\/+$/, ''); // present: requireProvider checked it
-    const joinUrl = `${base}/?join=${encodeURIComponent(code)}`;
+    const joinUrl = `${base}/app?join=${encodeURIComponent(code)}`;
     const lines = [`Join the meeting: ${joinUrl}`, `Meeting code: ${code}`];
     if (meeting.has_passcode) lines.push('This meeting is protected by a passcode: ask the host for it.');
     const ev: CalendarEventInput = {

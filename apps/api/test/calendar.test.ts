@@ -355,9 +355,9 @@ describe('K2 create event with a join link', () => {
     expect(call.url).toContain('sendUpdates=none');
     const body = JSON.parse(call.body);
     expect(body.summary).toBe('Quarterly review');
-    expect(body.description).toContain(`https://meet.example.test/?join=${m.code}`);
+    expect(body.description).toContain(`https://meet.example.test/app?join=${m.code}`);
     expect(body.description).toContain(m.code);
-    expect(body.location).toBe(`https://meet.example.test/?join=${m.code}`);
+    expect(body.location).toBe(`https://meet.example.test/app?join=${m.code}`);
     expect(body.attendees).toEqual([]);
     const a = await admin.query("SELECT target FROM audit_log WHERE org_id = $1 AND action = 'calendar.event.create' AND target LIKE $2", [host.orgId, `${m.code}%`]);
     expect(a.rowCount).toBe(1);

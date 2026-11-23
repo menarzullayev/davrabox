@@ -26,6 +26,7 @@ try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US' });
   const page = await ctx.newPage();
   await page.goto(BASE + '/');
+  await page.waitForSelector('h1', { timeout: 15000 }); // the landing is a lazy chunk
   check('the landing page is served at /', (await page.locator('h1').count()) === 1);
   await page.getByRole('link', { name: 'Start free' }).first().click();
   await page.waitForURL(/\/app\/signup$/);
