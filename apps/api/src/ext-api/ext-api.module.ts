@@ -8,14 +8,20 @@ import { ApiKeyGuard } from './api-key.guard.js';
 import { ApiKeysService } from './api-keys.service.js';
 import { loadExtConfig, type ExtConfig } from './ext-config.js';
 import { KeysController } from './keys.controller.js';
-import { EXT_CONFIG, EXT_KEYS } from './tokens.js';
+import { MeetingsService } from '../meetings/meetings.service.js';
+import { ExtMeetingsService } from './ext-meetings.service.js';
+import { ExtUsersService } from './ext-users.service.js';
+import { MeetingsExtController } from './meetings.ext.controller.js';
+import { UsersExtController } from './users.ext.controller.js';
+import { OpenApiController } from './openapi.js';
+import { EXT_CONFIG, EXT_KEYS, EXT_MEETINGS, EXT_USERS } from './tokens.js';
 
 /**
  * External REST API (API keys) and webhooks. Self-contained so that the shared AppModule only has to import it:
  * it builds its own small database pool and token verifier from the same environment.
  */
 @Module({
-  controllers: [KeysController],
+  controllers: [KeysController, MeetingsExtController, UsersExtController, OpenApiController],
   providers: [
     { provide: EXT_CONFIG, useFactory: () => loadExtConfig() },
     { provide: POOL, useFactory: () => new Pool({ connectionString: loadConfig().DATABASE_URL, max: 6 }) },
@@ -27,6 +33,15 @@ import { EXT_CONFIG, EXT_KEYS } from './tokens.js';
       },
     },
     { provide: EXT_KEYS, useFactory: (pool: Pool, ext: ExtConfig) => new ApiKeysService(pool, ext), inject: [POOL, EXT_CONFIG] },
+    {
+      provide: EXT_MEETINGS,
+      useFactory: (pool: Pool) => {
+        const cfg = loadConfig();
+        return new ExtMeetingsService(pool, new MeetingsService(pool, cfg), cfg);
+      },
+      inject: [POOL],
+    },
+    { provide: EXT_USERS, useFactory: (pool: Pool) => new ExtUsersService(pool), inject: [POOL] },
     AuthGuard,
     AdminGuard,
     ApiKeyGuard,

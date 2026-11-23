@@ -1,119 +1,17 @@
-import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { Controller, Get, Module, Req, UseGuards, type INestApplication } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { Pool } from 'pg';
-import { loadConfig } from '../src/config.js';
-import { AuthGuard, POOL, VERIFIER, type AuthedUser } from '../src/auth/auth.guard.js';
-import type { Identity } from '../src/auth/jwt.js';
-import { AdminGuard } from '../src/admin/admin.controller.js';
-import { ApiKeyGuard, Scope, type ApiPrincipal } from '../src/ext-api/api-key.guard.js';
-import { ApiKeysService } from '../src/ext-api/api-keys.service.js';
-import { KeysController } from '../src/ext-api/keys.controller.js';
-import { loadExtConfig } from '../src/ext-api/ext-config.js';
-import { EXT_CONFIG, EXT_KEYS } from '../src/ext-api/tokens.js';
+import { call, mkUser, newKey, owner, slug, startApp, stopApp, type Actor } from './ext-harness.js';
 
-// Integration over real HTTP (Nest app, real guards) against real Postgres with row-level security.
-const cfg = loadConfig();
-const extCfg = { ...loadExtConfig({}), EXT_API_RATE_PER_MINUTE: 1000 };
-const adminUrl = process.env.MIGRATE_DATABASE_URL;
-if (!adminUrl) throw new Error('MIGRATE_DATABASE_URL is required for tests');
-const pool = new Pool({ connectionString: cfg.DATABASE_URL, max: 8 });
-const owner = new Pool({ connectionString: adminUrl, max: 2 });
-const sfx = Math.random().toString(36).slice(2, 8);
-const slugs = { a: `ext-a-${sfx}`, b: `ext-b-${sfx}`, many: `ext-m-${sfx}` };
-
-const fakeVerifier = async (token: string): Promise<Identity> => {
-  try {
-    return JSON.parse(Buffer.from(token, 'base64url').toString('utf8')) as Identity;
-  } catch {
-    throw new Error('bad token');
-  }
-};
-
-@Controller('v1/ext-probe')
-@UseGuards(ApiKeyGuard)
-class ProbeController {
-  @Get('read')
-  @Scope('meetings:read')
-  read(@Req() req: { apiOrg: ApiPrincipal }) {
-    return { orgId: req.apiOrg.orgId, keyId: req.apiOrg.keyId };
-  }
-  @Get('write')
-  @Scope('meetings:write')
-  write(@Req() req: { apiOrg: ApiPrincipal }) {
-    return { orgId: req.apiOrg.orgId };
-  }
-  @Get('unscoped')
-  unscoped() {
-    return { reached: true };
-  }
-}
-
-@Module({
-  controllers: [KeysController, ProbeController],
-  providers: [
-    { provide: POOL, useValue: pool },
-    { provide: VERIFIER, useValue: fakeVerifier },
-    { provide: EXT_CONFIG, useValue: extCfg },
-    { provide: EXT_KEYS, useFactory: () => new ApiKeysService(pool, extCfg) },
-    AuthGuard,
-    AdminGuard,
-    ApiKeyGuard,
-  ],
-})
-class TestModule {}
-
-let app: INestApplication;
-let base = '';
-
-interface Actor extends AuthedUser {
-  token: string;
-}
-async function mkUser(slug: string, sub: string, role: 'org_admin' | 'member', name = sub): Promise<Actor> {
-  const email = `${sub}@t.local`;
-  const r = await pool.query('SELECT org_id, user_id FROM provision_user($1,$2,$3,$4,$5,$6)', [slug, slug, sub, email, name, role]);
-  const identity: Identity = { sub, email, name, orgSlug: slug, role };
-  return { ...identity, orgId: r.rows[0].org_id, userId: r.rows[0].user_id, token: Buffer.from(JSON.stringify(identity)).toString('base64url') };
-}
-
-async function call(method: string, path: string, token: string | null, body?: unknown, headers: Record<string, string> = {}) {
-  const res = await fetch(`${base}${path}`, {
-    method,
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...headers },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const text = await res.text();
-  let json: any = null;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    /* empty or non-JSON body */
-  }
-  return { status: res.status, body: json, text, headers: res.headers };
-}
-
+// D1: API keys, over real HTTP against real Postgres (row-level security).
+const slugs = { a: slug('a'), b: slug('b'), many: slug('many') };
 let adminA: Actor, memberA: Actor, adminB: Actor;
-async function newKey(admin: Actor, scopes: string[], name = 'k') {
-  const r = await call('POST', '/v1/admin/api-keys', admin.token, { name, scopes });
-  expect(r.status, r.text).toBe(201);
-  return r.body as { id: string; prefix: string; secret: string; scopes: string[] };
-}
 
 beforeAll(async () => {
-  app = await NestFactory.create(TestModule, { logger: false });
-  await app.listen(0, '127.0.0.1');
-  base = `http://127.0.0.1:${(app.getHttpServer().address() as { port: number }).port}`;
-  adminA = await mkUser(slugs.a, `exta-${sfx}`, 'org_admin', 'Admin A');
-  memberA = await mkUser(slugs.a, `extm-${sfx}`, 'member', 'Member A');
-  adminB = await mkUser(slugs.b, `extb-${sfx}`, 'org_admin', 'Admin B');
+  await startApp();
+  adminA = await mkUser(slugs.a, `a-admin`, 'org_admin', 'Admin A');
+  memberA = await mkUser(slugs.a, `a-member`, 'member', 'Member A');
+  adminB = await mkUser(slugs.b, `b-admin`, 'org_admin', 'Admin B');
 });
-afterAll(async () => {
-  await app.close();
-  await owner.query('DELETE FROM organizations WHERE slug = ANY($1)', [Object.values(slugs)]);
-  await owner.end();
-  await pool.end();
-});
+afterAll(stopApp);
 
 describe('D1 api keys: management', () => {
   it('only an org admin can manage keys (member 403, anonymous 401)', async () => {
@@ -171,7 +69,7 @@ describe('D1 api keys: management', () => {
   });
 
   it('refuses more than 20 active keys per organization (revoked ones do not count)', async () => {
-    const admin = await mkUser(slugs.many, `extmany-${sfx}`, 'org_admin');
+    const admin = await mkUser(slugs.many, `many-admin`, 'org_admin');
     const ids: string[] = [];
     for (let i = 0; i < 20; i++) ids.push((await newKey(admin, ['users:read'], `k${i}`)).id);
     const over = await call('POST', '/v1/admin/api-keys', admin.token, { name: 'over', scopes: ['users:read'] });
@@ -183,7 +81,7 @@ describe('D1 api keys: management', () => {
   it('writes audit rows for create and revoke (without the secret)', async () => {
     const k = await newKey(adminA, ['meetings:read'], 'audited');
     expect((await call('DELETE', `/v1/admin/api-keys/${k.id}`, adminA.token)).status).toBe(204);
-    const r = await owner.query("SELECT action, target FROM audit_log WHERE org_id = $1 AND target LIKE $2 ORDER BY id", [adminA.orgId, `%${k.prefix}%`]);
+    const r = await owner.query('SELECT action, target FROM audit_log WHERE org_id = $1 AND target LIKE $2 ORDER BY id', [adminA.orgId, `%${k.prefix}%`]);
     expect(r.rows.map((x) => x.action)).toEqual(['api_key.create', 'api_key.revoke']);
     expect(JSON.stringify(r.rows)).not.toContain(k.secret.slice(13));
   });
@@ -205,6 +103,16 @@ describe('D1 api keys: authentication and scopes', () => {
     expect((await call('DELETE', `/v1/admin/api-keys/${k.id}`, adminA.token)).status).toBe(204);
     expect((await call('GET', '/v1/ext-probe/read', k.secret)).status).toBe(401);
     expect((await call('DELETE', `/v1/admin/api-keys/${k.id}`, adminA.token)).status).toBe(404); // already revoked
+  });
+
+  it('a key stops working when the user who owns it is disabled, and works again when re-enabled', async () => {
+    const owner2 = await mkUser(slugs.a, 'a-owner2', 'org_admin', 'Owner 2');
+    const k = await newKey(owner2, ['meetings:read']);
+    expect((await call('GET', '/v1/ext-probe/read', k.secret)).status).toBe(200);
+    await owner.query('UPDATE users SET disabled = true WHERE id = $1', [owner2.userId]);
+    expect((await call('GET', '/v1/ext-probe/read', k.secret)).status).toBe(401);
+    await owner.query('UPDATE users SET disabled = false WHERE id = $1', [owner2.userId]);
+    expect((await call('GET', '/v1/ext-probe/read', k.secret)).status).toBe(200);
   });
 
   it('a missing scope is 403; an unscoped handler is denied by default', async () => {

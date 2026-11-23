@@ -118,8 +118,9 @@ GRANT SELECT, INSERT ON webhook_deliveries TO davra_app; -- state changes only t
 CREATE FUNCTION api_key_lookup(p_prefix text)
 RETURNS TABLE (key_id uuid, org_id uuid, secret_hash bytea, scopes text[], revoked boolean, created_by uuid)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
-  SELECT k.id, k.org_id, k.secret_hash, k.scopes, k.revoked_at IS NOT NULL, k.created_by
-    FROM api_keys k WHERE k.prefix = p_prefix
+  -- A key stops working when it is revoked or when the user who owns it is disabled (offboarding).
+  SELECT k.id, k.org_id, k.secret_hash, k.scopes, (k.revoked_at IS NOT NULL OR u.disabled), k.created_by
+    FROM api_keys k JOIN users u ON u.id = k.created_by WHERE k.prefix = p_prefix
 $$;
 
 -- last_used_at is touched at most once a minute per key, so authentication does not turn into a write per request.
