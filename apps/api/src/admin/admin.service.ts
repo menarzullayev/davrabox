@@ -110,7 +110,7 @@ export class AdminService {
 
   /** Serializes seat-affecting changes of one organization, then fails with 409 when no seat is left. */
   private async assertSeatFree(c: PoolClient, orgId: string): Promise<void> {
-    await c.query('SELECT 1 FROM organizations WHERE id = $1 FOR UPDATE', [orgId]);
+    await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [`seats:${orgId}`]);
     const lim = await c.query('SELECT seats_limit FROM org_licenses');
     const limit = lim.rows[0]?.seats_limit as number | null | undefined;
     if (limit === null || limit === undefined) return;

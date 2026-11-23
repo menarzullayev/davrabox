@@ -74,8 +74,9 @@ BEGIN
     FROM users u WHERE u.org_id = v_org AND u.external_sub = p_sub;
 
   IF v_user IS NULL THEN
-    -- New user: serialize concurrent first logins of one organization on its row, then enforce the seat limit.
-    PERFORM 1 FROM organizations o WHERE o.id = v_org FOR UPDATE;
+    -- New user: serialize with every other seat-affecting change of this organization (the admin API takes the same
+    -- advisory lock), then enforce the seat limit.
+    PERFORM pg_advisory_xact_lock(hashtextextended('seats:' || v_org::text, 0));
     SELECT l.seats_limit INTO v_limit FROM org_licenses l WHERE l.org_id = v_org;
     IF v_limit IS NOT NULL THEN
       SELECT count(*) INTO v_used FROM users u WHERE u.org_id = v_org AND NOT u.disabled;
