@@ -48,13 +48,13 @@ try {
   check('noise suppression is on by default on the live microphone', initial === 'true', `state=${initial}`);
 
   await openMore();
-  await page.getByTestId('noise').click();
+  await page.locator('label:has([data-testid=noise])').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=noise]')?.getAttribute('data-state') === 'false', null, { timeout: 15000 }).catch(() => undefined);
   const off = await state();
   check('the toggle restarts the microphone with noise suppression off', off === 'false', `state=${off}`);
 
   await openMore();
-  await page.getByTestId('noise').click();
+  await page.locator('label:has([data-testid=noise])').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=noise]')?.getAttribute('data-state') === 'true', null, { timeout: 15000 }).catch(() => undefined);
   const on = await state();
   check('and back on', on === 'true', `state=${on}`);

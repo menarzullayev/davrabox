@@ -80,7 +80,7 @@ try {
 
   const before = await sharpness();
   await openMore();
-  await page.getByTestId('blur').click();
+  await page.locator('label:has([data-testid=blur])').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=blur]')?.getAttribute('data-state') === 'true', null, { timeout: 60000 });
   check('the blur toggle turns on (model and WASM loaded)', true);
   await page.waitForTimeout(2500);
@@ -95,7 +95,7 @@ try {
   check('no Content-Security-Policy violation in the console', consoleErrors.length === 0, consoleErrors[0] ?? '');
 
   await openMore();
-  await page.getByTestId('blur').click();
+  await page.locator('label:has([data-testid=blur])').click();
   await page.waitForFunction(() => document.querySelector('[data-testid=blur]')?.getAttribute('data-state') === 'false', null, { timeout: 20000 });
   await page.waitForTimeout(1500);
   const restored = await sharpness();

@@ -179,3 +179,9 @@ The user decided that phase 1 is closed with these items left open because none 
 
 Phase 1 verdict: the software and local-infrastructure items of phase 1 are done and evidenced (including mandatory admin 2FA); the gate ("code reaches staging automatically") is PASSED on a local kind staging with ArgoCD and GHCR images (evidence above); an independent staging environment is still a held item.
 Next: phase 2 (video core): TURN + TLS 443, waiting room, host controls, chat, noise suppression/blur, desktop app, 50-participant load test.
+
+## Redesign wave 1 merged (home + call + design system) — 2026-11-23
+- Merged home and call agent branches into main (502352b); web unit 482 passed, build and `pnpm audit` clean.
+- Full real e2e against the redesigned UI: call, totp, admin2fa, passkey, hostcontrols, chat, noise, layout, blur, logini18n, cohost, files, turn, desktop, sso — all PASSED on the local stack (Edge via Playwright; desktop = Electron against the tunnel host).
+- Fixes found by e2e: the switch input is visually hidden, so noise/blur e2e now click its label; a stale local `packages/design-tokens/dist/tokens.css` (after a power cut) lacked z-index tokens and the More popover rendered under the stage video — rebuilt (`pnpm --filter @davrabox/design-tokens build`; Docker/CI always rebuild it).
+- Still untested for the redesign: Safari, Firefox, real touch devices, Davra with many real video streams. Admin console not yet restyled; critic agent (stage 3) not run.
