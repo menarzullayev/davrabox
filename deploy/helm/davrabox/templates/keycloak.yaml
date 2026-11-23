@@ -40,6 +40,7 @@ spec:
             - { name: KC_DB_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: POSTGRES_PASSWORD } } }
             - { name: DEMO_USER_PASSWORD, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: DEMO_USER_PASSWORD } } }
             - { name: KC_HEALTH_ENABLED, value: "true" }
+            - { name: PUBLIC_HOST, value: {{ .Values.publicHost | quote }} }
           ports: [{ name: http, containerPort: 8080 }, { name: mgmt, containerPort: 9000 }]
           readinessProbe: { httpGet: { path: /auth/health/ready, port: mgmt }, initialDelaySeconds: 20, periodSeconds: 5, failureThreshold: 30 }
           resources: {{ toYaml .Values.keycloak.resources | nindent 12 }}

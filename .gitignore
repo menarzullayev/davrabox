@@ -21,3 +21,5 @@ dev.env
 .web.log
 .tools/
 apps/api/dist/
+# internal business plan (budget and strategy): kept locally, never published
+docs/Korporativ_*
