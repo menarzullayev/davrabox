@@ -65,7 +65,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      - uses: android-actions/setup-android@v3
+      # The ubuntu runner image ships the Android SDK; the setup action failed on 'sdkmanager tools' (run 45279337325).
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
       - uses: gradle/actions/setup-gradle@v4
       - run: pnpm install --frozen-lockfile
       - name: Sync Capacitor (writes capacitor.config.json with server.url)
