@@ -25,6 +25,11 @@ export KEYCLOAK_ADMIN_URL="http://${LAN_IP}:8180/auth"
 export KEYCLOAK_ADMIN_CLIENT_SECRET="${ADMIN_API_CLIENT_SECRET:-}"
 [ -n "$KEYCLOAK_ADMIN_CLIENT_SECRET" ] || unset KEYCLOAK_ADMIN_URL KEYCLOAK_ADMIN_CLIENT_SECRET
 export S3_ENDPOINT="http://127.0.0.1:59000"
+# Recording needs the local LiveKit + Egress (a hosted LiveKit cannot reach the local MinIO), so it is off in LiveKit Cloud mode.
+if [ -z "${LIVEKIT_CLOUD_URL:-}" ]; then
+  export RECORDING_ENABLED=1
+  export RECORDING_S3_ENDPOINT="http://minio:9000"
+fi
 export CLAMAV_HOST="127.0.0.1"
 export CLAMAV_PORT="53310"
 unset _root

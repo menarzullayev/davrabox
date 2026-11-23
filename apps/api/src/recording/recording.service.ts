@@ -243,14 +243,15 @@ export class RecordingService {
 
   // --- finishing a recording -------------------------------------------------------------------------------------
 
-  /** Settles one recording now and waits while another caller is processing it. For tests and for download/list. */
-  async settleNow(orgId: string, id: string): Promise<string> {
-    for (let i = 0; i < 250; i++) {
+  /** Drives one recording until it is ready or failed (waiting while Egress finishes or another caller processes it). */
+  async settleNow(orgId: string, id: string, timeoutMs = 60_000): Promise<string> {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
       const s = await this.settle(orgId, id);
-      if (s !== 'processing') return s;
-      await sleep(20);
+      if (s === 'ready' || s === 'failed') return s;
+      if (Date.now() > deadline) throw new Error(`recording is still ${s}`);
+      await sleep(50);
     }
-    throw new Error('recording stayed in processing');
   }
 
   /** Polls a stopped recording in the background until it is ready, failed or too old. */

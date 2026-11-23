@@ -1,0 +1,11 @@
+# LiveKit Egress (meeting recording), production. Contains no secrets: the API key and secret come from the
+# LIVEKIT_API_KEY / LIVEKIT_API_SECRET environment of the egress container (docker-compose.yml), and the S3 credentials
+# are sent per recording by the API (they are the MinIO credentials the file sharing already uses).
+redis:
+  address: redis:6379
+# Signalling address of the LiveKit server as seen from the egress container (the compose network).
+ws_url: ws://livekit:7880
+health_port: 8080
+log_level: info
+# Layout templates are served from inside the egress image (default template_base, port 7980): no external request is made.
+template_port: 7980

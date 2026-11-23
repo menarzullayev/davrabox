@@ -72,6 +72,8 @@ services:
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
       LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
       S3_ENDPOINT: http://minio:9000
+      RECORDING_ENABLED: "1"
+      RECORDING_S3_ENDPOINT: http://minio:9000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       CLAMAV_HOST: clamav
@@ -154,7 +156,32 @@ services:
       - "7882:7882/udp" # all media on one UDP port
       - "3478:3478/udp" # TURN
       - "52000-52019:52000-52019/udp" # TURN relay range
+    depends_on: [redis]
     mem_limit: 2g
+
+  # Shared by LiveKit and Egress only (internal network, no persistence: it carries job messages, not data).
+  redis:
+    <<: [*restart, *logging]
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    mem_limit: 128m
+
+  # Meeting recording: headless Chrome + GStreamer, writes MP4 to the `davra-recordings` bucket in MinIO (the API creates the
+  # bucket and then encrypts the file). Room composite 720p30 needs about 4 CPUs; size the host accordingly.
+  egress:
+    <<: [*restart, *logging]
+    image: livekit/egress:v1.15.0
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      EGRESS_CONFIG_FILE: /etc/egress.yaml
+    volumes:
+      - ./egress.yaml:/etc/egress.yaml:ro
+    cap_add: [SYS_ADMIN] # Chrome sandbox
+    shm_size: 1gb
+    depends_on: [redis, livekit, minio]
+    mem_limit: 4g
+    cpus: 4
 
   minio:
     <<: [*restart, *logging]
