@@ -29,7 +29,7 @@ async function open(username, password) {
   await page.waitForSelector('.home', { timeout: 30000 });
   return { ctx, page };
 }
-const joinForm = (page) => page.locator('form').nth(1);
+const joinForm = (page) => page.locator('[data-testid=join-form]');
 async function joinByCode(page, code) {
   await joinForm(page).locator('input[inputmode=numeric]').fill(code);
   await joinForm(page).getByRole('button').click();
@@ -44,7 +44,8 @@ try {
   const userC = await open(c.username, c.password);
 
   const title = `Controls ${Date.now()}`;
-  await host.page.fill('input[placeholder]:not([type=password])', title);
+  await host.page.getByTestId('new-meeting').click();
+  await host.page.fill('[data-testid=meeting-title]', title);
   await host.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
   await host.page.waitForSelector(`li:has-text("${title}")`);
   const code = (await host.page.locator(`li:has-text("${title}") .code`).innerText()).replace(/\D/g, '');

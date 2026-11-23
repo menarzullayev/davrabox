@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
 import { ApiError, api, type JoinedResult, type Meeting } from './api';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
@@ -6,6 +6,11 @@ import { isOrgAdmin } from './admin/jwt';
 import { currentUser, freshToken, manager } from './auth';
 import { Call } from './Call';
 import { detectLang, t, type Key, type Lang } from './i18n';
+import { LoadingScreen, SignInScreen } from './home/AuthScreens';
+import { HomeScreen } from './home/HomeScreen';
+import type { NewMeetingData } from './home/NewMeetingDialog';
+import { Waiting } from './home/Waiting';
+import { applyTheme, readTheme, type ThemeChoice } from './ui';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
@@ -24,57 +29,14 @@ function errorKey(e: unknown): Key {
   return 'errGeneric';
 }
 
-function Waiting({ lang, code, requestId, onAdmitted, onFailed, onCancel }: {
-  lang: Lang;
-  code: string;
-  requestId: string;
-  onAdmitted: (j: JoinedResult) => void;
-  onFailed: (e: unknown) => void;
-  onCancel: () => void;
-}) {
-  const done = useRef(false);
-  useEffect(() => {
-    done.current = false;
-    const tick = async () => {
-      if (done.current) return;
-      try {
-        const r = await api.requestStatus(await freshToken(), code, requestId);
-        if (r.status === 'joined' && !done.current) {
-          done.current = true;
-          onAdmitted(r);
-        }
-      } catch (e) {
-        if (e instanceof ApiError && !done.current) {
-          done.current = true;
-          onFailed(e);
-        }
-      }
-    };
-    void tick();
-    const id = setInterval(tick, 2000);
-    return () => {
-      done.current = true;
-      clearInterval(id);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, requestId]);
-  return (
-    <main className="center" data-testid="waiting">
-      <h1>{t(lang, 'waitingTitle')}</h1>
-      <p className="muted">{t(lang, 'waitingHint')}</p>
-      <button onClick={onCancel}>{t(lang, 'cancel')}</button>
-    </main>
-  );
-}
+const THEME_COLOR: Record<ThemeChoice, string> = { dark: '#0a0d21', light: '#f4f5fb' };
 
 export function App() {
   const [lang, setLang] = useState<Lang>(detectLang);
+  const [theme, setThemeState] = useState<ThemeChoice>(readTheme);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [title, setTitle] = useState('');
-  const [newPass, setNewPass] = useState('');
-  const [waitingRoom, setWaitingRoom] = useState(true);
+  const [meetings, setMeetings] = useState<Meeting[] | null>(null);
   const [relayMode, setRelayMode] = useState(() => {
     try {
       return localStorage.getItem('relayMode') === '1';
@@ -84,7 +46,7 @@ export function App() {
   });
   // A meeting link (?join=<code>, e.g. from the desktop deep link davrabox://join/<code>) pre-fills the code field and
   // survives the sign-in redirect through sessionStorage. Only well-formed codes are accepted.
-  const [code, setCode] = useState(() => {
+  const [pendingCode, setPendingCode] = useState(() => {
     try {
       const q = new URLSearchParams(location.search).get('join');
       if (q && /^[0-9]{11,12}$/.test(q)) {
@@ -96,7 +58,6 @@ export function App() {
       return '';
     }
   });
-  const [pass, setPass] = useState('');
   const [err, setErr] = useState<Key | null>(null);
   const [joined, setJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
   const [waiting, setWaiting] = useState<{ code: string; requestId: string } | null>(null);
@@ -126,11 +87,20 @@ export function App() {
     try {
       setMeetings(await api.list(token));
     } catch {
+      setMeetings((m) => m ?? []);
       setErr('errGeneric');
     }
   }, [token]);
   useEffect(() => {
     void refresh();
+  }, [refresh]);
+  // The timeline goes stale while the tab is in the background: reload when the user comes back.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void refresh();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [refresh]);
 
   const changeLang = (l: Lang) => {
@@ -138,6 +108,21 @@ export function App() {
     document.documentElement.lang = l;
     try {
       localStorage.setItem('lang', l);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const changeTheme = (v: ThemeChoice) => {
+    setThemeState(v);
+    applyTheme(v);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[v]);
+  };
+
+  const changeRelay = (v: boolean) => {
+    setRelayMode(v);
+    try {
+      localStorage.setItem('relayMode', v ? '1' : '0');
     } catch {
       /* ignore */
     }
@@ -153,6 +138,7 @@ export function App() {
       } catch {
         /* ignore */
       }
+      setPendingCode('');
       if (res.status === 'joined') setJoined({ result: res, code: clean });
       else setWaiting({ code: clean, requestId: res.requestId });
     } catch (e) {
@@ -160,19 +146,14 @@ export function App() {
     }
   };
 
-  const doCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doCreate = async (d: NewMeetingData): Promise<Meeting> => {
     setErr(null);
-    try {
-      await api.create(token, { title, passcode: newPass || undefined, waitingRoom });
-      setTitle('');
-      setNewPass('');
-      await refresh();
-    } catch {
-      setErr('errGeneric');
-    }
+    const m = await api.create(token, { title: d.title, passcode: d.passcode, waitingRoom: d.waitingRoom });
+    await refresh();
+    return m;
   };
 
+  // Plain language picker, kept for the admin console header (it receives it as a prop).
   const langPicker = (
     <select aria-label={t(lang, 'lang')} value={lang} onChange={(e) => changeLang(e.target.value as Lang)}>
       <option value="uz">O‘zbekcha</option>
@@ -181,23 +162,20 @@ export function App() {
     </select>
   );
 
-  if (loading) return <main className="center">{t(lang, 'signingIn')}</main>;
+  if (loading) return <LoadingScreen lang={lang} />;
 
   if (!user) {
     return (
-      <main className="center">
-        <h1>{t(lang, 'appName')}</h1>
-        <button
-          className="primary"
-          onClick={() => {
-            rememberReturnPath(location.pathname);
-            void manager.signinRedirect();
-          }}
-        >
-          {t(lang, 'signIn')}
-        </button>
-        {langPicker}
-      </main>
+      <SignInScreen
+        lang={lang}
+        onLang={changeLang}
+        theme={theme}
+        onTheme={changeTheme}
+        onSignIn={() => {
+          rememberReturnPath(location.pathname);
+          void manager.signinRedirect();
+        }}
+      />
     );
   }
 
@@ -244,68 +222,22 @@ export function App() {
   }
 
   return (
-    <main className="home">
-      <header className="topbar">
-        <h1>{t(lang, 'appName')}</h1>
-        <span className="who">{user.profile.name ?? user.profile.email}</span>
-        <label className="check" title={t(lang, 'relayHint')}>
-          <input
-            type="checkbox"
-            checked={relayMode}
-            data-testid="relay-mode"
-            onChange={(e) => {
-              setRelayMode(e.target.checked);
-              try {
-                localStorage.setItem('relayMode', e.target.checked ? '1' : '0');
-              } catch {
-                /* ignore */
-              }
-            }}
-          />{' '}
-          {t(lang, 'relayMode')}
-        </label>
-        {isOrgAdmin(token) && <a href="/admin" className="btn-link" data-testid="admin-link">{t(lang, 'admLink')}</a>}
-        {langPicker}
-        <button onClick={() => manager.signoutRedirect()}>{t(lang, 'signOut')}</button>
-      </header>
-      {err && <div className="error" role="alert">{t(lang, err)}</div>}
-
-      <section>
-        <h2>{t(lang, 'newMeeting')}</h2>
-        <form onSubmit={doCreate} className="row">
-          <input required maxLength={200} placeholder={t(lang, 'title')} value={title} onChange={(e) => setTitle(e.target.value)} />
-          <input type="password" minLength={6} maxLength={64} autoComplete="new-password" placeholder={t(lang, 'passcode')} value={newPass} onChange={(e) => setNewPass(e.target.value)} />
-          <label className="check">
-            <input type="checkbox" checked={waitingRoom} onChange={(e) => setWaitingRoom(e.target.checked)} data-testid="waiting-room" /> {t(lang, 'waitingRoom')}
-          </label>
-          <button className="primary" type="submit">{t(lang, 'create')}</button>
-        </form>
-      </section>
-
-      <section>
-        <h2>{t(lang, 'joinByCode')}</h2>
-        <form onSubmit={(e) => { e.preventDefault(); void doJoin(code, pass); }} className="row">
-          <input required inputMode="numeric" pattern="[0-9 ]{11,14}" placeholder={t(lang, 'code')} value={code} onChange={(e) => setCode(e.target.value)} />
-          <input type="password" autoComplete="off" placeholder={t(lang, 'passcodeRequired')} value={pass} onChange={(e) => setPass(e.target.value)} />
-          <button type="submit">{t(lang, 'join')}</button>
-        </form>
-      </section>
-
-      <section>
-        <h2>{t(lang, 'meetings')}</h2>
-        {meetings.length === 0 && <p className="muted">{t(lang, 'noMeetings')}</p>}
-        <ul className="list">
-          {meetings.map((m) => (
-            <li key={m.id}>
-              <div>
-                <strong>{m.title}</strong>
-                <div className="muted code">{m.code.replace(/(\d{3})(\d{4})(\d+)/, '$1 $2 $3')}{m.has_passcode ? ' 🔒' : ''}</div>
-              </div>
-              <button className="primary" onClick={() => void (m.has_passcode && !m.is_host ? (setCode(m.code), undefined) : doJoin(m.code))}>{t(lang, 'join')}</button>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </main>
+    <HomeScreen
+      lang={lang}
+      onLang={changeLang}
+      theme={theme}
+      onTheme={changeTheme}
+      relayMode={relayMode}
+      onRelayMode={changeRelay}
+      profile={user.profile}
+      isAdmin={isOrgAdmin(token)}
+      meetings={meetings}
+      error={err}
+      onDismissError={() => setErr(null)}
+      initialCode={pendingCode}
+      onJoin={doJoin}
+      onCreate={doCreate}
+      onSignOut={() => void manager.signoutRedirect()}
+    />
   );
 }

@@ -30,7 +30,7 @@ async function open(username, password) {
   return { ctx, page };
 }
 const joinByCode = async (page, code, pass) => {
-  const form = page.locator('form').nth(1);
+  const form = page.locator('[data-testid=join-form]');
   await form.locator('input[inputmode=numeric]').fill(code);
   if (pass) await form.locator('input[type=password]').fill(pass);
   await form.getByRole('button').click();
@@ -46,7 +46,8 @@ try {
   const ps = await open(stranger.username, stranger.password);
 
   const title = `Files ${Date.now()}`;
-  await host.page.fill('input[placeholder]:not([type=password])', title);
+  await host.page.getByTestId('new-meeting').click();
+  await host.page.fill('[data-testid=meeting-title]', title);
   await host.page.locator('input[type=password][minlength]').fill('files-pass-1');
   await host.page.getByTestId('waiting-room').uncheck();
   await host.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();

@@ -25,3 +25,4 @@ apps/api/dist/
 docs/Korporativ_*
 .tunnel.log
 .claude/
+apps/web/dist-lab/
