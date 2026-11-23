@@ -13,6 +13,7 @@ spike/
 node_modules/
 dist/
 build/
+!apps/desktop/build/
 coverage/
 .DS_Store
 dev.env
