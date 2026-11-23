@@ -1,5 +1,5 @@
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState, type FormEvent } from 'react';
-import { Button, IconCheckCircle, TextField } from '../ui';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type FormEvent } from 'react';
+import { Button, Checkbox, IconCheckCircle, TextField } from '../ui';
 import type { Lang } from '../i18n';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { formatCode, parseJoinInput, type JoinInvalidReason } from './logic';
@@ -14,6 +14,8 @@ export interface JoinCardProps {
   lang: Lang;
   initialCode?: string;
   onJoin: (code: string, passcode?: string) => Promise<void>;
+  /** The server answered that a passcode is required or wrong: the field is shown (and focused) without being asked for. */
+  passcodeNeeded?: boolean;
 }
 
 const REASON_KEY = { notCode: 'hJoinErrNotCode', tooLong: 'hJoinErrTooLong', noCodeInLink: 'hJoinErrNoCode' } as const satisfies Record<JoinInvalidReason, string>;
@@ -22,7 +24,7 @@ const REASON_KEY = { notCode: 'hJoinErrNotCode', tooLong: 'hJoinErrTooLong', noC
  * The primary area of the home screen: join by code or by pasted link, with instant validation.
  * The form keeps exactly one button and one numeric input (apps/e2e drives it by `form[data-testid=join-form]`).
  */
-export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinCard({ lang, initialCode = '', onJoin }, ref) {
+export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinCard({ lang, initialCode = '', onJoin, passcodeNeeded = false }, ref) {
   const [value, setValue] = useState(() => (initialCode ? formatCode(initialCode) : ''));
   const [pass, setPass] = useState('');
   const [touched, setTouched] = useState(false);
@@ -30,7 +32,21 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
   const [fromLink, setFromLink] = useState(false);
   const [passNote, setPassNote] = useState(false);
   const [busy, setBusy] = useState(false);
+  // The passcode field is rare (only protected meetings), so it stays hidden until asked for or required (critic D-13).
+  const [passOpen, setPassOpen] = useState(false);
+  const [focusPass, setFocusPass] = useState(0);
+  const showPass = passOpen;
   const passRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focusPass > 0) passRef.current?.focus();
+  }, [focusPass]);
+  useEffect(() => {
+    if (passcodeNeeded) {
+      setPassOpen(true);
+      setFocusPass((n) => n + 1);
+    }
+  }, [passcodeNeeded]);
 
   useImperativeHandle(ref, () => ({
     askPasscode: (code) => {
@@ -38,7 +54,8 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
       setFromLink(false);
       setPassNote(true);
       setTouched(true);
-      requestAnimationFrame(() => passRef.current?.focus());
+      setPassOpen(true);
+      setFocusPass((n) => n + 1);
     },
   }));
 
@@ -80,7 +97,7 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
     if (parsed.status !== 'valid' || busy) return;
     setBusy(true);
     try {
-      await onJoin(parsed.code, pass || undefined);
+      await onJoin(parsed.code, showPass && pass ? pass : undefined);
     } finally {
       setBusy(false);
     }
@@ -108,16 +125,29 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
           hint={hint}
           error={errorText}
         />
-        <TextField
-          ref={passRef}
-          label={tx(lang, 'passcodeRequired')}
-          optionalText={tx(lang, 'uiOptional')}
-          type="password"
-          autoComplete="off"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          hint={passNote ? tx(lang, 'hPasscodeNeeded') : tx(lang, 'hPasscodeHint')}
-        />
+        <div className="hm-join__pass">
+          {/* A checkbox, not a button: the form keeps exactly one button (Join), which the e2e suite clicks by role. */}
+          <Checkbox
+            label={tx(lang, 'hHavePasscode')}
+            checked={showPass}
+            data-testid="join-passcode-toggle"
+            onChange={(e) => {
+              setPassOpen(e.target.checked);
+              if (e.target.checked) setFocusPass((n) => n + 1);
+            }}
+          />
+        </div>
+        {showPass ? (
+          <TextField
+            ref={passRef}
+            label={tx(lang, 'passcodeRequired')}
+            type="password"
+            autoComplete="off"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            hint={passNote || passcodeNeeded ? tx(lang, 'hPasscodeNeeded') : tx(lang, 'hPasscodeHint')}
+          />
+        ) : null}
         <div className="hm-join__foot">
           <div className="hm-join__live" aria-live="polite">
             {okText ? (

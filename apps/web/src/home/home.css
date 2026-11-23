@@ -91,6 +91,7 @@
   .hm-join::before { content: ''; position: absolute; inset: 0 var(--space-6) auto; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), transparent 70%); }
   .hm-join__form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-5); }
   @container (min-width: 580px) { .hm-join__form { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; } }
+  .hm-join__pass { grid-column: 1 / -1; justify-self: start; margin-top: calc(-1 * var(--space-2)); }
   .hm-join__foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-4); }
   .hm-join__live { flex: 1 1 200px; min-height: 1.25rem; }
   .hm-join__ok { display: inline-flex; align-items: center; gap: 6px; color: var(--success); font-size: var(--text-sm); font-weight: var(--weight-medium); }
@@ -213,7 +214,7 @@
   /* ---- loading and waiting ------------------------------------------------------------------------------------ */
   .hm-center { box-sizing: border-box; display: grid; place-content: center; justify-items: center; gap: var(--space-4); min-height: 100vh; min-height: 100dvh; padding: var(--space-8) var(--space-4); text-align: center; }
   .hm-wait { background: radial-gradient(ellipse 70% 50% at 50% 34%, var(--accent-soft), transparent 70%); }
-  .hm-wait__title { max-width: 22ch; margin: var(--space-4) 0 0; color: var(--text); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.375rem); line-height: 1.15; font-weight: var(--weight-bold); letter-spacing: -0.02em; text-wrap: balance; }
+  .hm-wait__title { max-width: 22ch; margin: 0 0 var(--space-2); color: var(--text); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.375rem); line-height: 1.15; font-weight: var(--weight-bold); letter-spacing: -0.02em; text-wrap: balance; }
   .hm-wait__text { max-width: 46ch; margin: 0; color: var(--text-muted); font-size: var(--text-base); line-height: var(--leading-base); }
   .hm-wait__code { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; margin: var(--space-2) 0 var(--space-4); padding: var(--space-2) var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface-1); color: var(--text-muted); font-size: var(--text-sm); }
   .hm-wait__code strong { color: var(--text); font-size: var(--text-md); font-weight: var(--weight-semibold); letter-spacing: 0.06em; }

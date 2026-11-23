@@ -32,7 +32,10 @@ async function open(username, password) {
 const joinByCode = async (page, code, pass) => {
   const form = page.locator('[data-testid=join-form]');
   await form.locator('input[inputmode=numeric]').fill(code);
-  if (pass) await form.locator('input[type=password]').fill(pass);
+  if (pass) {
+    await form.locator('[data-testid=join-passcode-toggle]').check(); // the passcode field is hidden until asked for
+    await form.locator('input[type=password]').fill(pass);
+  }
   await form.getByRole('button').click();
 };
 

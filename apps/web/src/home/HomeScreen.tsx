@@ -122,7 +122,7 @@ function HomeBody(props: HomeScreenProps) {
         ) : null}
 
         <div className="hm-actions">
-          <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} />
+          <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} passcodeNeeded={props.error === 'errWrongPasscode'} />
           <section className="hm-card hm-new" aria-labelledby="hm-new-h">
             <h2 className="hm-card__title" id="hm-new-h">
               {tx(lang, 'hNewTitle')}

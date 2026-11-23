@@ -3,6 +3,7 @@
 // selector apps/e2e/*.e2e.mjs uses on these screens and proves the components still render them (the real e2e needs
 // the full stack and runs after merging).
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Meeting } from '../api';
 import { dictionaries, type Lang } from '../i18n';
@@ -124,6 +125,7 @@ describe('join by code or link', () => {
     const onJoin = vi.fn(() => new Promise<void>((r) => (finish = r)));
     render(<HomeScreen {...props({ onJoin })} />);
     fireEvent.change(codeInput(), { target: { value: '308 1234 5678' } });
+    fireEvent.click(screen.getByTestId('join-passcode-toggle'));
     fireEvent.change(joinForm().querySelector('input[type=password]')!, { target: { value: 'secret-1' } });
     fireEvent.submit(joinForm());
     fireEvent.submit(joinForm());
@@ -224,6 +226,9 @@ describe('sign-in and waiting screens', () => {
     const onCancel = vi.fn();
     render(<WaitingView lang="en" code="30812345678" onCancel={onCancel} />);
     expect(screen.getByTestId('waiting')).toBeTruthy();
+    // critic P-07: the headline comes before the status line
+    const head = screen.getByRole('heading', { level: 1 });
+    expect(head.compareDocumentPosition(screen.getByRole('status')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByRole('status').textContent).toContain('Waiting for permission');
     expect(screen.getByText('308 1234 5678')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -256,9 +261,13 @@ describe.each(['uz', 'ru', 'en'] as Lang[])('e2e selector compatibility (%s)', (
     render(<HomeScreen {...props({ lang, meetings: [...(labMeetings('few') ?? []), { id: 'e2e', code: '30099998888', title: 'e2e-title-123', waiting_room: true, locked: false, scheduled_at: null, has_passcode: false, is_host: true }] })} />);
     // waitForSelector('.home') and `.home` count === 1
     expect(document.querySelectorAll('.home')).toHaveLength(1);
-    // form[data-testid=join-form]: one numeric input, one password input, exactly one button
+    // form[data-testid=join-form]: one numeric input, exactly one button; the password input appears once the
+    // "I have a passcode" checkbox (data-testid=join-passcode-toggle) is ticked (critic D-13)
     expect(document.querySelectorAll('[data-testid=join-form]')).toHaveLength(1);
     expect(joinForm().querySelectorAll('input[inputmode=numeric]')).toHaveLength(1);
+    expect(joinForm().querySelectorAll('input[type=password]')).toHaveLength(0);
+    expect(within(joinForm()).getAllByRole('button')).toHaveLength(1);
+    fireEvent.click(within(joinForm()).getByTestId('join-passcode-toggle'));
     expect(joinForm().querySelectorAll('input[type=password]')).toHaveLength(1);
     expect(within(joinForm()).getAllByRole('button')).toHaveLength(1);
     // li:has-text(title) .code -> digits of the code only
@@ -299,5 +308,59 @@ describe.each(['uz', 'ru', 'en'] as Lang[])('e2e selector compatibility (%s)', (
   it('waiting: [data-testid=waiting]', () => {
     render(<WaitingView lang={lang} code="30812345678" onCancel={vi.fn()} />);
     expect(document.querySelectorAll('[data-testid=waiting]')).toHaveLength(1);
+  });
+});
+
+describe('join card passcode (critic D-13)', () => {
+  const passField = () => joinForm().querySelector<HTMLInputElement>('input[type=password]');
+
+  it('hides the passcode field until the user asks for it, then moves focus into it', async () => {
+    render(<HomeScreen {...props()} />);
+    expect(passField()).toBeNull();
+    const toggle = screen.getByTestId('join-passcode-toggle') as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+    fireEvent.click(toggle);
+    await act(raf);
+    expect(passField()).not.toBeNull();
+    expect(document.activeElement).toBe(passField());
+    expect(toggle.checked).toBe(true);
+    fireEvent.click(toggle);
+    expect(passField()).toBeNull();
+  });
+
+  it('shows the field when the server answered that a passcode is required or wrong', () => {
+    render(<HomeScreen {...props({ error: 'errWrongPasscode' })} />);
+    expect(passField()).not.toBeNull();
+  });
+
+  it('keeps the keyboard flow: code, passcode checkbox, Join; after ticking it: code, checkbox, passcode, Join', async () => {
+    const user = userEvent.setup();
+    render(<HomeScreen {...props()} />);
+    codeInput().focus();
+    await user.tab();
+    expect(document.activeElement).toBe(screen.getByTestId('join-passcode-toggle'));
+    await user.tab();
+    expect(document.activeElement).toBe(joinForm().querySelector('button[type=submit]'));
+    screen.getByTestId('join-passcode-toggle').focus();
+    await user.keyboard(' ');
+    await act(raf);
+    expect(document.activeElement).toBe(passField());
+    codeInput().focus();
+    await user.tab();
+    expect(document.activeElement).toBe(screen.getByTestId('join-passcode-toggle'));
+    await user.tab();
+    expect(document.activeElement).toBe(passField());
+    await user.tab();
+    expect(document.activeElement).toBe(joinForm().querySelector('button[type=submit]'));
+  });
+
+  it('joins without a passcode when none was asked for', async () => {
+    const onJoin = vi.fn(async () => undefined);
+    render(<HomeScreen {...props({ onJoin })} />);
+    fireEvent.change(codeInput(), { target: { value: '308 1234 5678' } });
+    await act(async () => {
+      fireEvent.submit(joinForm());
+    });
+    expect(onJoin).toHaveBeenCalledWith('30812345678', undefined);
   });
 });

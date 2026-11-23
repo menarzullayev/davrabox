@@ -18,7 +18,7 @@ const homeSource = readdirSync(here)
   .join('\n');
 
 /** Test ids that belong to the screens owned by src/home (the call screen has its own). */
-const HOME_IDS = ['join-form', 'new-meeting', 'meeting-title', 'waiting-room', 'settings', 'relay-mode', 'waiting'];
+const HOME_IDS = ['join-form', 'new-meeting', 'meeting-title', 'waiting-room', 'settings', 'relay-mode', 'waiting', 'join-passcode-toggle'];
 
 describe('e2e selectors on the home screens', () => {
   it('lists the home test ids the suite uses, and each one is rendered by a home component', () => {
@@ -29,7 +29,7 @@ describe('e2e selectors on the home screens', () => {
         if (HOME_IDS.includes(id)) used.add(id);
       }
     }
-    expect([...used].sort()).toEqual(['join-form', 'meeting-title', 'new-meeting', 'relay-mode', 'settings', 'waiting', 'waiting-room']);
+    expect([...used].sort()).toEqual(['join-form', 'join-passcode-toggle', 'meeting-title', 'new-meeting', 'relay-mode', 'settings', 'waiting', 'waiting-room']);
     for (const id of used) expect(homeSource, `data-testid="${id}" is rendered by src/home`).toContain(`data-testid="${id}"`);
   });
 
