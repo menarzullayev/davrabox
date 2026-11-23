@@ -1,0 +1,4212 @@
+[
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-signin-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-signin-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-signin-dark-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-signin-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-signin-dark-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-signin-dark-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-signin-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-signin-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-signin-dark-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-signin-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "ru",
+  "file": "lab-home-signin-dark-1920-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-signin-dark-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-signin-light-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-signin-light-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-signin-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-signin-light-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-signin-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-signin-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-signin-light-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-signin-light-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-signin-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-signin-light-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1920,
+  "lang": "ru",
+  "file": "lab-home-signin-light-1920-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-signin-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-waiting-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-waiting-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-waiting-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-waiting-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-waiting-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-waiting-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-waiting-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-waiting-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-waiting-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-waiting-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-waiting-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-loading-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-loading-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-loading-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-loading-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-loading-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-loading-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-loading-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-loading-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-loading-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-loading-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "loading",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-loading-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [
+    "h1.dx-sr-only \"DavraBox\" scrollW 104 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-few-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-few-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-few-dark-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-few-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-few-dark-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-few-dark-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-few-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-few-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-few-dark-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-few-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "ru",
+  "file": "lab-home-home-few-dark-1920-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-few-dark-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-few-light-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-few-light-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-few-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-few-light-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-few-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-few-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-few-light-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-few-light-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-few-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-few-light-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1920,
+  "lang": "ru",
+  "file": "lab-home-home-few-light-1920-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-few-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-many-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-many-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Xavfsizlik auditi\" 50x32",
+    "button.dx-btn \"Join: Retrospektiva\" 50x32",
+    "button.dx-btn \"Join: Oylik hisobot\" 50x32",
+    "button.dx-btn \"Join: Yangi xodimlar bil\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Jamoa qahvasi\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-many-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Jamoa qahvas\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Texnik suhba\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Dizayn tahli\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Kechagi yig‘\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Byudjet muho\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-many-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Xavfsizlik auditi\" 50x32",
+    "button.dx-btn \"Join: Retrospektiva\" 50x32",
+    "button.dx-btn \"Join: Oylik hisobot\" 50x32",
+    "button.dx-btn \"Join: Yangi xodimlar bil\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Jamoa qahvasi\" 50x32",
+    "button.dx-btn \"Join: Texnik suhbat\" 50x32",
+    "button.dx-btn \"Join: Dizayn tahlili\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn \"Join: Kechagi yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Byudjet muhokamasi\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-many-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Jamoa qahvas\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Texnik suhba\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Dizayn tahli\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Kechagi yig‘\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Byudjet muho\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-many-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Xavfsizlik auditi\" 50x32",
+    "button.dx-btn \"Join: Retrospektiva\" 50x32",
+    "button.dx-btn \"Join: Oylik hisobot\" 50x32",
+    "button.dx-btn \"Join: Yangi xodimlar bil\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Jamoa qahvasi\" 50x32",
+    "button.dx-btn \"Join: Texnik suhbat\" 50x32",
+    "button.dx-btn \"Join: Dizayn tahlili\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn \"Join: Kechagi yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Byudjet muhokamasi\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-many-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Jamoa qahvas\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Texnik suhba\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Dizayn tahli\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Kechagi yig‘\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Byudjet muho\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-many-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Xavfsizlik auditi\" 50x32",
+    "button.dx-btn \"Join: Retrospektiva\" 50x32",
+    "button.dx-btn \"Join: Oylik hisobot\" 50x32",
+    "button.dx-btn \"Join: Yangi xodimlar bil\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Jamoa qahvasi\" 50x32",
+    "button.dx-btn \"Join: Texnik suhbat\" 50x32",
+    "button.dx-btn \"Join: Dizayn tahlili\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn \"Join: Kechagi yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Byudjet muhokamasi\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-many-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Xavfsizl\" 126x32",
+    "button.dx-btn \"Присоединиться: Retrospe\" 126x32",
+    "button.dx-btn \"Присоединиться: Oylik hi\" 126x32",
+    "button.dx-btn \"Присоединиться: Yangi xo\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-many-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Xavfsizl\" 126x32",
+    "button.dx-btn \"Присоединиться: Retrospe\" 126x32",
+    "button.dx-btn \"Присоединиться: Oylik hi\" 126x32",
+    "button.dx-btn \"Присоединиться: Yangi xo\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Jamoa qa\" 126x32",
+    "button.dx-btn \"Присоединиться: Texnik s\" 126x32",
+    "button.dx-btn \"Присоединиться: Dizayn t\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn \"Присоединиться: Kechagi \" 126x32",
+    "button.dx-btn \"Присоединиться: Byudjet \" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-many-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Xavfsizl\" 126x32",
+    "button.dx-btn \"Присоединиться: Retrospe\" 126x32",
+    "button.dx-btn \"Присоединиться: Oylik hi\" 126x32",
+    "button.dx-btn \"Присоединиться: Yangi xo\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Jamoa qa\" 126x32",
+    "button.dx-btn \"Присоединиться: Texnik s\" 126x32",
+    "button.dx-btn \"Присоединиться: Dizayn t\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn \"Присоединиться: Kechagi \" 126x32",
+    "button.dx-btn \"Присоединиться: Byudjet \" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-long-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-long-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Moliyaviy hisobotl\" 50x32",
+    "button.dx-btn \"Join: Ежеквартальный обз\" 50x32",
+    "button.dx-btn \"Join: Supercalifragilist\" 50x32",
+    "button.dx-btn \"Join: Quarterly business\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-long-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-long-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Moliyaviy hisobotl\" 50x32",
+    "button.dx-btn \"Join: Ежеквартальный обз\" 50x32",
+    "button.dx-btn \"Join: Supercalifragilist\" 50x32",
+    "button.dx-btn \"Join: Quarterly business\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-long-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-long-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Moliyaviy hisobotl\" 50x32",
+    "button.dx-btn \"Join: Ежеквартальный обз\" 50x32",
+    "button.dx-btn \"Join: Supercalifragilist\" 50x32",
+    "button.dx-btn \"Join: Quarterly business\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-long-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-long-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Moliyaviy hisobotl\" 50x32",
+    "button.dx-btn \"Join: Ежеквартальный обз\" 50x32",
+    "button.dx-btn \"Join: Supercalifragilist\" 50x32",
+    "button.dx-btn \"Join: Quarterly business\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-long-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Moliyavi\" 126x32",
+    "button.dx-btn \"Присоединиться: Ежекварт\" 126x32",
+    "button.dx-btn \"Присоединиться: Supercal\" 126x32",
+    "button.dx-btn \"Присоединиться: Quarterl\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-long-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Moliyavi\" 126x32",
+    "button.dx-btn \"Присоединиться: Ежекварт\" 126x32",
+    "button.dx-btn \"Присоединиться: Supercal\" 126x32",
+    "button.dx-btn \"Присоединиться: Quarterl\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-long-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Moliyavi\" 126x32",
+    "button.dx-btn \"Присоединиться: Ежекварт\" 126x32",
+    "button.dx-btn \"Присоединиться: Supercal\" 126x32",
+    "button.dx-btn \"Присоединиться: Quarterl\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-empty-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-empty-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Sign out\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-empty-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-empty-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Sign out\" 100x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-empty-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-empty-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-empty-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-empty-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-empty-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Выйти\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-empty-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-empty",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-empty-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button.dx-btn.hm-signout \"Выйти\" 89x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-loading-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-loading-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-loading-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-loading-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-loading-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-loading-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-loading-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-loading-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-loading-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-loading-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-loading",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-loading-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-error-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-error-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn.dx-btn--icon \"Dismiss message\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-error-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-error-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn.dx-btn--icon \"Dismiss message\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-error-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 32x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-error-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn.dx-btn--icon \"Dismiss message\" 32x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-error-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 32x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-error-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn.dx-btn--icon \"Dismiss message\" 32x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-error-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть уведомление\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-error-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть уведомление\" 32x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-error",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-error-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть уведомление\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-passcode-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-passcode-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-passcode-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-passcode-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-passcode-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-passcode-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-passcode-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-passcode-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-passcode-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-passcode-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-passcode",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-passcode-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-dialog-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-dialog-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn.dx-btn--icon \"Close\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-dialog-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-dialog-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn.dx-btn--icon \"Close\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-dialog-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 32x32",
+    "input[data-testid=meeting-title] \"\" 478x40",
+    "input.dx-input \"\" 478x40",
+    "input[data-testid=waiting-room] \"\" 40x24",
+    "button.dx-btn \"Bekor qilish\" 112x40",
+    "button.dx-btn \"Yaratish\" 88x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-dialog-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn.dx-btn--icon \"Close\" 32x32",
+    "input[data-testid=meeting-title] \"\" 478x40",
+    "input.dx-input \"\" 478x40",
+    "input[data-testid=waiting-room] \"\" 40x24",
+    "button.dx-btn \"Cancel\" 80x40",
+    "button.dx-btn \"Create\" 79x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-dialog-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 32x32",
+    "input[data-testid=meeting-title] \"\" 478x40",
+    "input.dx-input \"\" 478x40",
+    "input[data-testid=waiting-room] \"\" 40x24",
+    "button.dx-btn \"Bekor qilish\" 112x40",
+    "button.dx-btn \"Yaratish\" 88x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-dialog-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32",
+    "button.dx-btn.dx-btn--icon \"Close\" 32x32",
+    "input[data-testid=meeting-title] \"\" 478x40",
+    "input.dx-input \"\" 478x40",
+    "input[data-testid=waiting-room] \"\" 40x24",
+    "button.dx-btn \"Cancel\" 80x40",
+    "button.dx-btn \"Create\" 79x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-dialog-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-dialog-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть\" 32x32",
+    "input[data-testid=meeting-title] \"\" 478x40",
+    "input.dx-input \"\" 478x40",
+    "input[data-testid=waiting-room] \"\" 40x24",
+    "button.dx-btn \"Отмена\" 86x40",
+    "button.dx-btn \"Создать\" 91x40"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-dialog-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-settings-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-settings-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-settings-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-settings-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-settings-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Tungi\" 131x36",
+    "button.hm-seg__btn \"Kunduzgi\" 131x36",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-settings-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Dark\" 131x36",
+    "button.hm-seg__btn \"Light\" 131x36",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-settings-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Tungi\" 131x36",
+    "button.hm-seg__btn \"Kunduzgi\" 131x36",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-settings-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Dark\" 131x36",
+    "button.hm-seg__btn \"Light\" 131x36",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-settings-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-settings-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Тёмная\" 131x36",
+    "button.hm-seg__btn \"Светлая\" 131x36",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-settings-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-home-invalid-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Kod faqat raqamlardan ib\" scrollW 272 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-home-invalid-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Sign out\" 44x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Sign out\" scrollW 48 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"A code contains digits o\" scrollW 202 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-home-invalid-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"Kod faqat raqamlardan ib\" scrollW 272 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-home-invalid-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"A code contains digits o\" scrollW 202 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-home-invalid-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"Kod faqat raqamlardan ib\" scrollW 272 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-home-invalid-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"A code contains digits o\" scrollW 202 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-home-invalid-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Havolani nusxalash\" 40x40",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"Kod faqat raqamlardan ib\" scrollW 272 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-home-invalid-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "button.dx-btn.hm-signout \"Sign out\" 100x32",
+    "input.dx-input \"\" 294x40",
+    "button.dx-btn.dx-btn--icon \"Copy link\" 40x40",
+    "button.dx-btn \"Join: Haftalik yig‘ilish\" 50x32",
+    "button.dx-btn \"Join: Loyiha taqdimoti\" 50x32",
+    "button.dx-btn \"Join: Mijozlar bilan uch\" 50x32",
+    "button.dx-btn \"Join: Qisqa rejalashtiri\" 50x32",
+    "button.dx-btn \"Join: Ertalabki sinxron\" 50x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"A code contains digits o\" scrollW 202 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-home-invalid-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Код состоит только из ци\" scrollW 217 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-home-invalid-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "input.dx-input \"\" 254x40",
+    "button.dx-btn.dx-btn--icon \"Скопировать ссылку\" 40x40",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"Код состоит только из ци\" scrollW 217 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-invalid",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-home-invalid-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \"Код состоит только из ци\" scrollW 217 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 360,
+  "lang": "uz",
+  "file": "lab-home-signin-settings-dark-360-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "light",
+  "w": 360,
+  "lang": "en",
+  "file": "lab-home-signin-settings-light-360-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 768,
+  "lang": "uz",
+  "file": "lab-home-signin-settings-dark-768-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "light",
+  "w": 768,
+  "lang": "en",
+  "file": "lab-home-signin-settings-light-768-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "uz",
+  "file": "lab-home-signin-settings-dark-1280-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Tungi\" 131x36",
+    "button.hm-seg__btn \"Kunduzgi\" 131x36"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "light",
+  "w": 1280,
+  "lang": "en",
+  "file": "lab-home-signin-settings-light-1280-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Dark\" 131x36",
+    "button.hm-seg__btn \"Light\" 131x36"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 1920,
+  "lang": "uz",
+  "file": "lab-home-signin-settings-dark-1920-uz.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Sozlamalar\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Tungi\" 131x36",
+    "button.hm-seg__btn \"Kunduzgi\" 131x36"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "light",
+  "w": 1920,
+  "lang": "en",
+  "file": "lab-home-signin-settings-light-1920-en.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1920,
+   "docW": 1920,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Settings\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Dark\" 131x36",
+    "button.hm-seg__btn \"Light\" 131x36"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 360,
+  "lang": "ru",
+  "file": "lab-home-signin-settings-dark-360-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "dark",
+  "w": 1280,
+  "lang": "ru",
+  "file": "lab-home-signin-settings-dark-1280-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 1280,
+   "docW": 1280,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=settings] \"Настройки\" 40x40",
+    "select.dx-select__control \"O‘zbekchaРусскийEnglish\" 276x40",
+    "button.hm-seg__btn \"Тёмная\" 131x36",
+    "button.hm-seg__btn \"Светлая\" 131x36"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin-settings",
+  "theme": "light",
+  "w": 768,
+  "lang": "ru",
+  "file": "lab-home-signin-settings-light-768-ru.jpg",
+  "axe": [],
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ }
+]

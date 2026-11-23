@@ -1,0 +1,2080 @@
+[
+ {
+  "name": "home-few",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 83x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 44x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Chiqish\" scrollW 43 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n6",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"✋\" scrollW 16 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n8",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Sardor Ismoilov\" scrollW 86 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-speaker-n11",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Xabarni yopish\" 44x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 129 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-gallery-n9",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-chat",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button[data-testid=file-chip] \"Q3-hisobot.xlsx(179 KB)\" 203x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-people-host",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button.dx-btn.primary \"Kiritish\" 65x32",
+    "button.dx-btn \"Rad etish\" 80x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Aziz Kar\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Aziz K\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Aziz \" 44x32",
+    "button[data-testid=roster-cohost] \"Co-hostlikdan olish: Dil\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Dilnoz\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Dilno\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Jasur Ra\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Jasur \" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Jasur\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Madina Q\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Madina\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Madin\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Bobur Tu\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Bobur \" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Bobur\" 44x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"★ Co-host\" scrollW 59 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-requests",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button.dx-btn.primary \"Kiritish\" 65x32",
+    "button.dx-btn \"Rad etish\" 80x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-more",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "input[data-testid=noise] \"\" 40x24",
+    "input[data-testid=blur] \"\" 40x24"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-reactions",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-layout",
+  "w": 360,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 44x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 138 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Uchrashuvni qulflash\" scrollW 120 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Xavfsiz\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Siz)\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Xavfsizl\" 126x32",
+    "button.dx-btn \"Присоединиться: Retrospe\" 126x32",
+    "button.dx-btn \"Присоединиться: Oylik hi\" 126x32",
+    "button.dx-btn \"Присоединиться: Yangi xo\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Moliyavi\" 126x32",
+    "button.dx-btn \"Присоединиться: Ежекварт\" 126x32",
+    "button.dx-btn \"Присоединиться: Supercal\" 126x32",
+    "button.dx-btn \"Присоединиться: Quarterl\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 83x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Выйти\" 44x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [
+    "span.hm-signout__label \"Выйти\" scrollW 37 > clientW 1 (overflow:hidden, textOverflow:clip)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n6",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"✋\" scrollW 16 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n8",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Sardor Ismoilov\" scrollW 86 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-speaker-n11",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Закрыть уведомление\" 44x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 128 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Aziz Karimov\" scrollW 71 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-gallery-n9",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-chat",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button[data-testid=file-chip] \"Q3-hisobot.xlsx(179 KB)\" 203x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-people-host",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button.dx-btn.primary \"Впустить\" 80x32",
+    "button.dx-btn \"Отклонить\" 89x32",
+    "button[data-testid=roster-cohost] \"Назначить соорганизаторо\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Aziz Kar\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Aziz\" 44x32",
+    "button[data-testid=roster-cohost] \"Снять соорганизатора: Di\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Dilnoza \" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Diln\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Jasur Ra\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Jasu\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Madina Q\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Madi\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Bobur Tu\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Bobu\" 44x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"★ Соорганизатор\" scrollW 102 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-requests",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button.dx-btn.primary \"Впустить\" 80x32",
+    "button.dx-btn \"Отклонить\" 89x32"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-more",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "input[data-testid=noise] \"\" 40x24",
+    "input[data-testid=blur] \"\" 40x24"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-reactions",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-layout",
+  "w": 360,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 360,
+   "docW": 360,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 44x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "h1.dv-title \"Choraklik hisobot yig‘il\" scrollW 195 > clientW 137 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-lock__text \"Закрыть встречу\" scrollW 101 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-pill__text \"Защищено\" scrollW 62 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nodir Aliyev (Вы)\" scrollW 94 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Jasur Rahimov\" scrollW 82 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Madina Qodirova\" scrollW 95 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.label-name \"Bobur Tursunov\" scrollW 88 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Xavfsizlik a\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Retrospektiv\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Oylik hisobo\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Yangi xodiml\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Jamoa qahvas\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Texnik suhba\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Dizayn tahli\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Kechagi yig‘\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Byudjet muho\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Moliyaviy hi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ежеквартальн\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Supercalifra\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Quarterly bu\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32",
+    "button.dx-btn.dx-btn--icon \"Yopish\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Admin\" 88x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Chiqish\" 95x32",
+    "button.dx-btn \"Qo‘shilish: Haftalik yig\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Loyiha taqdi\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Mijozlar bil\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Qisqa rejala\" 82x32",
+    "button.dx-btn \"Qo‘shilish: Ertalabki si\" 82x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n6",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"✋\" scrollW 16 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n8",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 101 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-speaker-n11",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 100 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-gallery-n9",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-chat",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button[data-testid=file-chip] \"Q3-hisobot.xlsx(179 KB)\" 203x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-people-host",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button[data-testid=cohost-toggle] \"Co-hostlikdan olish\" 44x28",
+    "button.dx-btn.primary \"Kiritish\" 65x32",
+    "button.dx-btn \"Rad etish\" 80x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Aziz Kar\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Aziz K\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Aziz \" 44x32",
+    "button[data-testid=roster-cohost] \"Co-hostlikdan olish: Dil\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Dilnoz\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Dilno\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Jasur Ra\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Jasur \" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Jasur\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Madina Q\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Madina\" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Madin\" 44x32",
+    "button[data-testid=roster-cohost] \"Co-host qilish: Bobur Tu\" 44x32",
+    "button[data-testid=roster-mute] \"Ovozni o‘chirish: Bobur \" 44x32",
+    "button[data-testid=roster-remove] \"Chiqarib yuborish: Bobur\" 44x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"★ Co-host\" scrollW 59 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"(2)\" scrollW 14 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-requests",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "button.dx-btn.primary \"Kiritish\" 65x32",
+    "button.dx-btn \"Rad etish\" 80x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"(2)\" scrollW 14 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-more",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28",
+    "input[data-testid=noise] \"\" 40x24",
+    "input[data-testid=blur] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-reactions",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-layout",
+  "w": 768,
+  "lang": "uz",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Uchrashuvni qulflash\" 170x32",
+    "button[data-testid=cohost-toggle] \"Co-host qilish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Ovozni o‘chirish\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Chiqarib yuborish\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Video va ovoz shifrlan\" scrollW 370 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"a’lo\" scrollW 20 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Ulanish sifati: a’lo\" scrollW 97 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", o‘chirish\" scrollW 50 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Ekran ulashish\" scrollW 75 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Qo‘l ko‘tarish\" scrollW 69 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Reaksiya\" scrollW 47 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Chat\" scrollW 25 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Ishtirokchilar\" scrollW 67 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Ko‘rinish\" scrollW 51 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Qo‘shimcha sozlamalar\" scrollW 125 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Chiqish\" scrollW 39 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-few",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-many",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Xavfsizl\" 126x32",
+    "button.dx-btn \"Присоединиться: Retrospe\" 126x32",
+    "button.dx-btn \"Присоединиться: Oylik hi\" 126x32",
+    "button.dx-btn \"Присоединиться: Yangi xo\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Jamoa qa\" 126x32",
+    "button.dx-btn \"Присоединиться: Texnik s\" 126x32",
+    "button.dx-btn \"Присоединиться: Dizayn t\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn \"Присоединиться: Kechagi \" 126x32",
+    "button.dx-btn \"Присоединиться: Byudjet \" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-long",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Moliyavi\" 126x32",
+    "button.dx-btn \"Присоединиться: Ежекварт\" 126x32",
+    "button.dx-btn \"Присоединиться: Supercal\" 126x32",
+    "button.dx-btn \"Присоединиться: Quarterl\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "signin",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "waiting",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-dialog",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32",
+    "button.dx-btn.dx-btn--icon \"Закрыть\" 44x32",
+    "input[data-testid=waiting-room] \"\" 40x24"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "home-settings",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "a[data-testid=admin-link] \"Админ\" 91x32",
+    "input[data-testid=relay-mode] \"\" 40x24",
+    "button.dx-btn.hm-signout \"Выйти\" 89x32",
+    "button.dx-btn \"Присоединиться: Haftalik\" 126x32",
+    "button.dx-btn \"Присоединиться: Loyiha t\" 126x32",
+    "button.dx-btn \"Присоединиться: Mijozlar\" 126x32",
+    "button.dx-btn \"Присоединиться: Qisqa re\" 126x32",
+    "button.dx-btn \"Присоединиться: Ertalabk\" 126x32"
+   ],
+   "clipped": [],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n6",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"✋\" scrollW 16 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-davra-n8",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 101 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-speaker-n11",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Nilufar Abdullayeva\" scrollW 108 > clientW 100 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-gallery-n9",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-chat",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button[data-testid=file-chip] \"Q3-hisobot.xlsx(179 KB)\" 203x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-people-host",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button[data-testid=cohost-toggle] \"Снять соорганизатора\" 44x28",
+    "button.dx-btn.primary \"Впустить\" 80x32",
+    "button.dx-btn \"Отклонить\" 89x32",
+    "button[data-testid=roster-cohost] \"Назначить соорганизаторо\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Aziz Kar\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Aziz\" 44x32",
+    "button[data-testid=roster-cohost] \"Снять соорганизатора: Di\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Dilnoza \" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Diln\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Jasur Ra\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Jasu\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Madina Q\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Madi\" 44x32",
+    "button[data-testid=roster-mute] \"Выключить звук: Bobur Tu\" 44x32",
+    "button[data-testid=roster-remove] \"Удалить из встречи: Bobu\" 44x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.label-name \"Dilnoza Yusupova\" scrollW 99 > clientW 85 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"★ Соорганизатор\" scrollW 102 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"(2)\" scrollW 14 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-requests",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "button.dx-btn.primary \"Впустить\" 80x32",
+    "button.dx-btn \"Отклонить\" 89x32"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-request__name \"Nargiza Boboqulova\" scrollW 131 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-request__name \"Ravshan Sultonov\" scrollW 118 > clientW 109 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \"(2)\" scrollW 14 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-more",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28",
+    "input[data-testid=noise] \"\" 40x24",
+    "input[data-testid=blur] \"\" 40x24"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-reactions",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ },
+ {
+  "name": "call-layout",
+  "w": 768,
+  "lang": "ru",
+  "coarse": true,
+  "m": {
+   "vw": 768,
+   "docW": 768,
+   "overflowX": false,
+   "small": [
+    "button[data-testid=lock] \"Закрыть встречу\" 151x32",
+    "button[data-testid=cohost-toggle] \"Назначить соорганизаторо\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Выключить звук\" 44x28",
+    "button.dx-btn.dx-btn--icon \"Удалить из встречи\" 44x28"
+   ],
+   "clipped": [
+    "span.dx-sr-only \": Видео и звук передаютс\" scrollW 492 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"отличное\" scrollW 54 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \"Качество связи: отличное\" scrollW 149 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", выключить\" scrollW 65 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Показать экран\" scrollW 85 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Поднять руку\" scrollW 73 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Реакция\" scrollW 45 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Чат\" scrollW 19 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dv-ctl__text.dx-sr-only \"Участники\" scrollW 56 > clientW 1 (overflow:hidden, textOverflow:ellipsis)",
+    "span.dx-sr-only \", Вид\" scrollW 27 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dx-sr-only \", Дополнительные настрой\" scrollW 157 > clientW 1 (overflow:hidden, textOverflow:clip)",
+    "span.dv-ctl__text.dx-sr-only \"Выйти\" scrollW 34 > clientW 1 (overflow:hidden, textOverflow:ellipsis)"
+   ],
+   "tinyFont": []
+  }
+ }
+]
