@@ -1,0 +1,17 @@
+# secrets and local state (repo will be public)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+# spike leftovers (throwaway, contain generated passwords)
+spike/
+# dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
