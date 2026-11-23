@@ -1,0 +1,112 @@
+{
+  "realm": "davrabox",
+  "enabled": true,
+  "displayName": "DavraBox",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "maxFailureWaitSeconds": 900,
+  "passwordPolicy": "length(12) and notUsername",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "uz",
+    "ru",
+    "en"
+  ],
+  "defaultLocale": "uz",
+  "roles": {
+    "realm": [
+      {
+        "name": "org_admin",
+        "description": "Organization administrator"
+      },
+      {
+        "name": "member",
+        "description": "Regular member"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "davrabox-web",
+      "name": "DavraBox Web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "https://${PUBLIC_HOST}/*",
+        "https://davrabox.bugvector.uz/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "https://${PUBLIC_HOST}",
+        "https://davrabox.bugvector.uz"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.demo",
+      "email": "admin.demo@davrabox.local",
+      "firstName": "Admin",
+      "lastName": "Demo",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "org_admin",
+        "member"
+      ],
+      "attributes": {
+        "org_slug": [
+          "demo"
+        ]
+      }
+    },
+    {
+      "username": "user.demo",
+      "email": "user.demo@davrabox.local",
+      "firstName": "User",
+      "lastName": "Demo",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${DEMO_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "member"
+      ],
+      "attributes": {
+        "org_slug": [
+          "demo"
+        ]
+      }
+    }
+  ]
+}
