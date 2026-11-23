@@ -18,7 +18,7 @@ describe.skipIf(!enabled)('Keycloak admin (real identity provider)', () => {
   const sfx = Math.random().toString(36).slice(2, 8);
   const slug = `kc-int-${sfx}`;
   const kc = new KeycloakAdmin({
-    baseUrl: cfg.KEYCLOAK_ADMIN_URL!,
+    baseUrl: cfg.KEYCLOAK_ADMIN_URL ?? '',
     realm: cfg.KEYCLOAK_ADMIN_REALM,
     clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID,
     clientSecret: cfg.KEYCLOAK_ADMIN_CLIENT_SECRET!,
@@ -126,7 +126,7 @@ describe.skipIf(!enabled)('Keycloak admin (real identity provider)', () => {
   });
 
   it('wrong credentials surface as a 502 error without leaking the secret', async () => {
-    const bad = new KeycloakAdmin({ baseUrl: cfg.KEYCLOAK_ADMIN_URL!, realm: cfg.KEYCLOAK_ADMIN_REALM, clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID, clientSecret: 'definitely-wrong-secret' });
+    const bad = new KeycloakAdmin({ baseUrl: cfg.KEYCLOAK_ADMIN_URL ?? '', realm: cfg.KEYCLOAK_ADMIN_REALM, clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID, clientSecret: 'definitely-wrong-secret' });
     const err = await bad.deleteUser('00000000-0000-4000-8000-000000000000').catch((e) => e);
     expect(err).toBeInstanceOf(IdentityAdminError);
     expect(err.status).toBe(502);
