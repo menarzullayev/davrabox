@@ -15,7 +15,8 @@ import { Waiting } from './home/Waiting';
 import { PreJoin, readSkipPreJoin, type MediaChoice } from './home/PreJoin';
 import { createMeetingWithKey } from './e2ee/create';
 import { takeKeyFromLocation } from './e2ee/keys';
-import { LANGS, startPrefsSync, usePrefs } from './prefs';
+import { startPrefsSync, usePrefs } from './prefs';
+import { AppearanceControls } from './home/AppearanceControls';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
@@ -171,16 +172,8 @@ export function App() {
     return m;
   };
 
-  // Plain language picker, kept for the admin console header (it receives it as a prop).
-  const langPicker = (
-    <select aria-label={t(lang, 'lang')} value={lang} onChange={(e) => changeLang(e.target.value as Lang)}>
-      {LANGS.map((l) => (
-        <option key={l.id} value={l.id}>
-          {l.name}
-        </option>
-      ))}
-    </select>
-  );
+  // The admin console header shows the same appearance controls as every other screen.
+  const langPicker = <AppearanceControls lang={lang} onLang={changeLang} theme={theme} onTheme={changeTheme} />;
 
   if (loading) return <LoadingScreen lang={lang} />;
 

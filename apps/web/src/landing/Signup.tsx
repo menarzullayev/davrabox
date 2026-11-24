@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { tx } from '../home/text';
-import { SettingsMenu } from '../home/SettingsMenu';
+import { AppearanceControls } from '../home/AppearanceControls';
 import type { Key } from '../i18n';
 import { Alert, Button, Logo, Spinner, TextField } from '../ui';
 import { solveInWorker, solveWithTimeout, SolveTimeoutError, type AltchaChallenge, type Solver } from './altcha';
@@ -105,7 +105,7 @@ export default function Signup({ deps = defaultDeps }: { deps?: SignupDeps }) {
             <Logo height={30} />
           </a>
           <span className="ln-spacer" />
-          <SettingsMenu lang={lang} onLang={setLang} theme={theme} onTheme={setTheme} />
+          <AppearanceControls lang={lang} onLang={setLang} theme={theme} onTheme={setTheme} />
         </div>
       </header>
       <main className="ln-su__main" id="ln-main">

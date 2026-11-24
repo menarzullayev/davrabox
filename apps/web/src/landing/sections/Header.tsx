@@ -1,5 +1,5 @@
 import { tx } from '../../home/text';
-import { SettingsMenu } from '../../home/SettingsMenu';
+import { AppearanceControls } from '../../home/AppearanceControls';
 import type { Lang } from '../../i18n';
 import { Logo, type ThemeChoice } from '../../ui';
 import { ButtonLink } from '../ButtonLink';
@@ -26,7 +26,7 @@ export function Header({ lang, onLang, theme, onTheme }: HeaderProps) {
           <a href="#organisations">{tx(lang, 'lnNavOrgs')}</a>
         </nav>
         <span className="ln-spacer" />
-        <SettingsMenu lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
+        <AppearanceControls lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
         <ButtonLink className="ln-signin" href="/app" variant="ghost">
           {tx(lang, 'lnSignIn')}
         </ButtonLink>

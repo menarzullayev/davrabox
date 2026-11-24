@@ -259,14 +259,11 @@ describe('sign-in screen: Back navigation', () => {
 });
 
 describe('sign-in screen: accessibility names', () => {
-  it('each language button name starts with its visible text (speech control says "UZ"), and the group is named after the language', () => {
+  it('the sign-in screen has one language and appearance entry (settings panel), no separate language buttons', () => {
     signIn();
-    const group = screen.getByRole('group', { name: 'Language' });
-    const buttons = [...group.querySelectorAll('button')];
-    expect(buttons.map((b) => b.textContent)).toEqual(['UZ', 'RU', 'EN']);
-    for (const b of buttons) expect(b.getAttribute('aria-label')!.startsWith(b.textContent!)).toBe(true);
-    expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(['UZ, O‘zbekcha', 'RU, Русский', 'EN, English']);
-    expect(buttons.find((b) => b.getAttribute('aria-pressed') === 'true')!.textContent).toBe('EN');
+    expect(screen.queryByRole('group', { name: 'Language' })).toBeNull();
+    expect(screen.getByTestId('theme-toggle')).toBeTruthy();
+    expect(screen.getByTestId('settings')).toBeTruthy();
   });
 
   it('the sign-in note says what happens in three languages without repeating the button', () => {
