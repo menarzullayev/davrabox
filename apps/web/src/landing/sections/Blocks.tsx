@@ -123,7 +123,7 @@ export function ForOrganisations({ lang }: Props) {
 
 export function JoinMeeting({ lang, navigate }: Props & { navigate: (url: string) => void }) {
   return (
-    <section className="ln-section ln-join-block" aria-labelledby="ln-join-h">
+    <section className="ln-section ln-join-block" id="join" aria-labelledby="ln-join-h">
       <SectionHead id="ln-join-h" title={tx(lang, 'lnJoinTitle')} lead={tx(lang, 'lnJoinLead')} />
       <JoinForm lang={lang} navigate={navigate} testId="landing-join-section" />
     </section>

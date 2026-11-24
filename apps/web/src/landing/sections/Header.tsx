@@ -19,6 +19,8 @@ export function Header({ lang, onLang, theme, onTheme }: HeaderProps) {
           <Logo height={30} />
         </a>
         <nav className="ln-nav" aria-label={tx(lang, 'lnNavLabel')}>
+          <a href="#join">{tx(lang, 'lnNavJoin')}</a>
+          <a href="/app">{tx(lang, 'lnNavHost')}</a>
           <a href="#capabilities">{tx(lang, 'lnNavCaps')}</a>
           <a href="#security">{tx(lang, 'lnNavSecurity')}</a>
           <a href="#organisations">{tx(lang, 'lnNavOrgs')}</a>

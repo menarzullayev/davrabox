@@ -294,6 +294,13 @@ export function t(lang: Lang, key: Key): string {
 }
 
 export function detectLang(): Lang {
+  // A language URL (/?lang=ru) is what the hreflang alternates point to: it wins over the saved choice.
+  try {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (q === 'uz' || q === 'ru' || q === 'en') return q;
+  } catch {
+    /* no location (tests) */
+  }
   try {
     const saved = localStorage.getItem('lang');
     if (saved === 'uz' || saved === 'ru' || saved === 'en') return saved;
