@@ -20,6 +20,8 @@ import {
   Kbd,
   Menu,
   Select,
+  Combobox,
+  DateTimePicker,
   Skeleton,
   Spinner,
   Switch,
@@ -428,6 +430,8 @@ function ButtonsSection({ s }: { s: S }) {
 // ---- fields ---------------------------------------------------------------------------------------------------
 function FieldsSection({ lang, s }: { lang: Lang; s: S }) {
   const [code, setCode] = useState('4829051');
+  const [when, setWhen] = useState('2026-12-01T09:30');
+  const [action, setAction] = useState('');
   const [all, setAll] = useState<[boolean, boolean]>([true, false]);
   const mixed = all[0] !== all[1];
   return (
@@ -441,6 +445,8 @@ function FieldsSection({ lang, s }: { lang: Lang; s: S }) {
           <option value="ru">Русский</option>
           <option value="en">English</option>
         </Select>
+        <DateTimePicker label={s('fieldWhen')} lang={lang} value={when} onChange={(e) => setWhen(e.target.value)} data-testid="sg-when" />
+        <Combobox label={s('fieldAction')} value={action} onChange={(e) => setAction(e.target.value)} options={['auth.', 'user.', 'policy.', 'meeting.']} />
       </div>
       <div className="sg-stack">
         <Sub>{s('checkboxes')}</Sub>

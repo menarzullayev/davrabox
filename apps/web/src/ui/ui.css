@@ -176,8 +176,8 @@
   .dx-dtp { display: grid; gap: var(--space-2); padding: var(--space-2); min-width: min(22rem, 100%); }
   .dx-dtp__head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-2); }
   .dx-dtp__month { text-align: center; font-weight: var(--weight-medium); text-transform: capitalize; }
-  .dx-dtp__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); }
-  .dx-dtp__cal { display: grid; gap: var(--space-1); }
+  .dx-dtp__body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  .dx-dtp__cal { display: grid; align-content: start; gap: var(--space-1); }
   .dx-dtp__row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-1); text-align: center; }
   .dx-dtp__wd { font-size: var(--text-xs); color: var(--text-muted); text-transform: capitalize; }
   .dx-dtp__day,
@@ -202,8 +202,9 @@
   .dx-dtp__cell[aria-pressed='true'] { background: var(--accent); color: var(--text-on-accent); font-weight: var(--weight-medium); }
   .dx-dtp__day:focus-visible,
   .dx-dtp__cell:focus-visible { outline: calc(var(--border-w) * 2) solid var(--focus-ring); outline-offset: calc(var(--border-w) * -2); }
-  .dx-dtp__time { display: flex; gap: var(--space-1); }
-  .dx-dtp__col { display: grid; align-content: start; gap: var(--space-1); max-height: 15rem; overflow-y: auto; padding-inline: var(--space-1); }
+  .dx-dtp__time { display: grid; gap: var(--space-2); }
+  .dx-dtp__col { display: flex; gap: var(--space-1); overflow-x: auto; padding-bottom: var(--space-1); scroll-snap-type: x proximity; }
+  .dx-dtp__cell { flex: none; scroll-snap-align: center; }
   .dx-dtp__foot { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
   .dx-sheet .dx-dtp { min-width: 0; }
   .dx-sheet .dx-dtp__day,
@@ -639,7 +640,7 @@
   /* ---- Style hooks: variables a style may change (design tokens `look`), applied once here so no component knows about styles ---- */
   body { background-image: var(--bg-image); background-attachment: fixed; background-size: cover; }
   h1, h2, h3, .si__statement, .ln-hero__title { font-family: var(--font-heading); }
-  :where(.dx-dialog, .dx-popover, .si__card, .hm-card, .hm-row__card, .menu-list, .ln-su__card, .dv-request, .dx-toast, .dx-alert, .hm-settings) {
+  :where(.dx-dialog, .dx-popover, .dx-sheet, .si__card, .hm-card, .hm-row__card, .menu-list, .ln-su__card, .dv-request, .dx-toast, .dx-alert, .hm-settings) {
     -webkit-backdrop-filter: blur(var(--blur));
     backdrop-filter: blur(var(--blur));
     background-image: var(--sheen);

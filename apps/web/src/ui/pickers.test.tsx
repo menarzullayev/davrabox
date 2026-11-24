@@ -79,6 +79,17 @@ describe('DateTimePicker', () => {
     expect(screen.queryByTestId('dt-clear')).toBeNull();
   });
 
+  it('brings the chosen hour and minute into view when it opens', () => {
+    const seen: string[] = [];
+    Element.prototype.scrollIntoView = function (this: Element) {
+      seen.push(this.getAttribute('data-hour') ?? this.getAttribute('data-minute') ?? '');
+    };
+    render(<Dt initial="2026-12-01T14:35" />);
+    fireEvent.click(screen.getByTestId('dt'));
+    expect(seen).toEqual(['14', '35']);
+    delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
   it('opens as a bottom sheet on a narrow screen', () => {
     render(<Dt initial="2026-12-01T09:00" narrow />);
     fireEvent.click(screen.getByTestId('dt'));
