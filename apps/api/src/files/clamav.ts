@@ -25,7 +25,7 @@ export function scanBuffer(data: Buffer, host: string, port: number, timeoutMs =
     const hard = setTimeout(() => done(() => reject(new Error('clamd timeout (deadline)'))), deadlineMs);
     socket.setTimeout(timeoutMs, () => done(() => reject(new Error('clamd timeout'))));
     socket.on('error', (e) => done(() => reject(e)));
-    socket.on('data', (d) => chunks.push(d));
+    socket.on('data', (d) => chunks.push(typeof d === 'string' ? Buffer.from(d) : d));
     socket.on('end', () => {
       const answer = Buffer.concat(chunks).toString('utf8').replace(/\0/g, '').trim();
       if (/\bOK$/.test(answer)) return done(() => resolve({ clean: true }));

@@ -64,7 +64,7 @@ describe('clamd client (fake daemon)', () => {
       const got: Buffer[] = [];
       const srv = createServer((sock) => {
         sock.on('data', (d) => {
-          got.push(d);
+          got.push(typeof d === 'string' ? Buffer.from(d) : d);
           // the stream ends with four zero bytes
           if (Buffer.concat(got).subarray(-4).equals(Buffer.alloc(4))) sock.end(answer);
         });
