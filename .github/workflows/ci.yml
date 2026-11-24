@@ -61,7 +61,7 @@ jobs:
           ./helm lint deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json
           ./helm template davrabox deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json > /dev/null
       - name: Terraform fmt and validate
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.17.2
       - run: |
