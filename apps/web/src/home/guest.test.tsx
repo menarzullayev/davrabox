@@ -23,28 +23,51 @@ function signIn(over: Partial<React.ComponentProps<typeof SignInScreen>> = {}) {
 }
 const codeField = () => screen.getByLabelText(/Meeting code or link/i) as HTMLInputElement;
 
-describe('sign-in screen: guest path', () => {
-  it('shows no guest button when the host app does not support it', () => {
-    signIn({ onGuestJoin: undefined });
-    expect(screen.queryByTestId('guest-start')).toBeNull();
+describe('sign-in screen: two steps', () => {
+  const openJoin = async () => userEvent.click(screen.getByTestId('join-start'));
+
+  it('step one is short: sign in, join with a code, create an organisation; no form yet', () => {
+    signIn();
+    expect(screen.getByRole('button', { name: /^Sign in/ })).toBeTruthy();
+    expect(screen.getByTestId('join-start')).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Create an organisation/i })).toBeTruthy();
+    expect(screen.queryByLabelText(/Meeting code or link/i)).toBeNull();
+    expect(screen.queryByTestId('guest-name')).toBeNull();
   });
 
-  it('refuses to open the guest form without a valid code', async () => {
+  it('without any join handler there is no join entry at all', () => {
+    signIn({ onGuestJoin: undefined, onSignInToJoin: undefined });
+    expect(screen.queryByTestId('join-start')).toBeNull();
+  });
+
+  it('opens the join step and goes back, forgetting errors', async () => {
+    signIn();
+    await openJoin();
+    expect(codeField()).toBeTruthy();
+    expect(screen.getByTestId('guest-name')).toBeTruthy();
+    await userEvent.click(screen.getByTestId('guest-go'));
+    expect(codeField().getAttribute('aria-invalid')).toBe('true');
+    await userEvent.click(screen.getByTestId('join-back'));
+    expect(screen.getByTestId('join-start')).toBeTruthy();
+    await openJoin();
+    expect(codeField().getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('refuses to join as a guest without a valid code', async () => {
     const p = signIn();
-    await userEvent.click(screen.getByTestId('guest-start'));
-    expect(screen.queryByTestId('guest-name')).toBeNull();
-    expect(screen.getByRole('alert').textContent).toMatch(/code first/i);
+    await openJoin();
+    await userEvent.type(screen.getByTestId('guest-name'), 'Ali');
+    await userEvent.click(screen.getByTestId('guest-go'));
     expect(p.onGuestJoin).not.toHaveBeenCalled();
     await userEvent.type(codeField(), '123');
-    await userEvent.click(screen.getByTestId('guest-start'));
-    expect(screen.queryByTestId('guest-name')).toBeNull();
+    await userEvent.click(screen.getByTestId('guest-go'));
+    expect(p.onGuestJoin).not.toHaveBeenCalled();
   });
 
-  it('asks for a name; an empty or too long name is refused locally', async () => {
+  it('asks for a name; an empty or blank name is refused locally and the field is capped at 60', async () => {
     const p = signIn();
+    await openJoin();
     await userEvent.type(codeField(), '12345678901');
-    await userEvent.click(screen.getByTestId('guest-start'));
-    expect(screen.getByTestId('guest-name')).toBeTruthy();
     await userEvent.click(screen.getByTestId('guest-go'));
     expect(screen.getByRole('alert').textContent).toMatch(/Enter a name/i);
     expect(p.onGuestJoin).not.toHaveBeenCalled();
@@ -57,8 +80,8 @@ describe('sign-in screen: guest path', () => {
 
   it('joins with the clean code, the trimmed name and the optional passcode', async () => {
     const p = signIn();
+    await openJoin();
     await userEvent.type(codeField(), '123 4567 8901');
-    await userEvent.click(screen.getByTestId('guest-start'));
     await userEvent.type(screen.getByTestId('guest-name'), '  Ali   Valiyev ');
     await userEvent.type(screen.getByLabelText(/Meeting passcode/i), 'secret-1');
     await userEvent.click(screen.getByTestId('guest-go'));
@@ -73,8 +96,8 @@ describe('sign-in screen: guest path', () => {
     ] as const) {
       cleanup();
       signIn({ onGuestJoin: vi.fn(async () => Promise.reject(err)) });
+      await openJoin();
       await userEvent.type(codeField(), '12345678901');
-      await userEvent.click(screen.getByTestId('guest-start'));
       await userEvent.type(screen.getByTestId('guest-name'), 'Ali');
       await userEvent.click(screen.getByTestId('guest-go'));
       await waitFor(() => expect(screen.getByRole('alert').textContent).toMatch(text));
@@ -82,19 +105,27 @@ describe('sign-in screen: guest path', () => {
     }
   });
 
-  it('can go back to signing in with an account, and the member path still works', async () => {
+  it('"Sign in and join" keeps the code for after sign-in and never calls the guest path', async () => {
     const p = signIn();
+    await openJoin();
     await userEvent.type(codeField(), '12345678901');
-    await userEvent.click(screen.getByTestId('guest-start'));
-    await userEvent.click(screen.getByRole('button', { name: /Sign in with an account/i }));
-    expect(screen.queryByTestId('guest-name')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: /^Sign in and join$/ }));
     expect(p.onSignInToJoin).toHaveBeenCalledWith('12345678901');
     expect(p.onGuestJoin).not.toHaveBeenCalled();
   });
 
-  it('starts with the code from a meeting link, formatted', () => {
+  it('with only the account path the join form submits "Sign in and join"', async () => {
+    const p = signIn({ onGuestJoin: undefined });
+    await openJoin();
+    expect(screen.queryByTestId('guest-name')).toBeNull();
+    await userEvent.type(codeField(), '12345678901');
+    await userEvent.click(screen.getByRole('button', { name: /^Sign in and join$/ }));
+    expect(p.onSignInToJoin).toHaveBeenCalledWith('12345678901');
+  });
+
+  it('a meeting link starts on the join step with the code filled in', () => {
     signIn({ initialCode: '12345678901' });
+    expect(screen.queryByTestId('join-start')).toBeNull();
     expect(codeField().value).toBe('123 4567 8901');
   });
 });

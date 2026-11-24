@@ -72,7 +72,6 @@ try {
   const prefilled = (await g.locator('[data-testid=signin-join-form] input[inputmode=numeric]').inputValue()).replace(/\D/g, '');
   check('the meeting link pre-fills the code on the first screen', prefilled === code, prefilled);
 
-  await g.getByTestId('guest-start').click();
   await g.getByTestId('guest-go').click();
   check('an empty name is refused on the form', (await g.locator('[role=alert]').count()) >= 1 && (await g.getByTestId('guest-name').count()) === 1);
   await g.getByTestId('guest-name').fill('Guest Gulnora');
@@ -115,7 +114,6 @@ try {
   check('the removed guest is back on the first screen', true);
   await g.goto(`${BASE}/app?join=${code}`);
   await g.waitForSelector('[data-testid=signin]');
-  await g.getByTestId('guest-start').click();
   await g.getByTestId('guest-name').fill('Guest Gulnora again');
   await g.getByTestId('guest-go').click();
   await g.waitForSelector('[role=alert]', { timeout: 15000 });
@@ -127,7 +125,6 @@ try {
   const g2 = await g2ctx.newPage();
   await g2.goto(`${BASE}/app?join=${code}`);
   await g2.waitForSelector('[data-testid=signin]', { timeout: 30000 });
-  await g2.getByTestId('guest-start').click();
   await g2.getByTestId('guest-name').fill('Late Guest');
   await g2.getByTestId('guest-go').click();
   await g2.waitForSelector('[role=alert]', { timeout: 15000 });
