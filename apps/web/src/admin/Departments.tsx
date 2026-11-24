@@ -1,3 +1,4 @@
+import { Button, TextField } from '../ui';
 import { useCallback, useEffect, useState } from 'react';
 import { t } from '../i18n';
 import type { Department } from './client';
@@ -27,13 +28,11 @@ function RenameDialog({ dept, onClose, onSaved }: { dept: Department; onClose: (
   return (
     <Modal title={`${t(lang, 'admDeptRename')}: ${dept.name}`} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
-        <label>{t(lang, 'admDeptName')}
-          <input required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
+        <TextField label={t(lang, 'admDeptName')} required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} />
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'admSave')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'admSave')}</Button>
         </div>
       </form>
     </Modal>
@@ -104,7 +103,7 @@ export function Departments() {
       <h2 id="sec-depts" className="sec-title">{t(lang, 'admDepartments')}</h2>
       <form onSubmit={(e) => void create(e)} className="row toolbar">
         <input required maxLength={100} aria-label={t(lang, 'admDeptName')} placeholder={t(lang, 'admDeptName')} value={newName} onChange={(e) => setNewName(e.target.value)} />
-        <button type="submit" className="primary" disabled={creating}>{t(lang, 'admDeptCreate')}</button>
+        <Button type="submit" className="primary" variant="primary" disabled={creating}>{t(lang, 'admDeptCreate')}</Button>
       </form>
       <Status text={notice} />
       <ErrorBox text={err} />
@@ -126,8 +125,8 @@ export function Departments() {
                   <td>{d.name}</td>
                   <td>{d.userCount}</td>
                   <td className="actions">
-                    <button onClick={() => setRenaming(d)} aria-label={`${t(lang, 'admDeptRename')}: ${d.name}`}>{t(lang, 'admDeptRename')}</button>
-                    <button onClick={() => { setDelErr(null); setDeleting(d); }} aria-label={`${t(lang, 'admDeptDelete')}: ${d.name}`}>{t(lang, 'admDeptDelete')}</button>
+                    <Button onClick={() => setRenaming(d)} aria-label={`${t(lang, 'admDeptRename')}: ${d.name}`}>{t(lang, 'admDeptRename')}</Button>
+                    <Button onClick={() => { setDelErr(null); setDeleting(d); }} aria-label={`${t(lang, 'admDeptDelete')}: ${d.name}`}>{t(lang, 'admDeptDelete')}</Button>
                   </td>
                 </tr>
               ))}

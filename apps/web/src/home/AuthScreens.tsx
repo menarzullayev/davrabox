@@ -1,7 +1,7 @@
 import { LANGS } from '../prefs';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { t, type Lang } from '../i18n';
-import { Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, TextField, type ThemeChoice } from '../ui';
+import { Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, Segmented, TextField, type ThemeChoice } from '../ui';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { appUrl } from '../routes';
 import { appErrorKey } from '../errors';
@@ -123,13 +123,15 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
           <LogoMark size={30} title={t(lang, 'appName')} />
         </span>
         <div className="si__tools">
-          <div className="si__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
-            {LANGS.map((l) => (
-              <button key={l.id} type="button" lang={l.id} title={l.name} aria-label={`${l.short}, ${l.name}`} aria-pressed={lang === l.id} onClick={() => onLang(l.id)}>
-                {l.short}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            className="si__langs"
+            variant="pill"
+            mode="pressed"
+            label={t(lang, 'privLangLabel')}
+            value={lang}
+            onChange={onLang}
+            options={LANGS.map((l) => ({ id: l.id, label: l.short, ariaLabel: `${l.short}, ${l.name}`, title: l.name, lang: l.id }))}
+          />
           <SettingsMenu lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
         </div>
       </header>

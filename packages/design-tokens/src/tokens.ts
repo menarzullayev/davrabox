@@ -146,7 +146,7 @@ export const scales = {
     mono: "ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, 'Liberation Mono', monospace",
   },
   /** Minimum touch target on coarse pointers (WCAG 2.5.5 / platform guidance). */
-  target: { coarse: '44px', fine: '36px' },
+  target: { coarse: '44px', touch: '48px', fine: '36px' },
 } as const;
 
 /** Avatar colours are theme independent (initials on a hashed hue); fg/bg pairs checked in the tests. */

@@ -1,3 +1,4 @@
+import { Button, TextField, Checkbox, Select } from '../ui';
 import { useCallback, useEffect, useState } from 'react';
 import { t } from '../i18n';
 import type { Policies as PolicyData } from './client';
@@ -55,35 +56,30 @@ export function Policies() {
     <section aria-labelledby="sec-policies">
       <h2 id="sec-policies" className="sec-title">{t(lang, 'admPolicies')}</h2>
       <ErrorBox text={loadErr} />
-      {loadErr && <button onClick={() => void load()}>{t(lang, 'admRetry')}</button>}
+      {loadErr && <Button onClick={() => void load()}>{t(lang, 'admRetry')}</Button>}
       {!form && !loadErr && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {form && (
         <form onSubmit={(e) => void save(e)} className="form narrow" noValidate>
-          <label className="check"><input type="checkbox" checked={form.requirePasscode} onChange={(e) => setForm({ ...form, requirePasscode: e.target.checked })} /> {t(lang, 'admPolPasscode')}</label>
-          <label className="check"><input type="checkbox" checked={form.waitingRoomDefault} onChange={(e) => setForm({ ...form, waitingRoomDefault: e.target.checked })} /> {t(lang, 'admPolWaiting')}</label>
-          <label className="check"><input type="checkbox" checked={form.requireTotp} onChange={(e) => setForm({ ...form, requireTotp: e.target.checked })} /> {t(lang, 'admPolTotp')}</label>
-          <label>{t(lang, 'admPolGuests')}
-            <select data-testid="guest-policy" value={form.guestPolicy} onChange={(e) => setForm({ ...form, guestPolicy: e.target.value as PolicyData['guestPolicy'] })}>
+          <Checkbox label={t(lang, 'admPolPasscode')} checked={form.requirePasscode} onChange={(e) => setForm({ ...form, requirePasscode: e.target.checked })} />
+          <Checkbox label={t(lang, 'admPolWaiting')} checked={form.waitingRoomDefault} onChange={(e) => setForm({ ...form, waitingRoomDefault: e.target.checked })} />
+          <Checkbox label={t(lang, 'admPolTotp')} checked={form.requireTotp} onChange={(e) => setForm({ ...form, requireTotp: e.target.checked })} />
+          <Select label={t(lang, 'admPolGuests')} data-testid="guest-policy" value={form.guestPolicy} onChange={(e) => setForm({ ...form, guestPolicy: e.target.value as PolicyData['guestPolicy'] })}>
               <option value="off">{t(lang, 'admPolGuestsOff')}</option>
               <option value="waiting_room">{t(lang, 'admPolGuestsWait')}</option>
               <option value="open">{t(lang, 'admPolGuestsOpen')}</option>
-            </select>
-          </label>
-          <label>{t(lang, 'admPolMax')}
-            <input
+            </Select>
+          <TextField label={t(lang, 'admPolMax')}
               inputMode="numeric"
               min={MIN_PARTICIPANTS}
               max={MAX_PARTICIPANTS}
               value={form.max}
               aria-invalid={fieldErr ? true : undefined}
               aria-describedby={fieldErr ? 'max-err' : undefined}
-              onChange={(e) => setForm({ ...form, max: e.target.value })}
-            />
-          </label>
+              onChange={(e) => setForm({ ...form, max: e.target.value })} />
           {fieldErr && <div id="max-err" className="field-error" role="alert">{fieldErr}</div>}
           <ErrorBox text={saveErr} />
           <div className="row">
-            <button type="submit" className="primary" disabled={busy}>{busy ? t(lang, 'admSaving') : t(lang, 'admPolSave')}</button>
+            <Button type="submit" className="primary" variant="primary" disabled={busy}>{busy ? t(lang, 'admSaving') : t(lang, 'admPolSave')}</Button>
           </div>
         </form>
       )}

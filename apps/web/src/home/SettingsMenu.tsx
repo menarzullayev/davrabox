@@ -1,6 +1,6 @@
 import { LANGS } from '../prefs';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { IconButton, IconMoon, IconSettings, IconSun, Popover, Select, Switch, type ThemeChoice } from '../ui';
+import { IconButton, IconMoon, IconSettings, IconSun, Popover, Segmented, Select, Switch, type ThemeChoice } from '../ui';
 import { t, type Lang } from '../i18n';
 
 export interface SettingsMenuProps {
@@ -36,15 +36,6 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
     if (e.key === 'Tab') requestAnimationFrame(() => body.current && !body.current.contains(document.activeElement) && setOpen(false));
   };
 
-  const onRadioKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
-    const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
-    if (!step) return;
-    e.preventDefault();
-    const next = THEMES[(i + step + THEMES.length) % THEMES.length]!;
-    onTheme(next.id);
-    requestAnimationFrame(() => body.current?.querySelector<HTMLElement>(`[data-theme-id="${next.id}"]`)?.focus());
-  };
-
   return (
     <>
       <IconButton
@@ -65,28 +56,16 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
               </option>
             ))}
           </Select>
-          <div className="hm-settings__group" role="radiogroup" aria-labelledby="hm-theme-label">
+          <div className="hm-settings__group">
             <span className="dx-field__label" id="hm-theme-label">
               {t(lang, 'uiTheme')}
             </span>
-            <div className="hm-seg">
-              {THEMES.map(({ id, key, Icon }, i) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="radio"
-                  aria-checked={theme === id}
-                  tabIndex={theme === id ? 0 : -1}
-                  className="hm-seg__btn"
-                  data-theme-id={id}
-                  onClick={() => onTheme(id)}
-                  onKeyDown={(e) => onRadioKey(e, i)}
-                >
-                  <Icon size={18} />
-                  {t(lang, key)}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              label={t(lang, 'uiTheme')}
+              value={theme}
+              onChange={onTheme}
+              options={THEMES.map(({ id, key, Icon }) => ({ id, label: (<><Icon size={18} />{t(lang, key)}</>) }))}
+            />
           </div>
           {relay ? (
             <Switch

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { t } from '../i18n';
-import { Badge } from '../ui';
+import { Badge, Button, TextField } from '../ui';
 import type { KmsView } from './client';
 import { kmsErrorKey, kmsStatusKey, kmsStatusTone, rewrapAll, validateKmsForm, type KmsForm } from './byok-helpers';
 import { formatTimestamp } from './helpers';
@@ -45,26 +45,16 @@ function KmsDialog({ current, onClose, onSaved }: { current: KmsView | null; onC
   return (
     <Modal title={t(lang, current ? 'admEncFormTitleEdit' : 'admEncFormTitleNew')} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form" data-testid="kms-form" autoComplete="off">
-        <label>{t(lang, 'admEncAddr')}
-          <input type="url" required maxLength={2048} autoComplete="off" spellCheck={false} value={f.addr} onChange={set('addr')} data-testid="kms-addr" />
-        </label>
-        <label>{t(lang, 'admEncToken')}
-          <input type="password" required maxLength={4096} autoComplete="new-password" spellCheck={false} value={f.token} onChange={set('token')} data-testid="kms-token" />
-        </label>
+        <TextField label={t(lang, 'admEncAddr')} type="url" required maxLength={2048} autoComplete="off" spellCheck={false} value={f.addr} onChange={set('addr')} data-testid="kms-addr" />
+        <TextField label={t(lang, 'admEncToken')} type="password" required maxLength={4096} autoComplete="new-password" spellCheck={false} value={f.token} onChange={set('token')} data-testid="kms-token" />
         <p className="muted">{t(lang, 'admEncTokenHint')}</p>
-        <label>{t(lang, 'admEncKeyName')}
-          <input required maxLength={64} autoComplete="off" spellCheck={false} value={f.keyName} onChange={set('keyName')} data-testid="kms-key" />
-        </label>
-        <label>{t(lang, 'admEncMount')}
-          <input maxLength={200} autoComplete="off" spellCheck={false} value={f.mount} onChange={set('mount')} />
-        </label>
-        <label>{t(lang, 'admEncNamespace')}
-          <input maxLength={128} autoComplete="off" spellCheck={false} value={f.namespace} onChange={set('namespace')} />
-        </label>
+        <TextField label={t(lang, 'admEncKeyName')} required maxLength={64} autoComplete="off" spellCheck={false} value={f.keyName} onChange={set('keyName')} data-testid="kms-key" />
+        <TextField label={t(lang, 'admEncMount')} maxLength={200} autoComplete="off" spellCheck={false} value={f.mount} onChange={set('mount')} />
+        <TextField label={t(lang, 'admEncNamespace')} maxLength={128} autoComplete="off" spellCheck={false} value={f.namespace} onChange={set('namespace')} />
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'admEncSave')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'admEncSave')}</Button>
         </div>
       </form>
     </Modal>
@@ -152,7 +142,7 @@ export function Encryption() {
         <div className="int-block">
           <p data-testid="kms-platform">{t(lang, 'admEncPlatform')}</p>
           <div className="toolbar">
-            <button type="button" className="primary" onClick={() => setEditing(true)}>{t(lang, 'admEncConfigure')}</button>
+            <Button type="button" className="primary" variant="primary" onClick={() => setEditing(true)}>{t(lang, 'admEncConfigure')}</Button>
           </div>
         </div>
       )}
@@ -177,11 +167,11 @@ export function Encryption() {
           <p>{tf(lang, 'admEncWrapped', { files: view.wrapped?.files ?? 0, recordings: view.wrapped?.recordings ?? 0 })}</p>
           <p className="muted">{t(lang, 'admEncRewrapHint')}</p>
           <div className="toolbar">
-            <button type="button" onClick={() => void test()} disabled={busy}>{t(lang, 'admEncTest')}</button>
-            <button type="button" onClick={() => void rewrap('customer')} disabled={busy}>{t(lang, 'admEncRewrapTo')}</button>
-            <button type="button" onClick={() => void rewrap('platform')} disabled={busy}>{t(lang, 'admEncRewrapBack')}</button>
-            <button type="button" onClick={() => setEditing(true)} disabled={busy}>{t(lang, 'admEncReplace')}</button>
-            <button type="button" className="danger" onClick={() => { setRemErr(null); setRemoving(true); }} disabled={busy}>{t(lang, 'admEncRemove')}</button>
+            <Button type="button" onClick={() => void test()} disabled={busy}>{t(lang, 'admEncTest')}</Button>
+            <Button type="button" onClick={() => void rewrap('customer')} disabled={busy}>{t(lang, 'admEncRewrapTo')}</Button>
+            <Button type="button" onClick={() => void rewrap('platform')} disabled={busy}>{t(lang, 'admEncRewrapBack')}</Button>
+            <Button type="button" onClick={() => setEditing(true)} disabled={busy}>{t(lang, 'admEncReplace')}</Button>
+            <Button type="button" className="danger" variant="danger" onClick={() => { setRemErr(null); setRemoving(true); }} disabled={busy}>{t(lang, 'admEncRemove')}</Button>
           </div>
         </div>
       )}

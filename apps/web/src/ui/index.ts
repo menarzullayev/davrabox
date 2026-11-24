@@ -8,6 +8,7 @@ export { Dialog, type DialogProps } from './Dialog';
 export { Popover, computePlacement, type PopoverProps, type PopoverAlign } from './Popover';
 export { Menu, nextEnabled, type MenuItem, type MenuProps, type MenuTriggerProps } from './Menu';
 export { Tabs, type TabItem, type TabsProps } from './Tabs';
+export { Segmented, type SegmentedOption } from './Segmented';
 export { Alert, ToastProvider, useToast, type AlertProps, type AlertTone, type ToastInput } from './Alert';
 export { Spinner, type SpinnerProps } from './Spinner';
 export { ConnectingRing, type ConnectingRingProps } from './ConnectingRing';
