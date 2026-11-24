@@ -253,3 +253,46 @@ export const legacyAliases: Readonly<Record<string, string>> = {
   'accent-text': 'text-on-accent',
   'danger-text': 'text-on-danger',
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Style and density axes. A look is three independent choices: STYLE (the family: radius, borders, shadows, type, effects),
+// MODE (dark / light) and DENSITY (spacing scale). The page carries them as data-style / data-theme / data-density on <html>.
+// `dashboard` and `comfortable` are the base the whole product was built on: they override nothing. Adding a style is adding
+// an entry here (colour overrides per mode, plus plain CSS variables); components never change. Every entry is held to the
+// same WCAG tests as the base (see tokens.test.ts), per style and mode.
+
+export const STYLE_IDS = ['dashboard'] as const;
+export type StyleId = (typeof STYLE_IDS)[number];
+export const DENSITY_IDS = ['comfortable'] as const;
+export type DensityId = (typeof DENSITY_IDS)[number];
+
+export interface StyleDef {
+  /** Per-mode colour overrides; the merged result must still pass the contrast tests. */
+  colours?: Partial<Record<ThemeName, Partial<ThemeColours>>>;
+  /** Plain CSS variables (camelCase names) set for this style in every mode: radius, border width, shadow, font... */
+  vars?: Readonly<Record<string, string>>;
+  /** Plain CSS variables per mode (shadows and effects usually differ between dark and light). */
+  modeVars?: Partial<Record<ThemeName, Readonly<Record<string, string>>>>;
+}
+
+export const styles: Record<StyleId, StyleDef> = {
+  dashboard: {},
+};
+
+/** Spacing/size variables per density, merged over the base scale. `comfortable` is the base. */
+export const densities: Record<DensityId, Readonly<Record<string, string>>> = {
+  comfortable: {},
+};
+
+/** The colours of one style in one mode: the base theme with the style's overrides applied. */
+export function resolveColours(style: StyleId, mode: ThemeName): ThemeColours {
+  return { ...themes[mode], ...(styles[style].colours?.[mode] ?? {}) };
+}
+
+/** Where the system chrome (browser bar, Android status bar, window background) takes its colour from, per mode. */
+export function chromeColour(mode: ThemeName): string {
+  return themes[mode].bg;
+}
+
+/** The only viewport widths a stylesheet may switch layout at (px). `design-lint.test.ts` in the web app holds new code to this list. */
+export const breakpoints = { sm: 480, md: 640, lg: 960, xl: 1280, xxl: 1920 } as const;

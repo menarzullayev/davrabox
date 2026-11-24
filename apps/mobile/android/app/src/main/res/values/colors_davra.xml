@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from packages/design-tokens (pnpm sync). Do not edit. -->
 <resources>
     <color name="davra_bg">#0A0D21</color>
+    <color name="davra_bg_light">#F4F5FB</color>
 </resources>

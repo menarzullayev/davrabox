@@ -7,6 +7,7 @@
   "exports": { ".": "./src/tokens.ts", "./tokens.css": "./dist/tokens.css" },
   "scripts": {
     "build": "node --import tsx src/build-css.ts",
+    "sync": "node --import tsx src/sync.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"

@@ -82,3 +82,22 @@ describe('structure', () => {
     for (const target of Object.values(legacyAliases)) expect(all.has(target), target).toBe(true);
   });
 });
+
+import { DENSITY_IDS, STYLE_IDS, densities, resolveColours, styles } from './tokens.js';
+
+describe('every style x mode meets WCAG 2.1 AA (a style cannot be added if it fails)', () => {
+  for (const style of STYLE_IDS) {
+    for (const mode of names) {
+      it(`${style} / ${mode}: text ${TEXT_MIN}:1 and non-text ${NON_TEXT_MIN}:1`, () => {
+        const c = resolveColours(style, mode);
+        expect(failingPairs(c, textPairs, TEXT_MIN)).toEqual([]);
+        expect(failingPairs(c, nonTextPairs, NON_TEXT_MIN)).toEqual([]);
+      });
+    }
+  }
+  it('the base style and density override nothing', () => {
+    expect(styles.dashboard).toEqual({});
+    expect(densities.comfortable).toEqual({});
+    expect(DENSITY_IDS).toContain('comfortable');
+  });
+});
