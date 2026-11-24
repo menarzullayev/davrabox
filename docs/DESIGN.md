@@ -63,3 +63,9 @@ list that is fixed before anything ships.
 - i18n: all strings in the dictionaries (uz, ru, en), no hard-coded text; layouts must survive 40% longer strings.
 - Responsive from 360 px to 4K; works in Edge/Chrome/Firefox/Safari and in the Electron shell.
 - Evidence rule: screenshots and measurements are part of every report; nothing is called done without them.
+
+## Build-time settings (web)
+- `VITE_PUBLIC_URL` (optional): public origin used for absolute URLs that crawlers read from `apps/web/index.html`
+  (`og:image`), for example `https://meet.example.com`. Empty (the default) keeps them relative to the host that serves
+  the page. It must be a plain http(s) URL without query or fragment, otherwise the build fails. The Docker build takes it
+  as `--build-arg VITE_PUBLIC_URL=...`.

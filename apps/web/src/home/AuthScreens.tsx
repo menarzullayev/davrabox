@@ -73,8 +73,8 @@ export interface WaitingViewProps {
 export function WaitingView({ lang, code, onCancel }: WaitingViewProps) {
   return (
     <main className="hm-center hm-wait" data-testid="waiting">
-      <ConnectingRing label={tx(lang, 'hWaitStatus')} size={176} />
       <h1 className="hm-wait__title">{tx(lang, 'hWaitTitle')}</h1>
+      <ConnectingRing label={tx(lang, 'hWaitStatus')} size={176} />
       <p className="hm-wait__text">{tx(lang, 'hWaitText')}</p>
       <p className="hm-wait__code">
         <span>{tx(lang, 'hWaitCode')}</span>

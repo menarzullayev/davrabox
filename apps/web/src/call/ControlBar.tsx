@@ -92,10 +92,12 @@ interface CtlProps {
   onClick?: () => void;
   buttonRef?: React.Ref<HTMLButtonElement>;
   extra?: string;
+  /** A small decorative mark on the icon (the More button shows the current view on narrow screens). */
+  corner?: ReactNode;
 }
 
 /** One control bar button: icon, optional visible text, 44 px minimum target, part of the toolbar's roving tabindex. */
-function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, softDisabled, testId, haspopup, expanded, onClick, buttonRef, extra }: CtlProps) {
+function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, softDisabled, testId, haspopup, expanded, onClick, buttonRef, extra, corner }: CtlProps) {
   const btn = (
     <Button
       ref={buttonRef}
@@ -115,6 +117,7 @@ function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, sof
       <span className="dv-ctl__icon">
         {icon}
         {badge ? <span className="dv-ctl__badge" aria-hidden="true">{badge > 9 ? '9+' : badge}</span> : null}
+        {corner}
       </span>
       <span className={`dv-ctl__text${showText ? '' : ' dx-sr-only'}`}>
         {label}
@@ -129,7 +132,8 @@ function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, sof
 function useFocusFirst(open: boolean, ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
     if (!open) return undefined;
-    const raf = requestAnimationFrame(() => ref.current?.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled)')?.focus());
+    // A radio group is entered at its checked radio (the same stop Tab would use), not at the first one.
+    const raf = requestAnimationFrame(() => (ref.current?.querySelector<HTMLElement>('input[type=radio]:checked:not(:disabled)') ?? ref.current?.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled)'))?.focus());
     return () => cancelAnimationFrame(raf);
   }, [open, ref]);
 }
@@ -145,7 +149,7 @@ export function LayoutSwitch({ lang, value, onChange, name }: { lang: Lang; valu
   return (
     <div className="dv-seg" role="radiogroup" aria-label={t(lang, 'clLayout')}>
       {MODES.map(({ id, key, Icon }) => (
-        <label className="dv-seg__opt" key={id} data-testid={`layout-${id}`}>
+        <label className="dv-seg__opt" key={id} data-testid={`layout-${id}`} title={id === 'davra' ? t(lang, 'clLayoutDavraHint') : undefined}>
           <input type="radio" name={name} value={id} checked={value === id} onChange={() => onChange(id)} className="dv-seg__input" />
           <span className="dv-seg__face">
             <Icon size={20} />
@@ -238,7 +242,13 @@ export function ControlBar(p: ControlBarProps) {
           <Ctl label={layoutName} extra={`, ${t(lang, 'clLayout')}`} icon={<LayoutIcon />} showText={wide} haspopup expanded={open === 'layout'} onClick={() => toggle('layout')} buttonRef={layoutBtn} testId="layout" />
         ) : null}
         {!compact && p.recording?.onToggle ? <RecordCtl p={p} showText={wide} /> : null}
-        <Ctl label={t(lang, 'clMore')} extra={`, ${t(lang, 'clMoreTitle')}`} icon={<IconMore />} showText={wide} haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
+        <Ctl
+          label={t(lang, 'clMore')}
+          extra={`, ${t(lang, 'clMoreTitle')}${compact ? `, ${t(lang, 'clLayout')}: ${layoutName}` : ''}`}
+          icon={<IconMore />}
+          corner={compact ? <span className="dv-ctl__mode" data-testid="more-mode" aria-hidden="true"><LayoutIcon size={12} /></span> : undefined}
+          showText={wide}
+          haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
         <span className="dv-sep" aria-hidden="true" />
         <Ctl label={t(lang, 'leave')} icon={<IconPhoneOff />} showText={wide} danger onClick={p.onLeave} testId="leave" />
       </div>
@@ -276,6 +286,7 @@ export function ControlBar(p: ControlBarProps) {
       <Popover open={open === 'layout'} anchorRef={layoutBtn} onClose={close} role="group" aria-label={t(lang, 'clLayout')}>
         <div ref={layoutBox} className="dv-pop">
           <LayoutSwitch lang={lang} value={p.layout} onChange={(m) => p.onLayout(m)} name="dv-layout" />
+          <p className="dv-pop__note">{t(lang, 'clLayoutDavraHint')}</p>
           {p.fallback ? <p className="dv-pop__note">{t(lang, hintKey(p.fallback))}</p> : null}
         </div>
       </Popover>
