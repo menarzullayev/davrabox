@@ -66,6 +66,16 @@ describe('Tooltip', () => {
     expect(screen.queryByRole('tooltip')).toBeNull();
     expect(btn.getAttribute('aria-describedby')).toBeNull();
   });
+  it('shifts back inside the screen when the bubble would run off the right edge', () => {
+    const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      return this.getAttribute('role') === 'tooltip' ? ({ left: 300, right: innerWidth + 40, top: 0, bottom: 20, width: 0, height: 20, x: 300, y: 0, toJSON: () => ({}) } as DOMRect) : new DOMRect();
+    });
+    render(<Tooltip content="A long label near the edge"><button>Edge</button></Tooltip>);
+    fireEvent.focus(screen.getByRole('button'));
+    const tip = screen.getByRole('tooltip');
+    expect(tip.style.transform).toBe("translateX(calc(-50% - 48px))"); // innerWidth + 40 - (innerWidth - 8)
+    spy.mockRestore();
+  });
   it('closes on blur', () => {
     render(<Tooltip content="Hi"><button>X</button></Tooltip>);
     const btn = screen.getByRole('button');

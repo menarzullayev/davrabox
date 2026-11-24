@@ -94,7 +94,8 @@ export function Popover({ open, anchorRef, onClose, align = 'start', role, match
     if (!open) return;
     const onDown = (e: PointerEvent) => {
       const t = e.target as Node;
-      if (panel.current?.contains(t) || anchorRef.current?.contains(t)) return;
+      // A bottom sheet opened from inside this panel is portaled elsewhere in the page; tapping it is not an outside tap.
+      if (panel.current?.contains(t) || anchorRef.current?.contains(t) || (t as Element).closest?.('.dx-sheet-root')) return;
       onClose();
     };
     const onKey = (e: KeyboardEvent) => {
