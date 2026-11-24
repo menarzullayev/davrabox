@@ -11,13 +11,13 @@ function roleLabel(lang: Parameters<typeof t>[0], r: Role): string {
   return t(lang, r === 'org_admin' ? 'admRoleAdmin' : 'admRoleMember');
 }
 
-function DeptSelect({ id, value, onChange, depts }: { id: string; value: string; onChange: (v: string) => void; depts: Department[] }) {
+function DeptSelect({ id, label, value, onChange, depts }: { id: string; label: string; value: string; onChange: (v: string) => void; depts: Department[] }) {
   const { lang } = useAdmin();
   return (
-    <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
+    <Select id={id} label={label} value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="">{t(lang, 'admNoDepartment')}</option>
       {depts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-    </select>
+    </Select>
   );
 }
 
@@ -85,9 +85,7 @@ function CreateDialog({ depts, onClose, onCreated }: { depts: Department[]; onCl
             <option value="member">{roleLabel(lang, 'member')}</option>
             <option value="org_admin">{roleLabel(lang, 'org_admin')}</option>
           </Select>
-        <label>{t(lang, 'admDepartment')}
-          <DeptSelect id="cu-dept" value={f.departmentId} onChange={(v) => setF({ ...f, departmentId: v })} depts={depts} />
-        </label>
+        <DeptSelect id="cu-dept" label={t(lang, 'admDepartment')} value={f.departmentId} onChange={(v) => setF({ ...f, departmentId: v })} depts={depts} />
         <ErrorBox text={err} />
         <div className="modal-actions">
           <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
@@ -129,9 +127,7 @@ function EditDialog({ user, depts, onClose, onSaved }: { user: AdminUser; depts:
             <option value="member">{roleLabel(lang, 'member')}</option>
             <option value="org_admin">{roleLabel(lang, 'org_admin')}</option>
           </Select>
-        <label>{t(lang, 'admDepartment')}
-          <DeptSelect id="eu-dept" value={dept} onChange={setDept} depts={depts} />
-        </label>
+        <DeptSelect id="eu-dept" label={t(lang, 'admDepartment')} value={dept} onChange={setDept} depts={depts} />
         <ErrorBox text={err} />
         <div className="modal-actions">
           <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>

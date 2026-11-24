@@ -3,6 +3,7 @@
 // manage anything, is removed and cannot come back from the same address; with the policy off the guest is refused.
 import { chromium } from 'playwright-core';
 import { BASE } from './kc.mjs';
+import { listOptions, pickOption } from './pick.mjs';
 
 const results = [];
 const check = (name, ok, d = '') => {
@@ -37,7 +38,7 @@ async function setGuestPolicy(admin, value) {
   await admin.page.waitForSelector('.adm-nav', { timeout: 20000 });
   await admin.page.locator('.adm-nav button', { hasText: /Polic|Siyosat|Политик/i }).click();
   await admin.page.waitForSelector('[data-testid=guest-policy]', { timeout: 15000 });
-  await admin.page.selectOption('[data-testid=guest-policy]', value);
+  await pickOption(admin.page, '[data-testid=guest-policy]', value);
   await admin.page.getByRole('button', { name: /Save|Saqlash|Сохранить/ }).click();
   await admin.page.waitForSelector('[role=status]:has-text("aved"), [role=status]:has-text("aqlandi"), [role=status]:has-text("охранено")', { timeout: 15000 });
 }
@@ -55,9 +56,9 @@ try {
   const title = `Guests ${Date.now()}`;
   await host.page.getByTestId('new-meeting').click();
   await host.page.fill('[data-testid=meeting-title]', title);
-  const options = await host.page.locator('[data-testid=guest-mode] option').evaluateAll((o) => o.map((x) => x.value));
+  const options = await listOptions(host.page, '[data-testid=guest-mode]');
   check('the host is offered off, waiting room and direct (the policy allows all three)', options.join() === 'off,waiting_room,open', options.join());
-  await host.page.selectOption('[data-testid=guest-mode]', 'waiting_room');
+  await pickOption(host.page, '[data-testid=guest-mode]', 'waiting_room');
   await host.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
   await host.page.waitForSelector(`li:has-text("${title}")`);
   const code = (await host.page.locator(`li:has-text("${title}") .code`).innerText()).replace(/\D/g, '');

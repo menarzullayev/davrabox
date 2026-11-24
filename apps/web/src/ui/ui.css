@@ -128,7 +128,88 @@
   .dx-input--code { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; letter-spacing: 0.08em; font-size: var(--text-lg); }
 
   .dx-select { position: relative; display: block; }
-  .dx-select__control { appearance: none; padding-inline-end: 40px; cursor: pointer; }
+  .dx-select__control { appearance: none; padding-inline-end: 40px; cursor: pointer; display: flex; align-items: center; text-align: start; }
+  .dx-select__value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- Dropdown list (Select): a listbox in a popover, or a bottom sheet on narrow screens ------------------ */
+  .dx-listbox { list-style: none; margin: 0; padding: 0; outline: none; max-height: min(60vh, 20rem); overflow-y: auto; }
+  .dx-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    box-sizing: border-box;
+    min-height: var(--target-fine);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  .dx-option[data-active] { background: var(--surface-3); }
+  .dx-option[aria-selected='true'] { color: var(--accent); font-weight: var(--weight-medium); }
+  .dx-option[aria-disabled='true'] { opacity: 0.5; cursor: not-allowed; }
+  .dx-listbox:focus-visible .dx-option[data-active] { outline: calc(var(--border-w) * 2) solid var(--focus-ring); outline-offset: calc(var(--border-w) * -2); }
+  .dx-sheet-root { position: fixed; inset: 0; z-index: var(--z-dialog); }
+  .dx-sheet__backdrop { position: absolute; inset: 0; background: var(--scrim); }
+  .dx-sheet {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    max-height: 70vh;
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom, 0rem));
+    border: var(--border-w) solid var(--border);
+    border-block-end: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    background: var(--surface-2);
+    color: var(--text);
+    box-shadow: var(--shadow-2);
+    animation: dx-sheet-in var(--dur-3) var(--ease-out);
+  }
+  .dx-sheet__grab { justify-self: center; width: var(--space-10); height: var(--space-1); border-radius: var(--radius-pill); background: var(--border-strong); }
+  .dx-sheet__title { padding: 0 var(--space-3); font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--text-muted); }
+  .dx-sheet .dx-listbox { max-height: 55vh; }
+  .dx-sheet .dx-option { min-height: var(--target-touch); font-size: var(--text-base); }
+  /* ---- Date and time chooser (DateTimePicker) ---------------------------------------------------------------- */
+  .dx-dtp { display: grid; gap: var(--space-2); padding: var(--space-2); min-width: min(22rem, 100%); }
+  .dx-dtp__head { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-2); }
+  .dx-dtp__month { text-align: center; font-weight: var(--weight-medium); text-transform: capitalize; }
+  .dx-dtp__body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); }
+  .dx-dtp__cal { display: grid; gap: var(--space-1); }
+  .dx-dtp__row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-1); text-align: center; }
+  .dx-dtp__wd { font-size: var(--text-xs); color: var(--text-muted); text-transform: capitalize; }
+  .dx-dtp__day,
+  .dx-dtp__cell {
+    box-sizing: border-box;
+    min-width: var(--target-fine);
+    min-height: var(--target-fine);
+    border: var(--border-w) solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+  }
+  .dx-dtp__day { width: 100%; }
+  .dx-dtp__day:hover,
+  .dx-dtp__cell:hover { background: var(--surface-3); }
+  .dx-dtp__day[aria-current='date'] { border-color: var(--border-strong); }
+  .dx-dtp__day[aria-pressed='true'],
+  .dx-dtp__cell[aria-pressed='true'] { background: var(--accent); color: var(--text-on-accent); font-weight: var(--weight-medium); }
+  .dx-dtp__day:focus-visible,
+  .dx-dtp__cell:focus-visible { outline: calc(var(--border-w) * 2) solid var(--focus-ring); outline-offset: calc(var(--border-w) * -2); }
+  .dx-dtp__time { display: flex; gap: var(--space-1); }
+  .dx-dtp__col { display: grid; align-content: start; gap: var(--space-1); max-height: 15rem; overflow-y: auto; padding-inline: var(--space-1); }
+  .dx-dtp__foot { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+  .dx-sheet .dx-dtp { min-width: 0; }
+  .dx-sheet .dx-dtp__day,
+  .dx-sheet .dx-dtp__cell { min-height: var(--target-coarse); }
+  @keyframes dx-sheet-in { from { transform: translateY(100%); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .dx-sheet { animation: none; } }
   .dx-select__chevron { position: absolute; inset-block: 0; inset-inline-end: var(--space-3); display: grid; align-items: center; pointer-events: none; color: var(--text-muted); }
 
   .dx-check,

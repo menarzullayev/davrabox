@@ -13,6 +13,7 @@ import { PrivacyPage } from './PrivacyPage';
 import { PRIVACY_TEXT } from './legal-privacy';
 import { TERMS_TEXT } from './legal-terms';
 import { PRIVACY_CONTACT } from './legal-types';
+import { pickOption } from '../ui/testing';
 
 // jsdom has no modal <dialog>: a minimal stand-in for showModal/close (the real element is covered by the browser e2e).
 beforeAll(() => {
@@ -103,7 +104,7 @@ describe('PrivacyPage', () => {
   it('switches the language without leaving the page and remembers it', () => {
     render(<PrivacyPage kind="privacy" initialLang="en" />);
     fireEvent.click(screen.getByTestId('settings'));
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'ru' } });
+    pickOption('Language', 'ru');
     expect(screen.getByRole('heading', { level: 1, name: PRIVACY_TEXT.ru.title })).toBeTruthy();
     expect(localStorage.getItem('lang')).toBe('ru');
   });

@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
+import { pickOptionIndex } from './pick.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const base = process.env.LAB_URL ?? 'http://127.0.0.1:5193';
@@ -93,7 +94,7 @@ const YOU = /\((You|Siz|Вы)\)/;
   await page.locator(tid('chat-input')).fill('   ');
   await page.locator(tid('chat-input')).press('Enter');
   check('whitespace-only input sends nothing', (await count(page, tid('chat-line'))) === before + 1);
-  await page.locator(tid('chat-target')).selectOption({ index: 1 });
+  await pickOptionIndex(page, tid('chat-target'), 1);
   await page.locator(tid('chat-input')).fill('private note');
   await page.locator(tid('chat-input')).press('Enter');
   check('a private line carries the private tag text', /private/i.test(await page.locator(tid('chat-line')).last().innerText()));

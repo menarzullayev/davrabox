@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Lang } from '../../i18n';
 import { REACTIONS, type Reaction } from '../../signals';
 import { isLang, isTheme, setPref, usePrefs } from '../../prefs';
+import { Select } from '../../ui';
 import { CallView } from '../CallView';
 import { RING_MAX, type LayoutMode } from '../layout';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, Role } from '../types';
@@ -199,22 +200,16 @@ export default function CallLab() {
               <input type="number" min={1} max={30} value={n} onChange={(e) => setN(Math.max(1, Math.min(30, Number(e.target.value) || 1)))} />
               <span>ring up to {RING_MAX}</span>
             </label>
-            <label>
-              Language
-              <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
+            <Select label="Language" value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
                 <option>uz</option>
                 <option>ru</option>
                 <option>en</option>
-              </select>
-            </label>
-            <label>
-              Role
-              <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              </Select>
+            <Select label="Role" value={role} onChange={(e) => setRole(e.target.value as Role)}>
                 <option>host</option>
                 <option>cohost</option>
                 <option>member</option>
-              </select>
-            </label>
+              </Select>
             <label>
               Speaker
               <input type="number" min={0} max={29} value={speakerIdx} onChange={(e) => setSpeakerIdx(Number(e.target.value))} />
@@ -222,12 +217,9 @@ export default function CallLab() {
             <label><input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} /> remote screen share</label>
             <label><input type="checkbox" checked={sim} onChange={(e) => setSim(e.target.checked)} /> speaker changes every {tick} ms</label>
             <label><input type="checkbox" checked={!connected} onChange={(e) => setConnected(!e.target.checked)} /> connecting</label>
-            <label>
-              Quality
-              <select value={quality} onChange={(e) => setQuality(e.target.value as Quality)}>
+            <Select label="Quality" value={quality} onChange={(e) => setQuality(e.target.value as Quality)}>
                 {(['excellent', 'good', 'poor', 'lost', 'unknown'] as const).map((x) => <option key={x}>{x}</option>)}
-              </select>
-            </label>
+              </Select>
             <label>
               Requests
               <input type="number" min={0} max={9} value={requests} onChange={(e) => setRequests(Number(e.target.value))} />

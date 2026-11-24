@@ -3,6 +3,7 @@
 // choice follows them into a fresh browser (server side). Everything is put back at the end.
 import { chromium } from 'playwright-core';
 import { BASE, createUser } from './kc.mjs';
+import { listOptions, pickOption } from './pick.mjs';
 
 const results = [];
 const check = (name, ok, d = '') => {
@@ -46,7 +47,7 @@ async function adminPolicy(admin, { all, allowed, def }) {
       if (allowed.includes(id) !== (await box.isChecked())) await box.setChecked(allowed.includes(id));
     }
   }
-  await admin.page.selectOption('[data-testid=default-style]', def);
+  await pickOption(admin.page, '[data-testid=default-style]', def);
   await admin.page.getByRole('button', { name: /Save|Saqlash|Сохранить/ }).click();
   await admin.page.waitForSelector('[role=status]:has-text("aved"), [role=status]:has-text("aqlandi"), [role=status]:has-text("охранено")', { timeout: 15000 });
 }
@@ -63,10 +64,10 @@ try {
   check('a member who never chose gets the organization default style', (await attr(m1.page, 'data-style')) === 'terminal', await attr(m1.page, 'data-style'));
 
   await m1.page.getByTestId('settings').click();
-  const options = await m1.page.locator('[data-testid=style-select] option').evaluateAll((o) => o.map((x) => x.value));
+  const options = await listOptions(m1.page, '[data-testid=style-select]');
   check('the style picker offers only the allowed styles', options.join() === 'flat,terminal', options.join());
 
-  await m1.page.selectOption('[data-testid=style-select]', 'flat');
+  await pickOption(m1.page, '[data-testid=style-select]', 'flat');
   await m1.page.waitForFunction(() => document.documentElement.getAttribute('data-style') === 'flat');
   await m1.page.waitForTimeout(1500); // the change is sent to the server after a short pause
   check('choosing a style applies it at once', (await attr(m1.page, 'data-style')) === 'flat');

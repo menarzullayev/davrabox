@@ -82,6 +82,7 @@ import * as lk from 'livekit-client';
 import { api } from './api';
 import { Call } from './Call';
 import { encode } from './signals';
+import { pickOption } from './ui/testing';
 
 const Fake = (lk as unknown as { __FakeParticipant: new (id: string, name: string) => import('node:events').EventEmitter & { identity: string; name: string; publishData: ReturnType<typeof vi.fn> } }).__FakeParticipant;
 const join = { status: 'joined' as const, token: 'tok', url: 'wss://x', meetingId: 'm', title: 'Weekly sync', isHost: true };
@@ -224,7 +225,7 @@ describe('Call with a fake room', () => {
     await flush();
     expect(r.localParticipant.publishData).toHaveBeenCalledTimes(1);
     expect(r.localParticipant.publishData.mock.calls[0]![1]).toMatchObject({ reliable: true, topic: 'chat', destinationIdentities: undefined });
-    fireEvent.change(screen.getByTestId('chat-target'), { target: { value: 'a' } });
+    pickOption('chat-target', 'a');
     fireEvent.change(screen.getByTestId('chat-input'), { target: { value: 'only you' } });
     fireEvent.submit(screen.getByTestId('chat-input').closest('form')!);
     await flush();
