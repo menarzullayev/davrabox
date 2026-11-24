@@ -4,7 +4,7 @@ import net from 'node:net';
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { exportJWK, generateKeyPair, SignJWT, type JWK, type KeyLike } from 'jose';
+import { exportJWK, generateKeyPair, SignJWT, type JWK } from 'jose';
 import { Pool } from 'pg';
 import { applyApiHardening } from '../src/security-headers.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -22,7 +22,7 @@ const sfx = Math.random().toString(36).slice(2, 8);
 const slugA = `atk-a-${sfx}`;
 const slugB = `atk-b-${sfx}`;
 
-let signKey: KeyLike;
+let signKey: CryptoKey;
 let jwks: http.Server;
 let app: INestApplication;
 let base = '';
@@ -41,7 +41,7 @@ interface Claims {
   extra?: Record<string, unknown>;
 }
 
-async function mint(c: Claims, key: KeyLike = signKey, kid = 'k1'): Promise<string> {
+async function mint(c: Claims, key: CryptoKey = signKey, kid = 'k1'): Promise<string> {
   const payload: Record<string, unknown> = { email: c.email ?? `${c.sub}@t.local`, name: c.sub, azp: c.azp ?? AZP, ...(c.extra ?? {}) };
   if (c.org !== null) payload['org_slug'] = c.org;
   if (c.role !== null) payload['realm_access'] = { roles: [c.role ?? 'member'] };
