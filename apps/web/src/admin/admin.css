@@ -78,15 +78,17 @@
 
 .table-wrap { overflow-x: auto; background: var(--surface-1); border: var(--border-w) solid var(--border); border-radius: var(--radius-lg); margin: var(--space-3) 0; }
 .table-wrap:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-table.data { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
-table.data th, table.data td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: var(--border-w) solid var(--border); vertical-align: middle; overflow-wrap: anywhere; }
+/* On a phone the wrapper scrolls sideways; the table keeps a readable width and cells keep a minimum, so a column never shrinks to one letter. */
+table.data { width: 100%; min-width: 40rem; border-collapse: collapse; font-size: var(--text-sm); }
+table.data th, table.data td { text-align: left; padding: var(--space-3) var(--space-4); border-bottom: var(--border-w) solid var(--border); vertical-align: middle; overflow-wrap: anywhere; min-width: 6rem; }
 table.data th { color: var(--text-muted); font-weight: var(--weight-semibold); background: var(--surface-2); white-space: nowrap; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.04em; }
 table.data tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
 table.data tr:last-child td { border-bottom: 0; }
 table.data tr.is-disabled td { color: var(--text-muted); }
-table.data td.actions { white-space: nowrap; }
+table.data td.actions { white-space: nowrap; min-width: 0; }
 table.data td.actions button + button { margin-left: var(--space-2); }
-.who-cell { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.who-cell { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 12rem; }
+.who-cell > :first-child { flex: none; }
 
 /* ---- forms and plain controls ----------------------------------------------------------------------------- */
 .adm button:not(.dx-btn):not(.adm-nav button),
