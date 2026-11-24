@@ -9,6 +9,7 @@ import android.webkit.WebView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.core.view.WindowCompat;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.BridgeWebViewClient;
@@ -28,10 +29,13 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // Keep the branded launch screen up until the hosted page paints its first frame, so there is no empty window in between.
+        registerPlugin(ThemeBarsPlugin.class); // system bars follow the page theme
         SplashScreen splash = SplashScreen.installSplashScreen(this);
         splash.setKeepOnScreenCondition(() -> !pageVisible);
         new Handler(Looper.getMainLooper()).postDelayed(() -> pageVisible = true, SPLASH_MAX_MS);
         super.onCreate(savedInstanceState);
+        // The app starts dark: light status-bar icons from the first frame; the web client changes this with its theme (SystemBars plugin).
+        WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightStatusBars(false);
         if (getBridge() != null) {
             getBridge().setWebViewClient(new BridgeWebViewClient(getBridge()) {
                 @Override
