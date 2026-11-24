@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const h = vi.hoisted(() => {
   const rooms: Array<{ emit(e: string, ...a: unknown[]): boolean; connect: ReturnType<typeof import('vitest').vi.fn>; disconnect: ReturnType<typeof import('vitest').vi.fn>; localParticipant: unknown; remoteParticipants: Map<string, unknown> }> = [];
-  return { rooms, failConnect: false, roomMetadata: '' };
+  return { rooms, failConnect: false, failMedia: false, roomMetadata: '' };
 });
 
 vi.mock('livekit-client', async () => {
@@ -20,7 +20,9 @@ vi.mock('livekit-client', async () => {
     getTrackPublication() {
       return undefined;
     }
-    setMicrophoneEnabled = vi.fn(async () => undefined);
+    setMicrophoneEnabled = vi.fn(async () => {
+      if (h.failMedia) throw new Error('denied');
+    });
     setCameraEnabled = vi.fn(async () => undefined);
     setScreenShareEnabled = vi.fn(async () => undefined);
     publishData = vi.fn(async () => undefined);
@@ -92,6 +94,7 @@ const flush = async () => act(async () => { await new Promise((r) => setTimeout(
 beforeEach(() => {
   h.rooms.length = 0;
   h.failConnect = false;
+  h.failMedia = false;
   h.roomMetadata = '';
   localStorage.clear();
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ x: 0, y: 0, left: 0, top: 0, right: 1280, bottom: 560, width: 1280, height: 560, toJSON: () => ({}) });
@@ -111,6 +114,41 @@ function mount(onLeave = vi.fn(), strict = false) {
 }
 const room = () => h.rooms[h.rooms.length - 1]!;
 const lkRoom = () => room() as unknown as import('node:events').EventEmitter & { remoteParticipants: Map<string, unknown>; localParticipant: { publishData: ReturnType<typeof vi.fn> } };
+
+describe('Call: initial microphone state (guests choose it on the pre-join screen)', () => {
+  const mountWith = (media: { mic: boolean; cam: boolean }) => render(<Call join={join} code="12345678901" guest initialMedia={media} getToken={async () => 'jwt'} lang="en" onLeave={vi.fn()} />);
+
+  it('a microphone switched off before joining starts muted: the button and the room agree, and it is never switched on', async () => {
+    mountWith({ mic: false, cam: true });
+    expect(screen.getByTestId('mic').hasAttribute('data-off')).toBe(true);
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    const p = lkRoom().localParticipant as unknown as { setMicrophoneEnabled: ReturnType<typeof vi.fn>; setCameraEnabled: ReturnType<typeof vi.fn> };
+    expect(p.setMicrophoneEnabled.mock.calls).toEqual([[false]]);
+    expect(p.setCameraEnabled.mock.calls).toEqual([[true]]);
+    expect(screen.getByTestId('mic').hasAttribute('data-off')).toBe(true);
+    expect(screen.getByTestId('mic').textContent).toMatch(/turn on/);
+  });
+
+  it('a microphone switched on before joining starts live', async () => {
+    mountWith({ mic: true, cam: false });
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    const p = lkRoom().localParticipant as unknown as { setMicrophoneEnabled: ReturnType<typeof vi.fn> };
+    expect(p.setMicrophoneEnabled.mock.calls).toEqual([[true]]);
+    expect(screen.getByTestId('mic').hasAttribute('data-off')).toBe(false);
+    expect(screen.getByTestId('mic').textContent).toMatch(/turn off/);
+  });
+
+  it('when the device cannot be opened the button shows muted and the person is told why', async () => {
+    h.failMedia = true;
+    mountWith({ mic: true, cam: true });
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('mic').hasAttribute('data-off')).toBe(true));
+    expect(screen.getByTestId('cam').hasAttribute('data-off')).toBe(true);
+    expect(document.body.textContent).toMatch(/camera|microphone/i);
+  });
+});
 
 describe('Call and the Android Back button', () => {
   beforeEach(() => resetBackForTests());
