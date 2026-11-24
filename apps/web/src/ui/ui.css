@@ -127,8 +127,8 @@
   .dx-input[aria-invalid='true'] { border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); }
   .dx-input--code { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; letter-spacing: 0.08em; font-size: var(--text-lg); }
 
-  .dx-select { position: relative; display: block; }
-  .dx-select__control { appearance: none; padding-inline-end: 40px; cursor: pointer; display: flex; align-items: center; text-align: start; }
+  .dx-select { position: relative; display: block; min-width: 0; }
+  .dx-select__control { appearance: none; min-width: 0; padding-inline-end: 40px; cursor: pointer; display: flex; align-items: center; text-align: start; }
   .dx-select__value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ---- Dropdown list (Select): a listbox in a popover, or a bottom sheet on narrow screens ------------------ */
