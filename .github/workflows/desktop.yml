@@ -27,7 +27,7 @@ jobs:
       REQUIRE_SIGNED: ${{ startsWith(github.ref, 'refs/tags/desktop-v') && 'true' || vars.REQUIRE_SIGNED }}
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 22
