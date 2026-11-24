@@ -3,4 +3,4 @@
 .legal-links a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; padding: var(--space-1) 0; }
 .legal-links a:hover { color: var(--text); }
 .legal-links a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
-@media (pointer: coarse) { .legal-links a { min-height: var(--target-coarse); display: inline-flex; align-items: center; } }
+@media (pointer: coarse) { .legal-links a { min-height: 48px; min-width: 48px; display: inline-flex; align-items: center; justify-content: center; } }

@@ -122,9 +122,9 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
       <header className="si__bar">
         <Logo height={30} title={t(lang, 'appName')} />
         <div className="si__tools">
-          <div className="si__langs" role="group" aria-label={t(lang, 'appName')}>
+          <div className="si__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
             {LANG_BUTTONS.map((l) => (
-              <button key={l.id} type="button" lang={l.id} title={l.name} aria-label={l.name} aria-pressed={lang === l.id} onClick={() => onLang(l.id)}>
+              <button key={l.id} type="button" lang={l.id} title={l.name} aria-label={`${l.short}, ${l.name}`} aria-pressed={lang === l.id} onClick={() => onLang(l.id)}>
                 {l.short}
               </button>
             ))}
