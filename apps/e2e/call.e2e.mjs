@@ -39,7 +39,7 @@ async function newUser(username, password = PASSWORD) {
   if (process.env.E2E_DEBUG) page.on('response', (r) => { if (r.status() >= 400) console.log(`[${username}] HTTP ${r.status()} ${r.url().slice(0, 140)}`); });
   if (process.env.E2E_DEBUG) page.on('console', (m) => console.log(`[${username}] ${m.type()}: ${(m.text().length > 300 ? m.text().slice(0, 60) + ' … ' + m.text().slice(-220) : m.text())}`));
   await page.goto(BASE + '/app');
-  await page.getByRole('button', { name: /Sign in|Kirish|Ð’Ð¾Ð¹Ñ‚Ð¸/ }).click();
+  await page.getByRole('button', { name: /^(Sign in|Kirish|Ð’Ð¾Ð¹Ñ‚Ð¸)$/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);
   await page.fill('#password', password);

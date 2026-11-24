@@ -210,6 +210,28 @@
   .si__card-title { margin: 0; color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.015em; }
   .si__card-text { margin: calc(var(--space-2) * -1) 0 var(--space-2); color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }
   @media (max-width: 479px) { .si__card { padding: var(--space-6); } }
+  .si__tools { display: flex; align-items: center; gap: var(--space-2); }
+  .si__langs { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--surface-1); }
+  .si__langs button { min-width: 36px; min-height: 32px; padding: 0 var(--space-2); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--text-muted); font: inherit; font-size: var(--text-sm); font-weight: var(--weight-semibold); cursor: pointer; }
+  .si__langs button[aria-pressed='true'] { background: var(--accent); color: var(--text-on-accent); }
+  .si__langs button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+  .si__join { display: grid; gap: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+  .si__or { margin: var(--space-3) 0 0; color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }
+  .si__new { justify-self: center; padding: var(--space-2) var(--space-3); color: var(--accent); font-size: var(--text-sm); font-weight: var(--weight-semibold); text-decoration: none; border-radius: var(--radius-md); }
+  .si__new:hover { text-decoration: underline; }
+  .si__new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Phones: a compact mark and a two-line statement so sign-in, the code field and the sign-up link fit on the first screen. */
+  @media (max-width: 599px) {
+    .si__bar { padding-block: var(--space-2); }
+    .si__main { align-content: start; gap: var(--space-3); padding-bottom: var(--space-6); }
+    .si__art svg { width: min(88px, 24vw); }
+    .si__copy { gap: var(--space-4); width: 100%; }
+    .si__statement { display: block; font-size: clamp(1.5rem, 1.1rem + 2.6vw, 1.875rem); line-height: 1.15; letter-spacing: -0.02em; }
+    .si__line { display: inline; }
+    .si__card { gap: var(--space-3); padding: var(--space-4); }
+    .si__card-title { font-size: var(--text-lg); line-height: var(--leading-lg); }
+    .si__card-text { margin-bottom: 0; }
+  }
 
   /* ---- loading and waiting ------------------------------------------------------------------------------------ */
   .hm-center { box-sizing: border-box; display: grid; place-content: center; justify-items: center; gap: var(--space-4); min-height: 100vh; min-height: 100dvh; padding: var(--space-8) var(--space-4); text-align: center; }

@@ -13,7 +13,7 @@ try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US' });
   const page = await ctx.newPage();
   await page.goto(BASE + '/app');
-  await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
+  await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   // The language picker is a <select> whose option values are navigation URLs.
   const text = async (loc) => {

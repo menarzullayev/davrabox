@@ -173,6 +173,15 @@ export function App() {
           rememberReturnPath(location.pathname);
           void signIn({ lang });
         }}
+        onSignInToJoin={(code) => {
+          try {
+            sessionStorage.setItem('pendingJoin', code);
+          } catch {
+            /* storage unavailable: the code is simply asked for again after sign-in */
+          }
+          rememberReturnPath(location.pathname);
+          void signIn({ lang });
+        }}
       />
     );
   }

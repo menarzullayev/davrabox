@@ -75,7 +75,7 @@ try {
   const page = await ctx.newPage();
   const signIn = async () => {
     await page.goto(BASE + '/app');
-    await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
+    await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
     await page.waitForSelector('#username');
     await page.fill('#username', username);
     await page.fill('#password', password);

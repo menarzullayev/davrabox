@@ -64,6 +64,10 @@ export const homeUz = {
 
   hSignInTitle: 'Tashkilot hisobingiz bilan kiring',
   hSignInText: 'Kirish tugmasi sizni xavfsiz kirish sahifasiga olib boradi.',
+  hSignInOr: 'yoki uchrashuvga kod bilan qo‘shiling',
+  hSignInJoinBtn: 'Kirish va qo‘shilish',
+  hSignInJoinNote: 'Qo‘shilish uchun avval tashkilot hisobingiz bilan kirasiz.',
+  hSignInNewOrg: 'Yangi tashkilot ochish',
 
   hWaitTitle: 'Host sizni kiritishini kutyapmiz',
   hWaitText: 'Ruxsat berilishi bilan uchrashuvga avtomatik kirasiz. Bu oynani yopmang.',
@@ -136,6 +140,10 @@ export const homeRu: Record<HomeKey, string> = {
 
   hSignInTitle: 'Войдите с аккаунтом организации',
   hSignInText: 'Кнопка «Войти» перенаправит вас на защищённую страницу входа.',
+  hSignInOr: 'или присоединитесь к встрече по коду',
+  hSignInJoinBtn: 'Войти и присоединиться',
+  hSignInJoinNote: 'Чтобы присоединиться, сначала войдите с аккаунтом организации.',
+  hSignInNewOrg: 'Создать организацию',
 
   hWaitTitle: 'Ждём, пока хост вас впустит',
   hWaitText: 'Как только вас впустят, вы войдёте во встречу сами. Не закрывайте это окно.',
@@ -206,6 +214,10 @@ export const homeEn: Record<HomeKey, string> = {
 
   hSignInTitle: 'Sign in with your organisation account',
   hSignInText: 'The sign-in button takes you to the secure sign-in page.',
+  hSignInOr: 'or join a meeting with a code',
+  hSignInJoinBtn: 'Sign in and join',
+  hSignInJoinNote: 'To join, you first sign in with your organisation account.',
+  hSignInNewOrg: 'Create an organisation',
 
   hWaitTitle: 'Waiting for the host to let you in',
   hWaitText: 'You will enter the meeting on your own as soon as you are admitted. Keep this window open.',
