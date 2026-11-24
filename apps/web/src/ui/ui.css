@@ -96,7 +96,7 @@
   .dx-btn--icon[data-size='sm'] { width: 32px; }
 
   /* ---- Fields ---------------------------------------------------------------------------------------------- */
-  .dx-field { display: grid; gap: var(--space-1); min-width: 0; }
+  .dx-field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); min-width: 0; }
   .dx-field__label { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--text); }
   .dx-field__opt { margin-inline-start: var(--space-2); font-weight: var(--weight-regular); color: var(--text-subtle); }
   .dx-field__hint { font-size: var(--text-xs); line-height: var(--leading-xs); color: var(--text-muted); }
