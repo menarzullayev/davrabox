@@ -83,6 +83,7 @@ import { api } from './api';
 import { Call } from './Call';
 import { encode } from './signals';
 import { pickOption } from './ui/testing';
+import { handleBack, resetBackForTests } from './platform/back';
 
 const Fake = (lk as unknown as { __FakeParticipant: new (id: string, name: string) => import('node:events').EventEmitter & { identity: string; name: string; publishData: ReturnType<typeof vi.fn> } }).__FakeParticipant;
 const join = { status: 'joined' as const, token: 'tok', url: 'wss://x', meetingId: 'm', title: 'Weekly sync', isHost: true };
@@ -110,6 +111,57 @@ function mount(onLeave = vi.fn(), strict = false) {
 }
 const room = () => h.rooms[h.rooms.length - 1]!;
 const lkRoom = () => room() as unknown as import('node:events').EventEmitter & { remoteParticipants: Map<string, unknown>; localParticipant: { publishData: ReturnType<typeof vi.fn> } };
+
+describe('Call and the Android Back button', () => {
+  beforeEach(() => resetBackForTests());
+  const back = (): boolean => {
+    let handled = false;
+    act(() => {
+      handled = handleBack();
+    });
+    return handled;
+  };
+
+  it('with nothing open Back asks before leaving; Stay keeps the call, Leave ends it', async () => {
+    const onLeave = mount();
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    expect(back()).toBe(true);
+    expect(screen.getByRole('dialog', { name: 'Leave the call?' })).toBeTruthy();
+    expect(onLeave).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('leave-stay'));
+    expect(screen.queryByRole('dialog', { name: 'Leave the call?' })).toBeNull();
+    expect(onLeave).not.toHaveBeenCalled();
+    expect(back()).toBe(true);
+    fireEvent.click(screen.getByTestId('leave-confirm'));
+    expect(onLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('Back closes the open chat panel first, then the next press asks about leaving', async () => {
+    const onLeave = mount();
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    fireEvent.click(screen.getByTestId('chat-toggle'));
+    expect(screen.queryByTestId('chat-panel')).not.toBeNull();
+    expect(back()).toBe(true);
+    expect(screen.queryByTestId('chat-panel')).toBeNull();
+    expect(screen.queryByRole('dialog', { name: 'Leave the call?' })).toBeNull();
+    expect(back()).toBe(true);
+    expect(screen.getByRole('dialog', { name: 'Leave the call?' })).toBeTruthy();
+    expect(onLeave).not.toHaveBeenCalled();
+  });
+
+  it('Back closes an open menu before anything else', async () => {
+    mount();
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    fireEvent.click(screen.getByTestId('more'));
+    expect(screen.queryByTestId('noise')).not.toBeNull();
+    expect(back()).toBe(true);
+    expect(screen.queryByTestId('noise')).toBeNull();
+    expect(screen.queryByRole('dialog', { name: 'Leave the call?' })).toBeNull();
+  });
+});
 
 describe('Call with a fake room', () => {
   it('connects once, shows the connecting ring first and then the local tile with the host controls', async () => {

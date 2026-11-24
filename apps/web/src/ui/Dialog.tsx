@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from 'react';
+import { useBackLayer } from '../platform/back';
 import { IconButton } from './Button';
 import { IconX } from './icons';
 
@@ -22,6 +23,7 @@ export interface DialogProps {
 export function Dialog({ open, onClose, title, children, footer, closeLabel, dismissOnBackdrop = true }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  useBackLayer(open, onClose);
 
   useEffect(() => {
     const d = ref.current;

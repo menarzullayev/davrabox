@@ -9,6 +9,7 @@ import './ui/ui.css';
 import './home/home.css';
 import { initErrorTracking } from './observability/errorTracking';
 import { watchSystemBars } from './platform/system-bars';
+import { watchBackButton } from './platform/back-button';
 
 // Error tracking (GlitchTip) is off unless the deployment serves a DSN in /runtime-config.json; see docs/observability.md.
 void initErrorTracking();
@@ -44,6 +45,7 @@ const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
 
 watchSystemBars(); // Android shell only: status-bar icons that match the page theme
+watchBackButton(); // Android shell only: Back closes the innermost layer, then goes back, then leaves the app
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
