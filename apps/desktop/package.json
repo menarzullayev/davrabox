@@ -23,7 +23,7 @@
     "electron-builder": "^26.0.0",
     "esbuild": "^0.25.0",
     "typescript": "^5.7.2",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   },
   "build": {
     "appId": "uz.davrabox.desktop",
