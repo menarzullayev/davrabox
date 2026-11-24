@@ -9,6 +9,8 @@ export const landingUz = {
 
   lnSkip: 'Asosiy qismga o‘tish',
   lnNavLabel: 'Bo‘limlar',
+  lnNavJoin: 'Qo‘shilish',
+  lnNavHost: 'Uchrashuv boshlash',
   lnNavCaps: 'Imkoniyatlar',
   lnNavSecurity: 'Xavfsizlik',
   lnNavOrgs: 'Tashkilotlar uchun',
@@ -144,6 +146,8 @@ export const landingRu: Record<LandingKey, string> = {
 
   lnSkip: 'Перейти к основному содержимому',
   lnNavLabel: 'Разделы',
+  lnNavJoin: 'Присоединиться',
+  lnNavHost: 'Начать встречу',
   lnNavCaps: 'Возможности',
   lnNavSecurity: 'Безопасность',
   lnNavOrgs: 'Для организаций',
@@ -277,6 +281,8 @@ export const landingEn: Record<LandingKey, string> = {
 
   lnSkip: 'Skip to main content',
   lnNavLabel: 'Sections',
+  lnNavJoin: 'Join',
+  lnNavHost: 'Host a meeting',
   lnNavCaps: 'Capabilities',
   lnNavSecurity: 'Security',
   lnNavOrgs: 'For organisations',

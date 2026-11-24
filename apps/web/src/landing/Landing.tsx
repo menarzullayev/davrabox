@@ -1,9 +1,12 @@
+import { useEffect } from 'react';
 import { tx } from '../home/text';
+import { t } from '../i18n';
 import './landing.css';
 import { Capabilities, FinalCta, ForOrganisations, HowItWorks, JoinMeeting, ProofStrip, Security } from './sections/Blocks';
 import { Footer } from './sections/Footer';
 import { Header } from './sections/Header';
 import { Hero } from './sections/Hero';
+import { applyLandingSeo } from './seo';
 import { usePrefs } from './usePrefs';
 
 export interface LandingProps {
@@ -20,6 +23,7 @@ const go = (url: string) => location.assign(url);
  */
 export default function Landing({ navigate = go }: LandingProps) {
   const { lang, setLang, theme, setTheme } = usePrefs('lnPageTitle', 'lnPageDesc');
+  useEffect(() => applyLandingSeo(document, location.origin, lang, t(lang, 'appName'), t(lang, 'lnPageDesc')), [lang]);
   return (
     <div className="ln-page">
       <a className="hm-skip" href="#ln-main">
