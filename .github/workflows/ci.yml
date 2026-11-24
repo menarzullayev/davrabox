@@ -34,7 +34,7 @@ jobs:
           --health-cmd "redis-cli ping"
           --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v7
         with:
@@ -61,7 +61,7 @@ jobs:
           ./helm lint deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json
           ./helm template davrabox deploy/helm/davrabox --set-file keycloak.realmJson=deploy/keycloak/davrabox-realm.json > /dev/null
       - name: Terraform fmt and validate
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.17.2
       - run: |
@@ -134,7 +134,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
