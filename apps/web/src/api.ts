@@ -1,5 +1,7 @@
 import { assertNoMeetingKey } from './e2ee/guard';
 
+export type GuestMode = 'off' | 'waiting_room' | 'open';
+
 export interface Meeting {
   id: string;
   code: string;
@@ -11,6 +13,7 @@ export interface Meeting {
   is_host?: boolean;
   /** End-to-end encrypted meeting (absent on an API that predates the feature: treated as false). */
   e2ee?: boolean;
+  guest_mode?: GuestMode;
 }
 
 export interface JoinedResult {
@@ -22,14 +25,19 @@ export interface JoinedResult {
   isHost: boolean;
   /** The media is end-to-end encrypted; the key comes from the link fragment and is never sent to the server. */
   e2ee?: boolean;
+  /** Set when the person joined as a guest (no account). */
+  guest?: boolean;
+  guestToken?: string;
 }
 export type JoinResult = JoinedResult | { status: 'waiting'; requestId: string };
+export type GuestJoinResult = JoinedResult | { status: 'waiting'; requestId: string; guestToken: string };
 
 export interface JoinRequest {
   id: string;
-  user_id: string;
+  user_id: string | null;
   display_name: string;
-  email: string;
+  email: string | null;
+  guest?: boolean;
 }
 
 export interface RecordingStatus {
@@ -72,6 +80,24 @@ async function call<T>(token: string, path: string, init?: { method?: string; bo
 }
 
 const enc = encodeURIComponent;
+
+/** Calls for people without an account: no sign-in, so no Authorization header (a guest session token only for polling). */
+async function guestCall<T>(path: string, init: { method?: string; body?: unknown; bearer?: string }): Promise<T> {
+  const headers = { ...(init.bearer ? { Authorization: `Bearer ${init.bearer}` } : {}), ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
+  const body = init.body !== undefined ? JSON.stringify(init.body) : undefined;
+  assertNoMeetingKey({ url: `/api${path}`, headers, body });
+  const res = await fetch(`/api${path}`, { method: init.method ?? 'GET', headers, body });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      detail = String(((await res.json()) as { message?: unknown }).message ?? '');
+    } catch {
+      /* body was not JSON */
+    }
+    throw new ApiError(res.status, detail);
+  }
+  return (await res.json()) as T;
+}
 
 /** Uploads a file to the meeting (raw body, authorised by the bearer token). */
 async function uploadFile(token: string, code: string, file: File): Promise<{ id: string; name: string; size: number }> {
@@ -121,7 +147,11 @@ export const api = {
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
-  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean }) =>
+  settings: (token: string) => call<{ guestPolicy: GuestMode }>(token, '/v1/meetings/settings'),
+  guestJoin: (code: string, name: string, passcode?: string) =>
+    guestCall<GuestJoinResult>(`/v1/guest/meetings/${enc(code)}/join`, { method: 'POST', body: { name, ...(passcode ? { passcode } : {}) } }),
+  guestStatus: (guestToken: string, id: string) => guestCall<JoinedResult | { status: 'waiting' }>(`/v1/guest/requests/${enc(id)}`, { bearer: guestToken }),
+  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean; guests?: GuestMode }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),
   join: (token: string, code: string, passcode?: string) =>
     call<JoinResult>(token, `/v1/meetings/${enc(code)}/join`, { method: 'POST', body: { passcode } }),

@@ -8,6 +8,8 @@ import { AuthGuard, POOL, VERIFIER } from './auth/auth.guard.js';
 import { createVerifier } from './auth/jwt.js';
 import { MEETINGS, MeetingsController } from './meetings/meetings.controller.js';
 import { MeetingsService } from './meetings/meetings.service.js';
+import { GUESTS, GuestController } from './meetings/guest.controller.js';
+import { GuestService } from './meetings/guest.service.js';
 import { HealthController } from './health.controller.js';
 import { READINESS, ReadinessService } from './readiness.js';
 import { FILES, FilesController } from './files/files.controller.js';
@@ -31,7 +33,7 @@ export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
-  controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers],
+  controllers: [MeetingsController, GuestController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
@@ -41,6 +43,7 @@ export const CONFIG = Symbol('CONFIG');
     { provide: READINESS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ReadinessService(pool, { livekitApiUrl: cfg.LIVEKIT_API_URL }, { rate }), inject: [POOL, CONFIG, RateLimitService] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },
     { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new MeetingsService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
+    { provide: GUESTS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new GuestService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     { provide: FILES, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new FilesService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     {
       provide: ADMIN,

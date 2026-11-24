@@ -47,12 +47,15 @@ export function Call({
   getToken,
   lang,
   onLeave,
+  guest = false,
 }: {
   join: JoinedResult;
   code: string;
   getToken: () => Promise<string>;
   lang: Lang;
   onLeave: () => void;
+  /** Joined without an account: no member-only calls (role, requests, files, recording) are made and none of their controls shown. */
+  guest?: boolean;
 }) {
   const roomRef = useRef<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -241,6 +244,7 @@ export function Call({
 
   // Role follows promotions and demotions while connected; managers also poll the waiting room and co-host list.
   useEffect(() => {
+    if (guest) return;
     let stop = false;
     const tick = async () => {
       try {
@@ -268,10 +272,11 @@ export function Call({
       stop = true;
       clearInterval(id);
     };
-  }, [code, getToken]);
+  }, [code, getToken, guest]);
 
   // Whether recording is available here and whether this meeting is end-to-end encrypted (the record button depends on it).
   useEffect(() => {
+    if (guest) return;
     let stop = false;
     void (async () => {
       try {
@@ -493,7 +498,7 @@ export function Call({
   // Plain props for the presentational layer. Local participant first: that order is the stable ring order.
   const views: ParticipantView[] = participants.map((p, i) => ({
     id: p.identity,
-    name: p.name || p.identity,
+    name: (p.name || p.identity) + (p.identity.startsWith('guest:') ? ` (${t(lang, 'hGuestLabel')})` : ''),
     local: i === 0,
     speaking: p.isSpeaking,
     micMuted: p.getTrackPublication(Track.Source.Microphone)?.isMuted !== false,
@@ -543,7 +548,7 @@ export function Call({
       manage={manage}
       locked={locked}
       onLock={manages ? () => void hostCall((tk) => api.lock(tk, code, !locked).then((r) => setLocked(r.locked))) : undefined}
-      requests={requests.map((r) => ({ id: r.id, name: r.display_name || r.email }))}
+      requests={requests.map((r) => ({ id: r.id, name: (r.display_name || r.email || '') + (r.guest ? ` (${t(lang, 'hGuestLabel')})` : '') }))}
       onDecide={(id, admit) => void hostCall((tk) => api.decide(tk, code, id, admit).then(() => setRequests((x) => x.filter((y) => y.id !== id))))}
       mic={mic}
       cam={cam}
@@ -571,7 +576,7 @@ export function Call({
         if (id === 'chat') setUnread(0);
       }}
       unread={unread}
-      chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f), noFiles: join.e2ee === true }}
+      chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f), noFiles: join.e2ee === true || guest, guest }}
       layout={layout}
       onLayout={setLayout}
       e2ee={join.e2ee ? { on: e2eeOn } : undefined}

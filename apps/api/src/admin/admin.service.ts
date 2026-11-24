@@ -346,18 +346,18 @@ export class AdminService {
   async setPolicies(actor: AuthedUser, p: OrgPolicies): Promise<OrgPolicies> {
     return withTenant(this.pool, actor.orgId, async (c) => {
       await c.query(
-        `INSERT INTO org_policies (org_id, require_passcode, waiting_room_default, max_participants, require_totp)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO org_policies (org_id, require_passcode, waiting_room_default, max_participants, require_totp, guest_policy)
+         VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (org_id) DO UPDATE SET require_passcode = EXCLUDED.require_passcode,
            waiting_room_default = EXCLUDED.waiting_room_default, max_participants = EXCLUDED.max_participants,
-           require_totp = EXCLUDED.require_totp, updated_at = now()`,
-        [actor.orgId, p.requirePasscode, p.waitingRoomDefault, p.maxParticipants, p.requireTotp],
+           require_totp = EXCLUDED.require_totp, guest_policy = EXCLUDED.guest_policy, updated_at = now()`,
+        [actor.orgId, p.requirePasscode, p.waitingRoomDefault, p.maxParticipants, p.requireTotp, p.guestPolicy],
       );
       await this.audit(
         c,
         actor,
         'admin.policy.update',
-        `requirePasscode=${p.requirePasscode},waitingRoomDefault=${p.waitingRoomDefault},maxParticipants=${p.maxParticipants},requireTotp=${p.requireTotp}`,
+        `requirePasscode=${p.requirePasscode},waitingRoomDefault=${p.waitingRoomDefault},maxParticipants=${p.maxParticipants},requireTotp=${p.requireTotp},guestPolicy=${p.guestPolicy}`,
       );
       return { ...DEFAULT_POLICIES, ...p };
     });

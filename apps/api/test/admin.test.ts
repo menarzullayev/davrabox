@@ -559,11 +559,11 @@ describe('policies', () => {
     const admin = await mkUser(slugs.pol, `poladm-${sfx}`, 'org_admin');
     const t = admin.token;
     const get0 = await api('GET', '/v1/admin/policies', t);
-    expect(get0.body).toEqual({ requirePasscode: false, waitingRoomDefault: true, maxParticipants: 300, requireTotp: false });
+    expect(get0.body).toEqual({ requirePasscode: false, waitingRoomDefault: true, maxParticipants: 300, requireTotp: false, guestPolicy: 'off' });
     const put = await api('PUT', '/v1/admin/policies', t, valid);
     expect(put.status).toBe(200);
-    expect(put.body).toEqual(valid);
-    expect((await api('GET', '/v1/admin/policies', t)).body).toEqual(valid);
+    expect(put.body).toEqual({ ...valid, guestPolicy: 'off' }); // omitted guestPolicy is stored as the safe default
+    expect((await api('GET', '/v1/admin/policies', t)).body).toEqual({ ...valid, guestPolicy: 'off' });
     expect((await api('GET', '/v1/admin/policies', adminB.token)).body.maxParticipants).toBe(300); // not org B's
     expect((await auditActions(admin.orgId)).map((a) => a.action)).toContain('admin.policy.update');
   });
@@ -576,10 +576,23 @@ describe('policies', () => {
     ['flag not boolean', { ...valid, requirePasscode: 'true' }],
     ['missing field', { requirePasscode: true, waitingRoomDefault: true, maxParticipants: 10 }],
     ['extra field', { ...valid, lockWaitingRoom: true }],
+    ['unknown guest policy', { ...valid, guestPolicy: 'everyone' }],
+    ['guest policy not a string', { ...valid, guestPolicy: true }],
   ])('rejects %s with 400 and stores nothing', async (_n, body) => {
     const before = (await api('GET', '/v1/admin/policies', adminB.token)).body;
     expect((await api('PUT', '/v1/admin/policies', adminB.token, body)).status).toBe(400);
     expect((await api('GET', '/v1/admin/policies', adminB.token)).body).toEqual(before);
+  });
+
+  it('stores each guest policy and an admin can lower it again', async () => {
+    for (const g of ['open', 'waiting_room', 'off'] as const) {
+      const r = await api('PUT', '/v1/admin/policies', adminB.token, { ...valid, guestPolicy: g });
+      expect(r.status).toBe(200);
+      expect((await api('GET', '/v1/admin/policies', adminB.token)).body.guestPolicy).toBe(g);
+    }
+    expect((await auditActions(adminB.orgId)).some((a) => a.action === 'admin.policy.update')).toBe(true);
+    const row = await owner.query("SELECT target FROM audit_log WHERE org_id = $1 AND action = 'admin.policy.update' ORDER BY id DESC LIMIT 1", [adminB.orgId]);
+    expect(row.rows[0].target).toContain('guestPolicy=off');
   });
 
   it('accepts the bounds 2 and 300', async () => {

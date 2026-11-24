@@ -12,6 +12,7 @@ import { joinResults, meetingsCreated } from '../metrics.js';
 import { livekitUrlFor } from './public-url.js';
 import { loadPolicies } from '../admin/policies.js';
 import { TrialLimits } from '../signup/trial.guard.js';
+import { GUEST_IDENTITY_PREFIX, type GuestMode } from './guest-types.js';
 
 export class MeetingError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -26,6 +27,8 @@ export interface CreateMeetingInput {
   waitingRoom?: boolean;
   /** End-to-end encrypted meeting. Chosen at creation and never changed afterwards. */
   e2ee?: boolean;
+  /** Guests (people without an account): the host's choice, never more than the organization's policy allows. Default off. */
+  guests?: GuestMode;
 }
 
 export interface JoinedResult {
@@ -58,6 +61,11 @@ interface MeetingRow {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CODE_RE = /^[0-9]{11,12}$/;
 
+/** A LiveKit participant identity this API manages: a member's user id or a guest's `guest:<id>`. */
+function isParticipantIdentity(identity: string): boolean {
+  return UUID_RE.test(identity) || (identity.startsWith(GUEST_IDENTITY_PREFIX) && UUID_RE.test(identity.slice(GUEST_IDENTITY_PREFIX.length)));
+}
+
 function newCode(): string {
   // 11 digits, first digit non-zero, from a CSPRNG.
   return String(randomInt(1, 10)) + String(randomInt(0, 10 ** 10)).padStart(10, '0');
@@ -80,16 +88,19 @@ export class MeetingsService {
     // Organization policies (admin console): a required passcode is enforced, the waiting-room default applies when the client is silent.
     const policy = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
     if (policy.requirePasscode && !input.passcode) throw new MeetingError(400, 'this organization requires a meeting passcode');
+    const rank = { off: 0, waiting_room: 1, open: 2 };
+    const guests: GuestMode = input.guests ?? 'off';
+    if (rank[guests] > rank[policy.guestPolicy]) throw new MeetingError(400, 'this organization does not allow that guest setting');
     const passcodeHash = input.passcode ? await argon2.hash(input.passcode, { type: argon2.argon2id }) : null;
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = newCode();
       try {
         return await withTenant(this.pool, user.orgId, async (c) => {
           const r = await c.query(
-            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room, e2ee)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-             RETURNING id, code, title, waiting_room, locked, scheduled_at, e2ee, (passcode_hash IS NOT NULL) AS has_passcode`,
-            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault, input.e2ee === true],
+            `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room, e2ee, guest_mode)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             RETURNING id, code, title, waiting_room, locked, scheduled_at, e2ee, guest_mode, (passcode_hash IS NOT NULL) AS has_passcode`,
+            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault, input.e2ee === true, guests],
           );
           await this.audit(c, user, 'meeting.create', code);
           meetingsCreated.inc();
@@ -103,10 +114,16 @@ export class MeetingsService {
     throw new MeetingError(503, 'could not allocate a meeting code');
   }
 
+  /** What the caller's organization allows hosts to choose (the new-meeting dialog shows only that much). */
+  async settings(user: AuthedUser): Promise<{ guestPolicy: GuestMode }> {
+    const p = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
+    return { guestPolicy: p.guestPolicy };
+  }
+
   async list(user: AuthedUser) {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT id, code, title, waiting_room, locked, scheduled_at, e2ee, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
+        `SELECT id, code, title, waiting_room, locked, scheduled_at, e2ee, guest_mode, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
          FROM meetings ORDER BY created_at DESC LIMIT 100`,
         [user.userId],
       );
@@ -197,13 +214,19 @@ export class MeetingsService {
     return withTenant(this.pool, user.orgId, async (c) => {
       const meeting = await this.meetingByCode(c, code, user.userId);
       this.mustManage(user, meeting);
-      const r = await c.query(
-        `SELECT jr.id, jr.user_id, u.display_name, u.email, jr.created_at
+      const members = await c.query(
+        `SELECT jr.id, jr.user_id, u.display_name, u.email, jr.created_at, false AS guest
          FROM join_requests jr JOIN users u ON u.id = jr.user_id
          WHERE jr.meeting_id = $1 AND jr.status = 'pending' ORDER BY jr.created_at`,
         [meeting.id],
       );
-      return r.rows;
+      // Guests (no account): the id is the guest session id; the client labels them and the person decides.
+      const guests = await c.query(
+        `SELECT g.id, NULL::uuid AS user_id, g.display_name, NULL::text AS email, g.created_at, true AS guest
+         FROM guest_sessions g WHERE g.meeting_id = $1 AND g.status = 'pending' ORDER BY g.created_at`,
+        [meeting.id],
+      );
+      return [...members.rows, ...guests.rows].sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
     });
   }
 
@@ -217,7 +240,17 @@ export class MeetingsService {
          WHERE id = $3 AND meeting_id = $4 AND status = 'pending' RETURNING user_id`,
         [admit ? 'admitted' : 'denied', user.userId, requestId, meeting.id],
       );
-      if (!r.rowCount) throw new MeetingError(404, 'no pending request');
+      if (!r.rowCount) {
+        // Not a member's request: it may be a guest's.
+        const g = await c.query(
+          `UPDATE guest_sessions SET status = $1, decided_at = now(), decided_by = $2
+           WHERE id = $3 AND meeting_id = $4 AND status = 'pending' RETURNING id`,
+          [admit ? 'admitted' : 'denied', user.userId, requestId, meeting.id],
+        );
+        if (!g.rowCount) throw new MeetingError(404, 'no pending request');
+        await this.audit(c, user, admit ? 'guest.admit' : 'guest.deny', `${code}:${requestId}`);
+        return { status: admit ? 'admitted' : 'denied' };
+      }
       await this.audit(c, user, admit ? 'meeting.admit' : 'meeting.deny', `${code}:${r.rows[0].user_id}`);
       return { status: admit ? 'admitted' : 'denied' };
     });
@@ -254,7 +287,7 @@ export class MeetingsService {
   /** Mutes every published microphone track of a participant. The participant can unmute themselves later. */
   async muteParticipant(user: AuthedUser, code: string, identity: string) {
     const meeting = await this.managedMeeting(user, code);
-    if (!UUID_RE.test(identity)) throw new MeetingError(404, 'participant not found');
+    if (!isParticipantIdentity(identity)) throw new MeetingError(404, 'participant not found');
     let participant;
     try {
       participant = await this.rooms.getParticipant(meeting.id, identity);
@@ -269,8 +302,9 @@ export class MeetingsService {
 
   /** Removes a participant and bans them from rejoining this meeting. The host cannot be removed. */
   async removeParticipant(user: AuthedUser, code: string, identity: string) {
-    if (!UUID_RE.test(identity)) throw new MeetingError(404, 'participant not found');
+    if (!isParticipantIdentity(identity)) throw new MeetingError(404, 'participant not found');
     const meeting = await this.managedMeeting(user, code);
+    if (identity.startsWith(GUEST_IDENTITY_PREFIX)) return this.removeGuest(user, code, meeting, identity.slice(GUEST_IDENTITY_PREFIX.length));
     if (identity === meeting.host_user_id || identity === user.userId) throw new MeetingError(400, 'cannot remove the host or yourself');
     await withTenant(this.pool, user.orgId, async (c) => {
       const target = await c.query('SELECT 1 FROM users WHERE id = $1', [identity]); // RLS: same organization only
@@ -286,6 +320,34 @@ export class MeetingsService {
     });
     try {
       await this.rooms.removeParticipant(meeting.id, identity);
+    } catch {
+      /* not connected right now: the ban still applies */
+    }
+    return { removed: true };
+  }
+
+  /**
+   * Removes a guest: the session is closed, the room connection dropped and the guest's network address (keyed hash, this
+   * meeting only) banned. A guest who changes address gets in again if the policy allows: the host can lock the meeting.
+   */
+  private async removeGuest(user: AuthedUser, code: string, meeting: MeetingRow, sessionId: string) {
+    await withTenant(this.pool, user.orgId, async (c) => {
+      const g = await c.query("UPDATE guest_sessions SET status = 'denied', decided_at = now(), decided_by = $1 WHERE id = $2 AND meeting_id = $3 RETURNING ip_hash", [
+        user.userId,
+        sessionId,
+        meeting.id,
+      ]);
+      if (!g.rowCount) throw new MeetingError(404, 'participant not found');
+      await c.query('INSERT INTO meeting_guest_bans (meeting_id, ip_hash, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING', [
+        meeting.id,
+        (g.rows[0] as { ip_hash: string }).ip_hash,
+        user.orgId,
+        user.userId,
+      ]);
+      await this.audit(c, user, 'guest.remove', `${code}:${sessionId}`);
+    });
+    try {
+      await this.rooms.removeParticipant(meeting.id, `${GUEST_IDENTITY_PREFIX}${sessionId}`);
     } catch {
       /* not connected right now: the ban still applies */
     }

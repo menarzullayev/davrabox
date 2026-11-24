@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
-import { api, type JoinedResult, type Meeting } from './api';
+import { api, type GuestMode, type JoinedResult, type Meeting } from './api';
 import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
@@ -53,6 +53,11 @@ export function App() {
   const [err, setErr] = useState<Key | null>(null);
   const [joined, setJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
   const [waiting, setWaiting] = useState<{ code: string; requestId: string } | null>(null);
+  // Guest (no account) state: a joined call or a waiting request with its own session token.
+  const [guestJoined, setGuestJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
+  const [guestWaiting, setGuestWaiting] = useState<{ code: string; requestId: string; guestToken: string } | null>(null);
+  const guestGetToken = useCallback(async () => guestJoined?.result.guestToken ?? '', [guestJoined]);
+  const [guestMax, setGuestMax] = useState<GuestMode>('off');
 
   const [adminView, setAdminView] = useState(() => isAdminPath(location.pathname));
 
@@ -79,6 +84,10 @@ export function App() {
   useEffect(() => {
     if (!token) return;
     api.trial(token).then((s) => setTrialEnds(s.trial ? s.endsAt : null)).catch(() => setTrialEnds(null));
+  }, [token]);
+  useEffect(() => {
+    if (!token) return;
+    api.settings(token).then((s) => setGuestMax(s.guestPolicy)).catch(() => setGuestMax('off'));
   }, [token]);
   const refresh = useCallback(async () => {
     if (!token) return;
@@ -144,6 +153,19 @@ export function App() {
     }
   };
 
+  const doGuestJoin = async (rawCode: string, name: string, passcode?: string): Promise<void> => {
+    const clean = rawCode.replace(/\s+/g, '');
+    const res = await api.guestJoin(clean, name, passcode || undefined);
+    try {
+      sessionStorage.removeItem('pendingJoin');
+    } catch {
+      /* ignore */
+    }
+    setPendingCode('');
+    if (res.status === 'joined') setGuestJoined({ result: res, code: clean });
+    else setGuestWaiting({ code: clean, requestId: res.requestId, guestToken: res.guestToken });
+  };
+
   const doCreate = async (d: NewMeetingData): Promise<Meeting> => {
     setErr(null);
     const m = await createMeetingWithKey((body) => api.create(token, body), d); // E2EE: the key is made here and never sent
@@ -162,6 +184,26 @@ export function App() {
 
   if (loading) return <LoadingScreen lang={lang} />;
 
+  if (guestJoined) {
+    return <Call join={guestJoined.result} code={guestJoined.code} guest getToken={guestGetToken} lang={lang} onLeave={() => setGuestJoined(null)} />;
+  }
+  if (guestWaiting) {
+    return (
+      <Waiting
+        lang={lang}
+        code={guestWaiting.code}
+        requestId={guestWaiting.requestId}
+        guestToken={guestWaiting.guestToken}
+        onAdmitted={(r) => {
+          setGuestJoined({ result: r, code: guestWaiting.code });
+          setGuestWaiting(null);
+        }}
+        onFailed={() => setGuestWaiting(null)}
+        onCancel={() => setGuestWaiting(null)}
+      />
+    );
+  }
+
   if (!user) {
     return (
       <SignInScreen
@@ -173,6 +215,8 @@ export function App() {
           rememberReturnPath(location.pathname);
           void signIn({ lang });
         }}
+        initialCode={pendingCode}
+        onGuestJoin={doGuestJoin}
         onSignInToJoin={(code) => {
           try {
             sessionStorage.setItem('pendingJoin', code);
@@ -247,6 +291,7 @@ export function App() {
       onCreate={doCreate}
       onSignOut={() => void manager.signoutRedirect()}
       calendarToken={token}
+      guestMax={guestMax}
     />
   );
 }

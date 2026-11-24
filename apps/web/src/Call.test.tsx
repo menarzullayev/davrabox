@@ -464,3 +464,44 @@ describe('recording in the call', () => {
     expect(screen.queryByTestId('record')).toBeNull();
   });
 });
+
+describe('Call as a guest (no account)', () => {
+  const guestJoin = { status: 'joined' as const, token: 'gtok', url: 'wss://x', meetingId: 'm', title: 'Weekly sync', isHost: false, guest: true, guestToken: 'gs' };
+  function mountGuest() {
+    return render(<Call join={guestJoin} code="12345678901" guest getToken={async () => 'gs'} lang="en" onLeave={vi.fn()} />);
+  }
+
+  it('makes none of the member-only calls (role, requests, co-hosts, recording) and shows no host controls', async () => {
+    mountGuest();
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    await act(async () => { await new Promise((r) => setTimeout(r, 2300)); }); // longer than one poll interval
+    expect(api.me).not.toHaveBeenCalled();
+    expect(api.listRequests).not.toHaveBeenCalled();
+    expect(api.cohosts).not.toHaveBeenCalled();
+    expect(api.recordingStatus).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('record')).toBeNull();
+    expect(screen.queryByTestId('lock')).toBeNull();
+    expect(screen.queryByTestId('join-request')).toBeNull();
+  });
+
+  it('labels another guest in the participant list', async () => {
+    mountGuest();
+    await flush();
+    const p = new Fake('guest:00000000-0000-4000-8000-000000000001', 'Ali Valiyev');
+    act(() => {
+      (lkRoom().remoteParticipants as Map<string, unknown>).set(p.identity, p);
+      lkRoom().emit('participantConnected', p);
+    });
+    await waitFor(() => expect(document.body.textContent).toContain('Ali Valiyev (guest)'));
+  });
+});
+
+describe('Call as a member with a guest in the waiting room', () => {
+  it('labels the guest request so the host can tell who has no account', async () => {
+    (api.listRequests as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce([{ id: 'g1', user_id: null, display_name: 'Waiting Wendy', email: null, guest: true }]);
+    mount();
+    await flush();
+    await waitFor(() => expect(screen.getByTestId('join-request').textContent).toContain('Waiting Wendy (guest)'));
+  });
+});

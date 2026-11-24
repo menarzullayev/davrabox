@@ -49,6 +49,8 @@ export interface ChatPanelProps {
   onSave(f: { id: string; name: string }): void;
   /** End-to-end encrypted meeting: files would pass through the server, so attaching is switched off and explained. */
   noFiles?: boolean;
+  /** The reason there are no files is that the person is a guest, not that the meeting is encrypted. */
+  guest?: boolean;
   onClose(): void;
 }
 
@@ -99,7 +101,7 @@ export function ChatPanel(p: ChatPanelProps) {
             <option key={o.id} value={o.id}>{o.name}</option>
           ))}
         </Select>
-        {p.noFiles ? <p className="dv-empty" data-testid="e2ee-nofiles">{t(lang, 'e2eeNoFiles')}</p> : null}
+        {p.noFiles ? <p className="dv-empty" data-testid="e2ee-nofiles">{t(lang, p.guest ? 'hGuestNoFiles' : 'e2eeNoFiles')}</p> : null}
         <div className="dv-form__row">
           {p.noFiles ? null : (
             <>

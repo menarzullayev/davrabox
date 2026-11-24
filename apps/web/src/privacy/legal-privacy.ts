@@ -21,6 +21,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         items: [
           'Account: your name, e-mail address, role and department, and a sign-in identifier. Purpose: to let you sign in and to show your name to the people you meet with.',
           'Meetings: the title, code and time of meetings, who hosted them, and who entered them (including waiting-room requests). Purpose: to run meetings, host controls and file access.',
+          'Guests: if you join a meeting without an account, we keep the name you typed and a keyed hash of your network address (not the address itself) for that meeting. Purpose: so that the host can admit you and can keep a removed person from coming back. They are deleted with the meeting.',
           'Audio, video and screen sharing: sent live through a media server while you are in a call. They are not stored unless the host starts a recording; a recording is announced to everyone in the meeting.',
           'Chat: messages travel live during the meeting and are not stored by DavraBox. In end-to-end encrypted meetings they are encrypted so that the server cannot read them.',
           'Files you share in a meeting: stored encrypted so that people in that meeting can download them.',
@@ -98,6 +99,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         items: [
           'Аккаунт: имя, адрес электронной почты, роль и отдел, идентификатор для входа. Цель: чтобы вы могли войти, а собеседники видели ваше имя.',
           'Встречи: название, код и время встречи, кто её провёл и кто в неё входил (включая запросы из зала ожидания). Цель: проведение встреч, права ведущего, доступ к файлам.',
+          'Гости: если вы присоединяетесь к встрече без аккаунта, мы храним введённое вами имя и ключевой хеш вашего сетевого адреса (не сам адрес) для этой встречи. Цель: чтобы организатор мог вас впустить и не пускать удалённого человека обратно. Удаляются вместе со встречей.',
           'Звук, видео и показ экрана: передаются в реальном времени через медиасервер, пока вы на звонке. Не сохраняются, пока ведущий не начнёт запись; о записи объявляется всем участникам.',
           'Чат: сообщения идут в реальном времени во время встречи и DavraBox их не хранит. Во встречах со сквозным шифрованием они зашифрованы так, что сервер их прочитать не может.',
           'Файлы, которыми вы делитесь на встрече: хранятся в зашифрованном виде, чтобы участники этой встречи могли их скачать.',
@@ -175,6 +177,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         items: [
           'Hisob: ismingiz, elektron pochta manzilingiz, rolingiz va bo‘limingiz, kirish identifikatori. Maqsad: tizimga kirishingiz va suhbatdoshlaringiz ismingizni ko‘rishi uchun.',
           'Uchrashuvlar: uchrashuv nomi, kodi va vaqti, uni kim o‘tkazgani va kim kirgani (kutish xonasi so‘rovlari bilan). Maqsad: uchrashuvlarni o‘tkazish, boshlovchi boshqaruvi va fayllarga kirish.',
+          'Mehmonlar: uchrashuvga hisobsiz qo‘shilsangiz, kiritgan ismingiz va tarmoq manzilingizning kalitli xeshi (manzilning o‘zi emas) shu uchrashuv uchun saqlanadi. Maqsad: host sizni kiritishi va chiqarilgan odam qaytib kirmasligi uchun. Uchrashuv bilan birga o‘chiriladi.',
           'Ovoz, video va ekranni ulashish: qo‘ng‘iroqda bo‘lganingizda media-server orqali jonli uzatiladi. Boshlovchi yozuvni boshlamasa, saqlanmaydi; yozuv haqida uchrashuvdagi hammaga e’lon qilinadi.',
           'Chat: xabarlar uchrashuv paytida jonli o‘tadi va DavraBox ularni saqlamaydi. Uchidan-uchiga shifrlangan (E2EE) uchrashuvlarda ular server o‘qiy olmaydigan tarzda shifrlanadi.',
           'Uchrashuvda ulashgan fayllaringiz: o‘sha uchrashuv ishtirokchilari yuklab olishi uchun shifrlangan holda saqlanadi.',
