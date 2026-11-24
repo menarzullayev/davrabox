@@ -108,7 +108,7 @@ try {
   check('the webhook list shows the URL and never the secret', hooksText.includes(hookUrl) && !hooksText.includes(hookSecret.slice(6)));
   await a.page.getByRole('button', { name: /(Deliveries|Yetkazib berishlar|Доставки): example\.com/ }).first().click();
   await a.page.waitForSelector('dialog.dx-dialog[open]', { timeout: 5000 });
-  check('the delivery log dialog opens', (await a.page.locator('dialog.dx-dialog[open] select').count()) === 1);
+  check('the delivery log dialog opens', (await a.page.locator('dialog.dx-dialog[open] [role=combobox]').count()) === 1);
   await a.page.keyboard.press('Escape');
   await a.page.waitForFunction(() => !document.querySelector('dialog.dx-dialog[open]'), null, { timeout: 5000 });
   await a.page.getByRole('button', { name: /(Delete|O‘chirish|Удалить): example\.com/ }).first().click();

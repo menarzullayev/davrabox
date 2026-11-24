@@ -7,6 +7,7 @@ import { LAB_NOW, labMeetings } from '../home/HomeLab';
 import { AddToCalendarDialog } from './AddToCalendarDialog';
 import type { CalendarApi, ProviderStatus } from './calendarApi';
 import { dictionaries } from '../i18n';
+import { pickOption, setDateTime } from '../ui/testing';
 
 afterEach(() => {
   cleanup();
@@ -55,10 +56,10 @@ describe('AddToCalendarDialog', () => {
   it('creates the event with the chosen time, duration and attendees, then links to it', async () => {
     const api = fakeApi(both(true, false));
     renderDialog(api);
-    const start = (await screen.findByTestId('cal-start')) as HTMLInputElement;
-    expect(start.value).toBe('2026-11-24T10:30'); // next half hour from the injected clock
-    fireEvent.change(start, { target: { value: '2026-12-01T09:00' } });
-    fireEvent.change(screen.getByTestId('cal-duration'), { target: { value: '90' } });
+    const start = await screen.findByTestId('cal-start');
+    expect(start.getAttribute('data-value')).toBe('2026-11-24T10:30'); // next half hour from the injected clock
+    setDateTime(start, '2026-12-01T09:00');
+    pickOption('cal-duration', '90');
     fireEvent.change(screen.getByTestId('cal-attendees'), { target: { value: 'ann@example.com, bob@example.org' } });
     fireEvent.click(screen.getByTestId('cal-create'));
     const link = (await screen.findByTestId('cal-event-link')) as HTMLAnchorElement;

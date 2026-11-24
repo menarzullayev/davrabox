@@ -5,12 +5,6 @@
   "literalPx": 36,
   "rawControls": 0
  },
- "admin/Audit.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
- },
  "admin/Departments.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
@@ -21,7 +15,7 @@
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 3
+  "rawControls": 2
  },
  "admin/Privacy.tsx": {
   "colours": 0,
@@ -33,13 +27,7 @@
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 3
- },
- "App.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
+  "rawControls": 2
  },
  "calendar/calendar.css": {
   "colours": 0,
@@ -69,7 +57,7 @@
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 14
+  "rawControls": 11
  },
  "call/lab/FakeMedia.tsx": {
   "colours": 7,
@@ -143,11 +131,23 @@
   "literalPx": 0,
   "rawControls": 1
  },
+ "ui/Combobox.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "ui/DateTimePicker.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 5
+ },
  "ui/fields.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 4
+  "rawControls": 3
  },
  "ui/Menu.tsx": {
   "colours": 0,
@@ -160,6 +160,12 @@
   "offBreakpoints": 0,
   "literalPx": 0,
   "rawControls": 1
+ },
+ "ui/Select.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 2
  },
  "ui/Tabs.tsx": {
   "colours": 0,

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ApiError, type Meeting } from '../api';
 import { t, type Key, type Lang } from '../i18n';
-import { Alert, Badge, Button, Dialog, Select, Spinner, TextField } from '../ui';
+import { Alert, Badge, Button, DateTimePicker, Dialog, Select, Spinner, TextField } from '../ui';
 import { tx } from '../home/text';
 import { calendarApi, type CalendarApi, type ProviderStatus } from './calendarApi';
 import { buildEventBody, calendarErrorKey, defaultStart, toLocalInput, type CalProvider } from './logic';
@@ -193,7 +193,7 @@ export function AddToCalendarDialog({ lang, token, meeting, onClose, api = calen
                     {tx(lang, 'calDisconnect')}
                   </Button>
                 </div>
-                <TextField label={tx(lang, 'calStart')} type="datetime-local" required value={start} onChange={(e) => setStart(e.target.value)} data-testid="cal-start" />
+                <DateTimePicker label={tx(lang, 'calStart')} lang={lang} required value={start} onChange={(e) => setStart(e.target.value)} data-testid="cal-start" />
                 <Select label={tx(lang, 'calDuration')} value={String(minutes)} onChange={(e) => setMinutes(Number(e.target.value))} data-testid="cal-duration">
                   {DURATIONS.map((d) => (
                     <option key={d} value={d}>

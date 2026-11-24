@@ -1,4 +1,4 @@
-import { Button, TextField } from '../ui';
+import { Button, Combobox, DateTimePicker, TextField } from '../ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { t } from '../i18n';
 import type { AuditEntry, AuditFilters, ExportFormat } from './client';
@@ -104,19 +104,15 @@ export function Audit() {
     }
   };
 
-  const set = (k: keyof AuditForm) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
+  const set = (k: keyof AuditForm) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value });
 
   return (
     <section aria-labelledby="sec-audit">
       <h2 id="sec-audit" className="sec-title">{t(lang, 'admAudit')}</h2>
       <form onSubmit={apply} className="filters" role="search">
-        <TextField label={t(lang, 'admFrom')} type="datetime-local" value={form.from} onChange={set('from')} />
-        <TextField label={t(lang, 'admTo')} type="datetime-local" value={form.to} onChange={set('to')} />
-        <label>{t(lang, 'admAction')}
-          <input list="audit-actions" maxLength={100} value={form.action} onChange={set('action')} aria-describedby="action-hint" autoComplete="off" />
-          <datalist id="audit-actions">{ACTION_HINTS.map((a) => <option key={a} value={a} />)}</datalist>
-          <span id="action-hint" className="hint">{t(lang, 'admActionHint')}</span>
-        </label>
+        <DateTimePicker label={t(lang, 'admFrom')} lang={lang} value={form.from} onChange={set('from')} />
+        <DateTimePicker label={t(lang, 'admTo')} lang={lang} value={form.to} onChange={set('to')} />
+        <Combobox label={t(lang, 'admAction')} hint={t(lang, 'admActionHint')} maxLength={100} value={form.action} onChange={set('action')} options={ACTION_HINTS} />
         <TextField label={t(lang, 'admActor')} maxLength={254} value={form.actor} onChange={set('actor')} autoComplete="off" />
         <TextField label={t(lang, 'admTarget')} maxLength={200} value={form.target} onChange={set('target')} autoComplete="off" />
         <div className="row filter-actions">

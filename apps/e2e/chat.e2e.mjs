@@ -2,6 +2,7 @@
 // browser participants over the LiveKit data channel. Chat text must render as plain text (no markup).
 import { chromium } from 'playwright-core';
 import { BASE, createUser } from './kc.mjs';
+import { pickOption } from './pick.mjs';
 
 const results = [];
 const check = (name, ok, d = '') => {
@@ -83,7 +84,7 @@ try {
 
   // Private message from B to the host: C must not receive it.
   const hostIdentity = await host.page.locator('.tile[data-identity]').first().getAttribute('data-identity');
-  await pb.page.getByTestId('chat-target').selectOption(hostIdentity);
+  await pickOption(pb.page, '[data-testid=chat-target]', hostIdentity);
   await pb.page.getByTestId('chat-input').fill('only for you, host');
   await pb.page.getByTestId('chat-input').press('Enter');
   await host.page.waitForFunction(() => document.querySelectorAll('[data-testid=chat-line]').length >= 2, null, { timeout: 20000 });

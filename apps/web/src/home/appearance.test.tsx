@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AppearanceControls, ThemeToggle } from './AppearanceControls';
 import { getPrefs, setPref } from '../prefs';
 import { resetPrefsForTests } from '../prefs/store';
+import { pickOption } from '../ui/testing';
 
 beforeEach(() => {
   localStorage.clear();
@@ -33,9 +34,9 @@ describe('appearance controls (one entry on every screen)', () => {
     render(<AppearanceControls />);
     expect(screen.getByTestId('theme-toggle')).toBeTruthy();
     fireEvent.click(screen.getByTestId('settings'));
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'ru' } });
+    pickOption('Language', 'ru');
     expect(getPrefs().lang).toBe('ru');
-    fireEvent.change(screen.getByTestId('style-select'), { target: { value: 'swiss' } });
+    pickOption('style-select', 'swiss');
     expect(getPrefs().style).toBe('swiss');
   });
 

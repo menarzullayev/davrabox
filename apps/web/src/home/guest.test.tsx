@@ -8,6 +8,7 @@ import { generateMeetingKey, storeKey } from '../e2ee/keys';
 import { SignInScreen } from './AuthScreens';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
 import { Waiting } from './Waiting';
+import { optionValues, pickOption } from '../ui/testing';
 
 afterEach(() => {
   cleanup();
@@ -149,17 +150,17 @@ describe('new meeting dialog: guests', () => {
 
   it('offers only what the organization allows', () => {
     const { unmount } = render(<NewMeetingDialog {...baseProps} onCreate={vi.fn(async () => meeting)} guestMax="waiting_room" />);
-    expect([...(screen.getByTestId('guest-mode') as HTMLSelectElement).options].map((o) => o.value)).toEqual(['off', 'waiting_room']);
+    expect(optionValues(screen.getByTestId('guest-mode'))).toEqual(['off', 'waiting_room']);
     unmount();
     render(<NewMeetingDialog {...baseProps} onCreate={vi.fn(async () => meeting)} guestMax="open" />);
-    expect([...(screen.getByTestId('guest-mode') as HTMLSelectElement).options].map((o) => o.value)).toEqual(['off', 'waiting_room', 'open']);
+    expect(optionValues(screen.getByTestId('guest-mode'))).toEqual(['off', 'waiting_room', 'open']);
   });
 
   it('sends the chosen mode, and nothing when guests stay off', async () => {
     const onCreate = vi.fn(async (_d: NewMeetingData) => meeting);
     render(<NewMeetingDialog {...baseProps} onCreate={onCreate} guestMax="open" />);
     await userEvent.type(screen.getByTestId('meeting-title'), 'Standup');
-    fireEvent.change(screen.getByTestId('guest-mode'), { target: { value: 'waiting_room' } });
+    pickOption('guest-mode', 'waiting_room');
     fireEvent.submit(document.getElementById('hm-new-form')!);
     await waitFor(() => expect(onCreate).toHaveBeenCalled());
     expect(onCreate.mock.calls[0]![0]).toMatchObject({ title: 'Standup', guests: 'waiting_room' });

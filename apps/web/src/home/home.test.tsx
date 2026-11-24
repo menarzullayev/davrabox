@@ -10,6 +10,7 @@ import { dictionaries, type Lang } from '../i18n';
 import { SignInScreen, WaitingView, brandSentences } from './AuthScreens';
 import { HomeScreen, type HomeScreenProps } from './HomeScreen';
 import { LAB_NOW, labMeetings } from './HomeLab';
+import { pickOption } from '../ui/testing';
 
 afterEach(cleanup);
 
@@ -189,7 +190,7 @@ describe('settings menu', () => {
     expect(screen.queryByTestId('relay-mode')).toBeNull();
     fireEvent.click(screen.getByTestId('settings'));
     const panel = await screen.findByRole('dialog', { name: 'Settings' });
-    fireEvent.change(within(panel).getByLabelText('Language'), { target: { value: 'ru' } });
+    pickOption(within(panel).getByLabelText('Language'), 'ru');
     expect(p.onLang).toHaveBeenCalledWith('ru');
     fireEvent.click(within(panel).getByRole('radio', { name: 'Light' }));
     expect(p.onTheme).toHaveBeenCalledWith('light');

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dictionaries, type Lang } from '../i18n';
 import { landingEn, landingRu, landingUz } from './i18n-landing';
 import Landing from './Landing';
+import { pickOption } from '../ui/testing';
 
 const LANGS: Lang[] = ['uz', 'ru', 'en'];
 
@@ -132,7 +133,7 @@ describe('landing page', () => {
   it('switching the language updates the page text and the document language', () => {
     renderLanding('en');
     fireEvent.click(screen.getByTestId('settings'));
-    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'ru' } });
+    pickOption('Language', 'ru');
     expect(document.documentElement.lang).toBe('ru');
     expect(screen.getAllByRole('link', { name: dictionaries.ru.lnStartFree }).length).toBeGreaterThan(0);
     expect(localStorage.getItem('lang')).toBe('ru');

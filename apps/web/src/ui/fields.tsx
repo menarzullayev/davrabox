@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useId, useRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react';
-import { IconChevronDown, IconError } from './icons';
+import { forwardRef, useEffect, useId, useRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { IconError } from './icons';
 
 interface FieldCommon {
   label: ReactNode;
@@ -43,56 +43,6 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(rest['aria-describedby'], !!hint && hintId, !!error && errId)}
       />
-      {hint ? (
-        <div className="dx-field__hint" id={hintId}>
-          {hint}
-        </div>
-      ) : null}
-      {error ? (
-        <div className="dx-field__error" id={errId}>
-          <IconError size={14} />
-          <span>{error}</span>
-        </div>
-      ) : null}
-    </div>
-  );
-});
-
-export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'>, FieldCommon {
-  children: ReactNode;
-}
-
-/** Native select (best on touch devices and for assistive technology) with the DavraBox look. */
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, hint, error, optionalText, className, id, required, children, ...rest },
-  ref,
-) {
-  const auto = useId();
-  const fid = id ?? auto;
-  const hintId = `${fid}-hint`;
-  const errId = `${fid}-err`;
-  return (
-    <div className="dx-field">
-      <label className="dx-field__label" htmlFor={fid}>
-        {label}
-        {!required && optionalText ? <span className="dx-field__opt">{optionalText}</span> : null}
-      </label>
-      <span className="dx-select">
-        <select
-          {...rest}
-          ref={ref}
-          id={fid}
-          required={required}
-          className={`dx-select__control${className ? ` ${className}` : ''}`}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy(rest['aria-describedby'], !!hint && hintId, !!error && errId)}
-        >
-          {children}
-        </select>
-        <span className="dx-select__chevron">
-          <IconChevronDown size={18} />
-        </span>
-      </span>
       {hint ? (
         <div className="dx-field__hint" id={hintId}>
           {hint}

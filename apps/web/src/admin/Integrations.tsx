@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { t, type Lang } from '../i18n';
-import { Badge, Button, TextField, Checkbox } from '../ui';
+import { Badge, Button, TextField, Checkbox, Select } from '../ui';
 import type { ApiKeyItem, DeliveryItem, WebhookItem } from './client';
 import { formatTimestamp, mergePage, type PagedState } from './helpers';
 import {
@@ -290,12 +290,10 @@ function DeliveriesDialog({ hook, lang, onClose }: { hook: WebhookItem; lang: La
 
   return (
     <Modal title={`${t(lang, 'admIntDelTitle')}: ${hook.url}`} onClose={onClose} wide>
-      <label className="inline-label">{t(lang, 'admStatus')}
-        <select value={status} onChange={(e) => setStatus(e.target.value as DeliveryStatus | '')} aria-label={t(lang, 'admStatus')}>
-          <option value="">{t(lang, 'admIntDelStatusAll')}</option>
-          {(['pending', 'delivered', 'dead'] as const).map((s) => <option key={s} value={s}>{t(lang, deliveryStatusKey(s))}</option>)}
-        </select>
-      </label>
+      <Select label={t(lang, 'admStatus')} value={status} onChange={(e) => setStatus(e.target.value as DeliveryStatus | '')}>
+        <option value="">{t(lang, 'admIntDelStatusAll')}</option>
+        {(['pending', 'delivered', 'dead'] as const).map((s) => <option key={s} value={s}>{t(lang, deliveryStatusKey(s))}</option>)}
+      </Select>
       <ErrorBox text={err} />
       {loading && state.items.length === 0 && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {!loading && !err && state.items.length === 0 && <p className="muted">{t(lang, 'admIntDelNone')}</p>}
