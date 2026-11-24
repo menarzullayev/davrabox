@@ -1,6 +1,7 @@
 import { Children, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState, type ButtonHTMLAttributes, type KeyboardEvent, type ReactElement, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { IconCheck, IconChevronDown, IconError } from './icons';
+import { useBackLayer } from '../platform/back';
 import { Popover, useEscapeLayer } from './Popover';
 
 /** What `onChange` receives: the same `e.target.value` shape the native select had, so callers keep reading it unchanged. */
@@ -116,6 +117,7 @@ export function Select({ label, hint, error, optionalText, className, id, requir
   const list = useRef<HTMLUListElement | null>(null);
   const typed = useRef({ text: '', at: 0 });
   useEscapeLayer(open && narrow);
+  useBackLayer(open && narrow, () => close());
 
   const openList = () => {
     if (disabled) return;

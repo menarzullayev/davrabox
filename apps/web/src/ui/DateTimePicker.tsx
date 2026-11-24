@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { t, type Lang } from '../i18n';
 import { Button, IconButton } from './Button';
 import { IconCalendar, IconChevronLeft, IconChevronRight, IconError } from './icons';
+import { useBackLayer } from '../platform/back';
 import { Popover, useEscapeLayer } from './Popover';
 
 /** `YYYY-MM-DDTHH:mm` (local time), the same text a datetime-local input uses; '' is "not set". */
@@ -93,6 +94,7 @@ export function DateTimePicker({ label, hint, error, required, value, onChange, 
   const trigger = useRef<HTMLButtonElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
   useEscapeLayer(open && narrow);
+  useBackLayer(open && narrow, () => close());
 
   const monthName = useMemo(() => new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(new Date(view.y, view.m - 1, 1)), [lang, view]);
   const weekdays = useMemo(() => {

@@ -1,3 +1,4 @@
+import { useBackLayer } from '../platform/back';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 
 export type PopoverAlign = 'start' | 'end';
@@ -67,6 +68,7 @@ export function Popover({ open, anchorRef, onClose, align = 'start', role, match
   const panel = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ left: number; top: number; minWidth?: number } | null>(null);
   const isTop = useEscapeLayer(open);
+  useBackLayer(open, onClose);
 
   useLayoutEffect(() => {
     if (!open) {

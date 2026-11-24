@@ -13,6 +13,7 @@ import { E2eeGate } from './e2ee/E2eeGate';
 import { loadStoredKey, storeKey } from './e2ee/keys';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, RecordingItem } from './call/types';
 import { mediaErrorText } from './platform/capacitor';
+import { useBackLayer } from './platform/back';
 
 type ChatLine = ChatLineView;
 
@@ -72,6 +73,7 @@ export function Call({
   const [requests, setRequests] = useState<import('./api').JoinRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [panel, setPanel] = useState<PanelId>(null);
+  const [leaveAsk, setLeaveAsk] = useState(false);
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [draft, setDraft] = useState('');
   const [target, setTarget] = useState(''); // '' = everyone, otherwise a participant identity
@@ -105,6 +107,11 @@ export function Call({
     saveLayout(m);
   };
   useParticipantEvents(participants);
+  // Android Back: the innermost open thing closes first (a menu, then a side panel); with nothing open it asks before leaving.
+  // Registered first, so every layer opened later is asked before it.
+  const gateOpen = join.e2ee === true && (!e2eeKey || e2eeUnsupported);
+  useBackLayer(true, () => (gateOpen ? onLeave() : setLeaveAsk(true)));
+  useBackLayer(panel !== null, () => setPanel(null));
 
   // The E2EE provider (and its worker) is a separate chunk that only E2EE meetings download.
   useEffect(() => {
@@ -615,6 +622,20 @@ export function Call({
       }
     >
       <p>{t(lang, 'removeConfirmBody')} <strong>{removeTarget?.name}</strong></p>
+    </Dialog>
+    <Dialog
+      open={leaveAsk}
+      onClose={() => setLeaveAsk(false)}
+      title={t(lang, 'leaveConfirmTitle')}
+      closeLabel={t(lang, 'leaveStay')}
+      footer={
+        <>
+          <Button variant="secondary" data-testid="leave-stay" onClick={() => setLeaveAsk(false)}>{t(lang, 'leaveStay')}</Button>
+          <Button variant="danger" data-testid="leave-confirm" onClick={() => { setLeaveAsk(false); onLeave(); }}>{t(lang, 'leave')}</Button>
+        </>
+      }
+    >
+      <p>{t(lang, 'leaveConfirmBody')}</p>
     </Dialog>
     </>
   );
