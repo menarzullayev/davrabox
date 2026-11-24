@@ -1,7 +1,7 @@
 // Keeps every place that must repeat a design colour in step with tokens.ts: the web boot screen and theme-color, the Android
 // colour resources and plugin, the Electron window and the style guide swatches. `syncPlatforms(root, false)` only reports
 // drift (the test uses it, so CI fails when a copy goes stale); `pnpm sync` rewrites the files.
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromeColour } from './tokens.js';
 
@@ -71,8 +71,12 @@ export function syncPlatforms(root: string, write: boolean): string[] {
   const drift: string[] = [];
   for (const { file, apply } of targets) {
     const path = join(root, file);
-    const exists = existsSync(path);
-    const raw = exists ? readFileSync(path, 'utf8') : '';
+    let raw = '';
+    try {
+      raw = readFileSync(path, 'utf8');
+    } catch {
+      /* a generated file that does not exist yet is created below */
+    }
     const crlf = raw.includes('\r\n');
     const current = raw.replace(/\r\n/g, '\n');
     const next = apply(current);
