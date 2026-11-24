@@ -1,2 +1,3 @@
 export * from './options';
-export { getPrefs, setPref, subscribePrefs, usePrefs, type Prefs } from './store';
+export { getOrgPolicy, getPrefs, setOrgPolicy, setPref, subscribePrefs, usePrefs, type OrgPolicy, type Prefs } from './store';
+export { startPrefsSync } from './remote';

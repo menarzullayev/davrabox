@@ -15,7 +15,7 @@ import { Waiting } from './home/Waiting';
 import { PreJoin, readSkipPreJoin, type MediaChoice } from './home/PreJoin';
 import { createMeetingWithKey } from './e2ee/create';
 import { takeKeyFromLocation } from './e2ee/keys';
-import { LANGS, usePrefs } from './prefs';
+import { LANGS, startPrefsSync, usePrefs } from './prefs';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
@@ -82,6 +82,17 @@ export function App() {
   }, []);
 
   const token = user?.access_token ?? '';
+  // The person's saved look follows them to every device, inside the organization's rules.
+  useEffect(() => {
+    if (!token) return undefined;
+    let stop: (() => void) | undefined;
+    let gone = false;
+    void startPrefsSync(freshToken).then((s) => (gone ? s() : (stop = s)));
+    return () => {
+      gone = true;
+      stop?.();
+    };
+  }, [token]);
   // Free-trial end date of the organization (null for a paid one); drives the "ends soon" notice on the home screen.
   const [trialEnds, setTrialEnds] = useState<string | null>(null);
   useEffect(() => {

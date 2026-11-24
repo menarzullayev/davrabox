@@ -28,6 +28,10 @@ export interface Policies {
   maxParticipants: number;
   requireTotp: boolean;
   guestPolicy: 'off' | 'waiting_room' | 'open';
+  defaultStyle: string;
+  defaultDensity: string;
+  /** null = every style is allowed. */
+  allowedStyles: string[] | null;
 }
 export interface AuditEntry {
   id: string;

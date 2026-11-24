@@ -3,7 +3,7 @@
 // drift (the test uses it, so CI fails when a copy goes stale); `pnpm sync` rewrites the files.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { chromeColour } from './tokens.js';
+import { chromeColour, themes, type ThemeName } from './tokens.js';
 
 const dark = chromeColour('dark');
 const light = chromeColour('light');
@@ -18,6 +18,39 @@ interface Target {
 function replaceOnce(src: string, re: RegExp, to: string, what: string): string {
   if (!re.test(src)) throw new Error(`design-token sync: pattern not found (${what})`);
   return src.replace(re, to);
+}
+
+
+/** The sign-in page (Keycloak, PatternFly 5) dressed in the app's colours for both modes; its script picks the mode from the app's choice. */
+function keycloakCss(): string {
+  const block = (mode: ThemeName, selector: string) => {
+    const c = themes[mode];
+    return `${selector} {
+  --pf-v5-global--primary-color--100: ${c.accent};
+  --pf-v5-global--primary-color--200: ${c.accentHover};
+  --pf-v5-global--link--Color: ${mode === 'dark' ? c.accent : c.accentActive};
+  --pf-v5-global--link--Color--hover: ${c.accentHover};
+  --pf-v5-global--BackgroundColor--100: ${c.surface1};
+  --pf-v5-global--BackgroundColor--200: ${c.bg};
+  --pf-v5-global--Color--100: ${c.text};
+  --pf-v5-global--Color--200: ${c.textMuted};
+  --pf-v5-global--BorderColor--100: ${c.borderStrong};
+  --pf-v5-global--danger-color--100: ${c.danger};
+}
+${selector} body, ${selector} .pf-v5-c-login { background: ${c.bg}; color: ${c.text}; }
+${selector} .pf-v5-c-login__main { background: ${c.surface1}; color: ${c.text}; border: 1px solid ${c.border}; border-radius: 14px; }
+${selector} .pf-v5-c-login__main-header h1, ${selector} .pf-v5-c-title, ${selector} .pf-v5-c-form__label-text { color: ${c.text}; }
+${selector} .pf-v5-c-form-control { background: ${c.surface3}; color: ${c.text}; border: 1px solid ${c.borderStrong}; border-radius: 10px; }
+${selector} .pf-v5-c-button.pf-m-primary { background: ${c.accent}; color: ${c.textOnAccent}; border-radius: 10px; }
+${selector} .pf-v5-c-button.pf-m-primary:hover { background: ${c.accentHover}; }
+${selector} #kc-header-wrapper, ${selector} #kc-header, ${selector} .kc-logo-text { color: ${c.text} !important; }
+${selector} select, ${selector} .pf-v5-c-button.pf-m-control { background-color: ${c.surface3}; color: ${c.text}; border: 1px solid ${c.borderStrong}; }
+${selector} a { color: ${mode === 'dark' ? c.accent : c.accentActive}; }
+${selector} :focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
+`;
+  };
+  return `/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
+${block('light', ':root')}${block('dark', ':root.pf-v5-theme-dark')}`;
 }
 
 export const targets: Target[] = [
@@ -51,6 +84,10 @@ export const targets: Target[] = [
       t = replaceOnce(t, /(LIGHT_BG = )0x[0-9A-Fa-f]{8}(;)/, `$1${argb(light)}$2`, 'LIGHT_BG');
       return t;
     },
+  },
+  {
+    file: 'deploy/helm/davrabox/files/keycloak-theme/login/resources/css/davrabox.css',
+    apply: () => keycloakCss(),
   },
   {
     file: 'apps/desktop/src/main.ts',

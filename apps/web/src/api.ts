@@ -147,6 +147,9 @@ export const api = {
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
+  getPrefs: (token: string) =>
+    call<{ prefs: { lang: string | null; theme: string | null; style: string | null; density: string | null }; org: { defaultStyle: string; defaultDensity: string; allowedStyles: string[] | null } }>(token, '/v1/me/prefs'),
+  putPrefs: (token: string, patch: Partial<Record<'lang' | 'theme' | 'style' | 'density', string | null>>) => call<unknown>(token, '/v1/me/prefs', { method: 'PUT', body: patch }),
   settings: (token: string) => call<{ guestPolicy: GuestMode }>(token, '/v1/meetings/settings'),
   guestJoin: (code: string, name: string, passcode?: string) =>
     guestCall<GuestJoinResult>(`/v1/guest/meetings/${enc(code)}/join`, { method: 'POST', body: { name, ...(passcode ? { passcode } : {}) } }),

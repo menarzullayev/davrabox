@@ -19,7 +19,7 @@ const THEMES: ReadonlyArray<{ id: ThemeChoice; key: 'uiThemeDark' | 'uiThemeLigh
 
 /** One compact place for language, appearance and firewall mode (instead of header clutter). */
 export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMenuProps) {
-  const { style, density, setStyle, setDensity } = usePrefs();
+  const { style, density, setStyle, setDensity, allowedStyles } = usePrefs();
   const [open, setOpen] = useState(false);
   const anchor = useRef<HTMLButtonElement | null>(null);
   const body = useRef<HTMLDivElement | null>(null);
@@ -58,7 +58,7 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
             ))}
           </Select>
           <Select label={t(lang, 'uiStyle')} value={style} data-testid="style-select" onChange={(e) => setStyle(e.target.value as StyleId)}>
-            {STYLES.map((id) => (
+            {STYLES.filter((id) => !allowedStyles || allowedStyles.includes(id)).map((id) => (
               <option key={id} value={id}>
                 {t(lang, styleLabelKey(id))}
               </option>

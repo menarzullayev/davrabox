@@ -159,3 +159,7 @@ GET  /v1/guest/requests/:id          Authorization: Bearer <guestToken>         
 - Guests can use video, audio, chat, raised hand and reactions. They cannot share files, control recording or manage participants. Participant webhooks ignore guests (they are not users of the organisation).
 - The host side lists waiting guests in `GET /v1/meetings/:code/requests` (`guest: true`, `user_id: null`) and admits or denies them with the same endpoints. Muting or removing a guest uses the identity `guest:<id>`; removal ends the session and bans a keyed hash of the guest's address for that meeting only. Honest limit: a guest who changes address gets in again if the policy allows, so lock the meeting when that matters.
 - Audit: `guest.join`, `guest.admit`, `guest.deny`, `guest.remove` (no actor id for the join).
+
+## 7. Display preferences
+
+`GET /v1/me/prefs` returns the signed-in person's saved `prefs` (`lang`, `theme`, `style`, `density`; `null` = never chose) and the organization's `org` rules (`defaultStyle`, `defaultDensity`, `allowedStyles`, `null` = every style). `PUT /v1/me/prefs` stores any of the four (strict body, `null` clears one); a style outside `allowedStyles` is `403` and nothing is stored. A stored style the organization no longer allows is not returned. Admins set `defaultStyle`, `defaultDensity` and `allowedStyles` with `PUT /v1/admin/policies` (the default must be among the allowed styles). The style ids are the design tokens' list.
