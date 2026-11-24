@@ -1,4 +1,4 @@
-import type { ReactNode, SVGProps } from 'react';
+import type { JSX, ReactNode, SVGProps } from 'react';
 
 /**
  * DavraBox icon set: hand-drawn on a 24 px grid, 1.75 px stroke, round caps and joins, `currentColor`.
