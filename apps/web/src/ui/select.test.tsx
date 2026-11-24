@@ -146,4 +146,25 @@ describe('Select (custom dropdown)', () => {
     fireEvent.keyDown(screen.getByTestId('role'), { key: 'Escape' });
     expect(document.body.dataset.panelClosed).toBe('1');
   });
+
+  it('choosing in the bottom sheet of a Select inside a Popover does not close that Popover first', () => {
+    const closed = vi.fn();
+    const onChange = vi.fn();
+    const Panel = () => {
+      const anchor = { current: document.createElement('button') } as { current: HTMLElement };
+      return (
+        <Popover open anchorRef={anchor} onClose={closed}>
+          <Demo narrow onChange={onChange} />
+        </Popover>
+      );
+    };
+    render(<Panel />);
+    fireEvent.click(screen.getByTestId('role'));
+    const option = screen.getByRole('option', { name: 'Guest' });
+    // A real tap sends pointerdown on the option (portaled outside the Popover's DOM) before the click.
+    fireEvent.pointerDown(option);
+    expect(closed).not.toHaveBeenCalled();
+    fireEvent.click(option);
+    expect(onChange).toHaveBeenCalledWith('guest');
+  });
 });
