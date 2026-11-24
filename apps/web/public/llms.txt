@@ -7,8 +7,8 @@ DavraBox is offered to organisations, with a free 7-day trial (up to 10 particip
 ## Pages
 
 - [Home](/): what DavraBox is and how to start a free trial
-- [Privacy notice](/privacy): what personal data is collected and why (draft)
-- [Terms of use](/terms): terms of use (draft)
+- [Privacy notice](/privacy): what personal data is collected and why
+- [Terms of use](/terms): terms of use
 
 ## Notes for automated agents
 
