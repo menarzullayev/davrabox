@@ -1,0 +1,39 @@
+# Alertmanager: every alert goes to one Telegram chat. The bot token and the chat id are read from FILES that are never in git
+# (deploy/prod/secrets/telegram_bot_token and telegram_chat_id, mounted read-only at /etc/alertmanager/secrets); see docs/observability.md.
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: telegram
+  group_by: [alertname, job]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: [severity="critical"]
+      receiver: telegram
+      group_wait: 10s
+      repeat_interval: 1h
+
+# While the API is down its 5xx / latency / pool alerts say nothing new.
+inhibit_rules:
+  - source_matchers: [alertname="ApiDown"]
+    target_matchers: [alertname=~"ApiHigh5xxRate|ApiLatencyP95High|DbPoolSaturated"]
+  - source_matchers: [alertname="PublicProbeDown"]
+    target_matchers: [alertname="CertificateExpiringSoon"]
+    equal: [instance]
+
+receivers:
+  - name: telegram
+    telegram_configs:
+      - bot_token_file: /etc/alertmanager/secrets/telegram_bot_token
+        chat_id_file: /etc/alertmanager/secrets/telegram_chat_id
+        send_resolved: true
+        parse_mode: ""   # plain text: annotation text is never interpreted as markup
+        message: |-
+          {{ if eq .Status "firing" }}ALERT{{ else }}RESOLVED{{ end }} ({{ .Alerts.Firing | len }} firing, {{ .Alerts.Resolved | len }} resolved)
+          {{ range .Alerts }}
+          [{{ .Labels.severity }}] {{ .Labels.alertname }}
+          {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          {{ end }}

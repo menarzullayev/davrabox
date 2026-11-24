@@ -13,7 +13,7 @@ import { SignupService } from './signup.service.js';
 import { TRIAL_LIMITS, TrialController } from './trial.controller.js';
 import { TrialLimits } from './trial.guard.js';
 
-const SIGNUP_POOL = Symbol('SIGNUP_POOL');
+export const SIGNUP_POOL = Symbol('SIGNUP_POOL');
 const SIGNUP_CONFIG = Symbol('SIGNUP_CONFIG');
 const KEYCLOAK = Symbol('SIGNUP_KEYCLOAK');
 const RETENTION = Symbol('TRIAL_RETENTION');

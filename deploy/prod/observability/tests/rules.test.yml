@@ -1,0 +1,238 @@
+# Run: docker run --rm --entrypoint promtool -v "$PWD:/obs:ro" prom/prometheus:v3.15.1 test rules /obs/tests/rules.test.yml
+# (deploy/prod/observability/check.sh does this). Every alert has a firing case and, where a threshold exists, a healthy case.
+rule_files:
+  - ../rules/davrabox.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: api down fires after 2 minutes, not before
+    interval: 1m
+    input_series:
+      - series: 'up{job="api",instance="api:9100"}'
+        values: "1 1 0 0 0 0 0"
+    alert_rule_test:
+      - { eval_time: 3m, alertname: ApiDown, exp_alerts: [] }
+      - eval_time: 6m
+        alertname: ApiDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: api, instance: "api:9100" }
+            exp_annotations:
+              summary: "API is down"
+              description: "Prometheus cannot scrape the API (api:9100) for 2 minutes. Check: docker compose ps api; docker compose logs --tail 100 api."
+
+  - name: livekit down and public probe down fire
+    interval: 1m
+    input_series:
+      - series: 'up{job="livekit",instance="livekit:6789"}'
+        values: "0+0x10"
+      - series: 'probe_success{job="blackbox-public",instance="https://davrabox.example.org/"}'
+        values: "0+0x10"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: LiveKitDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: livekit, instance: "livekit:6789" }
+            exp_annotations:
+              summary: "LiveKit media server is down"
+              description: "The LiveKit metrics endpoint has not answered for 2 minutes: new meetings cannot start. Check: docker compose logs --tail 100 livekit."
+      - eval_time: 5m
+        alertname: PublicProbeDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: blackbox-public, instance: "https://davrabox.example.org/" }
+            exp_annotations:
+              summary: "Public URL check failed: https://davrabox.example.org/"
+              description: "https://davrabox.example.org/ has not answered with 2xx over valid TLS for 3 minutes (probed from this host). Check Caddy, DNS and the certificate."
+
+  - name: 5xx rate above 2 percent for 5 minutes fires
+    interval: 1m
+    input_series:
+      - series: 'davra_http_request_duration_seconds_count{method="GET",route="/meetings",status="200"}'
+        values: "0+95x20"
+      - series: 'davra_http_request_duration_seconds_count{method="GET",route="/meetings",status="500"}'
+        values: "0+5x20"
+    alert_rule_test:
+      - { eval_time: 4m, alertname: ApiHigh5xxRate, exp_alerts: [] } # still inside the 5 minute "for"
+      - eval_time: 15m
+        alertname: ApiHigh5xxRate
+        exp_alerts:
+          - exp_labels: { severity: critical }
+            exp_annotations:
+              summary: "API 5xx rate above 2%"
+              description: "5% of API requests failed with 5xx over the last 5 minutes. Find the cause by request id in the logs and in GlitchTip."
+
+  - name: 1 percent 5xx and a quiet site do not fire
+    interval: 1m
+    input_series:
+      - series: 'davra_http_request_duration_seconds_count{method="GET",route="/meetings",status="200"}'
+        values: "0+99x20"
+      - series: 'davra_http_request_duration_seconds_count{method="GET",route="/meetings",status="500"}'
+        values: "0+1x20"
+      # a different, nearly idle series set: 1 error in 2 requests is 50%, but far below the 20-request floor
+      - series: 'davra_http_request_duration_seconds_count{method="POST",route="/quiet",status="500"}'
+        values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+    alert_rule_test:
+      - { eval_time: 15m, alertname: ApiHigh5xxRate, exp_alerts: [] }
+
+  - name: p95 latency above 1.5 s for 10 minutes fires, a fast API does not
+    interval: 1m
+    input_series:
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/slow",status="200",le="0.5"}'
+        values: "0+1x40"
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/slow",status="200",le="1.5"}'
+        values: "0+1x40"
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/slow",status="200",le="10"}'
+        values: "0+5x40"
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/slow",status="200",le="+Inf"}'
+        values: "0+10x40"
+    alert_rule_test:
+      - { eval_time: 9m, alertname: ApiLatencyP95High, exp_alerts: [] }
+      - eval_time: 20m
+        alertname: ApiLatencyP95High
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: "API p95 latency above 1.5 s"
+              description: "p95 request latency is 10s (10 minutes in a row). Look at the latency panel by route and at the database pool."
+
+  - name: fast API does not alert on latency
+    interval: 1m
+    input_series:
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/fast",status="200",le="0.5"}'
+        values: "0+10x40"
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/fast",status="200",le="1.5"}'
+        values: "0+10x40"
+      - series: 'davra_http_request_duration_seconds_bucket{method="GET",route="/fast",status="200",le="+Inf"}'
+        values: "0+10x40"
+    alert_rule_test:
+      - { eval_time: 30m, alertname: ApiLatencyP95High, exp_alerts: [] }
+
+  - name: database pool with waiting requests fires; an idle pool does not
+    interval: 1m
+    input_series:
+      - series: 'davra_db_pool_connections{pool="main",state="waiting"}'
+        values: "3+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="total"}'
+        values: "10+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="idle"}'
+        values: "0+0x15"
+      - series: 'davra_db_pool_max_connections{pool="main"}'
+        values: "10+0x15"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: DbPoolSaturated
+        exp_alerts:
+          - exp_labels: { severity: warning, pool: main }
+            exp_annotations:
+              summary: "Database pool main saturated"
+              description: "All connections of the main pool are in use (or requests are queueing for one) for 5 minutes. Slow queries, a lock or too little pool for the load."
+
+  - name: pool at its maximum with no idle connection fires even with nobody waiting
+    interval: 1m
+    input_series:
+      - series: 'davra_db_pool_connections{pool="main",state="waiting"}'
+        values: "0+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="total"}'
+        values: "10+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="idle"}'
+        values: "0+0x15"
+      - series: 'davra_db_pool_max_connections{pool="main"}'
+        values: "10+0x15"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: DbPoolSaturated
+        exp_alerts:
+          - exp_labels: { severity: warning, pool: main }
+            exp_annotations:
+              summary: "Database pool main saturated"
+              description: "All connections of the main pool are in use (or requests are queueing for one) for 5 minutes. Slow queries, a lock or too little pool for the load."
+
+  - name: healthy database pool does not fire
+    interval: 1m
+    input_series:
+      - series: 'davra_db_pool_connections{pool="main",state="waiting"}'
+        values: "0+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="total"}'
+        values: "4+0x15"
+      - series: 'davra_db_pool_connections{pool="main",state="idle"}'
+        values: "3+0x15"
+      - series: 'davra_db_pool_max_connections{pool="main"}'
+        values: "10+0x15"
+    alert_rule_test:
+      - { eval_time: 14m, alertname: DbPoolSaturated, exp_alerts: [] }
+
+  - name: disk below 15 percent free fires, 30 percent does not
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_size_bytes{device="/dev/sda1",mountpoint="/",fstype="ext4"}'
+        values: "100+0x20"
+      - series: 'node_filesystem_avail_bytes{device="/dev/sda1",mountpoint="/",fstype="ext4"}'
+        values: "10+0x20"
+      - series: 'node_filesystem_size_bytes{device="/dev/sdb1",mountpoint="/data",fstype="ext4"}'
+        values: "100+0x20"
+      - series: 'node_filesystem_avail_bytes{device="/dev/sdb1",mountpoint="/data",fstype="ext4"}'
+        values: "30+0x20"
+      - series: 'node_filesystem_size_bytes{device="tmpfs",mountpoint="/run",fstype="tmpfs"}'
+        values: "100+0x20"
+      - series: 'node_filesystem_avail_bytes{device="tmpfs",mountpoint="/run",fstype="tmpfs"}'
+        values: "1+0x20"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: DiskSpaceLow
+        exp_alerts:
+          - exp_labels: { severity: warning, device: "/dev/sda1", mountpoint: "/", fstype: ext4 }
+            exp_annotations:
+              summary: "Disk almost full on /"
+              description: "10% free on / (/dev/sda1). Postgres, MinIO and the Docker images share it; there are no backups, so free space before it fills."
+
+  - name: certificate expiring in under 14 days fires, 40 days does not
+    interval: 1m
+    input_series:
+      - series: 'probe_ssl_earliest_cert_expiry{job="blackbox-public",instance="https://soon.example/"}'
+        values: "864000+0x100" # 10 days after the epoch of the test clock
+      - series: 'probe_ssl_earliest_cert_expiry{job="blackbox-public",instance="https://fine.example/"}'
+        values: "3456000+0x100" # 40 days
+    alert_rule_test:
+      - eval_time: 90m
+        alertname: CertificateExpiringSoon
+        exp_alerts:
+          - exp_labels: { severity: warning, job: blackbox-public, instance: "https://soon.example/" }
+            exp_annotations:
+              summary: "TLS certificate of https://soon.example/ expires in under 14 days"
+              description: "Caddy renews automatically about 30 days before expiry, so this means renewal is failing. Check: docker compose logs caddy | grep -i acme; ports 80 and 443; DNS."
+
+  - name: sign-up refusal spike fires, a trickle does not
+    interval: 1m
+    input_series:
+      - series: 'davra_signup_refusals_total{reason="captcha_invalid"}'
+        values: "0+5x30"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: SignupRefusalsSpike
+        exp_alerts:
+          - exp_labels: { severity: warning }
+            exp_annotations:
+              summary: "Many refused trial sign-ups"
+              description: "75 sign-ups refused in 15 minutes. Break it down by reason on the dashboard: captcha, disposable domain, rate limit, daily cap, or an abuse wave."
+
+  - name: a trickle of refusals does not fire
+    interval: 1m
+    input_series:
+      - series: 'davra_signup_refusals_total{reason="captcha_invalid"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - { eval_time: 20m, alertname: SignupRefusalsSpike, exp_alerts: [] }
+
+  - name: failing alert delivery is reported
+    interval: 1m
+    input_series:
+      - series: 'alertmanager_notifications_failed_total{integration="telegram"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: AlertNotificationsFailing
+        exp_alerts:
+          - exp_labels: { severity: warning, integration: telegram }
+            exp_annotations:
+              summary: "Alertmanager cannot deliver alerts (telegram)"
+              description: "Notifications through telegram have been failing for 10 minutes: check the Telegram bot token and chat id files and that the bot is a member of the chat. Other alerts may be going unseen."

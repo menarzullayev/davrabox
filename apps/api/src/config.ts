@@ -45,6 +45,10 @@ const schema = z.object({
   RETENTION_FILES_DAYS: z.coerce.number().int().min(1).max(3650).default(90),
   RETENTION_SIGNUP_EVENTS_DAYS: z.coerce.number().int().min(1).max(3650).default(90),
   RETENTION_MEETINGS_DAYS: z.coerce.number().int().min(1).max(3650).default(365),
+  // Error tracking (GlitchTip, Sentry-compatible): empty = disabled, nothing is loaded or sent. Validated at start-up, never fatal.
+  GLITCHTIP_DSN: z.string().optional(),
+  GLITCHTIP_ENVIRONMENT: z.string().optional(),
+  GLITCHTIP_RELEASE: z.string().optional(),
   METRICS_PORT: z.coerce.number().int().default(9100),
   METRICS_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().default(3000),
