@@ -72,6 +72,7 @@ const browser = await chromium.launch({ channel: 'msedge' });
 let code = 0;
 try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US' });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   const signIn = async () => {
     await page.goto(BASE + '/app');

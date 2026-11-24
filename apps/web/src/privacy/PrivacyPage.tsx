@@ -39,12 +39,21 @@ export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLan
     }
   };
 
+  /** Back to where the person came from; a page opened directly (no history) goes to the application. */
+  const goBack = () => {
+    if (history.length > 1) history.back();
+    else location.assign('/app');
+  };
+
   return (
     <div className="legal">
       <header className="legal__bar">
         <a href="/" className="legal__home" aria-label={t(lang, 'privBackHome')}>
           <Logo height={28} />
         </a>
+        <button type="button" className="legal__back" data-testid="legal-back" onClick={goBack}>
+          ← {t(lang, 'hJoinBack')}
+        </button>
         <div className="legal__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
           {LANGS.map((l) => (
             <button key={l.id} type="button" aria-pressed={lang === l.id} onClick={() => setLang(l.id)} lang={l.id}>

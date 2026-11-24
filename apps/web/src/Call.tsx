@@ -48,6 +48,7 @@ export function Call({
   lang,
   onLeave,
   guest = false,
+  initialMedia,
 }: {
   join: JoinedResult;
   code: string;
@@ -56,14 +57,16 @@ export function Call({
   onLeave: () => void;
   /** Joined without an account: no member-only calls (role, requests, files, recording) are made and none of their controls shown. */
   guest?: boolean;
+  /** What the person chose on the pre-join screen; absent = microphone and camera on. */
+  initialMedia?: { mic: boolean; cam: boolean };
 }) {
   const roomRef = useRef<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [connected, setConnected] = useState(false);
   const [reconnecting, setReconnecting] = useState(false);
   const [quality, setQuality] = useState<Quality>('unknown');
-  const [mic, setMic] = useState(true);
-  const [cam, setCam] = useState(true);
+  const [mic, setMic] = useState(initialMedia?.mic ?? true);
+  const [cam, setCam] = useState(initialMedia?.cam ?? true);
   const [sharing, setSharing] = useState(false);
   const [locked, setLocked] = useState(false);
   const [requests, setRequests] = useState<import('./api').JoinRequest[]>([]);
@@ -220,8 +223,8 @@ export function Call({
         setRecOn(parseRoomRecording(room.metadata));
         sync();
         try {
-          await room.localParticipant.setMicrophoneEnabled(true);
-          await room.localParticipant.setCameraEnabled(true);
+          await room.localParticipant.setMicrophoneEnabled(initialMedia?.mic ?? true);
+          await room.localParticipant.setCameraEnabled(initialMedia?.cam ?? true);
           const v = room.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack?.mediaStreamTrack.getSettings().noiseSuppression;
           setNoiseOn(typeof v === 'boolean' ? v : null);
         } catch {

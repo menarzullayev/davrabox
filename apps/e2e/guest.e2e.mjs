@@ -19,6 +19,7 @@ const browser = await chromium.launch({
 
 async function login(username, password, path = '/app') {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1')); // the host and the admin are not what this suite tests
   const page = await ctx.newPage();
   await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
@@ -72,7 +73,6 @@ try {
   const prefilled = (await g.locator('[data-testid=signin-join-form] input[inputmode=numeric]').inputValue()).replace(/\D/g, '');
   check('the meeting link pre-fills the code on the first screen', prefilled === code, prefilled);
 
-  await g.getByTestId('guest-start').click();
   await g.getByTestId('guest-go').click();
   check('an empty name is refused on the form', (await g.locator('[role=alert]').count()) >= 1 && (await g.getByTestId('guest-name').count()) === 1);
   await g.getByTestId('guest-name').fill('Guest Gulnora');
@@ -84,6 +84,11 @@ try {
   const reqText = await host.page.locator('[data-testid=join-request]').first().innerText();
   check('the host sees the request labelled as a guest', /Guest Gulnora \(guest\)/.test(reqText), reqText.replace(/\s+/g, ' '));
   await host.page.locator('[data-testid=join-request] button.primary').click();
+  await g.waitForSelector('[data-testid=prejoin]', { timeout: 30000 });
+  check('once admitted the guest first sees the pre-join screen, not the call', (await g.locator('.call').count()) === 0);
+  await g.waitForFunction(() => !document.querySelector('[data-testid=prejoin-mic]')?.disabled, null, { timeout: 15000 });
+  check('the pre-join screen offers the microphone and the camera (fake devices here)', (await g.getByTestId('prejoin-cam').isEnabled()) && (await g.getByTestId('prejoin-mic').isEnabled()));
+  await g.getByTestId('prejoin-join').click();
   await g.waitForSelector('.call', { timeout: 30000 });
   await host.page.waitForFunction(() => document.querySelectorAll('.grid .tile').length >= 2, null, { timeout: 30000 });
   check('after the host admits, the guest is in the call and both see each other', true);
@@ -115,7 +120,6 @@ try {
   check('the removed guest is back on the first screen', true);
   await g.goto(`${BASE}/app?join=${code}`);
   await g.waitForSelector('[data-testid=signin]');
-  await g.getByTestId('guest-start').click();
   await g.getByTestId('guest-name').fill('Guest Gulnora again');
   await g.getByTestId('guest-go').click();
   await g.waitForSelector('[role=alert]', { timeout: 15000 });
@@ -127,7 +131,6 @@ try {
   const g2 = await g2ctx.newPage();
   await g2.goto(`${BASE}/app?join=${code}`);
   await g2.waitForSelector('[data-testid=signin]', { timeout: 30000 });
-  await g2.getByTestId('guest-start').click();
   await g2.getByTestId('guest-name').fill('Late Guest');
   await g2.getByTestId('guest-go').click();
   await g2.waitForSelector('[role=alert]', { timeout: 15000 });

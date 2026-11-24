@@ -13,5 +13,7 @@ export default defineConfig(({ mode }) => ({
     allowedHosts: true,
     hmr: { clientPort: 8443, protocol: 'wss' },
   },
+  // `vite preview` serves the production build behind the same Caddy front (faster than the dev server's module-by-module loading).
+  preview: { host: '0.0.0.0', port: 5173, strictPort: true, allowedHosts: true },
   build: { sourcemap: false },
 }));

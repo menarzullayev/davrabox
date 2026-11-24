@@ -19,6 +19,7 @@ const browser = await chromium.launch({
 });
 async function open(username, password) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'], acceptDownloads: true });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();

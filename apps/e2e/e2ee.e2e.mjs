@@ -30,6 +30,7 @@ const browser = await chromium.launch({
 const wire = [];
 async function open(username, password, label, url = BASE + '/app') {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   const sockets = [];
   ctx.on('request', (req) => {

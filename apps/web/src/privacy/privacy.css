@@ -1,6 +1,8 @@
 /* Public privacy notice and terms. Design tokens only, no inline styles (CSP-safe). Readable line length, visible focus. */
 .legal { min-height: 100vh; background: var(--bg); color: var(--text); }
 .legal__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); background: var(--surface-1); }
+.legal__back { padding: var(--space-1) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-pill); background: transparent; color: var(--text); font: inherit; font-size: var(--text-sm); cursor: pointer; }
+.legal__back:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .legal__home { display: inline-flex; color: var(--text); border-radius: var(--radius-sm); }
 .legal__home:focus-visible, .legal__langs button:focus-visible, .legal__foot a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .legal__langs { display: inline-flex; gap: var(--space-1); }

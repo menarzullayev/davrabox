@@ -17,6 +17,7 @@ const browser = await chromium.launch({
 
 async function open(username, password, relay) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   // Keep every RTCPeerConnection so the selected candidate pair can be inspected later.
   await ctx.addInitScript(() => {
     const Native = window.RTCPeerConnection;
