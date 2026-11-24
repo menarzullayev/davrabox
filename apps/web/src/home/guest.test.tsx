@@ -257,3 +257,25 @@ describe('sign-in screen: Back navigation', () => {
     expect(screen.getByTestId('join-start')).toBeTruthy();
   });
 });
+
+describe('sign-in screen: accessibility names', () => {
+  it('each language button name starts with its visible text (speech control says "UZ"), and the group is named after the language', () => {
+    signIn();
+    const group = screen.getByRole('group', { name: 'Language' });
+    const buttons = [...group.querySelectorAll('button')];
+    expect(buttons.map((b) => b.textContent)).toEqual(['UZ', 'RU', 'EN']);
+    for (const b of buttons) expect(b.getAttribute('aria-label')!.startsWith(b.textContent!)).toBe(true);
+    expect(buttons.map((b) => b.getAttribute('aria-label'))).toEqual(['UZ, O‘zbekcha', 'RU, Русский', 'EN, English']);
+    expect(buttons.find((b) => b.getAttribute('aria-pressed') === 'true')!.textContent).toBe('EN');
+  });
+
+  it('the sign-in note says what happens in three languages without repeating the button', () => {
+    for (const lang of ['uz', 'ru', 'en'] as const) {
+      cleanup();
+      signIn({ lang });
+      const note = document.querySelector('.si__card-text')!.textContent!;
+      expect(note.length).toBeGreaterThan(20);
+      expect(note).not.toMatch(/tugmasi|Кнопка|button/i);
+    }
+  });
+});

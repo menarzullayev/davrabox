@@ -63,7 +63,7 @@ export const homeUz = {
   hEmptyText: 'Birinchi uchrashuvingizni oching: kod va havola bir zumda tayyor bo‘ladi.',
 
   hSignInTitle: 'Tashkilot hisobingiz bilan kiring',
-  hSignInText: 'Kirish tugmasi sizni xavfsiz kirish sahifasiga olib boradi.',
+  hSignInText: 'Tashkilotingiz hisobi bilan xavfsiz davom eting.',
   hSignInOr: 'yoki uchrashuvga kod bilan qo‘shiling',
   hSignInJoinBtn: 'Kirish va qo‘shilish',
   hSignInJoinNote: 'Qo‘shilish uchun avval tashkilot hisobingiz bilan kirasiz.',
@@ -163,7 +163,7 @@ export const homeRu: Record<HomeKey, string> = {
   hEmptyText: 'Создайте первую встречу: код и ссылка появятся сразу.',
 
   hSignInTitle: 'Войдите с аккаунтом организации',
-  hSignInText: 'Кнопка «Войти» перенаправит вас на защищённую страницу входа.',
+  hSignInText: 'Безопасно продолжите с аккаунтом вашей организации.',
   hSignInOr: 'или присоединитесь к встрече по коду',
   hSignInJoinBtn: 'Войти и присоединиться',
   hSignInJoinNote: 'Чтобы присоединиться, сначала войдите с аккаунтом организации.',
@@ -261,7 +261,7 @@ export const homeEn: Record<HomeKey, string> = {
   hEmptyText: 'Start your first meeting: the code and link are ready in a moment.',
 
   hSignInTitle: 'Sign in with your organisation account',
-  hSignInText: 'The sign-in button takes you to the secure sign-in page.',
+  hSignInText: 'Continue securely with your organisation\'s account.',
   hSignInOr: 'or join a meeting with a code',
   hSignInJoinBtn: 'Sign in and join',
   hSignInJoinNote: 'To join, you first sign in with your organisation account.',

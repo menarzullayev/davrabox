@@ -116,9 +116,13 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [refresh]);
 
+  // The page language is what a screen reader speaks the text in: it must match what is shown, from the first render.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const changeLang = (l: Lang) => {
     setLang(l);
-    document.documentElement.lang = l;
     try {
       localStorage.setItem('lang', l);
     } catch {
