@@ -1,24 +1,13 @@
-export type ThemeChoice = 'dark' | 'light';
+import { getPrefs, setPref } from '../prefs/store';
+export type { ThemeChoice } from '../prefs/options';
+import type { ThemeChoice } from '../prefs/options';
 
-/** The stored choice, else what theme-init.js already put on <html>, else dark (the default theme). */
+/** The current theme (kept by the preferences store). */
 export function readTheme(): ThemeChoice {
-  const attr = document.documentElement.getAttribute('data-theme');
-  if (attr === 'light' || attr === 'dark') return attr;
-  try {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-  } catch {
-    /* storage unavailable */
-  }
-  return 'dark';
+  return getPrefs().theme;
 }
 
+/** Sets the theme through the store; `persist: false` is for lab pages that take it from the URL. */
 export function applyTheme(theme: ThemeChoice, persist = true): void {
-  document.documentElement.setAttribute('data-theme', theme);
-  if (!persist) return;
-  try {
-    localStorage.setItem('theme', theme);
-  } catch {
-    /* storage unavailable */
-  }
+  setPref('theme', theme, { persist });
 }

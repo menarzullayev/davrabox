@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Lang } from '../../i18n';
 import { REACTIONS, type Reaction } from '../../signals';
-import { applyTheme } from '../../ui';
+import { isLang, isTheme, setPref, usePrefs } from '../../prefs';
 import { CallView } from '../CallView';
 import { RING_MAX, type LayoutMode } from '../layout';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, Role } from '../types';
@@ -29,7 +29,14 @@ function csv(v: string | null): number[] {
 
 export default function CallLab() {
   const q = useMemo(() => new URLSearchParams(location.search), []);
-  const [lang, setLang] = useState<Lang>((['uz', 'ru', 'en'] as const).find((l) => l === q.get('lang')) ?? 'uz');
+  useMemo(() => {
+    const l = q.get('lang');
+    setPref('lang', isLang(l) ? l : 'uz', { persist: false });
+    const th = q.get('theme');
+    if (isTheme(th)) setPref('theme', th, { persist: false });
+  }, [q]);
+  const { lang } = usePrefs();
+  const setLang = (l: Lang) => setPref('lang', l, { persist: false });
   const [n, setN] = useState(Math.max(1, Math.min(30, parseInt(q.get('n') ?? '6', 10) || 6)));
   const [layout, setLayout] = useState<LayoutMode>((['davra', 'gallery', 'speaker'] as const).find((m) => m === q.get('mode')) ?? 'davra');
   const [role, setRole] = useState<Role>((['host', 'cohost', 'member'] as const).find((r) => r === q.get('role')) ?? 'host');
@@ -72,12 +79,6 @@ export default function CallLab() {
   );
   const lineId = useRef(10);
   const tick = Math.max(300, parseInt(q.get('tick') ?? '1000', 10) || 1000);
-
-  useEffect(() => {
-    const th = q.get('theme');
-    if (th === 'light' || th === 'dark') applyTheme(th, false);
-    document.documentElement.lang = lang;
-  }, [q, lang]);
 
   // Fake speaking changes on a timer (the performance run uses tick=1000).
   useEffect(() => {

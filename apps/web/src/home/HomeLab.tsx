@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react';
 import type { Meeting } from '../api';
 import type { Key, Lang } from '../i18n';
-import { applyTheme, readTheme, type ThemeChoice } from '../ui';
+import { isLang, isTheme, setPref, usePrefs, type ThemeChoice } from '../prefs';
 import { LoadingScreen, SignInScreen, WaitingView } from './AuthScreens';
 import { HomeScreen } from './HomeScreen';
 
@@ -99,38 +99,20 @@ export default function HomeLab() {
   const q = useMemo(() => new URLSearchParams(location.search), []);
   const screen = q.get('screen');
   const state = q.get('state') ?? 'few';
-  const [lang, setLang] = useState<Lang>(() => {
+  // A lab page takes language and theme from the URL for this visit only (nothing is saved).
+  useMemo(() => {
     const l = q.get('lang');
-    if (l === 'uz' || l === 'ru' || l === 'en') return l;
-    const saved = (() => {
-      try {
-        return localStorage.getItem('lang');
-      } catch {
-        return null;
-      }
-    })();
-    return saved === 'ru' || saved === 'en' ? saved : 'uz';
-  });
-  const [theme, setTheme] = useState<ThemeChoice>(() => {
-    const v = q.get('theme');
-    if (v === 'light' || v === 'dark') {
-      applyTheme(v, false);
-      return v;
-    }
-    return readTheme();
-  });
+    const th = q.get('theme');
+    if (isLang(l)) setPref('lang', l, { persist: false });
+    if (isTheme(th)) setPref('theme', th, { persist: false });
+  }, [q]);
+  const { lang, theme } = usePrefs();
   const [relay, setRelay] = useState(false);
   const [list, setList] = useState<Meeting[] | null>(() => labMeetings(state));
   const [error, setError] = useState<Key | null>(state === 'error' ? 'errWrongPasscode' : null);
 
-  const changeLang = (l: Lang) => {
-    setLang(l);
-    document.documentElement.lang = l;
-  };
-  const changeTheme = (v: ThemeChoice) => {
-    setTheme(v);
-    applyTheme(v, false);
-  };
+  const changeLang = (l: Lang) => setPref('lang', l, { persist: false });
+  const changeTheme = (v: ThemeChoice) => setPref('theme', v, { persist: false });
 
   if (screen === 'signin') return <SignInScreen lang={lang} onLang={changeLang} theme={theme} onTheme={changeTheme} onSignIn={() => undefined} />;
   if (screen === 'loading') return <LoadingScreen lang={lang} />;

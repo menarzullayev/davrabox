@@ -76,7 +76,7 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 560,
     show: false,
-    backgroundColor: '#0f1419',
+    backgroundColor: '#0a0d21',
     title: 'DavraBox',
     webPreferences: {
       preload: join(__dirname, 'preload.cjs'),

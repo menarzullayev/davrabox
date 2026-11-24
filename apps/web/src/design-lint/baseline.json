@@ -1,0 +1,230 @@
+{
+ "admin/admin.css": {
+  "colours": 0,
+  "offBreakpoints": 2,
+  "literalPx": 46,
+  "rawControls": 0
+ },
+ "admin/AdminApp.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "admin/Audit.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 10
+ },
+ "admin/Departments.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 7
+ },
+ "admin/Encryption.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 13
+ },
+ "admin/Integrations.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 18
+ },
+ "admin/Overview.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "admin/Policies.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 7
+ },
+ "admin/Privacy.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 8
+ },
+ "admin/ui.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 2
+ },
+ "admin/Users.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 19
+ },
+ "App.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "calendar/calendar.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 1,
+  "rawControls": 0
+ },
+ "calendar/logic.ts": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "call/call.css": {
+  "colours": 5,
+  "offBreakpoints": 3,
+  "literalPx": 173,
+  "rawControls": 0
+ },
+ "call/ControlBar.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 2
+ },
+ "call/lab/CallLab.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 14
+ },
+ "call/lab/FakeMedia.tsx": {
+  "colours": 7,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 0
+ },
+ "call/lab/lab.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 18,
+  "rawControls": 0
+ },
+ "call/Panels.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 3
+ },
+ "call/recording.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 6,
+  "rawControls": 0
+ },
+ "e2ee/e2ee.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 1,
+  "rawControls": 0
+ },
+ "home/AuthScreens.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "home/home.css": {
+  "colours": 0,
+  "offBreakpoints": 6,
+  "literalPx": 98,
+  "rawControls": 0
+ },
+ "home/PreJoin.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "home/SettingsMenu.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "landing/landing.css": {
+  "colours": 0,
+  "offBreakpoints": 6,
+  "literalPx": 26,
+  "rawControls": 0
+ },
+ "privacy/legal-links.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 5,
+  "rawControls": 0
+ },
+ "privacy/privacy.css": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 9,
+  "rawControls": 0
+ },
+ "privacy/PrivacyPage.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 2
+ },
+ "styleguide/styleguide.css": {
+  "colours": 4,
+  "offBreakpoints": 1,
+  "literalPx": 46,
+  "rawControls": 0
+ },
+ "styleguide/Styleguide.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "styles.css": {
+  "colours": 3,
+  "offBreakpoints": 2,
+  "literalPx": 28,
+  "rawControls": 0
+ },
+ "ui/Button.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "ui/fields.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 4
+ },
+ "ui/Menu.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "ui/Tabs.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
+ "ui/ui.css": {
+  "colours": 1,
+  "offBreakpoints": 0,
+  "literalPx": 101,
+  "rawControls": 0
+ }
+}

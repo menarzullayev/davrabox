@@ -1,17 +1,13 @@
-import { useEffect, useState } from 'react';
-import { detectLang, t, type Lang } from '../i18n';
-import { applyTheme, Logo, readTheme } from '../ui';
+import { useEffect, useMemo } from 'react';
+import { t, type Lang } from '../i18n';
+import { LANGS, setPref, usePrefs } from '../prefs';
+import { Logo } from '../ui';
 import { LegalLinks } from './LegalLinks';
 import { PRIVACY_TEXT } from './legal-privacy';
 import { TERMS_TEXT } from './legal-terms';
 import type { LegalDoc } from './legal-types';
 import './privacy.css';
 
-const LANGS: Array<{ id: Lang; label: string }> = [
-  { id: 'uz', label: 'O‘zbekcha' },
-  { id: 'ru', label: 'Русский' },
-  { id: 'en', label: 'English' },
-];
 
 export type LegalKind = 'privacy' | 'terms';
 
@@ -19,25 +15,19 @@ export type LegalKind = 'privacy' | 'terms';
  * A static, accessible page for the privacy notice or the terms. No sign-in, no backend call. The text lives in legal-privacy.ts / legal-terms.ts.
  */
 export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLang?: Lang }) {
-  const [lang, setLangState] = useState<Lang>(initialLang ?? detectLang);
+  // `initialLang` (tests, previews) is a starting value for this visit only: nothing is saved by it.
+  useMemo(() => {
+    if (initialLang) setPref('lang', initialLang, { persist: false });
+  }, [initialLang]);
+  const prefs = usePrefs();
+  const lang: Lang = prefs.lang;
+  const setLang = prefs.setLang;
   const doc: LegalDoc = (kind === 'privacy' ? PRIVACY_TEXT : TERMS_TEXT)[lang];
 
   useEffect(() => {
-    applyTheme(readTheme());
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = lang;
     document.title = `${doc.title} - DavraBox`;
   }, [lang, doc.title]);
 
-  const setLang = (l: Lang) => {
-    setLangState(l);
-    try {
-      localStorage.setItem('lang', l);
-    } catch {
-      /* storage unavailable: the choice lasts for this visit only */
-    }
-  };
 
   /** Back to where the person came from; a page opened directly (no history) goes to the application. */
   const goBack = () => {
@@ -57,7 +47,7 @@ export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLan
         <div className="legal__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
           {LANGS.map((l) => (
             <button key={l.id} type="button" aria-pressed={lang === l.id} onClick={() => setLang(l.id)} lang={l.id}>
-              {l.label}
+              {l.name}
             </button>
           ))}
         </div>

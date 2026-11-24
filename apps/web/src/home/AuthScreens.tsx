@@ -1,3 +1,4 @@
+import { LANGS } from '../prefs';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { t, type Lang } from '../i18n';
 import { Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, TextField, type ThemeChoice } from '../ui';
@@ -8,12 +9,6 @@ import { LegalLinks } from '../privacy/LegalLinks';
 import { SettingsMenu } from './SettingsMenu';
 import { formatCode, parseJoinInput } from './logic';
 import { tx } from './text';
-
-const LANG_BUTTONS: Array<{ id: Lang; short: string; name: string }> = [
-  { id: 'uz', short: 'UZ', name: 'O‘zbekcha' },
-  { id: 'ru', short: 'RU', name: 'Русский' },
-  { id: 'en', short: 'EN', name: 'English' },
-];
 
 /** Splits "A. B. C." into its sentences so the brand line can be set as a statement, one sentence per line. */
 export const brandSentences = (line: string): string[] => line.split(/(?<=\.)\s+/).filter(Boolean);
@@ -129,7 +124,7 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
         </span>
         <div className="si__tools">
           <div className="si__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
-            {LANG_BUTTONS.map((l) => (
+            {LANGS.map((l) => (
               <button key={l.id} type="button" lang={l.id} title={l.name} aria-label={`${l.short}, ${l.name}`} aria-pressed={lang === l.id} onClick={() => onLang(l.id)}>
                 {l.short}
               </button>

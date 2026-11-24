@@ -1,3 +1,4 @@
+import { LANGS } from '../prefs';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { IconButton, IconMoon, IconSettings, IconSun, Popover, Select, Switch, type ThemeChoice } from '../ui';
 import { t, type Lang } from '../i18n';
@@ -58,9 +59,11 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
       <Popover open={open} anchorRef={anchor} onClose={close} align="end" role="dialog" aria-label={t(lang, 'hSettings')}>
         <div ref={body} className="hm-settings" onKeyDown={onKeyDown}>
           <Select label={t(lang, 'lang')} value={lang} onChange={(e) => onLang(e.target.value as Lang)}>
-            <option value="uz">O‘zbekcha</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
+            {LANGS.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.name}
+              </option>
+            ))}
           </Select>
           <div className="hm-settings__group" role="radiogroup" aria-labelledby="hm-theme-label">
             <span className="dx-field__label" id="hm-theme-label">

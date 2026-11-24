@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { contrast, nonTextPairs, scales, textPairs, themes, NON_TEXT_MIN, TEXT_MIN, type TokenName } from '@davrabox/design-tokens';
 import { Davra } from '../brand/Davra';
 import { Logo, LogoMark } from '../brand/Logo';
-import { detectLang, t, type Lang } from '../i18n';
+import { t, type Lang } from '../i18n';
+import { usePrefs } from '../prefs';
 import * as Icons from '../ui/icons';
 import {
   Alert,
@@ -27,8 +28,6 @@ import {
   ToastProvider,
   Tooltip,
   IconCheck,
-  applyTheme,
-  readTheme,
   useToast,
   type ThemeChoice,
 } from '../ui';
@@ -692,29 +691,15 @@ function DataSection({ s }: { s: S }) {
 
 // ---- page -----------------------------------------------------------------------------------------------------
 export default function Styleguide() {
-  const [lang, setLang] = useState<Lang>(detectLang);
-  const [theme, setTheme] = useState<ThemeChoice>(readTheme);
+  const { lang, theme, setLang: changeLang, setTheme } = usePrefs();
   const rootRef = useRef<HTMLDivElement>(null);
   const s: S = (k) => sg(lang, k);
 
   useEffect(() => {
-    document.documentElement.lang = lang;
     document.title = sg(lang, 'docTitle');
   }, [lang]);
 
-  const changeLang = (l: Lang) => {
-    setLang(l);
-    try {
-      localStorage.setItem('lang', l);
-    } catch {
-      /* storage unavailable */
-    }
-  };
-  const toggleTheme = () => {
-    const next: ThemeChoice = theme === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    setTheme(next);
-  };
+  const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const nav: Array<[string, SgKey]> = [
     ['colors', 'secColors'],
