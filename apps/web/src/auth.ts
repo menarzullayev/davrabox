@@ -1,4 +1,5 @@
 import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts';
+import { detectLang, type Lang } from './i18n';
 
 // Same-origin deployment: Caddy serves the app, /auth (Keycloak), /api and /livekit on one HTTPS origin.
 export const manager = new UserManager({
@@ -11,6 +12,17 @@ export const manager = new UserManager({
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
   automaticSilentRenew: true,
 });
+
+/**
+ * Starts the sign-in redirect in the language the user already sees in the app (saved choice, else the device language), so the
+ * identity provider's page does not fall back to its own default. `ui_locales` is the standard OIDC parameter Keycloak reads.
+ */
+export function signIn(opts: { lang?: Lang; loginHint?: string } = {}): Promise<void> {
+  return manager.signinRedirect({
+    ...(opts.loginHint ? { login_hint: opts.loginHint } : {}),
+    extraQueryParams: { ui_locales: opts.lang ?? detectLang() },
+  });
+}
 
 /** Fresh access token for long-lived screens (the library renews it silently). */
 export async function freshToken(): Promise<string> {
