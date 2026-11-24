@@ -35,6 +35,7 @@ const browser = await chromium.launch({
 
 async function newUser(username, password = PASSWORD) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   if (process.env.E2E_DEBUG) page.on('response', (r) => { if (r.status() >= 400) console.log(`[${username}] HTTP ${r.status()} ${r.url().slice(0, 140)}`); });
   if (process.env.E2E_DEBUG) page.on('console', (m) => console.log(`[${username}] ${m.type()}: ${(m.text().length > 300 ? m.text().slice(0, 60) + ' … ' + m.text().slice(-220) : m.text())}`));

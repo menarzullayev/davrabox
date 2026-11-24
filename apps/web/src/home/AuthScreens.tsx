@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { t, type Lang } from '../i18n';
 import { Button, ConnectingRing, Davra, IconChevronRight, Logo, TextField, type ThemeChoice } from '../ui';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
@@ -89,10 +89,32 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
     const code = takeCode();
     if (code && onSignInToJoin) onSignInToJoin(code);
   };
-  const back = () => {
+  const leaveJoin = () => {
     setView('start');
     setGuestErr(undefined);
     setTouched(false);
+  };
+  // Opening the join step adds a history entry; Back (the Android button or the browser's) closes the step instead of the app.
+  const openJoin = () => {
+    try {
+      history.pushState({ siJoin: true }, '');
+    } catch {
+      /* no history API: the Back button of the screen still works */
+    }
+    setView('join');
+  };
+  useEffect(() => {
+    const onPop = () => {
+      setView((v) => (v === 'join' ? 'start' : v));
+      setGuestErr(undefined);
+      setTouched(false);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  const back = () => {
+    if ((history.state as { siJoin?: boolean } | null)?.siJoin) history.back();
+    else leaveJoin();
   };
 
   return (
@@ -131,7 +153,7 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
                 {t(lang, 'signIn')}
               </Button>
               {canJoin ? (
-                <Button variant="secondary" size="lg" fullWidth onClick={() => setView('join')} data-testid="join-start">
+                <Button variant="secondary" size="lg" fullWidth onClick={openJoin} data-testid="join-start">
                   {tx(lang, 'hJoinStartBtn')}
                 </Button>
               ) : null}

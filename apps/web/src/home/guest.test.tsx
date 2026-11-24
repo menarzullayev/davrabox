@@ -48,7 +48,7 @@ describe('sign-in screen: two steps', () => {
     await userEvent.click(screen.getByTestId('guest-go'));
     expect(codeField().getAttribute('aria-invalid')).toBe('true');
     await userEvent.click(screen.getByTestId('join-back'));
-    expect(screen.getByTestId('join-start')).toBeTruthy();
+    await waitFor(() => expect(screen.getByTestId('join-start')).toBeTruthy());
     await openJoin();
     expect(codeField().getAttribute('aria-invalid')).toBeNull();
   });
@@ -222,5 +222,38 @@ describe('guest API calls', () => {
     await expect(api.guestJoin('12345678901', 'Ali', key)).rejects.toThrow(/refusing to send/);
     expect(fetchMock).not.toHaveBeenCalled();
     await expect(api.guestJoin('12345678901', 'Ali')).resolves.toBeDefined();
+  });
+});
+
+describe('sign-in screen: Back navigation', () => {
+  afterEach(() => history.replaceState(null, '', '/'));
+
+  it('opening the join step adds a history entry and the system Back closes the step, not the app', async () => {
+    history.replaceState(null, '', '/app');
+    const before = history.length;
+    signIn();
+    await userEvent.click(screen.getByTestId('join-start'));
+    expect(history.length).toBe(before + 1);
+    expect(codeField()).toBeTruthy();
+    history.back();
+    await waitFor(() => expect(screen.getByTestId('join-start')).toBeTruthy());
+    expect(screen.queryByLabelText(/Meeting code or link/i)).toBeNull();
+  });
+
+  it('the on-screen Back button does the same through the history, leaving one entry behind', async () => {
+    history.replaceState(null, '', '/app');
+    signIn();
+    await userEvent.click(screen.getByTestId('join-start'));
+    await userEvent.click(screen.getByTestId('join-back'));
+    await waitFor(() => expect(screen.getByTestId('join-start')).toBeTruthy());
+    expect((history.state as { siJoin?: boolean } | null)?.siJoin).toBeFalsy();
+  });
+
+  it('a meeting link opens straight on the join step; its Back button still works without a history entry', async () => {
+    history.replaceState(null, '', '/app');
+    signIn({ initialCode: '12345678901' });
+    expect(codeField()).toBeTruthy();
+    await userEvent.click(screen.getByTestId('join-back'));
+    expect(screen.getByTestId('join-start')).toBeTruthy();
   });
 });

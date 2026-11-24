@@ -24,6 +24,7 @@ let slug = null;
 let exit = 0;
 try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US' });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   await page.goto(BASE + '/');
   await page.waitForSelector('h1', { timeout: 15000 }); // the landing is a lazy chunk

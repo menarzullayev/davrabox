@@ -17,6 +17,7 @@ const browser = await chromium.launch({
 let exit = 0;
 try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   const page = await ctx.newPage();
   const origin = new URL(BASE).origin;
   const foreign = new Set();

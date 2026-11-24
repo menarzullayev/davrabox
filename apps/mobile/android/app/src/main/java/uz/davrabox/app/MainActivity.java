@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.splashscreen.SplashScreen;
 
 import com.getcapacitor.BridgeActivity;
@@ -46,6 +47,20 @@ public class MainActivity extends BridgeActivity {
                 }
             });
         }
+        // Back first goes back inside the web client (privacy notice, sign-in, steps that push a history entry) and closes
+        // the app only when there is nothing left to go back to.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                WebView web = getBridge() != null ? getBridge().getWebView() : null;
+                if (web != null && web.canGoBack()) {
+                    web.goBack();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
         routeAppLink(getIntent());
     }
 

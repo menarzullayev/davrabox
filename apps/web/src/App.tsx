@@ -12,6 +12,7 @@ import { LoadingScreen, SignInScreen } from './home/AuthScreens';
 import { HomeScreen } from './home/HomeScreen';
 import type { NewMeetingData } from './home/NewMeetingDialog';
 import { Waiting } from './home/Waiting';
+import { PreJoin, readSkipPreJoin, type MediaChoice } from './home/PreJoin';
 import { createMeetingWithKey } from './e2ee/create';
 import { takeKeyFromLocation } from './e2ee/keys';
 import { applyTheme, readTheme, type ThemeChoice } from './ui';
@@ -20,6 +21,11 @@ import { applyTheme, readTheme, type ThemeChoice } from './ui';
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
 
 const THEME_COLOR: Record<ThemeChoice, string> = { dark: '#0a0d21', light: '#f4f5fb' };
+
+/** Skips the pre-join screen for someone who ticked "do not show this next time". */
+function withMedia(v: { result: JoinedResult; code: string; media?: MediaChoice }): { result: JoinedResult; code: string; media?: MediaChoice } {
+  return readSkipPreJoin() ? { ...v, media: { mic: true, cam: true } } : v;
+}
 
 export function App() {
   const [lang, setLang] = useState<Lang>(detectLang);
@@ -51,10 +57,10 @@ export function App() {
     }
   });
   const [err, setErr] = useState<Key | null>(null);
-  const [joined, setJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
+  const [joined, setJoined] = useState<{ result: JoinedResult; code: string; media?: MediaChoice } | null>(null);
   const [waiting, setWaiting] = useState<{ code: string; requestId: string } | null>(null);
   // Guest (no account) state: a joined call or a waiting request with its own session token.
-  const [guestJoined, setGuestJoined] = useState<{ result: JoinedResult; code: string } | null>(null);
+  const [guestJoined, setGuestJoined] = useState<{ result: JoinedResult; code: string; media?: MediaChoice } | null>(null);
   const [guestWaiting, setGuestWaiting] = useState<{ code: string; requestId: string; guestToken: string } | null>(null);
   const guestGetToken = useCallback(async () => guestJoined?.result.guestToken ?? '', [guestJoined]);
   const [guestMax, setGuestMax] = useState<GuestMode>('off');
@@ -146,7 +152,7 @@ export function App() {
         /* ignore */
       }
       setPendingCode('');
-      if (res.status === 'joined') setJoined({ result: res, code: clean });
+      if (res.status === 'joined') setJoined(withMedia({ result: res, code: clean }));
       else setWaiting({ code: clean, requestId: res.requestId });
     } catch (e) {
       setErr(errorKey(e));
@@ -162,7 +168,7 @@ export function App() {
       /* ignore */
     }
     setPendingCode('');
-    if (res.status === 'joined') setGuestJoined({ result: res, code: clean });
+    if (res.status === 'joined') setGuestJoined(withMedia({ result: res, code: clean }));
     else setGuestWaiting({ code: clean, requestId: res.requestId, guestToken: res.guestToken });
   };
 
@@ -184,8 +190,11 @@ export function App() {
 
   if (loading) return <LoadingScreen lang={lang} />;
 
+  if (guestJoined && !guestJoined.media) {
+    return <PreJoin lang={lang} title={guestJoined.result.title} onJoin={(media) => setGuestJoined({ ...guestJoined, media })} onCancel={() => setGuestJoined(null)} />;
+  }
   if (guestJoined) {
-    return <Call join={guestJoined.result} code={guestJoined.code} guest getToken={guestGetToken} lang={lang} onLeave={() => setGuestJoined(null)} />;
+    return <Call join={guestJoined.result} code={guestJoined.code} guest initialMedia={guestJoined.media} getToken={guestGetToken} lang={lang} onLeave={() => setGuestJoined(null)} />;
   }
   if (guestWaiting) {
     return (
@@ -195,7 +204,7 @@ export function App() {
         requestId={guestWaiting.requestId}
         guestToken={guestWaiting.guestToken}
         onAdmitted={(r) => {
-          setGuestJoined({ result: r, code: guestWaiting.code });
+          setGuestJoined(withMedia({ result: r, code: guestWaiting.code }));
           setGuestWaiting(null);
         }}
         onFailed={() => setGuestWaiting(null)}
@@ -238,10 +247,15 @@ export function App() {
     );
   }
 
+  if (joined && !joined.media) {
+    return <PreJoin lang={lang} title={joined.result.title} onJoin={(media) => setJoined({ ...joined, media })} onCancel={() => setJoined(null)} />;
+  }
+
   if (joined) {
     return (
       <Call
         join={joined.result}
+        initialMedia={joined.media}
         code={joined.code}
         getToken={freshToken}
         lang={lang}
@@ -260,7 +274,7 @@ export function App() {
         code={waiting.code}
         requestId={waiting.requestId}
         onAdmitted={(r) => {
-          setJoined({ result: r, code: waiting.code });
+          setJoined(withMedia({ result: r, code: waiting.code }));
           setWaiting(null);
         }}
         onFailed={(e) => {

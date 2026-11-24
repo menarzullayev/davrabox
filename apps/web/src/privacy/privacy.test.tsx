@@ -234,3 +234,21 @@ describe('Privacy section of the admin console', () => {
     expect(screen.queryByRole('dialog')).toBeTruthy();
   });
 });
+
+describe('PrivacyPage: Back button', () => {
+  it('goes back in the history when there is one, and to the application when the page was opened directly', () => {
+    const back = vi.spyOn(history, 'back').mockImplementation(() => undefined);
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    render(<PrivacyPage kind="privacy" initialLang="en" />);
+    Object.defineProperty(history, 'length', { value: 3, configurable: true });
+    fireEvent.click(screen.getByTestId('legal-back'));
+    expect(back).toHaveBeenCalledTimes(1);
+    expect(assign).not.toHaveBeenCalled();
+    Object.defineProperty(history, 'length', { value: 1, configurable: true });
+    fireEvent.click(screen.getByTestId('legal-back'));
+    expect(assign).toHaveBeenCalledWith('/app');
+    vi.unstubAllGlobals();
+    back.mockRestore();
+  });
+});

@@ -122,6 +122,7 @@ async function authorize(realm, { hint, interact, expectRefusal = false }) {
   const params = new URLSearchParams({ client_id: CLIENT, redirect_uri: CB, response_type: 'code', scope: 'openid', state: rand(6), code_challenge: challenge, code_challenge_method: 'S256' });
   if (hint) params.set('kc_idp_hint', hint);
   const ctx = await browser.newContext({ locale: 'en-US' });
+  await ctx.addInitScript(() => localStorage.setItem('skipPreJoin', '1'));
   try {
     const page = await ctx.newPage();
     await page.route('http://localhost:9/**', (r) => r.fulfill({ status: 200, body: 'callback' }));
