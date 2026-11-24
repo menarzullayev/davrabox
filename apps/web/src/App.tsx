@@ -5,7 +5,7 @@ import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
 import { isOrgAdmin } from './admin/jwt';
-import { currentUser, freshToken, manager } from './auth';
+import { currentUser, freshToken, manager, signIn } from './auth';
 import { Call } from './Call';
 import { detectLang, t, type Key, type Lang } from './i18n';
 import { LoadingScreen, SignInScreen } from './home/AuthScreens';
@@ -171,7 +171,7 @@ export function App() {
         onTheme={changeTheme}
         onSignIn={() => {
           rememberReturnPath(location.pathname);
-          void manager.signinRedirect();
+          void signIn({ lang });
         }}
       />
     );

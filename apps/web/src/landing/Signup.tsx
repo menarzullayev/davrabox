@@ -37,7 +37,7 @@ const defaultDeps: SignupDeps = {
   },
   solve: solveInWorker,
   // The authorization-code flow needs the OIDC client; it is loaded only now, so the form itself stays light.
-  signIn: (email) => void import('../auth').then((m) => m.manager.signinRedirect({ login_hint: email })),
+  signIn: (email) => void import('../auth').then((m) => m.signIn({ loginHint: email })),
 };
 
 /** Maps an API answer (status and stable `code`) to the message shown to the user. */
