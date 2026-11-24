@@ -24,6 +24,7 @@ import {
   IconSmile,
   IconUsers,
 } from '../ui';
+import { AppearanceFields } from '../home/AppearanceFields';
 import { hintKey, type FallbackReason, type LayoutMode } from './layout';
 import { applyRoving, handleRovingKey } from './roving';
 import { IconRecord, RecordingList } from './RecordingBadge';
@@ -326,6 +327,9 @@ export function ControlBar(p: ControlBarProps) {
               <RecordingList lang={lang} items={p.recording.items ?? []} onDownload={p.recording.onDownload} />
             </>
           ) : null}
+          <div className="dv-more__appearance" data-testid="more-appearance">
+            <AppearanceFields lang={lang} />
+          </div>
           <div className="dv-more__switches">
             <Switch
               label={<span className="dv-more__lbl"><IconNoise size={16} />{t(lang, 'noiseSuppression')}</span>}

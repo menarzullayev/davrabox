@@ -102,10 +102,10 @@ describe('PrivacyPage', () => {
   });
   it('switches the language without leaving the page and remembers it', () => {
     render(<PrivacyPage kind="privacy" initialLang="en" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Русский' }));
+    fireEvent.click(screen.getByTestId('settings'));
+    fireEvent.change(screen.getByLabelText('Language'), { target: { value: 'ru' } });
     expect(screen.getByRole('heading', { level: 1, name: PRIVACY_TEXT.ru.title })).toBeTruthy();
     expect(localStorage.getItem('lang')).toBe('ru');
-    expect(screen.getByRole('button', { name: 'Русский' }).getAttribute('aria-pressed')).toBe('true');
   });
 });
 

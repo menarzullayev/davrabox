@@ -1,6 +1,6 @@
-import { DENSITIES, LANGS, STYLES, densityLabelKey, styleLabelKey, usePrefs, type StyleId } from '../prefs';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { IconButton, IconMoon, IconSettings, IconSun, Popover, Segmented, Select, Switch, type ThemeChoice } from '../ui';
+import { IconButton, IconSettings, Popover, Switch, type ThemeChoice } from '../ui';
+import { AppearanceFields } from './AppearanceFields';
 import { t, type Lang } from '../i18n';
 
 export interface SettingsMenuProps {
@@ -12,14 +12,8 @@ export interface SettingsMenuProps {
   relay?: { value: boolean; onChange: (v: boolean) => void };
 }
 
-const THEMES: ReadonlyArray<{ id: ThemeChoice; key: 'uiThemeDark' | 'uiThemeLight'; Icon: typeof IconMoon }> = [
-  { id: 'dark', key: 'uiThemeDark', Icon: IconMoon },
-  { id: 'light', key: 'uiThemeLight', Icon: IconSun },
-];
-
 /** One compact place for language, appearance and firewall mode (instead of header clutter). */
 export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMenuProps) {
-  const { style, density, setStyle, setDensity, allowedStyles } = usePrefs();
   const [open, setOpen] = useState(false);
   const anchor = useRef<HTMLButtonElement | null>(null);
   const body = useRef<HTMLDivElement | null>(null);
@@ -50,40 +44,7 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
       />
       <Popover open={open} anchorRef={anchor} onClose={close} align="end" role="dialog" aria-label={t(lang, 'hSettings')}>
         <div ref={body} className="hm-settings" onKeyDown={onKeyDown}>
-          <Select label={t(lang, 'lang')} value={lang} onChange={(e) => onLang(e.target.value as Lang)}>
-            {LANGS.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.name}
-              </option>
-            ))}
-          </Select>
-          <Select label={t(lang, 'uiStyle')} value={style} data-testid="style-select" onChange={(e) => setStyle(e.target.value as StyleId)}>
-            {STYLES.filter((id) => !allowedStyles || allowedStyles.includes(id)).map((id) => (
-              <option key={id} value={id}>
-                {t(lang, styleLabelKey(id))}
-              </option>
-            ))}
-          </Select>
-          <div className="hm-settings__group">
-            <span className="dx-field__label" id="hm-theme-label">
-              {t(lang, 'uiTheme')}
-            </span>
-            <Segmented
-              label={t(lang, 'uiTheme')}
-              value={theme}
-              onChange={onTheme}
-              options={THEMES.map(({ id, key, Icon }) => ({ id, label: (<><Icon size={18} />{t(lang, key)}</>) }))}
-            />
-          </div>
-          <div className="hm-settings__group">
-            <span className="dx-field__label">{t(lang, 'uiDensity')}</span>
-            <Segmented
-              label={t(lang, 'uiDensity')}
-              value={density}
-              onChange={setDensity}
-              options={DENSITIES.map((id) => ({ id, label: t(lang, densityLabelKey(id)) }))}
-            />
-          </div>
+          <AppearanceFields lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
           {relay ? (
             <Switch
               label={t(lang, 'relayMode')}

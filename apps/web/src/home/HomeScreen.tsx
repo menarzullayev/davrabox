@@ -4,7 +4,7 @@ import { t, type Key, type Lang } from '../i18n';
 import { Alert, Avatar, Button, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
-import { SettingsMenu } from './SettingsMenu';
+import { AppearanceControls } from './AppearanceControls';
 import { TimelineView, copyJoinLink } from './Timeline';
 import { displayName, firstName, formatDay, greetingSlot, groupMeetings, type ProfileLike, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
@@ -198,7 +198,7 @@ export function HomeScreen(props: HomeScreenProps) {
                 <span className="hm-who__name">{who}</span>
               </span>
             ) : null}
-            <SettingsMenu
+            <AppearanceControls
               lang={lang}
               onLang={props.onLang}
               theme={props.theme}
