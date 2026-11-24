@@ -1,0 +1,16 @@
+# DavraBox
+
+> DavraBox is a corporate video-conferencing platform: secure, local and under the organisation's control. Meetings with a waiting room and host controls, chat and files, SSO and an admin console, an audit trail, optional end-to-end encryption, recording, and a REST API with webhooks.
+
+DavraBox is offered to organisations, with a free 7-day trial (up to 10 participants, meetings up to 30 minutes). The product interface is available in Uzbek, Russian and English.
+
+## Pages
+
+- [Home](/): what DavraBox is and how to start a free trial
+- [Privacy notice](/privacy): what personal data is collected and why (draft)
+- [Terms of use](/terms): terms of use (draft)
+
+## Notes for automated agents
+
+- The application at /app and the admin console at /admin require sign-in and are not meant for crawling.
+- The API is documented for organisation administrators inside the admin console.

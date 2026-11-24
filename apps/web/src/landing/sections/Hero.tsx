@@ -12,6 +12,9 @@ export interface HeroProps {
 
 /** The screenshots are the call screen in the davra layout (rendered by apps/e2e/landing.shots.mjs from the call lab). */
 export const HERO_SHOT = { dark: '/landing/call-davra-dark.jpg', light: '/landing/call-davra-light.jpg', width: 1280, height: 720 } as const;
+/** WebP variants (640 and 1280 px wide) of the same screenshots; the jpg stays as the fallback. public/theme-init.js preloads the same files. */
+export const HERO_SHOT_SIZES = '(max-width: 959px) calc(100vw - 48px), 640px';
+export const heroSrcSet = (theme: 'dark' | 'light'): string => `/landing/call-davra-${theme}-640.webp 640w, /landing/call-davra-${theme}-1280.webp 1280w`;
 
 export function Hero({ lang, theme, navigate }: HeroProps) {
   return (
@@ -36,14 +39,17 @@ export function Hero({ lang, theme, navigate }: HeroProps) {
       <div className="ln-hero__art">
         <Davra className="ln-mandala" size={640} rings={4} petals={12} rotation={8} />
         <figure className="ln-shot">
-          <img
-            src={HERO_SHOT[theme]}
-            width={HERO_SHOT.width}
-            height={HERO_SHOT.height}
-            alt={tx(lang, 'lnHeroShotAlt')}
-            decoding="async"
-            fetchPriority="high"
-          />
+          <picture>
+            <source type="image/webp" srcSet={heroSrcSet(theme)} sizes={HERO_SHOT_SIZES} />
+            <img
+              src={HERO_SHOT[theme]}
+              width={HERO_SHOT.width}
+              height={HERO_SHOT.height}
+              alt={tx(lang, 'lnHeroShotAlt')}
+              decoding="async"
+              {...{ fetchpriority: 'high' }}
+            />
+          </picture>
         </figure>
       </div>
     </section>
