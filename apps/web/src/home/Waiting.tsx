@@ -5,10 +5,12 @@ import type { Lang } from '../i18n';
 import { WaitingView } from './AuthScreens';
 
 /** Polls the join request every 2 s until the host admits, denies or removes it (unchanged behaviour). */
-export function Waiting({ lang, code, requestId, onAdmitted, onFailed, onCancel }: {
+export function Waiting({ lang, code, requestId, guestToken, onAdmitted, onFailed, onCancel }: {
   lang: Lang;
   code: string;
   requestId: string;
+  /** A guest (no account) polls with its own session token instead of a member token. */
+  guestToken?: string;
   onAdmitted: (j: JoinedResult) => void;
   onFailed: (e: unknown) => void;
   onCancel: () => void;
@@ -19,7 +21,7 @@ export function Waiting({ lang, code, requestId, onAdmitted, onFailed, onCancel 
     const tick = async () => {
       if (done.current) return;
       try {
-        const r = await api.requestStatus(await freshToken(), code, requestId);
+        const r = guestToken ? await api.guestStatus(guestToken, requestId) : await api.requestStatus(await freshToken(), code, requestId);
         if (r.status === 'joined' && !done.current) {
           done.current = true;
           onAdmitted(r);

@@ -138,3 +138,24 @@ The receiver accepts only `Content-Type: application/webhook+json` requests whos
 | `WEBHOOK_DELIVERY_INTERVAL_MS` | `5000` | Poll interval of the delivery worker; `0` turns it off on this instance |
 | `WEBHOOK_REQUEST_TIMEOUT_MS` | `10000` | Timeout of one delivery request |
 | `FILE_MASTER_KEY` | none | Required for webhooks (encrypts signing secrets) |
+
+
+## 6. Guests (people without an account)
+
+A meeting can let people in with only its code and a display name. Three levels decide:
+- **Organisation policy** (admin console, Policies, or `PUT /v1/admin/policies` with `guestPolicy`): the most an organisation allows: `off` (default), `waiting_room` or `open`.
+- **Meeting setting**: `POST /v1/meetings` accepts `guests` (`off` | `waiting_room` | `open`); a value above the policy is `400`. `GET /v1/meetings/settings` tells a member the policy. The meeting list reports `guest_mode`.
+- **Effective mode** = the stricter of the two, checked on every join and every poll: lowering the policy ends guest access at once. `off`: refused. `waiting_room`: the host or a co-host admits each guest. `open`: a token directly (after the passcode, if any). A locked meeting refuses guests.
+
+```
+POST /v1/guest/meetings/:code/join   { "name": "Ali Valiyev", "passcode": "…" }   -> 200 joined | waiting
+GET  /v1/guest/requests/:id          Authorization: Bearer <guestToken>            -> 200 waiting | joined, 403 denied
+```
+
+- No sign-in. `name` is 1-60 characters, no control characters. Unknown fields are `400`.
+- An unknown code and a meeting that takes no guests give the same `404`.
+- Limits per client address (counted before the work): 60 attempts and 10 unknown-code misses per 15 minutes, 5 wrong passcodes per address and code, 50 waiting guests per meeting (`429`).
+- The result carries a LiveKit token with identity `guest:<id>` and metadata `{"guest":true}`, **without** room admin rights, and a `guestToken` (HMAC-signed, 2 hours) that only the polling endpoint accepts; every member endpoint refuses it (`401`).
+- Guests can use video, audio, chat, raised hand and reactions. They cannot share files, control recording or manage participants. Participant webhooks ignore guests (they are not users of the organisation).
+- The host side lists waiting guests in `GET /v1/meetings/:code/requests` (`guest: true`, `user_id: null`) and admits or denies them with the same endpoints. Muting or removing a guest uses the identity `guest:<id>`; removal ends the session and bans a keyed hash of the guest's address for that meeting only. Honest limit: a guest who changes address gets in again if the policy allows, so lock the meeting when that matters.
+- Audit: `guest.join`, `guest.admit`, `guest.deny`, `guest.remove` (no actor id for the join).

@@ -27,6 +27,7 @@ export interface Policies {
   waitingRoomDefault: boolean;
   maxParticipants: number;
   requireTotp: boolean;
+  guestPolicy: 'off' | 'waiting_room' | 'open';
 }
 export interface AuditEntry {
   id: string;

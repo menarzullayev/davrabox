@@ -6,7 +6,7 @@ import { ErrorBox, Status, useAdmin } from './ui';
 
 export function Policies() {
   const { client, lang, report } = useAdmin();
-  const [form, setForm] = useState<{ requirePasscode: boolean; waitingRoomDefault: boolean; requireTotp: boolean; max: string } | null>(null);
+  const [form, setForm] = useState<{ requirePasscode: boolean; waitingRoomDefault: boolean; requireTotp: boolean; guestPolicy: PolicyData['guestPolicy']; max: string } | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const [fieldErr, setFieldErr] = useState<string | null>(null);
@@ -14,7 +14,7 @@ export function Policies() {
   const [busy, setBusy] = useState(false);
 
   const apply = (p: PolicyData) =>
-    setForm({ requirePasscode: p.requirePasscode, waitingRoomDefault: p.waitingRoomDefault, requireTotp: p.requireTotp, max: String(p.maxParticipants) });
+    setForm({ requirePasscode: p.requirePasscode, waitingRoomDefault: p.waitingRoomDefault, requireTotp: p.requireTotp, guestPolicy: p.guestPolicy, max: String(p.maxParticipants) });
 
   const load = useCallback(async () => {
     setLoadErr(null);
@@ -42,7 +42,7 @@ export function Policies() {
     setFieldErr(null);
     setBusy(true);
     try {
-      apply(await client.putPolicies({ requirePasscode: form.requirePasscode, waitingRoomDefault: form.waitingRoomDefault, maxParticipants: max, requireTotp: form.requireTotp }));
+      apply(await client.putPolicies({ requirePasscode: form.requirePasscode, waitingRoomDefault: form.waitingRoomDefault, maxParticipants: max, requireTotp: form.requireTotp, guestPolicy: form.guestPolicy }));
       setSaved(t(lang, 'admPolSaved'));
     } catch (x) {
       setSaveErr(`${t(lang, 'admPolFailed')}: ${t(lang, report(x))}`);
@@ -62,6 +62,13 @@ export function Policies() {
           <label className="check"><input type="checkbox" checked={form.requirePasscode} onChange={(e) => setForm({ ...form, requirePasscode: e.target.checked })} /> {t(lang, 'admPolPasscode')}</label>
           <label className="check"><input type="checkbox" checked={form.waitingRoomDefault} onChange={(e) => setForm({ ...form, waitingRoomDefault: e.target.checked })} /> {t(lang, 'admPolWaiting')}</label>
           <label className="check"><input type="checkbox" checked={form.requireTotp} onChange={(e) => setForm({ ...form, requireTotp: e.target.checked })} /> {t(lang, 'admPolTotp')}</label>
+          <label>{t(lang, 'admPolGuests')}
+            <select data-testid="guest-policy" value={form.guestPolicy} onChange={(e) => setForm({ ...form, guestPolicy: e.target.value as PolicyData['guestPolicy'] })}>
+              <option value="off">{t(lang, 'admPolGuestsOff')}</option>
+              <option value="waiting_room">{t(lang, 'admPolGuestsWait')}</option>
+              <option value="open">{t(lang, 'admPolGuestsOpen')}</option>
+            </select>
+          </label>
           <label>{t(lang, 'admPolMax')}
             <input
               inputMode="numeric"

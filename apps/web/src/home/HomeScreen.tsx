@@ -35,6 +35,8 @@ export interface HomeScreenProps {
   banner?: { key: Key; n?: number } | null;
   /** Bearer token for the calendar integration; when set, hosts can add a meeting to Google Calendar or Outlook. */
   calendarToken?: string;
+  /** The most the organization allows for guests (shown in the new-meeting dialog). */
+  guestMax?: 'off' | 'waiting_room' | 'open';
   /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
   now?: Date;
 }
@@ -150,6 +152,7 @@ function HomeBody(props: HomeScreenProps) {
         onClose={() => setDialog(false)}
         onCreate={onCreate}
         calendar={Boolean(props.calendarToken)}
+        guestMax={props.guestMax}
         onCreated={(m, opts) => {
           setDialog(false);
           if (m.e2ee) {

@@ -3,6 +3,7 @@ import { t, type Lang } from '../i18n';
 import { Button, ConnectingRing, Davra, IconChevronRight, Logo, TextField, type ThemeChoice } from '../ui';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { appUrl } from '../routes';
+import { appErrorKey } from '../errors';
 import { LegalLinks } from '../privacy/LegalLinks';
 import { SettingsMenu } from './SettingsMenu';
 import { formatCode, parseJoinInput } from './logic';
@@ -25,13 +26,22 @@ export interface SignInScreenProps {
   onSignIn: () => void;
   /** Remembers the meeting code (and an E2EE key from a pasted link), then starts the sign-in; the home screen joins after it. */
   onSignInToJoin?: (code: string) => void;
+  /** Joins as a guest (no account): code, display name and an optional passcode. Rejects with the API error. */
+  onGuestJoin?: (code: string, name: string, passcode?: string) => Promise<void>;
+  /** A code from a meeting link (?join=): the field starts filled. */
+  initialCode?: string;
 }
 
 /** Calm sign-in: the brand statement, the davra ornament behind it and one clear primary action. */
-export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInToJoin }: SignInScreenProps) {
+export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInToJoin, onGuestJoin, initialCode = '' }: SignInScreenProps) {
   const lines = brandSentences(tx(lang, 'hBrandLine'));
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(() => (initialCode ? formatCode(initialCode) : ''));
   const [touched, setTouched] = useState(false);
+  const [guestMode, setGuestMode] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestPass, setGuestPass] = useState('');
+  const [guestErr, setGuestErr] = useState<string | undefined>();
+  const [busy, setBusy] = useState(false);
   const parsed = useMemo(() => parseJoinInput(value), [value]);
   const error =
     !touched || parsed.status === 'valid'
@@ -44,10 +54,33 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setTouched(true);
-    if (parsed.status !== 'valid' || !onSignInToJoin) return;
+    if (parsed.status !== 'valid') return;
     const key = extractKeyFromText(value);
     if (key) storeKey(parsed.code, key);
-    onSignInToJoin(parsed.code);
+    if (guestMode) {
+      if (!onGuestJoin || busy) return;
+      const name = guestName.trim().replace(/\s+/g, ' ');
+      if (name.length < 1 || name.length > 60) {
+        setGuestErr(tx(lang, 'hGuestErrName'));
+        return;
+      }
+      setGuestErr(undefined);
+      setBusy(true);
+      onGuestJoin(parsed.code, name, guestPass || undefined)
+        .catch((err: unknown) => setGuestErr(t(lang, appErrorKey(err))))
+        .finally(() => setBusy(false));
+      return;
+    }
+    if (onSignInToJoin) onSignInToJoin(parsed.code);
+  };
+  const startGuest = () => {
+    setTouched(true);
+    if (parsed.status !== 'valid') {
+      setGuestErr(tx(lang, 'hGuestErrCode'));
+      return;
+    }
+    setGuestErr(undefined);
+    setGuestMode(true);
   };
   return (
     <div className="si">
@@ -99,11 +132,41 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
                   }}
                   onBlur={() => setTouched(value.trim() !== '')}
                   error={error}
-                  hint={tx(lang, 'hSignInJoinNote')}
+                  hint={onGuestJoin ? tx(lang, 'hGuestNote') : tx(lang, 'hSignInJoinNote')}
                 />
-                <Button variant="secondary" size="lg" fullWidth type="submit">
-                  {tx(lang, 'hSignInJoinBtn')}
-                </Button>
+                {guestMode ? (
+                  <>
+                    <TextField
+                      label={tx(lang, 'hGuestName')}
+                      autoComplete="name"
+                      maxLength={60}
+                      data-testid="guest-name"
+                      hint={tx(lang, 'hGuestNameHint')}
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                    />
+                    <TextField label={tx(lang, 'hGuestPass')} type="password" autoComplete="off" maxLength={64} value={guestPass} onChange={(e) => setGuestPass(e.target.value)} />
+                    {guestErr ? <p className="si__err" role="alert">{guestErr}</p> : null}
+                    <Button variant="primary" size="lg" fullWidth type="submit" loading={busy} data-testid="guest-go">
+                      {tx(lang, 'hGuestGo')}
+                    </Button>
+                    <Button variant="ghost" size="md" fullWidth onClick={() => { setGuestMode(false); setGuestErr(undefined); }}>
+                      {tx(lang, 'hGuestBack')}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {guestErr ? <p className="si__err" role="alert">{guestErr}</p> : null}
+                    <Button variant="secondary" size="lg" fullWidth type="submit">
+                      {tx(lang, 'hSignInJoinBtn')}
+                    </Button>
+                    {onGuestJoin ? (
+                      <Button variant="ghost" size="md" fullWidth onClick={startGuest} data-testid="guest-start">
+                        {tx(lang, 'hGuestJoinBtn')}
+                      </Button>
+                    ) : null}
+                  </>
+                )}
               </form>
             ) : null}
             <a className="si__new" href={appUrl('signup')}>

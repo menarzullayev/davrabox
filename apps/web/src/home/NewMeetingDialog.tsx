@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Alert, Button, Checkbox, Dialog, Switch, TextField } from '../ui';
+import { Alert, Button, Checkbox, Dialog, Select, Switch, TextField } from '../ui';
 import { t, type Lang } from '../i18n';
-import type { Meeting } from '../api';
+import type { GuestMode, Meeting } from '../api';
 import { tx } from './text';
 
 export interface NewMeetingData {
@@ -10,6 +10,8 @@ export interface NewMeetingData {
   waitingRoom: boolean;
   /** End-to-end encrypted meeting; chosen here and never changed afterwards. */
   e2ee: boolean;
+  /** Guests (people without an account); absent = off. */
+  guests?: GuestMode;
 }
 
 export interface NewMeetingDialogProps {
@@ -21,15 +23,18 @@ export interface NewMeetingDialogProps {
   onCreated: (m: Meeting, opts?: { calendar?: boolean }) => void;
   /** Offer "add to calendar after creating" (calendar integration). */
   calendar?: boolean;
+  /** The most the organization allows for guests; the choice is shown only when it is above 'off'. */
+  guestMax?: GuestMode;
 }
 
 const FORM_ID = 'hm-new-form';
 
-export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, calendar }: NewMeetingDialogProps) {
+export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, calendar, guestMax = 'off' }: NewMeetingDialogProps) {
   const [title, setTitle] = useState('');
   const [passcode, setPasscode] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
   const [e2ee, setE2ee] = useState(false);
+  const [guests, setGuests] = useState<GuestMode>('off');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [addCalendar, setAddCalendar] = useState(false);
@@ -48,11 +53,12 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
     setBusy(true);
     setFailed(false);
     try {
-      const m = await onCreate({ title: title.trim(), passcode: passcode || undefined, waitingRoom, e2ee });
+      const m = await onCreate({ title: title.trim(), passcode: passcode || undefined, waitingRoom, e2ee, ...(guestMax !== 'off' ? { guests: guests === 'open' && guestMax !== 'open' ? guestMax : guests } : {}) });
       setTitle('');
       setPasscode('');
       setWaitingRoom(true);
       setE2ee(false);
+      setGuests('off');
       onCreated(m, calendar && addCalendar ? { calendar: true } : undefined);
       setAddCalendar(false);
     } catch {
@@ -110,6 +116,13 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
           onChange={(e) => setWaitingRoom(e.target.checked)}
         />
         <Switch label={t(lang, 'e2eeToggle')} hint={t(lang, 'e2eeToggleHint')} checked={e2ee} data-testid="e2ee-toggle" onChange={(e) => setE2ee(e.target.checked)} />
+        {guestMax !== 'off' ? (
+          <Select label={tx(lang, 'hNewGuests')} hint={tx(lang, 'hNewGuestsHint')} data-testid="guest-mode" value={guests} onChange={(e) => setGuests(e.target.value as GuestMode)}>
+            <option value="off">{tx(lang, 'hNewGuestsOff')}</option>
+            <option value="waiting_room">{tx(lang, 'hNewGuestsWait')}</option>
+            {guestMax === 'open' ? <option value="open">{tx(lang, 'hNewGuestsOpen')}</option> : null}
+          </Select>
+        ) : null}
         {calendar ? <Checkbox label={tx(lang, 'calAfterCreate')} checked={addCalendar} data-testid="cal-after-create" onChange={(e) => setAddCalendar(e.target.checked)} /> : null}
       </form>
     </Dialog>

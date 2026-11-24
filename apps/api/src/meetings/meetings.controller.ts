@@ -12,6 +12,7 @@ const createSchema = z.object({
   scheduledAt: z.string().datetime().optional(),
   waitingRoom: z.boolean().optional(),
   e2ee: z.boolean().optional(),
+  guests: z.enum(['off', 'waiting_room', 'open']).optional(),
 }).strict(); // strict: a client that ever sent an E2EE meeting key here fails loudly instead of the server silently dropping it
 const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional() });
 const lockSchema = z.object({ locked: z.boolean() });
@@ -38,6 +39,11 @@ export class MeetingsController {
   @Get()
   list(@Req() req: Req) {
     return this.svc.list(req.user);
+  }
+
+  @Get('settings')
+  settings(@Req() req: Req) {
+    return this.svc.settings(req.user);
   }
 
   @Post()
