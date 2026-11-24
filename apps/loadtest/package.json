@@ -10,7 +10,7 @@
     "load": "node run.mjs"
   },
   "dependencies": {
-    "@livekit/rtc-node": "^0.13.0",
+    "@livekit/rtc-node": "^1.2.3",
     "livekit-server-sdk": "^2.9.0"
   }
 }

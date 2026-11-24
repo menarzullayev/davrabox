@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM node:26.13.1-slim AS build
-RUN npm install -g pnpm@12.21.0 --no-fund --no-audit
+RUN npm install -g pnpm@12.23.0 --no-fund --no-audit
 WORKDIR /repo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/web/package.json apps/web/
