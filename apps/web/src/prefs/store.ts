@@ -43,6 +43,14 @@ function load(): Prefs {
   };
 }
 
+export interface OrgPolicy {
+  /** null = every style is allowed. */
+  allowedStyles: readonly string[] | null;
+  defaultStyle: string;
+  defaultDensity: string;
+}
+let policy: OrgPolicy = { allowedStyles: null, defaultStyle: 'dashboard', defaultDensity: 'comfortable' };
+
 let state: Prefs | null = null;
 const listeners = new Set<() => void>();
 
@@ -113,16 +121,25 @@ function onStorage(e: StorageEvent): void {
 }
 if (typeof window !== 'undefined') window.addEventListener('storage', onStorage);
 
+/** The signed-in person's organization rules (set after sign-in by the server sync). */
+export function setOrgPolicy(p: OrgPolicy): void {
+  policy = p;
+  emit();
+}
+export const getOrgPolicy = (): OrgPolicy => policy;
+
 /** Test helper: forget the in-memory state so the next read starts from storage again. */
 export function resetPrefsForTests(): void {
   state = null;
   listeners.clear();
 }
 
-export function usePrefs(): Prefs & { setLang: (l: Lang) => void; setTheme: (v: ThemeChoice) => void; setStyle: (v: StyleId) => void; setDensity: (v: DensityId) => void } {
+export function usePrefs(): Prefs & { allowedStyles: readonly string[] | null; setLang: (l: Lang) => void; setTheme: (v: ThemeChoice) => void; setStyle: (v: StyleId) => void; setDensity: (v: DensityId) => void } {
   const p = useSyncExternalStore(subscribePrefs, getPrefs, getPrefs);
+  const pol = useSyncExternalStore(subscribePrefs, getOrgPolicy, getOrgPolicy);
   return {
     ...p,
+    allowedStyles: pol.allowedStyles,
     setLang: (l) => setPref('lang', l),
     setTheme: (v) => setPref('theme', v),
     setStyle: (v) => setPref('style', v),

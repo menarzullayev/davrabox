@@ -559,11 +559,11 @@ describe('policies', () => {
     const admin = await mkUser(slugs.pol, `poladm-${sfx}`, 'org_admin');
     const t = admin.token;
     const get0 = await api('GET', '/v1/admin/policies', t);
-    expect(get0.body).toEqual({ requirePasscode: false, waitingRoomDefault: true, maxParticipants: 300, requireTotp: false, guestPolicy: 'off' });
+    expect(get0.body).toEqual({ requirePasscode: false, waitingRoomDefault: true, maxParticipants: 300, requireTotp: false, guestPolicy: 'off', defaultStyle: 'dashboard', defaultDensity: 'comfortable', allowedStyles: null });
     const put = await api('PUT', '/v1/admin/policies', t, valid);
     expect(put.status).toBe(200);
-    expect(put.body).toEqual({ ...valid, guestPolicy: 'off' }); // omitted guestPolicy is stored as the safe default
-    expect((await api('GET', '/v1/admin/policies', t)).body).toEqual({ ...valid, guestPolicy: 'off' });
+    expect(put.body).toEqual({ ...valid, guestPolicy: 'off', defaultStyle: 'dashboard', defaultDensity: 'comfortable', allowedStyles: null }); // omitted guestPolicy is stored as the safe default
+    expect((await api('GET', '/v1/admin/policies', t)).body).toEqual({ ...valid, guestPolicy: 'off', defaultStyle: 'dashboard', defaultDensity: 'comfortable', allowedStyles: null });
     expect((await api('GET', '/v1/admin/policies', adminB.token)).body.maxParticipants).toBe(300); // not org B's
     expect((await auditActions(admin.orgId)).map((a) => a.action)).toContain('admin.policy.update');
   });

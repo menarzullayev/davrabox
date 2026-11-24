@@ -1,0 +1,45 @@
+/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
+:root {
+  --pf-v5-global--primary-color--100: #087069;
+  --pf-v5-global--primary-color--200: #06605a;
+  --pf-v5-global--link--Color: #054d48;
+  --pf-v5-global--link--Color--hover: #06605a;
+  --pf-v5-global--BackgroundColor--100: #ffffff;
+  --pf-v5-global--BackgroundColor--200: #f4f5fb;
+  --pf-v5-global--Color--100: #12163a;
+  --pf-v5-global--Color--200: #454c7a;
+  --pf-v5-global--BorderColor--100: #767ea9;
+  --pf-v5-global--danger-color--100: #b3202f;
+}
+:root body, :root .pf-v5-c-login { background: #f4f5fb; color: #12163a; }
+:root .pf-v5-c-login__main { background: #ffffff; color: #12163a; border: 1px solid #d5d9ee; border-radius: 14px; }
+:root .pf-v5-c-login__main-header h1, :root .pf-v5-c-title, :root .pf-v5-c-form__label-text { color: #12163a; }
+:root .pf-v5-c-form-control { background: #eceef8; color: #12163a; border: 1px solid #767ea9; border-radius: 10px; }
+:root .pf-v5-c-button.pf-m-primary { background: #087069; color: #ffffff; border-radius: 10px; }
+:root .pf-v5-c-button.pf-m-primary:hover { background: #06605a; }
+:root #kc-header-wrapper, :root #kc-header, :root .kc-logo-text { color: #12163a !important; }
+:root select, :root .pf-v5-c-button.pf-m-control { background-color: #eceef8; color: #12163a; border: 1px solid #767ea9; }
+:root a { color: #054d48; }
+:root :focus-visible { outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root.pf-v5-theme-dark {
+  --pf-v5-global--primary-color--100: #3dd6c8;
+  --pf-v5-global--primary-color--200: #6fe5da;
+  --pf-v5-global--link--Color: #3dd6c8;
+  --pf-v5-global--link--Color--hover: #6fe5da;
+  --pf-v5-global--BackgroundColor--100: #10142f;
+  --pf-v5-global--BackgroundColor--200: #0a0d21;
+  --pf-v5-global--Color--100: #eef0fc;
+  --pf-v5-global--Color--200: #b4b9de;
+  --pf-v5-global--BorderColor--100: #6f78b9;
+  --pf-v5-global--danger-color--100: #ff6b7a;
+}
+:root.pf-v5-theme-dark body, :root.pf-v5-theme-dark .pf-v5-c-login { background: #0a0d21; color: #eef0fc; }
+:root.pf-v5-theme-dark .pf-v5-c-login__main { background: #10142f; color: #eef0fc; border: 1px solid #2a3163; border-radius: 14px; }
+:root.pf-v5-theme-dark .pf-v5-c-login__main-header h1, :root.pf-v5-theme-dark .pf-v5-c-title, :root.pf-v5-theme-dark .pf-v5-c-form__label-text { color: #eef0fc; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control { background: #20264d; color: #eef0fc; border: 1px solid #6f78b9; border-radius: 10px; }
+:root.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary { background: #3dd6c8; color: #04211f; border-radius: 10px; }
+:root.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary:hover { background: #6fe5da; }
+:root.pf-v5-theme-dark #kc-header-wrapper, :root.pf-v5-theme-dark #kc-header, :root.pf-v5-theme-dark .kc-logo-text { color: #eef0fc !important; }
+:root.pf-v5-theme-dark select, :root.pf-v5-theme-dark .pf-v5-c-button.pf-m-control { background-color: #20264d; color: #eef0fc; border: 1px solid #6f78b9; }
+:root.pf-v5-theme-dark a { color: #3dd6c8; }
+:root.pf-v5-theme-dark :focus-visible { outline: 2px solid #7ee9df; outline-offset: 2px; }

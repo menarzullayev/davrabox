@@ -346,18 +346,19 @@ export class AdminService {
   async setPolicies(actor: AuthedUser, p: OrgPolicies): Promise<OrgPolicies> {
     return withTenant(this.pool, actor.orgId, async (c) => {
       await c.query(
-        `INSERT INTO org_policies (org_id, require_passcode, waiting_room_default, max_participants, require_totp, guest_policy)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO org_policies (org_id, require_passcode, waiting_room_default, max_participants, require_totp, guest_policy, default_style, default_density, allowed_styles)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (org_id) DO UPDATE SET require_passcode = EXCLUDED.require_passcode,
            waiting_room_default = EXCLUDED.waiting_room_default, max_participants = EXCLUDED.max_participants,
-           require_totp = EXCLUDED.require_totp, guest_policy = EXCLUDED.guest_policy, updated_at = now()`,
-        [actor.orgId, p.requirePasscode, p.waitingRoomDefault, p.maxParticipants, p.requireTotp, p.guestPolicy],
+           require_totp = EXCLUDED.require_totp, guest_policy = EXCLUDED.guest_policy,
+           default_style = EXCLUDED.default_style, default_density = EXCLUDED.default_density, allowed_styles = EXCLUDED.allowed_styles, updated_at = now()`,
+        [actor.orgId, p.requirePasscode, p.waitingRoomDefault, p.maxParticipants, p.requireTotp, p.guestPolicy, p.defaultStyle, p.defaultDensity, p.allowedStyles],
       );
       await this.audit(
         c,
         actor,
         'admin.policy.update',
-        `requirePasscode=${p.requirePasscode},waitingRoomDefault=${p.waitingRoomDefault},maxParticipants=${p.maxParticipants},requireTotp=${p.requireTotp},guestPolicy=${p.guestPolicy}`,
+        `requirePasscode=${p.requirePasscode},waitingRoomDefault=${p.waitingRoomDefault},maxParticipants=${p.maxParticipants},requireTotp=${p.requireTotp},guestPolicy=${p.guestPolicy},defaultStyle=${p.defaultStyle},defaultDensity=${p.defaultDensity},allowedStyles=${p.allowedStyles ? p.allowedStyles.join('|') : 'all'}`,
       );
       return { ...DEFAULT_POLICIES, ...p };
     });
