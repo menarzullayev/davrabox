@@ -20,6 +20,7 @@ import {
 } from '@nestjs/common';
 import { z } from 'zod';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
+import { noControl } from '../common/text.js';
 import { AdminError, AdminService } from './admin.service.js';
 import { policiesSchema } from './policies.js';
 
@@ -36,7 +37,7 @@ export class AdminGuard implements CanActivate {
 }
 
 const uuid = z.string().uuid();
-const personName = z.string().trim().min(1).max(80);
+const personName = z.string().trim().min(1).max(80).refine(noControl);
 const emailSchema = z.string().trim().toLowerCase().max(255).pipe(z.email());
 const createUserSchema = z
   .object({
@@ -56,11 +57,11 @@ const updateUserSchema = z
   .strict()
   .refine((v) => Object.keys(v).length > 0, 'empty update');
 const listSchema = z.object({
-  search: z.string().trim().max(100).optional(),
+  search: z.string().trim().max(100).refine(noControl).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
-  cursor: z.string().max(200).optional(),
+  cursor: z.string().max(200).refine(noControl).optional(),
 });
-const departmentSchema = z.object({ name: z.string().trim().min(1).max(80) }).strict();
+const departmentSchema = z.object({ name: z.string().trim().min(1).max(80).refine(noControl) }).strict();
 
 type Request = { user: AuthedUser };
 

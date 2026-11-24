@@ -1,6 +1,7 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, Optional, UnauthorizedException } from '@nestjs/common';
 import type { Pool } from 'pg';
 import type { Identity } from './jwt.js';
+import { RateLimitService } from '../rate-limit/service.js';
 
 export const VERIFIER = Symbol('VERIFIER');
 export const POOL = Symbol('POOL');
@@ -15,6 +16,8 @@ export class AuthGuard implements CanActivate {
   constructor(
     @Inject(VERIFIER) private readonly verify: (t: string) => Promise<Identity>,
     @Inject(POOL) private readonly pool: Pool,
+    // Optional so the guard still works in a module that does not import RateLimitModule (a few test harnesses).
+    @Optional() @Inject(RateLimitService) private readonly rate?: RateLimitService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -25,6 +28,8 @@ export class AuthGuard implements CanActivate {
     try {
       identity = await this.verify(header.slice(7));
     } catch {
+      // A bad, expired or forged token counts against the caller's address; RateLimitGuard refuses addresses over the limit.
+      await this.rate?.authFailures.recordFailure(this.rate.clientKey(req));
       throw new UnauthorizedException();
     }
     const orgName = identity.orgSlug;

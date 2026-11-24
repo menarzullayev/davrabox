@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
-import { Pool } from 'pg';
+import type { Pool } from 'pg';
+import { createPool } from './db/pool.js';
+import { RateLimitModule } from './rate-limit/rate-limit.module.js';
+import { RateLimitService } from './rate-limit/service.js';
 import { loadConfig, type Config } from './config.js';
 import { AuthGuard, POOL, VERIFIER } from './auth/auth.guard.js';
 import { createVerifier } from './auth/jwt.js';
 import { MEETINGS, MeetingsController } from './meetings/meetings.controller.js';
 import { MeetingsService } from './meetings/meetings.service.js';
 import { HealthController } from './health.controller.js';
+import { READINESS, ReadinessService } from './readiness.js';
 import { FILES, FilesController } from './files/files.controller.js';
 import { FilesService } from './files/files.service.js';
 import { AUDIT, AuditAdminGuard, AuditController } from './audit/audit.controller.js';
@@ -26,17 +30,18 @@ export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
-  imports: [SignupModule, ExtApiModule],
+  imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
   controllers: [MeetingsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
     ...privacyProviders,
     { provide: CONFIG, useFactory: () => loadConfig() },
-    { provide: POOL, useFactory: (cfg: Config) => new Pool({ connectionString: cfg.DATABASE_URL, max: 10 }), inject: [CONFIG] },
+    { provide: POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 10), inject: [CONFIG] },
+    { provide: READINESS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ReadinessService(pool, { livekitApiUrl: cfg.LIVEKIT_API_URL }, { rate }), inject: [POOL, CONFIG, RateLimitService] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },
-    { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config) => new MeetingsService(pool, cfg), inject: [POOL, CONFIG] },
-    { provide: FILES, useFactory: (pool: Pool, cfg: Config) => new FilesService(pool, cfg), inject: [POOL, CONFIG] },
+    { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new MeetingsService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
+    { provide: FILES, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new FilesService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     {
       provide: ADMIN,
       useFactory: (pool: Pool, cfg: Config) =>
@@ -53,7 +58,7 @@ export const CONFIG = Symbol('CONFIG');
         ),
       inject: [POOL, CONFIG],
     },
-    { provide: AUDIT, useFactory: (pool: Pool, cfg: Config) => new AuditService(pool, cfg.LIVEKIT_API_SECRET), inject: [POOL, CONFIG] },
+    { provide: AUDIT, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new AuditService(pool, cfg.LIVEKIT_API_SECRET, { rate }), inject: [POOL, CONFIG, RateLimitService] },
     {
       provide: AUDIT_FORWARDER,
       useFactory: (pool: Pool, cfg: Config) =>

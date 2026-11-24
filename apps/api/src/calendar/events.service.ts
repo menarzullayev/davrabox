@@ -1,7 +1,8 @@
 import type { Pool } from 'pg';
 import { z } from 'zod';
 import { withTenant } from '../db/tenant.js';
-import { FailureLimiter } from '../common/rate-limiter.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { MeetingError } from '../meetings/meetings.service.js';
 import type { CalendarConfig } from './config.js';
@@ -39,13 +40,16 @@ export interface CreateEventResult {
  * attendees (Google with sendUpdates=all, Microsoft Graph automatically); this product never emails anybody.
  */
 export class CalendarEventsService {
-  private readonly limiter = new FailureLimiter(30, 60_000);
+  private readonly limiter: RateLimiter;
 
   constructor(
     private readonly pool: Pool,
     private readonly oauth: CalendarOAuthService,
     private readonly cfg: CalendarConfig,
-  ) {}
+    rate: RateLimitService = RateLimitService.memory(),
+  ) {
+    this.limiter = rate.limiter({ name: 'calevent', max: 30, windowMs: 60_000 });
+  }
 
   async createEvent(user: AuthedUser, code: string, rawInput: unknown): Promise<CreateEventResult> {
     const parsed = eventInputSchema.safeParse(rawInput);
@@ -61,8 +65,7 @@ export class CalendarEventsService {
     });
     if (!meeting) throw new MeetingError(404, 'meeting not found');
     if (meeting.host_user_id !== user.userId) throw new MeetingError(403, 'only the host can add this meeting to a calendar');
-    if (this.limiter.isBlocked(user.userId)) throw new MeetingError(429, 'too many requests, try again in a minute');
-    this.limiter.recordFailure(user.userId); // counts every attempt
+    if (!(await this.limiter.hit(user.userId)).allowed) throw new MeetingError(429, 'too many requests, try again in a minute'); // counts every attempt
 
     const base = this.cfg.CALENDAR_PUBLIC_URL!.replace(/\/+$/, ''); // present: requireProvider checked it
     const joinUrl = `${base}/app?join=${encodeURIComponent(code)}`;

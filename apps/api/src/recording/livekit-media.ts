@@ -8,6 +8,7 @@ import {
   S3Upload,
 } from 'livekit-server-sdk';
 import type { EgressState, MediaPort } from './recording.service.js';
+import { livekitClientOptions } from '../common/timeouts.js';
 
 export interface LiveKitMediaOptions {
   apiUrl: string;
@@ -23,8 +24,8 @@ export class LiveKitMedia implements MediaPort {
   private readonly egress: EgressClient;
 
   constructor(private readonly o: LiveKitMediaOptions) {
-    this.rooms = new RoomServiceClient(o.apiUrl, o.apiKey, o.apiSecret);
-    this.egress = new EgressClient(o.apiUrl, o.apiKey, o.apiSecret);
+    this.rooms = new RoomServiceClient(o.apiUrl, o.apiKey, o.apiSecret, livekitClientOptions());
+    this.egress = new EgressClient(o.apiUrl, o.apiKey, o.apiSecret, livekitClientOptions());
   }
 
   /** Merges `recording` into the room metadata (other keys are kept). Clients read it on join and on change. */

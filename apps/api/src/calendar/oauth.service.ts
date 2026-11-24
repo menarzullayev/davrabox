@@ -1,7 +1,8 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type { Pool } from 'pg';
 import { withTenant } from '../db/tenant.js';
-import { FailureLimiter } from '../common/rate-limiter.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { MeetingError } from '../meetings/meetings.service.js';
 import { masterKeyFrom, open, seal } from '../files/crypto.js';
@@ -17,6 +18,7 @@ const ACCESS_TOKEN_SKEW_MS = 60_000;
 export interface OAuthDeps {
   fetch?: FetchLike;
   now?: () => number;
+  rate?: RateLimitService;
 }
 
 export type CallbackResult = { ok: true; provider: Provider } | { ok: false; reason: 'denied' | 'exchange' | 'scope' };
@@ -60,11 +62,12 @@ export class CalendarOAuthService {
   readonly fetchFn: FetchLike;
   private readonly now: () => number;
   private readonly master?: Buffer;
-  private readonly startLimiter = new FailureLimiter(20, 60_000);
+  private readonly startLimiter: RateLimiter;
   private readonly accessCache = new Map<string, { token: string; expiresAt: number }>();
   private readonly inflight = new Map<string, Promise<string>>();
 
   constructor(private readonly pool: Pool, private readonly cfg: CalendarConfig, deps: OAuthDeps = {}) {
+    this.startLimiter = (deps.rate ?? RateLimitService.memory()).limiter({ name: 'calstart', max: 20, windowMs: 60_000 });
     this.fetchFn = deps.fetch ?? ((url, init) => fetch(url, init));
     this.now = deps.now ?? Date.now;
     if (cfg.FILE_MASTER_KEY) this.master = masterKeyFrom(cfg.FILE_MASTER_KEY);
@@ -106,8 +109,7 @@ export class CalendarOAuthService {
   /** Step 1: the URL the browser is sent to. */
   async start(user: AuthedUser, rawProvider: string): Promise<{ url: string }> {
     const { provider, def, clientId, master, redirectUri } = this.requireProvider(rawProvider);
-    if (this.startLimiter.isBlocked(user.userId)) throw new MeetingError(429, 'too many attempts, try again in a minute');
-    this.startLimiter.recordFailure(user.userId);
+    if (!(await this.startLimiter.hit(user.userId)).allowed) throw new MeetingError(429, 'too many attempts, try again in a minute');
 
     const state = randomBytes(32).toString('base64url');
     const verifier = randomBytes(32).toString('base64url'); // 43 characters, RFC 7636 4.1

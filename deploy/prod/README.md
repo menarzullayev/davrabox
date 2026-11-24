@@ -39,11 +39,17 @@ docker compose --env-file .env up -d      # re-runs migrate, then recreates api/
 Migrations only move forward. To roll back the code, set the previous tag; a migration that already ran is NOT undone (there are no down migrations).
 
 ## Rotate a secret
-Change the value in `.env`, then `docker compose --env-file .env up -d` (containers using it are recreated). Special cases:
+Full steps for every secret, what breaks, and the incident checklist: `docs/runbook-secrets.md`. Short form: change the value in `.env`, then `docker compose --env-file .env up -d` (containers using it are recreated). Special cases:
 - `LIVEKIT_API_KEY/SECRET`: update both, restart `livekit` and `api` together; running meetings end.
 - `POSTGRES_PASSWORD`/`APP_DB_PASSWORD`: also run `ALTER ROLE ... PASSWORD` inside Postgres (the init script only runs on an empty data directory).
 - `FILE_MASTER_KEY`: files and meeting recordings already stored are encrypted under the old key; do not change it without re-encrypting them.
 - `ADMIN_API_CLIENT_SECRET`: also update the `davrabox-admin-api` client secret in Keycloak.
+
+## Probes, rate limits, shutdown
+- `GET /api/healthz` is liveness (never touches a dependency). `GET /api/readyz` is readiness: Postgres, the media server's API and Redis, one boolean each, 503 when Postgres or the media server is down (Redis alone down is `degraded`, HTTP 200). The API container's Docker healthcheck runs `node dist/healthcheck.js /readyz` (the image is distroless: no shell, no curl).
+- Rate limits are shared between API instances through the compose `redis` service (`REDIS_URL`, keys `davra:rl:*`; it has no persistence, so counters reset when it restarts). Without `REDIS_URL` they are counted per instance and the API logs a warning. `SIGNUP_TRUSTED_PROXY_HOPS` (default 1 = Caddy alone) is the single rule for the client address used by every limit: set it to 2 behind a Cloudflare tunnel, or clients can choose their own limit key.
+- SIGTERM drains in-flight requests, closes the database pools and exits (`stop_grace_period: 30s`); proven on the real image by `scripts/check-graceful-shutdown.sh`.
+- Security test record: `docs/security-testing.md`.
 
 ## Meeting recording
 The `egress` service (LiveKit Egress, headless Chrome) records a meeting to the `davra-recordings` bucket in MinIO; the API then envelope-encrypts the file with `FILE_MASTER_KEY` and deletes the plaintext. Only the host, a co-host or an org admin can start, stop, list and download. A room composite recording at 720p30 needs about 4 CPUs and 4 GB of RAM on top of the rest of the stack. Egress reaches LiveKit over the internal network (`ws://livekit:7880`); with `use_external_ip: true` its media connection uses the host's public address, so the host must be able to reach its own public IP (hairpin). Check one 20-second recording after the first deploy.

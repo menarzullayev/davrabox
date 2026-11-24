@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from 'pg';
 import type { AuthedUser } from '../auth/auth.guard.js';
-import { FailureLimiter } from '../common/rate-limiter.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import { withTenant } from '../db/tenant.js';
 import { UrlRejectedError } from '../ext-api/url-guard.js';
 import { unwrapDataKeyWith, type KeyWrapper } from '../files/crypto.js';
@@ -58,9 +59,10 @@ const MAX_REWRAP_BATCH = 500;
  */
 export class ByokService {
   private readonly keys?: KeyResolver;
-  private readonly limiter = new FailureLimiter(20, 60_000);
+  private readonly limiter: RateLimiter;
 
-  constructor(private readonly pool: Pool, private readonly master: Buffer | null, private readonly opts: ResolverOptions = {}) {
+  constructor(private readonly pool: Pool, private readonly master: Buffer | null, private readonly opts: ResolverOptions = {}, rate: RateLimitService = RateLimitService.memory()) {
+    this.limiter = rate.limiter({ name: 'byok', max: 20, windowMs: 60_000 });
     if (master) this.keys = new KeyResolver(pool, master, opts);
   }
 
@@ -132,8 +134,7 @@ export class ByokService {
     const { keys, master } = this.require();
     const mount = input.mount ?? 'transit';
     if (!isValidKeyName(input.keyName) || !isValidMount(mount) || !input.token || input.token.length > 4096) throw new ByokError(400, 'invalid key settings');
-    if (this.limiter.isBlocked(user.orgId)) throw new ByokError(429, 'too many attempts, try again in a minute');
-    this.limiter.recordFailure(user.orgId);
+    if (!(await this.limiter.hit(user.orgId)).allowed) throw new ByokError(429, 'too many attempts, try again in a minute');
 
     let origin: string;
     try {
@@ -179,8 +180,7 @@ export class ByokService {
   async test(user: AuthedUser): Promise<{ status: 'ok' | 'denied' | 'unreachable' }> {
     await this.requireAdmin(user, 'test');
     const { keys } = this.require();
-    if (this.limiter.isBlocked(user.orgId)) throw new ByokError(429, 'too many attempts, try again in a minute');
-    this.limiter.recordFailure(user.orgId);
+    if (!(await this.limiter.hit(user.orgId)).allowed) throw new ByokError(429, 'too many attempts, try again in a minute');
     const kms = await this.loadOrFail(keys, user.orgId);
     if (!kms) throw new ByokError(404, 'no customer key is configured');
     const provider = await keys.providerFor(kms.config, kms.keyName).catch(() => null);

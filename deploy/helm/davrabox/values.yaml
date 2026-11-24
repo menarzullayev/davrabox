@@ -23,6 +23,10 @@ api:
   # Set when postgres is external (production). With postgres.enabled the in-cluster service is used.
   databaseHost: ""
   corsOrigins: ""
+  # Redis for shared rate-limit counters, e.g. redis://redis.cache.svc:6379. REQUIRED for correct limits with replicas > 1
+  # (without it every replica counts on its own and the API logs a warning at start). Not secret-bearing: use a network-private Redis.
+  redisUrl: ""
+  trustedProxyHops: 1          # proxies in front of the API that append to X-Forwarded-For
 
 web:
   replicas: 2

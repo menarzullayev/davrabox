@@ -32,6 +32,12 @@ spec:
             - { name: LIVEKIT_API_URL, value: "http://livekit:7880" }
             - { name: CORS_ORIGINS, value: {{ default (printf "https://%s" .Values.publicHost) .Values.api.corsOrigins | quote }} }
             - { name: API_PORT, value: "3000" }
+            # Proxies in front of the API that append to X-Forwarded-For (the ingress controller = 1). One rule for every rate limit.
+            - { name: SIGNUP_TRUSTED_PROXY_HOPS, value: {{ .Values.api.trustedProxyHops | default 1 | quote }} }
+            {{- if .Values.api.redisUrl }}
+            # Shared rate-limit counters: required for correct limits with more than one API replica.
+            - { name: REDIS_URL, value: {{ .Values.api.redisUrl | quote }} }
+            {{- end }}
             {{- if .Values.files.enabled }}
             - { name: S3_ENDPOINT, value: {{ required "files.s3Endpoint is required when files.enabled" .Values.files.s3Endpoint | quote }} }
             - { name: S3_BUCKET, value: {{ .Values.files.s3Bucket | quote }} }
@@ -40,7 +46,8 @@ spec:
             - { name: S3_SECRET_KEY, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: S3_SECRET_KEY } } }
             - { name: FILE_MASTER_KEY, valueFrom: { secretKeyRef: { name: {{ .Values.existingSecret }}, key: FILE_MASTER_KEY } } }
             {{- end }}
-          readinessProbe: { httpGet: { path: /healthz, port: http }, periodSeconds: 5 }
+          # Readiness = can serve (Postgres and the media server answer); liveness stays on the dependency-free /healthz.
+          readinessProbe: { httpGet: { path: /readyz, port: http }, periodSeconds: 5, timeoutSeconds: 3, failureThreshold: 3 }
           livenessProbe: { httpGet: { path: /healthz, port: http }, initialDelaySeconds: 10, periodSeconds: 10 }
           resources: {{ toYaml .Values.api.resources | nindent 12 }}
 ---

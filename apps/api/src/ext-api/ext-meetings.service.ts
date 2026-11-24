@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { RoomServiceClient } from 'livekit-server-sdk';
+import { livekitClientOptions } from '../common/timeouts.js';
 import { withTenant } from '../db/tenant.js';
 import type { Config } from '../config.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
@@ -79,7 +80,7 @@ export class ExtMeetingsService {
   private readonly rooms: RoomServiceClient;
 
   constructor(private readonly pool: Pool, private readonly meetings: MeetingsService, cfg: Config) {
-    this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET);
+    this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions());
   }
 
   async list(p: ApiPrincipal, q: ListQuery): Promise<{ items: MeetingItem[]; next: string | null }> {
