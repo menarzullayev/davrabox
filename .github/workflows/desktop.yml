@@ -26,7 +26,7 @@ jobs:
     env:
       REQUIRE_SIGNED: ${{ startsWith(github.ref, 'refs/tags/desktop-v') && 'true' || vars.REQUIRE_SIGNED }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v7
         with:
@@ -116,7 +116,7 @@ jobs:
           if find assets -iname '*UNSIGNED*' | grep -q .; then echo "unsigned artifact present, refusing to release"; exit 1; fi
           test -n "$(find assets -name 'latest.yml')"
           test -n "$(find assets -name 'latest-mac.yml')"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: src
       - name: Create a draft release
