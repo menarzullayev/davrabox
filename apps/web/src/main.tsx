@@ -1,11 +1,15 @@
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import { isLandingPath, isSignupPath, legacyJoinRedirect } from './routes';
+import { isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
 import '@davrabox/design-tokens/tokens.css';
 import './fonts.css';
 import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
+import { initErrorTracking } from './observability/errorTracking';
+
+// Error tracking (GlitchTip) is off unless the deployment serves a DSN in /runtime-config.json; see docs/observability.md.
+void initErrorTracking();
 
 // /styleguide is a separate lazy chunk: it needs no sign-in and no backend, and costs the product screens nothing.
 // Like the labs below it is compiled out of a normal production build (development or VITE_CALL_LAB=1 only).
@@ -31,6 +35,9 @@ if (legacy) location.replace(legacy);
 const App = lazy(() => import('./App').then((m) => ({ default: m.App })));
 const Landing = lazy(() => import('./landing/Landing'));
 const Signup = lazy(() => import('./landing/Signup'));
+// /privacy and /terms: static legal pages (a lazy chunk of their own, no sign-in, no backend call).
+const PrivacyPage = lazy(() => import('./privacy/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
+const legalKind = isPrivacyPath(location.pathname) ? 'privacy' : isTermsPath(location.pathname) ? 'terms' : null;
 const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
 
@@ -47,6 +54,10 @@ createRoot(document.getElementById('root')!).render(
     ) : isLab && Lab ? (
       <Suspense fallback={null}>
         <Lab />
+      </Suspense>
+    ) : legalKind ? (
+      <Suspense fallback={null}>
+        <PrivacyPage kind={legalKind} />
       </Suspense>
     ) : isSignup ? (
       <Suspense fallback={null}>

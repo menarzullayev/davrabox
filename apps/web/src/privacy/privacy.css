@@ -1,0 +1,21 @@
+/* Public privacy notice and terms. Design tokens only, no inline styles (CSP-safe). Readable line length, visible focus. */
+.legal { min-height: 100vh; background: var(--bg); color: var(--text); }
+.legal__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--border); background: var(--surface-1); }
+.legal__home { display: inline-flex; color: var(--text); border-radius: var(--radius-sm); }
+.legal__home:focus-visible, .legal__langs button:focus-visible, .legal__foot a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.legal__langs { display: inline-flex; gap: var(--space-1); }
+.legal__langs button { padding: var(--space-1) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-pill); background: transparent; color: var(--text-muted); font-size: var(--text-sm); cursor: pointer; }
+.legal__langs button[aria-pressed='true'] { background: var(--accent-soft); color: var(--text); border-color: var(--accent); }
+@media (pointer: coarse) { .legal__langs button { min-height: var(--target-coarse); } }
+.legal__main { max-width: 46rem; margin: 0 auto; padding: var(--space-8) var(--space-5) var(--space-12); font-size: var(--text-base); line-height: var(--leading-base); }
+.legal__title { font-size: var(--text-xl); font-weight: var(--weight-bold); margin: 0 0 var(--space-2); }
+.legal__updated { color: var(--text-muted); font-size: var(--text-sm); margin: 0 0 var(--space-5); }
+.legal__draft { border: 1px solid var(--gold); background: var(--gold-soft); color: var(--text); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin-bottom: var(--space-6); }
+.legal__draft p { margin: var(--space-2) 0 0; }
+.legal__section { margin-top: var(--space-6); }
+.legal__section h2 { font-size: var(--text-lg, 1.25rem); font-weight: var(--weight-semibold); margin: 0 0 var(--space-2); }
+.legal__section p { margin: 0 0 var(--space-3); }
+.legal__section ul { margin: 0 0 var(--space-3); padding-left: var(--space-5); }
+.legal__section li { margin-bottom: var(--space-2); }
+.legal__foot { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5); border-top: 1px solid var(--border); color: var(--text-muted); font-size: var(--text-sm); }
+.legal__foot a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; }

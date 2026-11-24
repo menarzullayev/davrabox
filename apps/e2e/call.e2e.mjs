@@ -74,6 +74,9 @@ try {
 
   // Wrong passcode is refused with a visible error, no call screen.
   await user.page.fill('input[inputmode=numeric]', code);
+  // The passcode field is hidden until the "I have a passcode" checkbox is ticked (critic D-13).
+  check('the join card hides the passcode field until asked', (await user.page.locator('[data-testid=join-form] input[type=password]').count()) === 0);
+  await user.page.locator('[data-testid=join-passcode-toggle]').check();
   await user.page.locator('[data-testid=join-form]').locator('input[type=password]').fill('definitely-wrong');
   await user.page.locator('[data-testid=join-form]').getByRole('button').click();
   await user.page.waitForSelector('[role=alert]', { timeout: 10000 });

@@ -39,18 +39,32 @@ docker compose --env-file .env up -d      # re-runs migrate, then recreates api/
 Migrations only move forward. To roll back the code, set the previous tag; a migration that already ran is NOT undone (there are no down migrations).
 
 ## Rotate a secret
-Change the value in `.env`, then `docker compose --env-file .env up -d` (containers using it are recreated). Special cases:
+Full steps for every secret, what breaks, and the incident checklist: `docs/runbook-secrets.md`. Short form: change the value in `.env`, then `docker compose --env-file .env up -d` (containers using it are recreated). Special cases:
 - `LIVEKIT_API_KEY/SECRET`: update both, restart `livekit` and `api` together; running meetings end.
 - `POSTGRES_PASSWORD`/`APP_DB_PASSWORD`: also run `ALTER ROLE ... PASSWORD` inside Postgres (the init script only runs on an empty data directory).
 - `FILE_MASTER_KEY`: files and meeting recordings already stored are encrypted under the old key; do not change it without re-encrypting them.
 - `ADMIN_API_CLIENT_SECRET`: also update the `davrabox-admin-api` client secret in Keycloak.
 
+## Probes, rate limits, shutdown
+- `GET /api/healthz` is liveness (never touches a dependency). `GET /api/readyz` is readiness: Postgres, the media server's API and Redis, one boolean each, 503 when Postgres or the media server is down (Redis alone down is `degraded`, HTTP 200). The API container's Docker healthcheck runs `node dist/healthcheck.js /readyz` (the image is distroless: no shell, no curl).
+- Rate limits are shared between API instances through the compose `redis` service (`REDIS_URL`, keys `davra:rl:*`; it has no persistence, so counters reset when it restarts). Without `REDIS_URL` they are counted per instance and the API logs a warning. `SIGNUP_TRUSTED_PROXY_HOPS` (default 1 = Caddy alone) is the single rule for the client address used by every limit: set it to 2 behind a Cloudflare tunnel, or clients can choose their own limit key.
+- SIGTERM drains in-flight requests, closes the database pools and exits (`stop_grace_period: 30s`); proven on the real image by `scripts/check-graceful-shutdown.sh`.
+- Security test record: `docs/security-testing.md`.
+
 ## Meeting recording
 The `egress` service (LiveKit Egress, headless Chrome) records a meeting to the `davra-recordings` bucket in MinIO; the API then envelope-encrypts the file with `FILE_MASTER_KEY` and deletes the plaintext. Only the host, a co-host or an org admin can start, stop, list and download. A room composite recording at 720p30 needs about 4 CPUs and 4 GB of RAM on top of the rest of the stack. Egress reaches LiveKit over the internal network (`ws://livekit:7880`); with `use_external_ip: true` its media connection uses the host's public address, so the host must be able to reach its own public IP (hairpin). Check one 20-second recording after the first deploy.
+
+## Monitoring, alerts and error tracking
+```
+docker compose --env-file .env -f docker-compose.observability.yml up -d     # Prometheus, Alertmanager (to Telegram), Grafana, GlitchTip, blackbox, node-exporter
+```
+Self-hosted, nothing public except GlitchTip's event ingest through Caddy at `/_obs`. The Telegram bot token and chat id are files in `deploy/prod/secrets/` (git-ignored).
+Setup (BotFather, chat id, GlitchTip projects and DSNs, SSH tunnel to Grafana), the alert list and the verification record are in `docs/observability.md`.
+Validate the configuration with `deploy/prod/observability/check.sh`.
 
 ## Known limits (accepted or open)
 - **No backups** (decision 2026-11-24, to be reviewed after 12 months): losing the volumes loses all data. Volumes: `pgdata`, `minio-data`, `clamav-db`, `caddy-data`.
 - Single host, single instance of each service: no failover.
 - Postgres, MinIO and ClamAV traffic is unencrypted on the internal Docker network.
-- No alerting yet (planned: Prometheus, Grafana, Alertmanager, GlitchTip with Telegram notifications).
+- Monitoring and alerting are a separate, optional file (`docker-compose.observability.yml`): see `docs/observability.md`. Its data is not backed up either.
 - The MinIO image comes from `cgr.dev`; when that registry fails (it did on 2026-11-24, HTTP 500) pulls fail until it recovers.

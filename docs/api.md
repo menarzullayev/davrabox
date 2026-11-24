@@ -20,6 +20,7 @@ DELETE /v1/admin/api-keys/:id                                                   
 - A key acts for the organization it was created in. Meetings created through a key are hosted by the user who created the key. A key stops working when it is revoked or when its owner is disabled.
 - Send the key as `Authorization: Bearer dbx_...` (a header only; keys in URLs are never accepted). Wrong, unknown and revoked keys all answer the same `401`.
 - Never log keys or put them in source control. Keys are compared in constant time and never written to server logs.
+- Besides the per-key limit, every request counts against a global per-IP ceiling (default 1200 per minute, `RATE_LIMIT_IP_PER_MINUTE`) and, once authenticated, a per-user ceiling (300 per minute); crossing either answers `429` with `Retry-After`. Request bodies must not use `Content-Encoding` (`415`).
 - Rate limit: 120 requests per minute per key by default (`EXT_API_RATE_PER_MINUTE`), counted in the database. Over the limit the answer is `429` with a `Retry-After` header (seconds).
 
 ## 2. REST API

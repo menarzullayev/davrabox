@@ -3,7 +3,14 @@
 	servers {
 		# Behind Cloudflare or another proxy, set SITE_ADDRESS=http://<host>:80 and trust its ranges here.
 		trusted_proxies static private_ranges
+		# Per-server request metrics, scraped by Prometheus from the internal listener below.
+		metrics
 	}
+}
+
+# Internal metrics listener for Prometheus (caddy:9180). The port is not published, so it is reachable on the Docker network only.
+:9180 {
+	metrics /metrics
 }
 
 {$SITE_ADDRESS} {
@@ -14,6 +21,20 @@
 		X-Content-Type-Options "nosniff"
 		Referrer-Policy "no-referrer"
 		-Server
+	}
+
+	# Browser error reports to the self-hosted GlitchTip (docker-compose.observability.yml): ONLY the event-ingest endpoints, and only
+	# with a project key. The GlitchTip UI is never routed here (SSH tunnel only). Without GlitchTip running this answers 502.
+	@obs_ingest path /_obs/api/*/envelope/ /_obs/api/*/store/
+	handle @obs_ingest {
+		uri strip_prefix /_obs
+		request_body {
+			max_size 1MB
+		}
+		reverse_proxy glitchtip:8000
+	}
+	handle /_obs/* {
+		respond 404
 	}
 
 	# The identity provider's admin console, admin API, master realm and its metrics must never be public.

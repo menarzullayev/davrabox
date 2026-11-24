@@ -1,0 +1,6 @@
+/* Footer links to /privacy and /terms (sign-in screen and others). Design tokens only. */
+.legal-links { display: flex; justify-content: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); }
+.legal-links a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 3px; padding: var(--space-1) 0; }
+.legal-links a:hover { color: var(--text); }
+.legal-links a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+@media (pointer: coarse) { .legal-links a { min-height: var(--target-coarse); display: inline-flex; align-items: center; } }

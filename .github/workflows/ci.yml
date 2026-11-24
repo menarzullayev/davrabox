@@ -27,6 +27,12 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U davra_admin -d davra"
           --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ["127.0.0.1:56391:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -109,9 +115,20 @@ jobs:
           S3_ENDPOINT: http://127.0.0.1:59000
           CLAMAV_HOST: 127.0.0.1
           CLAMAV_PORT: "53310"
+          RATE_LIMIT_TEST_REDIS_URL: redis://127.0.0.1:56391
         run: |
           pnpm --filter @davrabox/api migrate
           pnpm --filter @davrabox/api test
+      - name: Graceful shutdown of the real API image (distroless, SIGTERM, healthcheck)
+        env:
+          DATABASE_URL: postgres://davra_app:ci-app-password@127.0.0.1:55432/davra
+          MIGRATE_DATABASE_URL: postgres://davra_admin:ci-admin-password@127.0.0.1:55432/davra
+          KEYCLOAK_ISSUER: https://localhost/auth/realms/davrabox
+          LIVEKIT_API_KEY: cikey
+          LIVEKIT_API_SECRET: ci-livekit-secret-0123456789abcdef0123
+        run: |
+          docker build -f apps/api/Dockerfile -t davra-api:check .
+          scripts/check-graceful-shutdown.sh davra-api:check
 
   security:
     runs-on: ubuntu-24.04

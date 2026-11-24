@@ -99,6 +99,15 @@ export function CallView(p: CallViewProps) {
       <TopBar lang={lang} title={p.title} count={p.participants.length} role={p.role} locked={p.locked} onLock={p.onLock} quality={p.reconnecting ? 'lost' : p.quality} recording={p.recording?.on} e2ee={p.e2ee} />
       <div className={`stage dv-main${p.panel ? ' with-chat' : ''}`}>
         <main className="dv-stagewrap" aria-label={t(lang, 'clStage')}>
+          {showHint ? (
+            // Its own row above the stage, so it can never sit on a tile (critic D-10).
+            <div className="dv-hintbar">
+              <Alert tone="info" className="dv-notice" onDismiss={() => setDismissed(resolved.reason)} dismissLabel={t(lang, 'uiDismiss')}>
+                {t(lang, hintKey(resolved.reason))}
+              </Alert>
+            </div>
+          ) : null}
+          <div className="dv-stagebox">
           <Stage
             lang={lang}
             requested={p.layout}
@@ -121,14 +130,10 @@ export function CallView(p: CallViewProps) {
               </Alert>
             ) : null}
             {p.reconnecting ? <Alert tone="warning" className="dv-notice">{t(lang, 'clReconnecting')}</Alert> : null}
-            {showHint ? (
-              <Alert tone="info" className="dv-notice" onDismiss={() => setDismissed(resolved.reason)} dismissLabel={t(lang, 'uiDismiss')}>
-                {t(lang, hintKey(resolved.reason))}
-              </Alert>
-            ) : null}
             {p.sharing ? <Alert tone="info" className="dv-notice">{t(lang, 'clYouShare')}</Alert> : null}
           </div>
           {p.manage && p.panel !== 'people' ? <RequestsTray lang={lang} requests={p.requests} onDecide={p.onDecide} /> : null}
+          </div>
         </main>
         {p.panel === 'chat' ? <ChatPanel lang={lang} {...p.chat} others={others} onClose={closePanel} /> : null}
         {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onClose={closePanel} /> : null}

@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpException, Inject, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { z } from 'zod';
+import { noControl } from '../common/text.js';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
 import { AdminGuard } from '../admin/admin.controller.js';
 import { wrapExt } from './keys.controller.js';
@@ -18,7 +19,7 @@ const deliveriesQuery = z
   .object({
     status: z.enum(DELIVERY_STATUSES).optional(),
     limit: z.coerce.number().int().min(1).max(100).default(25),
-    cursor: z.string().max(200).optional(),
+    cursor: z.string().max(200).refine(noControl).optional(),
   })
   .strict();
 

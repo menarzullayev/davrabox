@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { noControl } from '../common/text.js';
 
 /** Request and response shapes of /v1/ext. The controllers validate with these and the OpenAPI document is generated from them. */
 export const meetingCreateSchema = z
   .object({
-    title: z.string().trim().min(1).max(200).describe('Meeting title'),
-    passcode: z.string().min(6).max(64).optional().describe('Optional passcode (6-64 characters); never returned by the API'),
+    title: z.string().trim().min(1).max(200).refine(noControl).describe('Meeting title'),
+    passcode: z.string().min(6).max(64).refine(noControl).optional().describe('Optional passcode (6-64 characters); never returned by the API'),
     scheduledAt: z.string().datetime().optional().describe('Planned start, ISO 8601 UTC'),
     waitingRoom: z.boolean().optional().describe('Overrides the organization default when set'),
   })
@@ -14,7 +15,7 @@ export type MeetingCreateInput = z.infer<typeof meetingCreateSchema>;
 export const listQuerySchema = z
   .object({
     limit: z.coerce.number().int().min(1).max(100).default(25).describe('Page size, 1-100'),
-    cursor: z.string().max(200).optional().describe('Opaque cursor from the previous page (`next`)'),
+    cursor: z.string().max(200).refine(noControl).optional().describe('Opaque cursor from the previous page (`next`)'),
   })
   .strict();
 export type ListQuery = z.infer<typeof listQuerySchema>;

@@ -1,7 +1,8 @@
 // End-to-end: the admin console in a real browser against the real API and Keycloak.
 // An organization admin sees every section and can open the create-user dialog; a plain member gets the "no access" page.
+// Privacy section: export of a person's data as a file, erasure behind a typed confirmation (the person is then gone from the identity provider).
 import { chromium } from 'playwright-core';
-import { BASE, createUser } from './kc.mjs';
+import { BASE, KC, adminHeaders, createUser } from './kc.mjs';
 
 const results = [];
 const check = (name, ok, d = '') => {
@@ -27,12 +28,13 @@ async function openAdmin(username, password, locale = 'en-US') {
 }
 
 const member = await createUser();
+const victim = await createUser();
 let exit = 0;
 try {
   const a = await openAdmin('admin.demo', PASSWORD);
   await a.page.waitForSelector('.adm-nav', { timeout: 20000 });
   const items = await a.page.locator('.adm-nav button').count();
-  check('an organization admin sees the seven sections', items === 7, `sections=${items}`);
+  check('an organization admin sees the eight sections', items === 8, `sections=${items}`);
 
   await a.page.waitForSelector('.stat', { timeout: 15000 });
   check('the overview shows the organization numbers', (await a.page.locator('.stat').count()) >= 4);
@@ -137,6 +139,38 @@ try {
     check('the token is not left anywhere in the page', !(await a.page.content()).includes(fakeToken));
   }
 
+  // Privacy: export and erase a throw-away person who has signed in once (so that the database knows them).
+  const v = await openAdmin(victim.username, victim.password);
+  await v.ctx.close();
+  const victimEmail = `${victim.username}@davrabox.local`;
+  await a.page.locator('.adm-nav button').nth(7).click();
+  await a.page.waitForSelector('#sec-privacy', { timeout: 15000 });
+  check('the privacy section opens', true);
+  await a.page.fill('section[aria-labelledby="sec-privacy"] input[type=search]', victim.username);
+  await a.page.locator('section[aria-labelledby="sec-privacy"] form[role=search] button[type=submit]').click();
+  await a.page.waitForSelector(`section[aria-labelledby="sec-privacy"] table.data tbody tr:has-text("${victimEmail}")`, { timeout: 15000 });
+  const [download] = await Promise.all([
+    a.page.waitForEvent('download', { timeout: 15000 }),
+    a.page.getByRole('button', { name: new RegExp(`(Export data|Ma.lumotlarni yuklab olish|Выгрузить данные): ${victimEmail}`) }).click(),
+  ]);
+  const exported = JSON.parse(await (await import('node:fs/promises')).readFile(await download.path(), 'utf8'));
+  check('the export is a JSON file of that person only', exported.profile?.email === victimEmail && Array.isArray(exported.auditAsActor), String(download.suggestedFilename()));
+  check('the export holds no secret material', !JSON.stringify(exported).match(/refresh_token|secret_hash|wrapped_key|object_key/));
+
+  await a.page.getByRole('button', { name: new RegExp(`(Erase|O.chirish|Удалить): ${victimEmail}`) }).click();
+  await a.page.waitForSelector('dialog.dx-dialog[open] form', { timeout: 5000 });
+  const go = a.page.locator('dialog.dx-dialog[open] button.danger');
+  check('the erase button is disabled until the e-mail address is typed', await go.isDisabled());
+  await a.page.fill('dialog.dx-dialog[open] input', 'someone.else@davrabox.local');
+  check('a wrong address keeps it disabled', await go.isDisabled());
+  await a.page.fill('dialog.dx-dialog[open] input', victimEmail);
+  check('the exact address enables it', !(await go.isDisabled()));
+  await go.click();
+  await a.page.waitForFunction(() => !document.querySelector('dialog.dx-dialog[open]'), null, { timeout: 30000 });
+  const rowText = await a.page.locator('section[aria-labelledby="sec-privacy"] table.data tbody').innerText();
+  check('the row shows the person as erased and the address is gone from the page', !rowText.includes(victimEmail) && /Erased|O.chirilgan|Удалён/.test(rowText));
+  const kcUsers = await (await fetch(`${KC}/admin/realms/davrabox/users?username=${encodeURIComponent(victim.username)}&exact=true`, { headers: await adminHeaders() })).json();
+  check('the account is deleted in the identity provider', Array.isArray(kcUsers) && kcUsers.length === 0);
   const m = await openAdmin(member.username, member.password);
   const denied = await m.page
     .waitForSelector('[data-testid=admin-no-access]', { timeout: 20000 })
@@ -151,6 +185,7 @@ try {
 } finally {
   await browser.close();
   await member.cleanup();
+  await victim.cleanup();
 }
 if (results.some((r) => !r)) exit = 1;
 console.log(exit === 0 ? 'ADMIN E2E: ALL PASSED' : 'ADMIN E2E: FAILURES');

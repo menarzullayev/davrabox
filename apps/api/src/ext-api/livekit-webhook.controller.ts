@@ -1,3 +1,4 @@
+import { SkipRateLimit } from '../rate-limit/guard.js';
 import { Controller, Headers, HttpCode, HttpException, Inject, Post, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { WebhookReceiver } from 'livekit-server-sdk';
@@ -34,6 +35,8 @@ function readRaw(req: IncomingMessage): Promise<{ text: string | null; tooLarge:
  * when its Authorization token is signed with our LiveKit API secret and carries the SHA-256 of the exact body.
  * Verified events are turned into the customer-facing webhook events and queued in the delivery outbox.
  */
+// Exempt from the global per-IP ceiling: every event comes from the media server's single address; the signature check is the gate.
+@SkipRateLimit()
 @Controller('v1/livekit')
 export class LivekitWebhookController {
   private readonly receiver: WebhookReceiver;

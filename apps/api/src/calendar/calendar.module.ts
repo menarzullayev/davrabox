@@ -4,6 +4,7 @@ import { CALENDAR_EVENTS, CALENDAR_OAUTH, CalendarController, CalendarEventsCont
 import { loadCalendarConfig, type CalendarConfig } from './config.js';
 import { CalendarEventsService } from './events.service.js';
 import { CalendarOAuthService } from './oauth.service.js';
+import { RateLimitService } from '../rate-limit/service.js';
 
 export const CALENDAR_CONFIG = Symbol('CALENDAR_CONFIG');
 
@@ -15,10 +16,10 @@ export const calendarControllers = [CalendarController, CalendarEventsController
 
 export const calendarProviders = [
   { provide: CALENDAR_CONFIG, useFactory: (): CalendarConfig => loadCalendarConfig() },
-  { provide: CALENDAR_OAUTH, useFactory: (pool: Pool, cfg: CalendarConfig) => new CalendarOAuthService(pool, cfg), inject: [POOL, CALENDAR_CONFIG] },
+  { provide: CALENDAR_OAUTH, useFactory: (pool: Pool, cfg: CalendarConfig, rate: RateLimitService) => new CalendarOAuthService(pool, cfg, { rate }), inject: [POOL, CALENDAR_CONFIG, RateLimitService] },
   {
     provide: CALENDAR_EVENTS,
-    useFactory: (pool: Pool, oauth: CalendarOAuthService, cfg: CalendarConfig) => new CalendarEventsService(pool, oauth, cfg),
-    inject: [POOL, CALENDAR_OAUTH, CALENDAR_CONFIG],
+    useFactory: (pool: Pool, oauth: CalendarOAuthService, cfg: CalendarConfig, rate: RateLimitService) => new CalendarEventsService(pool, oauth, cfg, rate),
+    inject: [POOL, CALENDAR_OAUTH, CALENDAR_CONFIG, RateLimitService],
   },
 ];

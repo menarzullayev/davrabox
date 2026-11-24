@@ -1,0 +1,194 @@
+# DavraBox production observability: Prometheus, Alertmanager (alerts to Telegram), blackbox uptime probes, node metrics,
+# Grafana and GlitchTip (self-hosted, Sentry-compatible error tracking). No data goes to any third-party service.
+#
+# Start the main stack first (it owns the network this file joins), then:
+#   docker compose --env-file .env -f docker-compose.observability.yml up -d
+# Needs Docker Compose >= 2.23 (inline `configs`). Setup steps, secrets and the Telegram bot: docs/observability.md.
+#
+# Exposure: NOTHING here is published on a public port. Grafana, GlitchTip, Prometheus and Alertmanager listen on 127.0.0.1 of the
+# host only (reach them with `ssh -L`, see docs/observability.md). The one public path is GlitchTip's event ingest, through Caddy
+# at /_obs/api/<project>/envelope/ (browser errors), which needs a project key.
+name: davrabox-obs
+
+x-restart: &restart
+  restart: unless-stopped
+x-logging: &logging
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+networks:
+  # The production stack's network: lets Prometheus reach api:9100, livekit:6789 and caddy:9180, and Caddy reach glitchtip.
+  davra:
+    name: ${DAVRA_NETWORK:-davrabox_default}
+    external: true
+  # Private to the observability services.
+  obs: {}
+
+configs:
+  # Uptime and certificate probe targets, generated from PUBLIC_HOST so the address lives in one place (.env).
+  public_targets:
+    content: |
+      - targets:
+          - https://${PUBLIC_HOST:?set PUBLIC_HOST}/
+          - https://${PUBLIC_HOST}/api/healthz
+          - https://${PUBLIC_HOST}/auth/realms/davrabox/.well-known/openid-configuration
+        labels:
+          site: davrabox
+
+services:
+  prometheus:
+    <<: [*restart, *logging]
+    image: prom/prometheus:v3.15.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=5GB
+      - --web.enable-lifecycle
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    configs:
+      - source: public_targets
+        target: /etc/prometheus/targets/public.yml
+    ports: ["127.0.0.1:9090:9090"]
+    networks: [obs, davra]
+    depends_on: [alertmanager, blackbox]
+    mem_limit: 768m
+
+  alertmanager:
+    <<: [*restart, *logging]
+    image: prom/alertmanager:v0.34.2
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      # Holds telegram_bot_token and telegram_chat_id (one value per file). Git-ignored; create them before the first start.
+      - ./secrets:/etc/alertmanager/secrets:ro
+      - alertmanager-data:/alertmanager
+    ports: ["127.0.0.1:9093:9093"]
+    networks: [obs]
+    mem_limit: 128m
+
+  blackbox:
+    <<: [*restart, *logging]
+    image: prom/blackbox-exporter:v0.29.1
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./observability/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    networks: [obs]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 64m
+
+  node-exporter:
+    <<: [*restart, *logging]
+    image: prom/node-exporter:v1.12.1
+    command:
+      - --path.rootfs=/host
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+)($$|/)
+    volumes:
+      # Plain read-only bind, not ",rslave": rslave fails on hosts whose root mount is private (Docker Desktop). After mounting a
+      # new disk, restart node-exporter so that it sees it.
+      - /:/host:ro
+    networks: [obs]
+    mem_limit: 64m
+
+  grafana:
+    <<: [*restart, *logging]
+    image: grafana/grafana:13.0.13
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3030/
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/etc/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports: ["127.0.0.1:3030:3000"]
+    networks: [obs]
+    depends_on: [prometheus]
+    mem_limit: 384m
+
+  # --- GlitchTip: error tracking ---------------------------------------------------------------------------------------
+  glitchtip-postgres:
+    <<: [*restart, *logging]
+    image: postgres:17-alpine
+    command: ["postgres", "-c", "max_locks_per_transaction=512"] # GlitchTip's partitioned tables need more locks
+    environment:
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: ${GLITCHTIP_DB_PASSWORD:?set GLITCHTIP_DB_PASSWORD}
+      POSTGRES_DB: glitchtip
+    volumes:
+      - glitchtip-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glitchtip -d glitchtip"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [obs]
+    mem_limit: 512m
+
+  glitchtip-valkey:
+    <<: [*restart, *logging]
+    image: valkey/valkey:9.2.0-alpine
+    command: ["valkey-server", "--save", "60", "1", "--appendonly", "no"]
+    volumes:
+      - glitchtip-valkey:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [obs]
+    mem_limit: 128m
+
+  # Web, worker and scheduler in one process (SERVER_ROLE all_in_one), as the GlitchTip install guide recommends. Migrations run on start.
+  glitchtip:
+    <<: [*restart, *logging]
+    image: glitchtip/glitchtip:6.2.6
+    environment:
+      SERVER_ROLE: all_in_one
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:?set GLITCHTIP_SECRET_KEY}
+      DATABASE_URL: postgres://glitchtip:${GLITCHTIP_DB_PASSWORD}@glitchtip-postgres:5432/glitchtip
+      VALKEY_URL: redis://glitchtip-valkey:6379
+      # The address the operator opens (through the SSH tunnel); used for links and CSRF.
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:8001}
+      EMAIL_URL: ${GLITCHTIP_EMAIL_URL:-consolemail://}
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-glitchtip@localhost}
+      # GlitchTip always allows the FIRST account to register (verified in its source: `ENABLE_USER_REGISTRATION or not User.objects.exists()`),
+      # so closed registration is safe from day one. Set GLITCHTIP_ENABLE_REGISTRATION=true only to let a colleague sign up.
+      ENABLE_USER_REGISTRATION: ${GLITCHTIP_ENABLE_REGISTRATION:-false}
+      ALLOWED_HOSTS: ${PUBLIC_HOST},glitchtip,localhost,127.0.0.1
+      ENABLE_ORGANIZATION_CREATION: "true"
+      GLITCHTIP_RETENTION_DAYS: ${GLITCHTIP_RETENTION_DAYS:-30}
+      GLITCHTIP_ENABLE_UPTIME: "false" # uptime is probed by blackbox, from the same host, with the alert path above
+      ENABLE_ADMIN: "False"
+      ENABLE_OPENAPI: "False"
+    volumes:
+      - glitchtip-uploads:/code/uploads
+    ports: ["127.0.0.1:8001:8000"]
+    networks:
+      obs: {}
+      davra:
+        aliases: [glitchtip] # Caddy proxies /_obs/api/*/envelope/ to glitchtip:8000
+    depends_on:
+      glitchtip-postgres: { condition: service_healthy }
+      glitchtip-valkey: { condition: service_healthy }
+    mem_limit: 768m
+
+volumes:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:
+  glitchtip-pg:
+  glitchtip-valkey:
+  glitchtip-uploads:

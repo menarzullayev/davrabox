@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, HttpException, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpException, Inject, Optional, Post, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { z } from 'zod';
-import { WindowLimiter } from '../audit/audit.service.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import { clientIp } from './limits.js';
 import { SignupError, SignupService } from './signup.service.js';
 
@@ -34,19 +35,24 @@ function fail(res: Response, status: number, code: string, message: string, retr
  */
 @Controller('v1/public')
 export class SignupController {
-  // Issuing a challenge is cheap but unauthenticated: cap it per address (in memory is enough, it writes nothing).
-  private readonly challengeLimiter = new WindowLimiter(60, 60_000);
-  // Cheap guard in front of the database for malformed floods; real limits live in signup_admit().
-  private readonly requestLimiter = new WindowLimiter(30, 60_000);
+  // Issuing a challenge is cheap but unauthenticated: cap it per address. Shared between API instances when REDIS_URL is
+  // set; during a Redis outage it keeps counting in memory (fail-closed to a local limit, never to unlimited).
+  private readonly challengeLimiter: RateLimiter;
+  // Cheap guard in front of the database for malformed floods; the real, database-backed limits live in signup_admit().
+  private readonly requestLimiter: RateLimiter;
 
-  constructor(@Inject(SIGNUP) private readonly svc: SignupService) {}
+  constructor(@Inject(SIGNUP) private readonly svc: SignupService, @Optional() @Inject(RateLimitService) rate?: RateLimitService) {
+    const r = rate ?? RateLimitService.memory();
+    this.challengeLimiter = r.limiter({ name: 'signup-challenge', max: 60, windowMs: 60_000 });
+    this.requestLimiter = r.limiter({ name: 'signup-request', max: 30, windowMs: 60_000 });
+  }
 
   @Post('challenge')
   @HttpCode(200)
-  challenge(@Req() req: Req, @Res({ passthrough: true }) res: Response) {
+  async challenge(@Req() req: Req, @Res({ passthrough: true }) res: Response) {
     res.setHeader('Cache-Control', 'no-store');
-    const wait = this.challengeLimiter.hit(clientIp(req, this.svc.settings.trustedProxyHops));
-    if (wait > 0) fail(res, 429, 'rate_limited', 'too many requests, please try again later', Math.ceil(wait / 1000));
+    const d = await this.challengeLimiter.hit(clientIp(req, this.svc.settings.trustedProxyHops));
+    if (!d.allowed) fail(res, 429, 'rate_limited', 'too many requests, please try again later', d.retryAfterSec);
     return this.svc.challenge();
   }
 
@@ -55,8 +61,8 @@ export class SignupController {
   async signup(@Req() req: Req, @Body() body: unknown, @Res({ passthrough: true }) res: Response) {
     res.setHeader('Cache-Control', 'no-store');
     const ip = clientIp(req, this.svc.settings.trustedProxyHops);
-    const wait = this.requestLimiter.hit(ip);
-    if (wait > 0) fail(res, 429, 'rate_limited', 'too many requests, please try again later', Math.ceil(wait / 1000));
+    const d = await this.requestLimiter.hit(ip);
+    if (!d.allowed) fail(res, 429, 'rate_limited', 'too many requests, please try again later', d.retryAfterSec);
     const parsed = signupSchema.safeParse(body);
     if (!parsed.success) fail(res, 400, 'invalid_input', 'the form data is not valid');
     try {

@@ -21,6 +21,15 @@ export function isSignupPath(pathname: string): boolean {
   return trim(pathname) === '/app/signup';
 }
 
+/** The public legal pages ("/privacy", "/terms"): exact paths only, a trailing slash is tolerated. */
+export function isPrivacyPath(pathname: string): boolean {
+  return trim(pathname) === '/privacy';
+}
+
+export function isTermsPath(pathname: string): boolean {
+  return trim(pathname) === '/terms';
+}
+
 /** `appUrl()` -> "/app"; `appUrl('signup')` -> "/app/signup"; `appUrl('?join=1')` -> "/app?join=1". */
 export function appUrl(path = ''): string {
   if (!path) return '/app';

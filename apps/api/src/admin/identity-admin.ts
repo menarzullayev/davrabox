@@ -1,4 +1,5 @@
 import { randomInt } from 'node:crypto';
+import type { PrivacyIdentity } from '../privacy/ports.js';
 
 export type OrgRole = 'org_admin' | 'member';
 
@@ -77,6 +78,8 @@ interface KcConfig {
   realm: string;
   clientId: string;
   clientSecret: string;
+  /** Per-request limit; default 10 s. */
+  timeoutMs?: number;
 }
 
 interface KcUser {
@@ -89,12 +92,15 @@ interface KcUser {
 const TIMEOUT_MS = 10_000;
 
 /** Keycloak admin REST API client, authenticated as a confidential service account (client_credentials). */
-export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner {
+export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner, PrivacyIdentity {
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
+  private readonly timeoutMs: number;
+
   constructor(private readonly cfg: KcConfig) {
     this.base = cfg.baseUrl.replace(/\/+$/, '');
+    this.timeoutMs = cfg.timeoutMs ?? TIMEOUT_MS;
   }
 
   private async accessToken(): Promise<string> {
@@ -108,7 +114,7 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
           client_id: this.cfg.clientId,
           client_secret: this.cfg.clientSecret,
         }),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch {
       throw new IdentityAdminError(502, 'identity provider is unreachable');
@@ -127,7 +133,7 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
         method,
         headers: { Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
         body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(TIMEOUT_MS),
+        signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch {
       throw new IdentityAdminError(502, 'identity provider is unreachable');
@@ -239,6 +245,23 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
     }
     if (patch.role) await this.setRole(sub, patch.role);
     return true;
+  }
+
+  /**
+   * Erasure of a person (privacy/privacy.service.ts): ends every session, then deletes the account. Repeatable (a missing user
+   * is success). Refuses an account that carries another organization's slug. A subject that is not a provider id has no
+   * provider account (a placeholder subject in tests) and is skipped.
+   */
+  async eraseUser(sub: string, orgSlug: string): Promise<void> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return;
+    const get = await this.call('GET', `/users/${sub}`);
+    if (get.status === 404) return;
+    if (!get.ok) throw new IdentityAdminError(502, 'identity provider could not read the user');
+    const user = (await get.json()) as KcUser;
+    if (user.attributes?.['org_slug']?.[0] !== orgSlug) throw new IdentityAdminError(502, 'identity provider account belongs to another organization');
+    const out = await this.call('POST', `/users/${sub}/logout`);
+    if (!out.ok && out.status !== 404) throw new IdentityAdminError(502, 'identity provider could not end the sessions');
+    await this.deleteUser(sub);
   }
 
   async deleteUser(sub: string): Promise<void> {

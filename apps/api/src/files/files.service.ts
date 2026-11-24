@@ -2,7 +2,9 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import { CreateBucketCommand, GetObjectCommand, HeadBucketCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { withTenant } from '../db/tenant.js';
-import { FailureLimiter } from '../common/rate-limiter.js';
+import { s3ClientOptions } from '../common/timeouts.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import type { Config } from '../config.js';
 import type { AuthedUser } from '../auth/auth.guard.js';
 import { MeetingError } from '../meetings/meetings.service.js';
@@ -30,14 +32,15 @@ export class FilesService {
   private readonly master?: Buffer;
   private readonly keys?: KeyResolver;
   private bucketReady = false;
-  private readonly limiter = new FailureLimiter(20, 60_000); // 20 uploads per minute per user
+  private readonly limiter: RateLimiter; // 20 uploads per minute per user
 
-  constructor(private readonly pool: Pool, private readonly cfg: Config) {
+  constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
+    this.limiter = rate.limiter({ name: 'upload', max: 20, windowMs: 60_000 });
     if (cfg.S3_ENDPOINT && cfg.S3_ACCESS_KEY && cfg.S3_SECRET_KEY && cfg.CLAMAV_HOST && cfg.FILE_MASTER_KEY) {
       this.master = masterKeyFrom(cfg.FILE_MASTER_KEY);
       this.keys = new KeyResolver(pool, this.master, { allowPrivate: cfg.BYOK_ALLOW_PRIVATE_VAULT });
       const { S3_ACCESS_KEY: accessKeyId, S3_SECRET_KEY: secretAccessKey } = cfg;
-      this.s3 = new S3Client({ endpoint: cfg.S3_ENDPOINT, region: 'us-east-1', forcePathStyle: true, credentials: { accessKeyId, secretAccessKey } });
+      this.s3 = new S3Client({ endpoint: cfg.S3_ENDPOINT, region: 'us-east-1', forcePathStyle: true, credentials: { accessKeyId, secretAccessKey }, ...s3ClientOptions() });
     }
   }
 
@@ -94,8 +97,7 @@ export class FilesService {
     const meeting = await this.authorize(user, code);
     // Files are stored by the server (envelope-encrypted with a server key), which contradicts the promise of an E2EE meeting.
     if (meeting.e2ee) throw new MeetingError(409, 'file sharing is turned off in end-to-end encrypted meetings');
-    if (this.limiter.isBlocked(user.userId)) throw new MeetingError(429, 'too many uploads, try again in a minute');
-    this.limiter.recordFailure(user.userId); // counts every attempt
+    if (!(await this.limiter.hit(user.userId)).allowed) throw new MeetingError(429, 'too many uploads, try again in a minute'); // counts every attempt
     const name = sanitizeName(rawName);
     if (!name) throw new MeetingError(400, 'invalid file name');
     if (data.length === 0) throw new MeetingError(400, 'empty file');

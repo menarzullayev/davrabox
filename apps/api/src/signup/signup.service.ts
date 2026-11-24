@@ -6,6 +6,7 @@ import { isDisposable } from './disposable-domains.js';
 import { emailDomain, normalizeEmail } from './email-normalize.js';
 import { domainLimit, ipKey, TRIAL, type SignupSettings } from './limits.js';
 import { slugify } from './slug.js';
+import { signupRefusals, signupSuccess } from '../metrics.js';
 
 export type { NewOrgAdmin, SignupIdentity };
 
@@ -180,6 +181,8 @@ export class SignupService {
   }
 
   private async event(kind: 'refusal' | 'success', reason: string, ipHash: string, domain: string, slug: string | null = null): Promise<void> {
+    if (kind === 'refusal') signupRefusals.inc({ reason });
+    else signupSuccess.inc();
     try {
       await this.pool.query('SELECT signup_event_add($1, $2, $3, $4, $5)', [kind, reason, ipHash, domain, slug]);
     } catch {

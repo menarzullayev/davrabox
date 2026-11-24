@@ -1,0 +1,13 @@
+modules:
+  # A public page must answer 2xx over valid TLS. Redirects are followed (http -> https is fine); an expired or
+  # untrusted certificate fails the probe, and probe_ssl_earliest_cert_expiry feeds the certificate alert.
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      ip_protocol_fallback: false
+      fail_if_not_ssl: true
+      valid_status_codes: []   # any 2xx
+      follow_redirects: true

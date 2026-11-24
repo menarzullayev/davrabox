@@ -226,3 +226,31 @@ describe('pickFeatured', () => {
     expect(pickFeatured([], {})).toBeNull();
   });
 });
+
+describe('Davra with exactly two people (critic P-05)', () => {
+  const two = (size: Size) => computeLayout({ mode: 'davra', participants: ids(2), featuredId: 'p1', hasShare: false, size });
+
+  it('on a landscape stage the other person sits on the diagonal, off the centre axis, clear of the centre tile', () => {
+    for (const size of [{ width: 1280, height: 560 }, { width: 1920, height: 940 }, { width: 768, height: 500 }]) {
+      const r = two(size);
+      const ring = r.placements.find((p) => p.slot === 'ring')!;
+      const center = r.placements.find((p) => p.slot === 'center')!;
+      const cx = ring.rect.x + ring.rect.w / 2;
+      expect(Math.abs(cx - size.width / 2), `${size.width}: satellite is off the vertical axis`).toBeGreaterThan(size.width * 0.2);
+      expect(ring.rect.x >= center.rect.x + center.rect.w || ring.rect.x + ring.rect.w <= center.rect.x, `${size.width}: beside the centre tile, not above it`).toBe(true);
+      // the empty seat is its mirror image, so the pair reads as a deliberate composition
+      expect(r.seats).toHaveLength(1);
+      expect(r.seats[0]!.x + r.seats[0]!.w / 2 + cx).toBeCloseTo(size.width, -1);
+    }
+  });
+
+  it('on a portrait stage it keeps the top and bottom seats (the centre tile stays large)', () => {
+    const r = two({ width: 360, height: 640 });
+    const ring = r.placements.find((p) => p.slot === 'ring')!;
+    expect(Math.abs(ring.rect.x + ring.rect.w / 2 - 180)).toBeLessThan(2);
+  });
+
+  it('is still sound in every size', () => {
+    for (const size of SIZES) expectSound('davra', 2, size);
+  });
+});

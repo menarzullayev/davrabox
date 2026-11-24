@@ -1,5 +1,6 @@
 import { t, type Lang } from '../i18n';
 import { Button, ConnectingRing, Davra, IconChevronRight, Logo, type ThemeChoice } from '../ui';
+import { LegalLinks } from '../privacy/LegalLinks';
 import { SettingsMenu } from './SettingsMenu';
 import { formatCode } from './logic';
 import { tx } from './text';
@@ -49,6 +50,7 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn }: SignInS
           <Davra size={560} rings={4} petals={12} rotation={8} />
         </div>
       </main>
+      <LegalLinks lang={lang} />
     </div>
   );
 }
@@ -73,8 +75,8 @@ export interface WaitingViewProps {
 export function WaitingView({ lang, code, onCancel }: WaitingViewProps) {
   return (
     <main className="hm-center hm-wait" data-testid="waiting">
-      <ConnectingRing label={tx(lang, 'hWaitStatus')} size={176} />
       <h1 className="hm-wait__title">{tx(lang, 'hWaitTitle')}</h1>
+      <ConnectingRing label={tx(lang, 'hWaitStatus')} size={176} />
       <p className="hm-wait__text">{tx(lang, 'hWaitText')}</p>
       <p className="hm-wait__code">
         <span>{tx(lang, 'hWaitCode')}</span>

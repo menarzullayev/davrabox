@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dictionaries } from '../i18n';
 import { ControlBar, type ControlBarProps } from './ControlBar';
@@ -245,6 +247,60 @@ describe('ControlBar', () => {
     fireEvent.click(screen.getByTestId('layout-speaker').querySelector('input')!);
     expect(onLayout).toHaveBeenCalledWith('speaker');
   });
+
+  it('puts focus on the CHECKED view radio when the layout popover opens (critic D-07)', async () => {
+    render(<ControlBar {...bar({ layout: 'gallery' })} />);
+    fireEvent.click(screen.getByTestId('layout'));
+    await screen.findByRole('radiogroup', { name: 'View' });
+    await act(async () => { await new Promise((r) => setTimeout(r, 10)); });
+    expect((document.activeElement as HTMLInputElement).value).toBe('gallery');
+  });
+
+  it('gives the visible face of the focused radio a ring that the popover cannot clip (critic D-07)', () => {
+    const css = readFileSync(join(__dirname, 'call.css'), 'utf8');
+    const rule = css.split('\n').find((l) => l.includes('.dv-seg__input:focus-visible + .dv-seg__face'))!;
+    expect(rule).toMatch(/outline:\s*2px solid var\(--focus-ring\)/);
+    expect(rule).toMatch(/outline-offset:\s*-/);
+  });
+
+  it('explains what Davra is next to the view choice (critic P-01)', () => {
+    render(<ControlBar {...bar()} />);
+    fireEvent.click(screen.getByTestId('layout'));
+    expect(screen.getByText(dictionaries.en.clLayoutDavraHint)).toBeTruthy();
+    expect(screen.getByTestId('layout-davra').getAttribute('title')).toBe(dictionaries.en.clLayoutDavraHint);
+  });
+
+  it('on a narrow screen the More button shows the current view, visually and in its name (critic D-15)', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: /max-width: 559px/.test(q), media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, onchange: null, dispatchEvent: () => false }));
+    const { rerender } = render(<ControlBar {...bar({ layout: 'gallery' })} />);
+    const more = screen.getByTestId('more');
+    expect(more.querySelector('[data-testid=more-mode]')).not.toBeNull();
+    expect(more.textContent).toContain('Grid');
+    expect(more.textContent).toContain('View');
+    rerender(<ControlBar {...bar({ layout: 'speaker' })} />);
+    expect(screen.getByTestId('more').textContent).toContain('Speaker');
+  });
+
+  it('on a wide screen the More button carries no mode badge (the layout button already names it)', () => {
+    render(<ControlBar {...bar()} />);
+    expect(screen.getByTestId('more').querySelector('[data-testid=more-mode]')).toBeNull();
+  });
+});
+
+describe('no system-font glyphs in the app (critic P-02)', () => {
+  it('uses the icon kit instead of U+2713 / U+2714 outside the landing folder', () => {
+    const bad: string[] = [];
+    const walk = (dir: string) => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const f = join(dir, e.name);
+        if (e.isDirectory()) {
+          if (e.name !== 'landing') walk(f);
+        } else if (/\.(tsx?|css)$/.test(e.name) && !/\.test\./.test(e.name) && /[\u2713\u2714]/.test(readFileSync(f, 'utf8'))) bad.push(f);
+      }
+    };
+    walk(join(__dirname, '..'));
+    expect(bad).toEqual([]);
+  });
 });
 
 describe('CallView', () => {
@@ -314,6 +370,17 @@ describe('CallView', () => {
     rerender(<CallView {...view({ participants: people(6) })} />);
     rerender(<CallView {...view({ participants: people(13) })} />);
     expect(screen.getByText(/Davra shows up to 12 people/)).toBeTruthy();
+  });
+
+  it('keeps the hint out of the overlay that sits on the tiles: it has its own row above the stage (critic D-10)', () => {
+    render(<CallView {...view({ participants: people(13) })} />);
+    const hint = screen.getByText(/Davra shows up to 12 people/).closest('.dx-alert') as HTMLElement;
+    expect(hint.closest('.dv-notices')).toBeNull();
+    const bar = hint.closest('.dv-hintbar') as HTMLElement;
+    expect(bar).not.toBeNull();
+    expect(bar.querySelector('.dv-stage')).toBeNull();
+    const kids = Array.from(bar.parentElement!.children);
+    expect(kids.indexOf(bar)).toBeLessThan(kids.findIndex((c) => c.querySelector('.dv-stage')));
   });
 
   it('does not show the hint when the user picked the grid themselves', () => {
