@@ -117,6 +117,12 @@ export function DateTimePicker({ label, hint, error, required, value, onChange, 
     if (refocus) trigger.current?.focus();
   }, []);
 
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    // Bring the chosen hour and minute into view in their scrolling rows when the panel opens.
+    if (!open) return;
+    panelRef.current?.querySelectorAll<HTMLElement>('.dx-dtp__col [aria-pressed="true"]').forEach((el) => el.scrollIntoView?.({ inline: 'center', block: 'nearest' }));
+  }, [open]);
   useEffect(() => {
     if (open) grid.current?.querySelector<HTMLElement>(`[data-day="${focusDay}"]`)?.focus({ preventScroll: true });
     // Only when the panel opens or the focused day / month changes by keyboard.
@@ -161,7 +167,7 @@ export function DateTimePicker({ label, hint, error, required, value, onChange, 
   }, [parsed]);
 
   const panel = (
-    <div className="dx-dtp" role="dialog" aria-label={typeof label === 'string' ? label : undefined} onKeyDown={onPanelKey}>
+    <div className="dx-dtp" ref={panelRef} role="dialog" aria-label={typeof label === 'string' ? label : undefined} onKeyDown={onPanelKey}>
       <div className="dx-dtp__head">
         <IconButton variant="ghost" size="sm" tooltip={false} icon={<IconChevronLeft size={18} />} label={t(lang, 'dtPrev')} data-testid="dt-prev" onClick={() => setView((v) => ({ y: v.m === 1 ? v.y - 1 : v.y, m: v.m === 1 ? 12 : v.m - 1 }))} />
         <div className="dx-dtp__month" aria-live="polite" data-ym={`${view.y}-${pad(view.m)}`}>
