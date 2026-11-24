@@ -19,7 +19,7 @@ try {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US', permissions: ['camera', 'microphone'] });
   const page = await ctx.newPage();
   await page.goto(BASE + '/app');
-  await page.getByRole('button', { name: /Sign in|Kirish|Войти/ }).click();
+  await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', 'user.demo');
   await page.fill('#password', PASSWORD);
