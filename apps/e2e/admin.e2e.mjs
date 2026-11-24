@@ -146,9 +146,9 @@ try {
   await a.page.locator('.adm-nav button').nth(7).click();
   await a.page.waitForSelector('#sec-privacy', { timeout: 15000 });
   check('the privacy section opens', true);
-  await a.page.fill('#sec-privacy input[type=search]', victim.username);
-  await a.page.locator('#sec-privacy form[role=search] button[type=submit]').click();
-  await a.page.waitForSelector(`#sec-privacy table.data tbody tr:has-text("${victimEmail}")`, { timeout: 15000 });
+  await a.page.fill('section[aria-labelledby="sec-privacy"] input[type=search]', victim.username);
+  await a.page.locator('section[aria-labelledby="sec-privacy"] form[role=search] button[type=submit]').click();
+  await a.page.waitForSelector(`section[aria-labelledby="sec-privacy"] table.data tbody tr:has-text("${victimEmail}")`, { timeout: 15000 });
   const [download] = await Promise.all([
     a.page.waitForEvent('download', { timeout: 15000 }),
     a.page.getByRole('button', { name: new RegExp(`(Export data|Ma.lumotlarni yuklab olish|Выгрузить данные): ${victimEmail}`) }).click(),
@@ -167,7 +167,7 @@ try {
   check('the exact address enables it', !(await go.isDisabled()));
   await go.click();
   await a.page.waitForFunction(() => !document.querySelector('dialog.dx-dialog[open]'), null, { timeout: 30000 });
-  const rowText = await a.page.locator('#sec-privacy table.data tbody').innerText();
+  const rowText = await a.page.locator('section[aria-labelledby="sec-privacy"] table.data tbody').innerText();
   check('the row shows the person as erased and the address is gone from the page', !rowText.includes(victimEmail) && /Erased|O.chirilgan|Удалён/.test(rowText));
   const kcUsers = await (await fetch(`${KC}/admin/realms/davrabox/users?username=${encodeURIComponent(victim.username)}&exact=true`, { headers: await adminHeaders() })).json();
   check('the account is deleted in the identity provider', Array.isArray(kcUsers) && kcUsers.length === 0);

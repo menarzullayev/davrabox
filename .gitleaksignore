@@ -8,3 +8,4 @@ a02be891baf834c5417eb33870d317f00bab36f5:apps/api/src/files/files.service.ts:gen
 # apps/api/test/audit.test.ts line 534: a constant used only to test webhook HMAC signing against a local test receiver; not a credential.
 e937bb1006f17842dfdfbde992fd35f596d6b25a:apps/api/test/audit.test.ts:generic-api-key:534
 ea3e0bc6f5d3d444286d5eb09532abc076f68bae:docs/api.md:generic-api-key:42
+b7714eb828d1fff9707407bcca0b06e36d655088:apps/api/test/observability.test.ts:jwt:199
