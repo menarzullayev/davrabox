@@ -1,11 +1,12 @@
 // The ONE place that lists what a person can choose: languages, themes (modes), styles and densities. Every picker, every
 // validator and every default reads from here, so adding a language or a style is a change in this file and its dictionary.
-import type { Lang } from '../i18n';
+import { DENSITY_IDS, STYLE_IDS, type DensityId, type StyleId } from '@davrabox/design-tokens';
+import type { Key, Lang } from '../i18n';
+
+export type { DensityId, StyleId };
 import { THEME_COLOR as GENERATED_THEME_COLOR } from './theme-colors.generated';
 
 export type ThemeChoice = 'dark' | 'light';
-export type StyleId = 'dashboard';
-export type DensityId = 'comfortable';
 
 export const LANGS: ReadonlyArray<{ id: Lang; short: string; name: string }> = [
   { id: 'uz', short: 'UZ', name: 'O‘zbekcha' },
@@ -13,8 +14,18 @@ export const LANGS: ReadonlyArray<{ id: Lang; short: string; name: string }> = [
   { id: 'en', short: 'EN', name: 'English' },
 ];
 export const THEMES: readonly ThemeChoice[] = ['dark', 'light'];
-export const STYLES: readonly StyleId[] = ['dashboard'];
-export const DENSITIES: readonly DensityId[] = ['comfortable'];
+/** Every style and density the design tokens define (the one list); the person's organisation may allow fewer. */
+export const STYLES: readonly StyleId[] = STYLE_IDS;
+export const DENSITIES: readonly DensityId[] = DENSITY_IDS;
+
+/** Dictionary keys of the visible names. */
+const STYLE_KEY: Record<StyleId, Key> = {
+  dashboard: 'stDashboard', swiss: 'stSwiss', flat: 'stFlat', material: 'stMaterial', editorial: 'stEditorial', neobrutalism: 'stNeobrutalism',
+  terminal: 'stTerminal', glassmorphism: 'stGlassmorphism', neumorphism: 'stNeumorphism', claymorphism: 'stClaymorphism', aurora: 'stAurora', skeuomorphism: 'stSkeuomorphism',
+};
+const DENSITY_KEY: Record<DensityId, Key> = { compact: 'uiDensitycompact', comfortable: 'uiDensitycomfortable', spacious: 'uiDensityspacious' };
+export const styleLabelKey = (id: StyleId): Key => STYLE_KEY[id];
+export const densityLabelKey = (id: DensityId): Key => DENSITY_KEY[id];
 
 export const DEFAULTS = { theme: 'dark', style: 'dashboard', density: 'comfortable' } as const satisfies { theme: ThemeChoice; style: StyleId; density: DensityId };
 

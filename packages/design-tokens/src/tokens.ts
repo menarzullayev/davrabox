@@ -7,6 +7,8 @@
  * (scrim, shadows) live in the `effects` group and never carry text.
  */
 
+import { styleDefs } from './style-defs.js';
+
 const dark = {
   // Surfaces: canvas < card < raised (popovers, dialogs) < interactive (hover, selected, input fill)
   bg: '#0a0d21',
@@ -147,6 +149,10 @@ export const scales = {
   },
   /** Minimum touch target on coarse pointers (WCAG 2.5.5 / platform guidance). */
   target: { coarse: '44px', touch: '48px', fine: '36px' },
+  /** Look variables a style may change without any component change: border width, blur behind surfaces, a sheen laid over surfaces and buttons, a page background image, the heading font. */
+  look: { borderW: '1px', blur: '0px', sheen: 'none', bgImage: 'none', fontHeading: 'var(--font-sans)' },
+  /** Height of buttons and fields; a density changes it together with the spacing scale. */
+  control: { h: '40px' },
 } as const;
 
 /** Avatar colours are theme independent (initials on a hashed hue); fg/bg pairs checked in the tests. */
@@ -261,9 +267,9 @@ export const legacyAliases: Readonly<Record<string, string>> = {
 // an entry here (colour overrides per mode, plus plain CSS variables); components never change. Every entry is held to the
 // same WCAG tests as the base (see tokens.test.ts), per style and mode.
 
-export const STYLE_IDS = ['dashboard'] as const;
+export const STYLE_IDS = ['dashboard', 'swiss', 'flat', 'material', 'editorial', 'neobrutalism', 'terminal', 'glassmorphism', 'neumorphism', 'claymorphism', 'aurora', 'skeuomorphism'] as const;
 export type StyleId = (typeof STYLE_IDS)[number];
-export const DENSITY_IDS = ['comfortable'] as const;
+export const DENSITY_IDS = ['compact', 'comfortable', 'spacious'] as const;
 export type DensityId = (typeof DENSITY_IDS)[number];
 
 export interface StyleDef {
@@ -275,13 +281,19 @@ export interface StyleDef {
   modeVars?: Partial<Record<ThemeName, Readonly<Record<string, string>>>>;
 }
 
-export const styles: Record<StyleId, StyleDef> = {
-  dashboard: {},
-};
+export const styles: Record<StyleId, StyleDef> = styleDefs;
 
 /** Spacing/size variables per density, merged over the base scale. `comfortable` is the base. */
+const SPACE = [4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80] as const;
+const SPACE_KEYS = ['space1', 'space2', 'space3', 'space4', 'space5', 'space6', 'space8', 'space10', 'space12', 'space16', 'space20'] as const;
+const scaled = (k: number, controlH: string): Record<string, string> => ({
+  ...Object.fromEntries(SPACE_KEYS.map((name, i) => [name, `${Math.round(SPACE[i]! * k)}px`])),
+  controlH,
+});
 export const densities: Record<DensityId, Readonly<Record<string, string>>> = {
+  compact: scaled(0.75, '32px'),
   comfortable: {},
+  spacious: scaled(1.25, '48px'),
 };
 
 /** The colours of one style in one mode: the base theme with the style's overrides applied. */
