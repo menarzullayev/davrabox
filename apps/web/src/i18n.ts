@@ -7,6 +7,7 @@ import { calEn, calRu, calUz } from './calendar/i18n-calendar';
 import { platformEn, platformRu, platformUz } from './platform/i18n-platform';
 import { byokEn, byokRu, byokUz } from './admin/i18n-byok';
 import { e2eeEn, e2eeRu, e2eeUz } from './e2ee/i18n-e2ee';
+import { privacyEn, privacyRu, privacyUz } from './privacy/i18n-privacy';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -99,6 +100,7 @@ const uz = {
   ...calUz,
   ...platformUz,
   ...e2eeUz,
+  ...privacyUz,
 } as const;
 
 export type Key = keyof typeof uz;
@@ -191,6 +193,7 @@ const ru: Record<Key, string> = {
   ...calRu,
   ...platformRu,
   ...e2eeRu,
+  ...privacyRu,
 };
 
 const en: Record<Key, string> = {
@@ -281,6 +284,7 @@ const en: Record<Key, string> = {
   ...calEn,
   ...platformEn,
   ...e2eeEn,
+  ...privacyEn,
 };
 
 export const dictionaries: Record<Lang, Record<Key, string>> = { uz, ru, en };

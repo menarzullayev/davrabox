@@ -10,11 +10,12 @@ import { Encryption } from './Encryption';
 import { Integrations } from './Integrations';
 import { Overview } from './Overview';
 import { Policies } from './Policies';
+import { Privacy } from './Privacy';
 import { Users } from './Users';
 import { AdminCtx, makeReport } from './ui';
 import './admin.css';
 
-const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption'] as const;
+const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption', 'privacy'] as const;
 type Section = (typeof SECTIONS)[number];
 const ICON = {
   overview: IconLayoutGrid,
@@ -24,6 +25,7 @@ const ICON = {
   integrations: IconLink,
   audit: IconShieldCheck,
   encryption: IconLock,
+  privacy: IconShield,
 } as const;
 const LABEL = {
   overview: 'admOverview',
@@ -33,6 +35,7 @@ const LABEL = {
   integrations: 'admIntegrations',
   audit: 'admAudit',
   encryption: 'admEncryption',
+  privacy: 'admPrivacy',
 } as const;
 
 export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void }) {
@@ -104,6 +107,7 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
             {section === 'integrations' && <Integrations />}
             {section === 'audit' && <Audit />}
             {section === 'encryption' && <Encryption />}
+            {section === 'privacy' && <Privacy />}
           </div>
         </div>
       </main>
