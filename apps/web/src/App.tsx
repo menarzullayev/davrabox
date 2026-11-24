@@ -7,7 +7,7 @@ import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/help
 import { isOrgAdmin } from './admin/jwt';
 import { currentUser, freshToken, manager, signIn } from './auth';
 import { Call } from './Call';
-import { detectLang, t, type Key, type Lang } from './i18n';
+import { t, type Key, type Lang } from './i18n';
 import { LoadingScreen, SignInScreen } from './home/AuthScreens';
 import { HomeScreen } from './home/HomeScreen';
 import type { NewMeetingData } from './home/NewMeetingDialog';
@@ -15,12 +15,10 @@ import { Waiting } from './home/Waiting';
 import { PreJoin, readSkipPreJoin, type MediaChoice } from './home/PreJoin';
 import { createMeetingWithKey } from './e2ee/create';
 import { takeKeyFromLocation } from './e2ee/keys';
-import { applyTheme, readTheme, type ThemeChoice } from './ui';
+import { LANGS, usePrefs } from './prefs';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
-
-const THEME_COLOR: Record<ThemeChoice, string> = { dark: '#0a0d21', light: '#f4f5fb' };
 
 /** Skips the pre-join screen for someone who ticked "do not show this next time". */
 function withMedia(v: { result: JoinedResult; code: string; media?: MediaChoice }): { result: JoinedResult; code: string; media?: MediaChoice } {
@@ -28,8 +26,7 @@ function withMedia(v: { result: JoinedResult; code: string; media?: MediaChoice 
 }
 
 export function App() {
-  const [lang, setLang] = useState<Lang>(detectLang);
-  const [theme, setThemeState] = useState<ThemeChoice>(readTheme);
+  const { lang, theme, setLang: changeLang, setTheme: changeTheme } = usePrefs();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [meetings, setMeetings] = useState<Meeting[] | null>(null);
@@ -116,26 +113,6 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisible);
   }, [refresh]);
 
-  // The page language is what a screen reader speaks the text in: it must match what is shown, from the first render.
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
-
-  const changeLang = (l: Lang) => {
-    setLang(l);
-    try {
-      localStorage.setItem('lang', l);
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const changeTheme = (v: ThemeChoice) => {
-    setThemeState(v);
-    applyTheme(v);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[v]);
-  };
-
   const changeRelay = (v: boolean) => {
     setRelayMode(v);
     try {
@@ -186,9 +163,11 @@ export function App() {
   // Plain language picker, kept for the admin console header (it receives it as a prop).
   const langPicker = (
     <select aria-label={t(lang, 'lang')} value={lang} onChange={(e) => changeLang(e.target.value as Lang)}>
-      <option value="uz">O‘zbekcha</option>
-      <option value="ru">Русский</option>
-      <option value="en">English</option>
+      {LANGS.map((l) => (
+        <option key={l.id} value={l.id}>
+          {l.name}
+        </option>
+      ))}
     </select>
   );
 
