@@ -210,6 +210,9 @@
   .si__card-title { margin: 0; color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.015em; }
   .si__card-text { margin: calc(var(--space-2) * -1) 0 var(--space-2); color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }
   @media (max-width: 479px) { .si__card { padding: var(--space-6); } }
+  .si__logo { display: inline-flex; flex: none; }
+  .si__logo--mark { display: none; }
+  @media (max-width: 349px) { .si__logo--full { display: none; } .si__logo--mark { display: inline-flex; } }
   .si__tools { display: flex; align-items: center; gap: var(--space-2); }
   .si__join .dx-input { min-height: 48px; }
   .si__join .dx-btn { --btn-h: 48px; }

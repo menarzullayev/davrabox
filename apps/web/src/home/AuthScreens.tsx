@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { t, type Lang } from '../i18n';
-import { Button, ConnectingRing, Davra, IconChevronRight, Logo, TextField, type ThemeChoice } from '../ui';
+import { Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, TextField, type ThemeChoice } from '../ui';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { appUrl } from '../routes';
 import { appErrorKey } from '../errors';
@@ -120,7 +120,13 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
   return (
     <div className="si" data-view={view}>
       <header className="si__bar">
-        <Logo height={30} title={t(lang, 'appName')} />
+        {/* The wordmark gives way to the mark alone on very narrow phones, where 48 px language buttons need the room. */}
+        <span className="si__logo si__logo--full">
+          <Logo height={26} title={t(lang, 'appName')} />
+        </span>
+        <span className="si__logo si__logo--mark">
+          <LogoMark size={30} title={t(lang, 'appName')} />
+        </span>
         <div className="si__tools">
           <div className="si__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
             {LANG_BUTTONS.map((l) => (

@@ -51,3 +51,21 @@ describe('watchSystemBars', () => {
     await new Promise((r) => setTimeout(r, 0)); // no unhandled rejection
   });
 });
+
+describe('watchSystemBars: ThemeBars (window colour and icons together)', () => {
+  it('prefers ThemeBars and sends only the two theme names; SystemBars is the fallback of an older shell', async () => {
+    const setTheme = vi.fn(async (_o: { theme: 'dark' | 'light' }) => undefined);
+    const setStyle = vi.fn(async (_o: { style: 'DARK' | 'LIGHT' }) => undefined);
+    const stop = watchSystemBars({ Capacitor: { isNativePlatform: () => true, Plugins: { ThemeBars: { setTheme }, SystemBars: { setStyle } } } }, document);
+    document.documentElement.setAttribute('data-theme', 'light');
+    await new Promise((r) => setTimeout(r, 0));
+    document.documentElement.setAttribute('data-theme', 'bogus"; drop');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setTheme.mock.calls.map((c) => c[0])).toEqual([{ theme: 'dark' }, { theme: 'light' }, { theme: 'dark' }]);
+    expect(setStyle).not.toHaveBeenCalled();
+    stop();
+    const old = vi.fn(async (_o: { style: 'DARK' | 'LIGHT' }) => undefined);
+    watchSystemBars({ Capacitor: { isNativePlatform: () => true, Plugins: { SystemBars: { setStyle: old } } } }, document)();
+    expect(old).toHaveBeenCalledWith({ style: 'DARK' });
+  });
+});
