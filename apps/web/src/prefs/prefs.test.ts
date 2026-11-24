@@ -115,3 +115,31 @@ describe('prefs store', () => {
     expect(getPrefs().lang).toBe('uz');
   });
 });
+
+describe('styles and densities come from the design tokens', () => {
+  it('offers every token style and density, and a chosen style lands on <html> and in storage', async () => {
+    const { STYLES, DENSITIES } = await import('./options');
+    const { STYLE_IDS, DENSITY_IDS } = await import('@davrabox/design-tokens');
+    expect([...STYLES]).toEqual([...STYLE_IDS]);
+    expect([...DENSITIES]).toEqual([...DENSITY_IDS]);
+    expect(STYLES.length).toBe(12);
+    const off = subscribePrefs(() => undefined);
+    setPref('style', 'terminal');
+    setPref('density', 'compact');
+    expect(document.documentElement.getAttribute('data-style')).toBe('terminal');
+    expect(document.documentElement.getAttribute('data-density')).toBe('compact');
+    expect(localStorage.getItem('style')).toBe('terminal');
+    setPref('style', 'nope' as never);
+    expect(getPrefs().style).toBe('terminal');
+    off();
+  });
+
+  it('every style and density has a visible name in all three languages', async () => {
+    const { STYLES, DENSITIES, styleLabelKey, densityLabelKey } = await import('./options');
+    const { dictionaries } = await import('../i18n');
+    for (const lang of ['uz', 'ru', 'en'] as const) {
+      for (const id of STYLES) expect(dictionaries[lang][styleLabelKey(id)]?.length, `${lang} ${id}`).toBeGreaterThan(3);
+      for (const id of DENSITIES) expect(dictionaries[lang][densityLabelKey(id)]?.length, `${lang} ${id}`).toBeGreaterThan(1);
+    }
+  });
+});

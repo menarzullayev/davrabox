@@ -27,6 +27,8 @@ function scaleBlock(): string {
   for (const [k, v] of Object.entries(scales.weight)) out.push(decl(`weight-${k}`, v));
   for (const [k, v] of Object.entries(scales.font)) out.push(decl(`font-${k}`, v));
   for (const [k, v] of Object.entries(scales.target)) out.push(decl(`target-${k}`, v));
+  for (const [k, v] of Object.entries(scales.look)) out.push(decl(cssName(k), v));
+  for (const [k, v] of Object.entries(scales.control)) out.push(decl(`control-${k}`, v));
   for (const [alias, target] of Object.entries(legacyAliases)) out.push(decl(alias, `var(--${target})`));
   return out.join('\n');
 }

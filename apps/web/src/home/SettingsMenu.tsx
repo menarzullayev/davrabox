@@ -1,4 +1,4 @@
-import { LANGS } from '../prefs';
+import { DENSITIES, LANGS, STYLES, densityLabelKey, styleLabelKey, usePrefs, type StyleId } from '../prefs';
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { IconButton, IconMoon, IconSettings, IconSun, Popover, Segmented, Select, Switch, type ThemeChoice } from '../ui';
 import { t, type Lang } from '../i18n';
@@ -19,6 +19,7 @@ const THEMES: ReadonlyArray<{ id: ThemeChoice; key: 'uiThemeDark' | 'uiThemeLigh
 
 /** One compact place for language, appearance and firewall mode (instead of header clutter). */
 export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMenuProps) {
+  const { style, density, setStyle, setDensity } = usePrefs();
   const [open, setOpen] = useState(false);
   const anchor = useRef<HTMLButtonElement | null>(null);
   const body = useRef<HTMLDivElement | null>(null);
@@ -56,6 +57,13 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
               </option>
             ))}
           </Select>
+          <Select label={t(lang, 'uiStyle')} value={style} data-testid="style-select" onChange={(e) => setStyle(e.target.value as StyleId)}>
+            {STYLES.map((id) => (
+              <option key={id} value={id}>
+                {t(lang, styleLabelKey(id))}
+              </option>
+            ))}
+          </Select>
           <div className="hm-settings__group">
             <span className="dx-field__label" id="hm-theme-label">
               {t(lang, 'uiTheme')}
@@ -65,6 +73,15 @@ export function SettingsMenu({ lang, onLang, theme, onTheme, relay }: SettingsMe
               value={theme}
               onChange={onTheme}
               options={THEMES.map(({ id, key, Icon }) => ({ id, label: (<><Icon size={18} />{t(lang, key)}</>) }))}
+            />
+          </div>
+          <div className="hm-settings__group">
+            <span className="dx-field__label">{t(lang, 'uiDensity')}</span>
+            <Segmented
+              label={t(lang, 'uiDensity')}
+              value={density}
+              onChange={setDensity}
+              options={DENSITIES.map((id) => ({ id, label: t(lang, densityLabelKey(id)) }))}
             />
           </div>
           {relay ? (

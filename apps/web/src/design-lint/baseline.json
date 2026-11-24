@@ -2,7 +2,7 @@
  "admin/admin.css": {
   "colours": 0,
   "offBreakpoints": 2,
-  "literalPx": 46,
+  "literalPx": 36,
   "rawControls": 0
  },
  "admin/Audit.tsx": {
@@ -56,7 +56,7 @@
  "call/call.css": {
   "colours": 5,
   "offBreakpoints": 3,
-  "literalPx": 173,
+  "literalPx": 161,
   "rawControls": 0
  },
  "call/ControlBar.tsx": {
@@ -92,25 +92,19 @@
  "call/recording.css": {
   "colours": 0,
   "offBreakpoints": 0,
-  "literalPx": 6,
-  "rawControls": 0
- },
- "e2ee/e2ee.css": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 1,
+  "literalPx": 5,
   "rawControls": 0
  },
  "home/home.css": {
   "colours": 0,
   "offBreakpoints": 6,
-  "literalPx": 84,
+  "literalPx": 78,
   "rawControls": 0
  },
  "landing/landing.css": {
   "colours": 0,
   "offBreakpoints": 6,
-  "literalPx": 26,
+  "literalPx": 18,
   "rawControls": 0
  },
  "privacy/legal-links.css": {
@@ -122,13 +116,13 @@
  "privacy/privacy.css": {
   "colours": 0,
   "offBreakpoints": 0,
-  "literalPx": 8,
+  "literalPx": 5,
   "rawControls": 0
  },
  "styleguide/styleguide.css": {
   "colours": 4,
   "offBreakpoints": 1,
-  "literalPx": 46,
+  "literalPx": 36,
   "rawControls": 0
  },
  "styleguide/Styleguide.tsx": {
@@ -176,7 +170,7 @@
  "ui/ui.css": {
   "colours": 1,
   "offBreakpoints": 0,
-  "literalPx": 105,
+  "literalPx": 96,
   "rawControls": 0
  }
 }
