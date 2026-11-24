@@ -1,3 +1,4 @@
+import { RateLimitService } from '../rate-limit/service.js';
 import { Inject, Injectable, type OnApplicationBootstrap, type OnApplicationShutdown, type Provider } from '@nestjs/common';
 import type { Pool } from 'pg';
 import { KeycloakAdmin } from '../admin/identity-admin.js';
@@ -54,8 +55,9 @@ export const privacyProviders: Provider[] = [
   { provide: PRIVACY_OBJECTS, useFactory: (cfg: Config) => createObjectEraser(cfg), inject: [PRIVACY_CONFIG] },
   {
     provide: PRIVACY,
-    useFactory: (pool: Pool, cfg: Config, objects: ObjectEraser | null, oauth: CalendarOAuthService) =>
+    useFactory: (pool: Pool, cfg: Config, objects: ObjectEraser | null, oauth: CalendarOAuthService, rate: RateLimitService) =>
       new PrivacyService(pool, {
+        rate,
         idp:
           cfg.KEYCLOAK_ADMIN_URL && cfg.KEYCLOAK_ADMIN_CLIENT_SECRET
             ? new KeycloakAdmin({ baseUrl: cfg.KEYCLOAK_ADMIN_URL, realm: cfg.KEYCLOAK_ADMIN_REALM, clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID, clientSecret: cfg.KEYCLOAK_ADMIN_CLIENT_SECRET })
@@ -63,7 +65,7 @@ export const privacyProviders: Provider[] = [
         objects,
         calendar: new CalendarOAuthRevoker(oauth),
       }),
-    inject: [POOL, PRIVACY_CONFIG, PRIVACY_OBJECTS, CALENDAR_OAUTH],
+    inject: [POOL, PRIVACY_CONFIG, PRIVACY_OBJECTS, CALENDAR_OAUTH, RateLimitService],
   },
   {
     provide: PRIVACY_RETENTION,

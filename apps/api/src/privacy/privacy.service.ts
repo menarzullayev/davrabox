@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from 'pg';
 import type { AuthedUser } from '../auth/auth.guard.js';
-import { WindowLimiter } from '../audit/audit.service.js';
+import type { RateLimiter } from '../rate-limit/limiter.js';
+import { RateLimitService } from '../rate-limit/service.js';
 import { IdentityAdminError } from '../admin/identity-admin.js';
 import { withTenant } from '../db/tenant.js';
 import type { CalendarRevoker, ObjectEraser, PrivacyIdentity } from './ports.js';
@@ -28,6 +29,8 @@ export interface PrivacyDeps {
   objects: ObjectEraser | null;
   calendar?: CalendarRevoker | null;
   now?: () => number;
+  /** Shared limiter store (Redis-backed when configured); defaults to an in-process one. */
+  rate?: RateLimitService;
   exportsPerHour?: number;
   erasuresPerHour?: number;
 }
@@ -78,12 +81,13 @@ function mapIdp(e: unknown): unknown {
  * audit_log is never modified: the tombstone keeps the user id, so actor references stay valid and the hash chain keeps verifying.
  */
 export class PrivacyService {
-  private readonly exportLimiter: WindowLimiter;
-  private readonly eraseLimiter: WindowLimiter;
+  private readonly exportLimiter: RateLimiter;
+  private readonly eraseLimiter: RateLimiter;
 
   constructor(private readonly pool: Pool, private readonly deps: PrivacyDeps) {
-    this.exportLimiter = new WindowLimiter(deps.exportsPerHour ?? 5, 3_600_000, deps.now);
-    this.eraseLimiter = new WindowLimiter(deps.erasuresPerHour ?? 20, 3_600_000, deps.now);
+    const rate = deps.rate ?? RateLimitService.memory({ now: deps.now });
+    this.exportLimiter = rate.limiter({ name: 'privacy-export', max: deps.exportsPerHour ?? 5, windowMs: 3_600_000 });
+    this.eraseLimiter = rate.limiter({ name: 'privacy-erase', max: deps.erasuresPerHour ?? 20, windowMs: 3_600_000 });
   }
 
   private authorize(actor: AuthedUser, targetId: string): void {
@@ -91,9 +95,9 @@ export class PrivacyService {
     if (targetId !== actor.userId && actor.role !== 'org_admin') throw new PrivacyError(403, 'organization admin role required');
   }
 
-  private limit(l: WindowLimiter, actor: AuthedUser, what: string): void {
-    const wait = l.hit(actor.userId);
-    if (wait > 0) throw new PrivacyError(429, `too many ${what} requests, try again later`, { 'Retry-After': String(Math.ceil(wait / 1000)) });
+  private async limit(l: RateLimiter, actor: AuthedUser, what: string): Promise<void> {
+    const d = await l.hit(actor.userId);
+    if (!d.allowed) throw new PrivacyError(429, `too many ${what} requests, try again later`, { 'Retry-After': String(d.retryAfterSec) });
   }
 
   // --- export ------------------------------------------------------------------------------------------------------
@@ -101,7 +105,7 @@ export class PrivacyService {
   /** The person's own data as one JSON document. Secrets (tokens, key hashes, wrapped keys, object keys) are never included. */
   async exportUser(actor: AuthedUser, targetId: string): Promise<Record<string, unknown>> {
     this.authorize(actor, targetId);
-    this.limit(this.exportLimiter, actor, 'export');
+    await this.limit(this.exportLimiter, actor, 'export');
     const now = this.deps.now?.() ?? Date.now();
     return withTenant(this.pool, actor.orgId, async (c) => {
       const u = await c.query(
@@ -174,7 +178,7 @@ export class PrivacyService {
    */
   async eraseUser(actor: AuthedUser, targetId: string, confirm: string): Promise<ErasureResult> {
     this.authorize(actor, targetId);
-    this.limit(this.eraseLimiter, actor, 'erasure');
+    await this.limit(this.eraseLimiter, actor, 'erasure');
 
     const target = await withTenant(this.pool, actor.orgId, async (c) => {
       const r = await c.query<TargetRow>(
