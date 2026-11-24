@@ -1,0 +1,9 @@
+# DavraBox: the landing page may be indexed; the application, the admin console and the APIs are not for crawlers.
+User-agent: *
+Allow: /$
+Disallow: /app
+Disallow: /admin
+Disallow: /api/
+Disallow: /auth/
+Disallow: /lab/
+Disallow: /styleguide
