@@ -1,3 +1,4 @@
+import { BootScreen } from './ui/BootScreen';
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
@@ -56,19 +57,19 @@ createRoot(document.getElementById('root')!).render(
         <Lab />
       </Suspense>
     ) : legalKind ? (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BootScreen />}>
         <PrivacyPage kind={legalKind} />
       </Suspense>
     ) : isSignup ? (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BootScreen />}>
         <Signup />
       </Suspense>
     ) : isLanding ? (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BootScreen />}>
         <Landing />
       </Suspense>
     ) : legacy ? null : (
-      <Suspense fallback={null}>
+      <Suspense fallback={<BootScreen />}>
         <App />
       </Suspense>
     )}
