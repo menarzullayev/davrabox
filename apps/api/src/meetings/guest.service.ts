@@ -132,7 +132,8 @@ export class GuestService {
       const key = `${ctx.ipKey}:${input.code}`;
       // Counted before the hash is checked, atomically (see MeetingsService.joinInner for why).
       if (!(await this.passcodeFails.hit(key)).allowed) throw new MeetingError(429, 'too many attempts, try again later');
-      const ok = input.passcode ? await argon2.verify(meeting.passcode_hash, input.passcode) : false;
+      // Always verified (an empty guess simply fails): the cost does not depend on whether a passcode was sent.
+      const ok = await argon2.verify(meeting.passcode_hash, input.passcode ?? '');
       if (!ok) throw new MeetingError(403, 'wrong passcode');
       await this.passcodeFails.reset(key);
     }
