@@ -8,6 +8,7 @@ import {
   Tooltip,
   IconBlur,
   IconCamera,
+  IconChevronDown,
   IconCameraOff,
   IconChat,
   IconHand,
@@ -327,9 +328,15 @@ export function ControlBar(p: ControlBarProps) {
               <RecordingList lang={lang} items={p.recording.items ?? []} onDownload={p.recording.onDownload} />
             </>
           ) : null}
-          <div className="dv-more__appearance" data-testid="more-appearance">
-            <AppearanceFields lang={lang} />
-          </div>
+          <details className="dv-more__appearance" data-testid="more-appearance" onToggle={() => window.dispatchEvent(new Event('resize'))}>
+            <summary className="dv-more__appearance-title">
+              <span>{t(lang, 'clAppearance')}</span>
+              <IconChevronDown size={18} />
+            </summary>
+            <div className="dv-more__appearance-body">
+              <AppearanceFields lang={lang} />
+            </div>
+          </details>
           <div className="dv-more__switches">
             <Switch
               label={<span className="dv-more__lbl"><IconNoise size={16} />{t(lang, 'noiseSuppression')}</span>}

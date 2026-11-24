@@ -236,6 +236,17 @@ describe('ControlBar', () => {
     expect((screen.getByTestId('blur') as HTMLInputElement).disabled).toBe(true);
   });
 
+  it('keeps language and appearance in a collapsed section of More, so the panel stays short', () => {
+    render(<ControlBar {...bar()} />);
+    fireEvent.click(screen.getByTestId('more'));
+    const box = screen.getByTestId('more-appearance') as HTMLDetailsElement;
+    expect(box.open).toBe(false);
+    expect(box.querySelector('summary')!.textContent).toBe('Language and appearance');
+    box.open = true;
+    expect(box.querySelector('[data-testid=style-select]')).not.toBeNull();
+    expect(box.querySelector('[role=radiogroup], [role=group]')).not.toBeNull();
+  });
+
   it('offers Davra, Grid and Speaker as a radio group and reports the choice', () => {
     const onLayout = vi.fn();
     render(<ControlBar {...bar({ onLayout })} />);
