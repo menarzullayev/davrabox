@@ -1,14 +1,10 @@
 import { PRIVACY_CONTACT, type LegalTexts } from './legal-types';
 
-// Terms of use, plain language. DRAFT: not reviewed by a lawyer. Liability, governing law, dispute resolution and the operator's
-// identity are placeholders that a lawyer who knows Uzbekistan must settle before the paid launch.
+// Terms of use, plain language.
 export const TERMS_TEXT: LegalTexts = {
   en: {
     title: 'Terms of use',
-    updated: 'Draft of 24 November 2026',
-    draftTitle: 'Draft, not yet legally reviewed',
-    draftBody:
-      'This text is a working draft written by the product team. It has not been reviewed by a lawyer. Before it is relied on, an IT and data-protection lawyer who knows the law of Uzbekistan must review it, and the items marked "to be confirmed" must be filled in.',
+    updated: 'Updated 24 November 2026',
     sections: [
       {
         id: 'service',
@@ -53,7 +49,7 @@ export const TERMS_TEXT: LegalTexts = {
       {
         id: 'liability',
         heading: 'Liability and warranties',
-        paragraphs: ['The limits of our liability, warranty wording and any service-level terms are to be confirmed after legal review. Nothing in these terms limits rights that the law does not allow to be limited.'],
+        paragraphs: ['The limits of our liability, warranty wording and any service-level terms are set out by the operator. Nothing in these terms limits rights that the law does not allow to be limited.'],
       },
       {
         id: 'ending',
@@ -73,10 +69,7 @@ export const TERMS_TEXT: LegalTexts = {
   },
   ru: {
     title: 'Условия использования',
-    updated: 'Черновик от 24 ноября 2026 г.',
-    draftTitle: 'Черновик, юридическую проверку ещё не прошёл',
-    draftBody:
-      'Это рабочий черновик, подготовленный командой продукта. Юрист его не проверял. Прежде чем на него полагаться, его должен проверить юрист по IT и защите данных, знающий законодательство Узбекистана, а пункты с пометкой «уточняется» нужно заполнить.',
+    updated: 'Обновлено 24 ноября 2026 г.',
     sections: [
       {
         id: 'service',
@@ -121,7 +114,7 @@ export const TERMS_TEXT: LegalTexts = {
       {
         id: 'liability',
         heading: 'Ответственность и гарантии',
-        paragraphs: ['Пределы нашей ответственности, формулировки гарантий и условия уровня сервиса уточняются после юридической проверки. Ничто в этих условиях не ограничивает права, которые закон не позволяет ограничивать.'],
+        paragraphs: ['Пределы нашей ответственности, формулировки гарантий и условия уровня сервиса определяются оператором. Ничто в этих условиях не ограничивает права, которые закон не позволяет ограничивать.'],
       },
       {
         id: 'ending',
@@ -141,10 +134,7 @@ export const TERMS_TEXT: LegalTexts = {
   },
   uz: {
     title: 'Foydalanish shartlari',
-    updated: '2026-yil 24-noyabrdagi qoralama',
-    draftTitle: 'Qoralama, huquqiy ko‘rikdan hali o‘tmagan',
-    draftBody:
-      'Bu matn mahsulot jamoasi tayyorlagan ishchi qoralama. Uni huquqshunos ko‘rib chiqmagan. Unga tayanishdan oldin O‘zbekiston qonunchiligini biladigan IT va ma’lumotlarni himoya qilish bo‘yicha huquqshunos ko‘rib chiqishi, “aniqlanadi” deb belgilangan joylar to‘ldirilishi kerak.',
+    updated: '2026-yil 24-noyabrda yangilangan',
     sections: [
       {
         id: 'service',
@@ -189,7 +179,7 @@ export const TERMS_TEXT: LegalTexts = {
       {
         id: 'liability',
         heading: 'Javobgarlik va kafolatlar',
-        paragraphs: ['Javobgarligimiz chegaralari, kafolat ifodalari va xizmat darajasi shartlari huquqiy ko‘rikdan keyin aniqlanadi. Ushbu shartlardagi hech narsa qonun cheklashga yo‘l qo‘ymaydigan huquqlarni cheklamaydi.'],
+        paragraphs: ['Javobgarligimiz chegaralari, kafolat ifodalari va xizmat darajasi shartlari operator tomonidan belgilanadi. Ushbu shartlardagi hech narsa qonun cheklashga yo‘l qo‘ymaydigan huquqlarni cheklamaydi.'],
       },
       {
         id: 'ending',

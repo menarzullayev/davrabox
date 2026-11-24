@@ -16,8 +16,7 @@ const LANGS: Array<{ id: Lang; label: string }> = [
 export type LegalKind = 'privacy' | 'terms';
 
 /**
- * A static, accessible page for the privacy notice or the terms. No sign-in, no backend call. The text is a DRAFT (see the
- * banner at the top, and the notes in legal-privacy.ts / legal-terms.ts); the page says so in every language.
+ * A static, accessible page for the privacy notice or the terms. No sign-in, no backend call. The text lives in legal-privacy.ts / legal-terms.ts.
  */
 export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLang?: Lang }) {
   const [lang, setLangState] = useState<Lang>(initialLang ?? detectLang);
@@ -57,10 +56,6 @@ export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLan
       <main className="legal__main" id="main">
         <h1 className="legal__title">{doc.title}</h1>
         <p className="legal__updated">{doc.updated}</p>
-        <aside className="legal__draft" aria-labelledby="legal-draft-title">
-          <strong id="legal-draft-title">{doc.draftTitle}</strong>
-          <p>{doc.draftBody}</p>
-        </aside>
         {doc.sections.map((s) => (
           <section key={s.id} aria-labelledby={`legal-${s.id}`} className="legal__section">
             <h2 id={`legal-${s.id}`}>{s.heading}</h2>

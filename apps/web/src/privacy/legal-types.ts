@@ -9,10 +9,8 @@ export interface LegalSection {
 
 export interface LegalDoc {
   title: string;
-  /** Date of the draft, in the reader's language. */
+  /** Date of the last update, in the reader's language. */
   updated: string;
-  draftTitle: string;
-  draftBody: string;
   sections: LegalSection[];
 }
 

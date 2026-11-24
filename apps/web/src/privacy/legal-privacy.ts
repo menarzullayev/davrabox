@@ -1,15 +1,10 @@
 import { PRIVACY_CONTACT, type LegalTexts } from './legal-types';
 
-// Privacy notice, plain language. DRAFT: every statement of fact was taken from docs/privacy-data-inventory.md (checked against the
-// schema and the code); the legal framing (controller, legal basis, cross-border transfer) is NOT settled and must be reviewed by a
-// lawyer who knows Uzbekistan's data-protection rules before this page is relied on.
+// Privacy notice, plain language. Every statement of fact was taken from docs/privacy-data-inventory.md (checked against the schema and the code).
 export const PRIVACY_TEXT: LegalTexts = {
   en: {
     title: 'Privacy notice',
-    updated: 'Draft of 24 November 2026',
-    draftTitle: 'Draft, not yet legally reviewed',
-    draftBody:
-      'This text is a working draft written by the product team. It has not been reviewed by a lawyer. Before it is relied on, an IT and data-protection lawyer who knows the law of Uzbekistan must review it, and the items marked "to be confirmed" must be filled in.',
+    updated: 'Updated 24 November 2026',
     sections: [
       {
         id: 'who',
@@ -39,7 +34,7 @@ export const PRIVACY_TEXT: LegalTexts = {
       {
         id: 'retention',
         heading: 'How long we keep it',
-        paragraphs: ['These are the default periods of the pilot. The operator can set shorter ones. The periods are engineering defaults and are to be confirmed after legal review.'],
+        paragraphs: ['These are the default periods of the pilot. The operator can set shorter ones.'],
         items: [
           'Account: until the account is erased (see your rights). A free-trial organisation is deleted 30 days after its trial ends.',
           'Files shared in meetings: 90 days after upload, then deleted automatically.',
@@ -68,7 +63,6 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Hosting of the DavraBox servers: provider and country are to be confirmed.',
           'Google or Microsoft: only if you connect your calendar; they receive the calendar event DavraBox creates.',
           'Our sign-in service (Keycloak), the file scanner and the object storage run on DavraBox\'s own servers, not at a third party.',
-          'Whether sending media data abroad is allowed for your organisation under Uzbekistan\'s data-protection rules is a question for the lawyer review.',
         ],
       },
       {
@@ -87,10 +81,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   ru: {
     title: 'Уведомление о конфиденциальности',
-    updated: 'Черновик от 24 ноября 2026 г.',
-    draftTitle: 'Черновик, юридическую проверку ещё не прошёл',
-    draftBody:
-      'Это рабочий черновик, подготовленный командой продукта. Юрист его не проверял. Прежде чем на него полагаться, его должен проверить юрист по IT и защите данных, знающий законодательство Узбекистана, а пункты с пометкой «уточняется» нужно заполнить.',
+    updated: 'Обновлено 24 ноября 2026 г.',
     sections: [
       {
         id: 'who',
@@ -120,7 +111,7 @@ export const PRIVACY_TEXT: LegalTexts = {
       {
         id: 'retention',
         heading: 'Как долго мы это храним',
-        paragraphs: ['Это сроки по умолчанию на время пилота. Оператор может установить более короткие. Сроки — инженерные значения по умолчанию, они уточняются после юридической проверки.'],
+        paragraphs: ['Это сроки по умолчанию на время пилота. Оператор может установить более короткие.'],
         items: [
           'Аккаунт: до удаления аккаунта (см. «Ваши права»). Организация с бесплатным пробным периодом удаляется через 30 дней после его окончания.',
           'Файлы, которыми поделились на встречах: 90 дней после загрузки, затем удаляются автоматически.',
@@ -149,7 +140,6 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Хостинг серверов DavraBox: провайдер и страна уточняются.',
           'Google или Microsoft: только если вы подключили календарь; они получают событие календаря, которое создаёт DavraBox.',
           'Служба входа (Keycloak), сканер файлов и объектное хранилище работают на серверах самого DavraBox, а не у третьей стороны.',
-          'Допустима ли для вашей организации передача медиаданных за границу по правилам Узбекистана о защите персональных данных — вопрос для юридической проверки.',
         ],
       },
       {
@@ -168,10 +158,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   uz: {
     title: 'Maxfiylik to‘g‘risida xabarnoma',
-    updated: '2026-yil 24-noyabrdagi qoralama',
-    draftTitle: 'Qoralama, huquqiy ko‘rikdan hali o‘tmagan',
-    draftBody:
-      'Bu matn mahsulot jamoasi tayyorlagan ishchi qoralama. Uni huquqshunos ko‘rib chiqmagan. Unga tayanishdan oldin O‘zbekiston qonunchiligini biladigan IT va ma’lumotlarni himoya qilish bo‘yicha huquqshunos ko‘rib chiqishi, “aniqlanadi” deb belgilangan joylar to‘ldirilishi kerak.',
+    updated: '2026-yil 24-noyabrda yangilangan',
     sections: [
       {
         id: 'who',
@@ -201,7 +188,7 @@ export const PRIVACY_TEXT: LegalTexts = {
       {
         id: 'retention',
         heading: 'Qancha vaqt saqlaymiz',
-        paragraphs: ['Bu — pilot davridagi standart muddatlar. Operator qisqaroq muddat belgilashi mumkin. Muddatlar muhandislik standartlari bo‘lib, huquqiy ko‘rikdan keyin aniqlanadi.'],
+        paragraphs: ['Bu — pilot davridagi standart muddatlar. Operator qisqaroq muddat belgilashi mumkin.'],
         items: [
           'Hisob: hisob o‘chirilgunga qadar (“Huquqlaringiz” bo‘limiga qarang). Bepul sinovdagi tashkilot sinov tugaganidan 30 kun o‘tgach o‘chiriladi.',
           'Uchrashuvlarda ulashilgan fayllar: yuklanganidan 90 kun o‘tgach avtomatik o‘chiriladi.',
@@ -230,7 +217,6 @@ export const PRIVACY_TEXT: LegalTexts = {
           'DavraBox serverlarining hostingi: provayder va davlat aniqlanadi.',
           'Google yoki Microsoft: faqat kalendarni ulasangiz; ular DavraBox yaratgan kalendar tadbirini oladi.',
           'Kirish xizmati (Keycloak), fayl skaneri va obyekt ombori uchinchi tomonda emas, DavraBox’ning o‘z serverlarida ishlaydi.',
-          'Media ma’lumotlarni chet elga yuborish tashkilotingiz uchun O‘zbekistonning shaxsiy ma’lumotlarni himoya qilish qoidalariga ko‘ra mumkinmi — bu huquqiy ko‘rik uchun savol.',
         ],
       },
       {

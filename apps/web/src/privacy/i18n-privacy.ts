@@ -7,7 +7,6 @@ export const privacyUz = {
   privLinkTerms: 'Shartlar',
   privBackHome: 'DavraBox bosh sahifasi',
   privLangLabel: 'Til',
-  privDraftLabel: 'Qoralama',
   privNavSections: 'Sahifa bo‘limlari',
   admPrivacy: 'Maxfiylik',
   admPrivIntro:
@@ -34,7 +33,6 @@ export const privacyRu: Record<keyof typeof privacyUz, string> = {
   privLinkTerms: 'Условия',
   privBackHome: 'На главную DavraBox',
   privLangLabel: 'Язык',
-  privDraftLabel: 'Черновик',
   privNavSections: 'Разделы страницы',
   admPrivacy: 'Конфиденциальность',
   admPrivIntro:
@@ -61,7 +59,6 @@ export const privacyEn: Record<keyof typeof privacyUz, string> = {
   privLinkTerms: 'Terms',
   privBackHome: 'DavraBox home',
   privLangLabel: 'Language',
-  privDraftLabel: 'Draft',
   privNavSections: 'Page sections',
   admPrivacy: 'Privacy',
   admPrivIntro:

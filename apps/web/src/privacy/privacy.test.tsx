@@ -60,12 +60,6 @@ describe('legal texts', () => {
       }
     }
   });
-  it.each(docs)('%s: says in every language that it is an unreviewed draft', (_n, texts) => {
-    for (const l of LANGS) {
-      expect(texts[l].draftTitle.length).toBeGreaterThan(10);
-      expect(texts[l].draftBody.length).toBeGreaterThan(80);
-    }
-  });
   it('the privacy notice is honest about LiveKit Cloud and the retention periods, in every language', () => {
     for (const l of LANGS) {
       const text = JSON.stringify(PRIVACY_TEXT[l]);
@@ -88,12 +82,11 @@ describe('legal texts', () => {
 });
 
 describe('PrivacyPage', () => {
-  it.each(LANGS)('renders the privacy notice in %s with the draft notice, one h1 and labelled sections', (lang) => {
+  it.each(LANGS)('renders the privacy notice in %s, one h1 and labelled sections', (lang) => {
     render(<PrivacyPage kind="privacy" initialLang={lang} />);
     const doc = PRIVACY_TEXT[lang];
     expect(screen.getByRole('heading', { level: 1, name: doc.title })).toBeTruthy();
     expect(screen.getAllByRole('heading', { level: 1 }).length).toBe(1);
-    expect(screen.getByText(doc.draftTitle)).toBeTruthy();
     expect(screen.getAllByRole('heading', { level: 2 }).length).toBeGreaterThanOrEqual(doc.sections.length);
     expect(document.documentElement.lang).toBe(lang);
     expect(document.title).toContain(doc.title);
