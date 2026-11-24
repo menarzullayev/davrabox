@@ -129,7 +129,7 @@ function Ctl({ label, icon, showText, pressed, off, danger, badge, disabled, sof
   return showText ? btn : <Tooltip content={`${label}${extra ?? ''}`}>{btn}</Tooltip>;
 }
 
-function useFocusFirst(open: boolean, ref: React.RefObject<HTMLElement>) {
+function useFocusFirst(open: boolean, ref: React.RefObject<HTMLElement | null>) {
   useEffect(() => {
     if (!open) return undefined;
     // A radio group is entered at its checked radio (the same stop Tab would use), not at the first one.
