@@ -1,3 +1,4 @@
+import { Button } from '../ui';
 import { createContext, useContext, useEffect, useId, useRef, type ReactNode } from 'react';
 import { t, type Key, type Lang } from '../i18n';
 import type { AdminClient } from './client';
@@ -75,8 +76,8 @@ export function ConfirmDialog({ title, message, confirmLabel, danger, busy, erro
       <p>{message}</p>
       {error && <div className="error" role="alert">{error}</div>}
       <div className="modal-actions">
-        <button type="button" onClick={onCancel} autoFocus>{t(lang, 'cancel')}</button>
-        <button type="button" className={danger ? 'danger' : 'primary'} onClick={onConfirm} disabled={busy}>{confirmLabel}</button>
+        <Button type="button" onClick={onCancel} autoFocus>{t(lang, 'cancel')}</Button>
+        <Button type="button" className={danger ? 'danger' : 'primary'} onClick={onConfirm} disabled={busy}>{confirmLabel}</Button>
       </div>
     </Modal>
   );

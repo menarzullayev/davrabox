@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { t } from '../i18n';
-import { Avatar, Badge } from '../ui';
+import { Avatar, Badge, Button, TextField } from '../ui';
 import type { AdminUser } from './client';
 import { saveBlob } from './download';
 import { isForbidden, mergePage, type PagedState } from './helpers';
@@ -33,13 +33,11 @@ function EraseDialog({ user, onClose, onDone }: { user: AdminUser; onClose: () =
     <Modal title={tf(lang, 'admPrivEraseTitle', { name })} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
         <p>{t(lang, 'admPrivEraseBody')}</p>
-        <label>{tf(lang, 'admPrivEraseType', { email: user.email })}
-          <input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" spellCheck={false} maxLength={320} autoFocus />
-        </label>
+        <TextField label={tf(lang, 'admPrivEraseType', { email: user.email })} value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" spellCheck={false} maxLength={320} autoFocus />
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="danger" disabled={busy || !confirmMatches(typed, user.email)}>{t(lang, 'admPrivEraseGo')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="danger" variant="danger" disabled={busy || !confirmMatches(typed, user.email)}>{t(lang, 'admPrivEraseGo')}</Button>
         </div>
       </form>
     </Modal>
@@ -115,7 +113,7 @@ export function Privacy({ save = saveBlob }: { save?: (blob: Blob, filename: str
           }}
         >
           <input type="search" aria-label={t(lang, 'admSearch')} placeholder={t(lang, 'admSearchPh')} maxLength={100} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
-          <button type="submit">{t(lang, 'admSearch')}</button>
+          <Button type="submit">{t(lang, 'admSearch')}</Button>
         </form>
       </div>
       <Status text={notice} />
@@ -150,8 +148,8 @@ export function Privacy({ save = saveBlob }: { save?: (blob: Blob, filename: str
                 <td className="actions">
                   {!isErased(u) && (
                     <>
-                      <button disabled={busyId === u.id} onClick={() => void exportOne(u)} aria-label={`${t(lang, 'admPrivExport')}: ${u.email}`}>{t(lang, 'admPrivExport')}</button>
-                      <button className="danger" onClick={() => setErasing(u)} aria-label={`${t(lang, 'admPrivErase')}: ${u.email}`}>{t(lang, 'admPrivErase')}</button>
+                      <Button disabled={busyId === u.id} onClick={() => void exportOne(u)} aria-label={`${t(lang, 'admPrivExport')}: ${u.email}`}>{t(lang, 'admPrivExport')}</Button>
+                      <Button className="danger" variant="danger" onClick={() => setErasing(u)} aria-label={`${t(lang, 'admPrivErase')}: ${u.email}`}>{t(lang, 'admPrivErase')}</Button>
                     </>
                   )}
                 </td>
@@ -162,7 +160,7 @@ export function Privacy({ save = saveBlob }: { save?: (blob: Blob, filename: str
       </TableWrap>
       {loading && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {!loading && !err && state.items.length === 0 && <p className="muted">{t(lang, 'admNoItems')}</p>}
-      {state.next && !loading && <button onClick={() => void load(search, state.next)}>{t(lang, 'admLoadMore')}</button>}
+      {state.next && !loading && <Button onClick={() => void load(search, state.next)}>{t(lang, 'admLoadMore')}</Button>}
       {erasing && (
         <EraseDialog
           user={erasing}

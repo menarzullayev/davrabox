@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { t } from '../i18n';
-import { Avatar, Badge } from '../ui';
+import { Avatar, Badge, Button, TextField, Select } from '../ui';
 import type { AdminUser, Department, Role } from './client';
 import { createFlowReducer, mergePage, type PagedState } from './helpers';
 import { ConfirmDialog, ErrorBox, Modal, Status, TableWrap, tf, useAdmin } from './ui';
@@ -42,11 +42,11 @@ function TempPasswordDialog({ email, password, onDone }: { email: string; passwo
       <div className="warn" role="alert">{t(lang, 'admTempPwWarn')}</div>
       <div className="row">
         <input ref={field} readOnly aria-label={t(lang, 'admTempPwTitle')} value={password} className="code pw" autoComplete="off" spellCheck={false} onFocus={(e) => e.currentTarget.select()} />
-        <button type="button" onClick={() => void copy()}>{t(lang, 'admTempPwCopy')}</button>
+        <Button type="button" onClick={() => void copy()}>{t(lang, 'admTempPwCopy')}</Button>
       </div>
       <Status text={copied ? t(lang, 'admCopied') : ''} />
       <div className="modal-actions">
-        <button type="button" className="primary" onClick={onDone}>{t(lang, 'admTempPwDone')}</button>
+        <Button type="button" className="primary" variant="primary" onClick={onDone}>{t(lang, 'admTempPwDone')}</Button>
       </div>
     </Modal>
   );
@@ -78,28 +78,20 @@ function CreateDialog({ depts, onClose, onCreated }: { depts: Department[]; onCl
   return (
     <Modal title={t(lang, 'admCreateUser')} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
-        <label>{t(lang, 'admEmail')}
-          <input type="email" required maxLength={254} autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-        </label>
-        <label>{t(lang, 'admFirstName')}
-          <input required maxLength={100} autoComplete="off" value={f.firstName} onChange={(e) => setF({ ...f, firstName: e.target.value })} />
-        </label>
-        <label>{t(lang, 'admLastName')}
-          <input required maxLength={100} autoComplete="off" value={f.lastName} onChange={(e) => setF({ ...f, lastName: e.target.value })} />
-        </label>
-        <label>{t(lang, 'admRole')}
-          <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as Role })}>
+        <TextField label={t(lang, 'admEmail')} type="email" required maxLength={254} autoComplete="off" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+        <TextField label={t(lang, 'admFirstName')} required maxLength={100} autoComplete="off" value={f.firstName} onChange={(e) => setF({ ...f, firstName: e.target.value })} />
+        <TextField label={t(lang, 'admLastName')} required maxLength={100} autoComplete="off" value={f.lastName} onChange={(e) => setF({ ...f, lastName: e.target.value })} />
+        <Select label={t(lang, 'admRole')} value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as Role })}>
             <option value="member">{roleLabel(lang, 'member')}</option>
             <option value="org_admin">{roleLabel(lang, 'org_admin')}</option>
-          </select>
-        </label>
+          </Select>
         <label>{t(lang, 'admDepartment')}
           <DeptSelect id="cu-dept" value={f.departmentId} onChange={(v) => setF({ ...f, departmentId: v })} depts={depts} />
         </label>
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'create')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'create')}</Button>
         </div>
       </form>
     </Modal>
@@ -133,19 +125,17 @@ function EditDialog({ user, depts, onClose, onSaved }: { user: AdminUser; depts:
   return (
     <Modal title={`${t(lang, 'admEdit')}: ${user.email}`} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
-        <label>{t(lang, 'admRole')}
-          <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+        <Select label={t(lang, 'admRole')} value={role} onChange={(e) => setRole(e.target.value as Role)}>
             <option value="member">{roleLabel(lang, 'member')}</option>
             <option value="org_admin">{roleLabel(lang, 'org_admin')}</option>
-          </select>
-        </label>
+          </Select>
         <label>{t(lang, 'admDepartment')}
           <DeptSelect id="eu-dept" value={dept} onChange={setDept} depts={depts} />
         </label>
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'admSave')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'admSave')}</Button>
         </div>
       </form>
     </Modal>
@@ -229,9 +219,9 @@ export function Users() {
           }}
         >
           <input type="search" aria-label={t(lang, 'admSearch')} placeholder={t(lang, 'admSearchPh')} maxLength={100} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
-          <button type="submit">{t(lang, 'admSearch')}</button>
+          <Button type="submit">{t(lang, 'admSearch')}</Button>
         </form>
-        <button className="primary" onClick={() => dispatch({ type: 'open' })}>{t(lang, 'admCreateUser')}</button>
+        <Button className="primary" variant="primary" onClick={() => dispatch({ type: 'open' })}>{t(lang, 'admCreateUser')}</Button>
       </div>
       <Status text={notice} />
       <ErrorBox text={err} />
@@ -262,10 +252,10 @@ export function Users() {
                 <td>{u.department?.name ?? <span className="muted">{t(lang, 'admNoDepartment')}</span>}</td>
                 <td><Badge tone={u.disabled ? 'neutral' : 'success'} dot>{u.disabled ? t(lang, 'admDisabled') : t(lang, 'admActive')}</Badge></td>
                 <td className="actions">
-                  <button onClick={() => setEditing(u)} aria-label={`${t(lang, 'admEdit')}: ${u.email}`}>{t(lang, 'admEdit')}</button>
-                  <button onClick={() => { setToggleErr(null); setToggling(u); }} aria-label={`${t(lang, u.disabled ? 'admEnable' : 'admDisable')}: ${u.email}`}>
+                  <Button onClick={() => setEditing(u)} aria-label={`${t(lang, 'admEdit')}: ${u.email}`}>{t(lang, 'admEdit')}</Button>
+                  <Button onClick={() => { setToggleErr(null); setToggling(u); }} aria-label={`${t(lang, u.disabled ? 'admEnable' : 'admDisable')}: ${u.email}`}>
                     {t(lang, u.disabled ? 'admEnable' : 'admDisable')}
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -274,7 +264,7 @@ export function Users() {
       </TableWrap>
       {loading && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {!loading && !err && state.items.length === 0 && <p className="muted">{t(lang, 'admNoItems')}</p>}
-      {state.next && !loading && <button onClick={() => void load(search, state.next)}>{t(lang, 'admLoadMore')}</button>}
+      {state.next && !loading && <Button onClick={() => void load(search, state.next)}>{t(lang, 'admLoadMore')}</Button>}
 
       {flow.phase === 'form' && (
         <CreateDialog

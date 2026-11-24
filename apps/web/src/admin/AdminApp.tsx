@@ -90,10 +90,10 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
                 const Icon = ICON[s];
                 return (
                   <li key={s}>
-                    <button type="button" aria-current={section === s ? 'page' : undefined} data-active={section === s ? '' : undefined} onClick={() => setSection(s)}>
+                    <Button type="button" aria-current={section === s ? 'page' : undefined} data-active={section === s ? '' : undefined} onClick={() => setSection(s)}>
                       <Icon size={18} />
                       <span>{t(lang, LABEL[s])}</span>
-                    </button>
+                    </Button>
                   </li>
                 );
               })}

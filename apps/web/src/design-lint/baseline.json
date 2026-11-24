@@ -5,65 +5,35 @@
   "literalPx": 46,
   "rawControls": 0
  },
- "admin/AdminApp.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
- },
  "admin/Audit.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 10
+  "rawControls": 1
  },
  "admin/Departments.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 7
- },
- "admin/Encryption.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 13
+  "rawControls": 1
  },
  "admin/Integrations.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 18
- },
- "admin/Overview.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
- },
- "admin/Policies.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 7
+  "rawControls": 3
  },
  "admin/Privacy.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 8
- },
- "admin/ui.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 2
+  "rawControls": 1
  },
  "admin/Users.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
   "literalPx": 0,
-  "rawControls": 19
+  "rawControls": 3
  },
  "App.tsx": {
   "colours": 0,

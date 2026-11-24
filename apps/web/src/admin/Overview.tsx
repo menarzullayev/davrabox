@@ -1,3 +1,4 @@
+import { Button } from '../ui';
 import { useCallback, useEffect, useState } from 'react';
 import { t } from '../i18n';
 import type { Overview as OverviewData } from './client';
@@ -25,7 +26,7 @@ export function Overview() {
     <section aria-labelledby="sec-overview">
       <h2 id="sec-overview" className="sec-title">{t(lang, 'admOverview')}</h2>
       <ErrorBox text={err} />
-      {err && <button onClick={() => void load()}>{t(lang, 'admRetry')}</button>}
+      {err && <Button onClick={() => void load()}>{t(lang, 'admRetry')}</Button>}
       {!data && !err && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {data && (
         <dl className="stats">

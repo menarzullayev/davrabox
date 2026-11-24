@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { t, type Lang } from '../i18n';
-import { Badge } from '../ui';
+import { Badge, Button, TextField, Checkbox } from '../ui';
 import type { ApiKeyItem, DeliveryItem, WebhookItem } from './client';
 import { formatTimestamp, mergePage, type PagedState } from './helpers';
 import {
@@ -38,11 +38,11 @@ function SecretDialog({ title, secret, onDone }: { title: string; secret: string
       <div className="warn" role="alert">{t(lang, 'admIntSecretWarn')}</div>
       <div className="row">
         <input ref={field} readOnly aria-label={title} data-testid="int-secret" value={secret} className="code pw" autoComplete="off" spellCheck={false} onFocus={(e) => e.currentTarget.select()} />
-        <button type="button" onClick={() => void copy()}>{t(lang, 'admIntSecretCopy')}</button>
+        <Button type="button" onClick={() => void copy()}>{t(lang, 'admIntSecretCopy')}</Button>
       </div>
       <Status text={copied ? t(lang, 'admCopied') : ''} />
       <div className="modal-actions">
-        <button type="button" className="primary" onClick={onDone}>{t(lang, 'admIntSecretDone')}</button>
+        <Button type="button" className="primary" variant="primary" onClick={onDone}>{t(lang, 'admIntSecretDone')}</Button>
       </div>
     </Modal>
   );
@@ -90,14 +90,12 @@ function CreateKeyDialog({ onClose, onCreated }: { onClose: () => void; onCreate
   return (
     <Modal title={t(lang, 'admIntKeyCreate')} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
-        <label>{t(lang, 'admIntKeyName')}
-          <input required maxLength={80} autoComplete="off" value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
+        <TextField label={t(lang, 'admIntKeyName')} required maxLength={80} autoComplete="off" value={name} onChange={(e) => setName(e.target.value)} />
         <Checkboxes legend={t(lang, 'admIntKeyScopes')} all={API_KEY_SCOPES} value={scopes} label={(s) => t(lang, scopeLabelKey(s))} onChange={setScopes} />
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'create')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'create')}</Button>
         </div>
       </form>
     </Modal>
@@ -149,7 +147,7 @@ function ApiKeys() {
       <h3 id="sec-int-keys" className="sub-title">{t(lang, 'admIntKeysTitle')}</h3>
       <p className="muted">{t(lang, 'admIntKeysHint')}</p>
       <div className="toolbar">
-        <button type="button" className="primary" onClick={() => setCreating(true)}>{t(lang, 'admIntKeyCreate')}</button>
+        <Button type="button" className="primary" variant="primary" onClick={() => setCreating(true)}>{t(lang, 'admIntKeyCreate')}</Button>
       </div>
       <Status text={notice} />
       <ErrorBox text={err} />
@@ -178,7 +176,7 @@ function ApiKeys() {
                     {k.revokedAt ? (
                       <Badge tone="neutral">{t(lang, 'admIntKeyRevoked')}</Badge>
                     ) : (
-                      <button onClick={() => { setRevErr(null); setRevoking(k); }} aria-label={`${t(lang, 'admIntKeyRevoke')}: ${k.name}`}>{t(lang, 'admIntKeyRevoke')}</button>
+                      <Button onClick={() => { setRevErr(null); setRevoking(k); }} aria-label={`${t(lang, 'admIntKeyRevoke')}: ${k.name}`}>{t(lang, 'admIntKeyRevoke')}</Button>
                     )}
                   </td>
                 </tr>
@@ -242,14 +240,12 @@ function CreateHookDialog({ onClose, onCreated }: { onClose: () => void; onCreat
   return (
     <Modal title={t(lang, 'admIntHookCreate')} onClose={onClose}>
       <form onSubmit={(e) => void submit(e)} className="form">
-        <label>{t(lang, 'admIntHookUrl')}
-          <input type="url" required maxLength={2048} autoComplete="off" spellCheck={false} value={url} onChange={(e) => setUrl(e.target.value)} />
-        </label>
+        <TextField label={t(lang, 'admIntHookUrl')} type="url" required maxLength={2048} autoComplete="off" spellCheck={false} value={url} onChange={(e) => setUrl(e.target.value)} />
         <Checkboxes legend={t(lang, 'admIntHookEvents')} all={WEBHOOK_EVENTS} value={events} label={(v) => t(lang, eventLabelKey(v))} onChange={setEvents} />
         <ErrorBox text={err} />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>{t(lang, 'cancel')}</button>
-          <button type="submit" className="primary" disabled={busy}>{t(lang, 'create')}</button>
+          <Button type="button" onClick={onClose}>{t(lang, 'cancel')}</Button>
+          <Button type="submit" className="primary" variant="primary" disabled={busy}>{t(lang, 'create')}</Button>
         </div>
       </form>
     </Modal>
@@ -332,8 +328,8 @@ function DeliveriesDialog({ hook, lang, onClose }: { hook: WebhookItem; lang: La
         </TableWrap>
       )}
       <div className="modal-actions">
-        {state.next && <button type="button" disabled={loading} onClick={() => void load(state.next)}>{t(lang, 'admLoadMore')}</button>}
-        <button type="button" className="primary" onClick={onClose}>{t(lang, 'admIntClose')}</button>
+        {state.next && <Button type="button" disabled={loading} onClick={() => void load(state.next)}>{t(lang, 'admLoadMore')}</Button>}
+        <Button type="button" className="primary" variant="primary" onClick={onClose}>{t(lang, 'admIntClose')}</Button>
       </div>
     </Modal>
   );
@@ -393,7 +389,7 @@ function Webhooks() {
       <h3 id="sec-int-hooks" className="sub-title">{t(lang, 'admIntHooksTitle')}</h3>
       <p className="muted">{t(lang, 'admIntHooksHint')}</p>
       <div className="toolbar">
-        <button type="button" className="primary" onClick={() => setCreating(true)}>{t(lang, 'admIntHookCreate')}</button>
+        <Button type="button" className="primary" variant="primary" onClick={() => setCreating(true)}>{t(lang, 'admIntHookCreate')}</Button>
       </div>
       <Status text={notice} />
       <ErrorBox text={err} />
@@ -417,8 +413,8 @@ function Webhooks() {
                   <td>{h.events.map((e) => t(lang, eventLabelKey(e))).join(', ')}</td>
                   <td>{formatTimestamp(h.createdAt, lang)}</td>
                   <td className="actions">
-                    <button onClick={() => setViewing(h)} aria-label={`${t(lang, 'admIntHookDeliveries')}: ${host(h.url)}`}>{t(lang, 'admIntHookDeliveries')}</button>
-                    <button onClick={() => { setDelErr(null); setDeleting(h); }} aria-label={`${t(lang, 'admIntHookDelete')}: ${host(h.url)}`}>{t(lang, 'admIntHookDelete')}</button>
+                    <Button onClick={() => setViewing(h)} aria-label={`${t(lang, 'admIntHookDeliveries')}: ${host(h.url)}`}>{t(lang, 'admIntHookDeliveries')}</Button>
+                    <Button onClick={() => { setDelErr(null); setDeleting(h); }} aria-label={`${t(lang, 'admIntHookDelete')}: ${host(h.url)}`}>{t(lang, 'admIntHookDelete')}</Button>
                   </td>
                 </tr>
               ))}

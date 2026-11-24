@@ -1,3 +1,4 @@
+import { Button, TextField } from '../ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { t } from '../i18n';
 import type { AuditEntry, AuditFilters, ExportFormat } from './client';
@@ -109,18 +110,18 @@ export function Audit() {
     <section aria-labelledby="sec-audit">
       <h2 id="sec-audit" className="sec-title">{t(lang, 'admAudit')}</h2>
       <form onSubmit={apply} className="filters" role="search">
-        <label>{t(lang, 'admFrom')}<input type="datetime-local" value={form.from} onChange={set('from')} /></label>
-        <label>{t(lang, 'admTo')}<input type="datetime-local" value={form.to} onChange={set('to')} /></label>
+        <TextField label={t(lang, 'admFrom')} type="datetime-local" value={form.from} onChange={set('from')} />
+        <TextField label={t(lang, 'admTo')} type="datetime-local" value={form.to} onChange={set('to')} />
         <label>{t(lang, 'admAction')}
           <input list="audit-actions" maxLength={100} value={form.action} onChange={set('action')} aria-describedby="action-hint" autoComplete="off" />
           <datalist id="audit-actions">{ACTION_HINTS.map((a) => <option key={a} value={a} />)}</datalist>
           <span id="action-hint" className="hint">{t(lang, 'admActionHint')}</span>
         </label>
-        <label>{t(lang, 'admActor')}<input maxLength={254} value={form.actor} onChange={set('actor')} autoComplete="off" /></label>
-        <label>{t(lang, 'admTarget')}<input maxLength={200} value={form.target} onChange={set('target')} autoComplete="off" /></label>
+        <TextField label={t(lang, 'admActor')} maxLength={254} value={form.actor} onChange={set('actor')} autoComplete="off" />
+        <TextField label={t(lang, 'admTarget')} maxLength={200} value={form.target} onChange={set('target')} autoComplete="off" />
         <div className="row filter-actions">
-          <button type="submit" className="primary">{t(lang, 'admApply')}</button>
-          <button type="button" onClick={reset}>{t(lang, 'admReset')}</button>
+          <Button type="submit" className="primary" variant="primary">{t(lang, 'admApply')}</Button>
+          <Button type="button" onClick={reset}>{t(lang, 'admReset')}</Button>
         </div>
       </form>
       {formErr && <div className="field-error" role="alert">{formErr}</div>}
@@ -130,11 +131,11 @@ export function Audit() {
           <summary aria-disabled={exporting}>{t(lang, 'admExport')}</summary>
           <div className="menu-list" role="group" aria-label={t(lang, 'admExport')}>
             {FORMATS.map((f) => (
-              <button key={f.id} type="button" disabled={exporting} onClick={() => void doExport(f.id)}>{f.label}</button>
+              <Button key={f.id} type="button" disabled={exporting} onClick={() => void doExport(f.id)}>{f.label}</Button>
             ))}
           </div>
         </details>
-        <button type="button" onClick={() => void verify()} disabled={verifyBusy}>{verifyBusy ? t(lang, 'admVerifying') : t(lang, 'admVerify')}</button>
+        <Button type="button" onClick={() => void verify()} disabled={verifyBusy}>{verifyBusy ? t(lang, 'admVerifying') : t(lang, 'admVerify')}</Button>
       </div>
       <div className="status-row" role="status" aria-live="polite">
         {verifyMsg && <span className={verifyMsg.ok ? 'ok' : 'bad'}>{verifyMsg.text}</span>}
@@ -166,7 +167,7 @@ export function Audit() {
       </TableWrap>
       {loading && <p className="muted" role="status">{t(lang, 'admLoading')}</p>}
       {!loading && !err && state.items.length === 0 && <p className="muted">{t(lang, 'admNoItems')}</p>}
-      {state.next && !loading && <button onClick={() => void load(applied, state.next)}>{t(lang, 'admLoadMore')}</button>}
+      {state.next && !loading && <Button onClick={() => void load(applied, state.next)}>{t(lang, 'admLoadMore')}</Button>}
     </section>
   );
 }
