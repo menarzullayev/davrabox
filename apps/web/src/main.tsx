@@ -8,6 +8,7 @@ import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
 import { initErrorTracking } from './observability/errorTracking';
+import { watchSystemBars } from './platform/system-bars';
 
 // Error tracking (GlitchTip) is off unless the deployment serves a DSN in /runtime-config.json; see docs/observability.md.
 void initErrorTracking();
@@ -41,6 +42,8 @@ const PrivacyPage = lazy(() => import('./privacy/PrivacyPage').then((m) => ({ de
 const legalKind = isPrivacyPath(location.pathname) ? 'privacy' : isTermsPath(location.pathname) ? 'terms' : null;
 const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
+
+watchSystemBars(); // Android shell only: status-bar icons that match the page theme
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

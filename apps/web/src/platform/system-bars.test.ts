@@ -1,0 +1,53 @@
+// @vitest-environment jsdom
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { barStyleFor, watchSystemBars } from './system-bars';
+
+afterEach(() => document.documentElement.removeAttribute('data-theme'));
+
+describe('barStyleFor', () => {
+  it('light page = dark icons, anything else = light icons (dark is the default)', () => {
+    expect(barStyleFor('light')).toBe('LIGHT');
+    expect(barStyleFor('dark')).toBe('DARK');
+    expect(barStyleFor(null)).toBe('DARK');
+    expect(barStyleFor('weird')).toBe('DARK');
+  });
+});
+
+describe('watchSystemBars', () => {
+  const shell = (setStyle: (o: { style: 'DARK' | 'LIGHT' }) => unknown) => ({ Capacitor: { isNativePlatform: () => true, Plugins: { SystemBars: { setStyle } } } });
+
+  it('does nothing outside the Android shell', () => {
+    const setStyle = vi.fn();
+    const stop = watchSystemBars({ Capacitor: { isNativePlatform: () => false, Plugins: { SystemBars: { setStyle } } } }, document);
+    document.documentElement.setAttribute('data-theme', 'light');
+    expect(setStyle).not.toHaveBeenCalled();
+    stop();
+    expect(() => watchSystemBars(undefined, document)()).not.toThrow();
+  });
+
+  it('sets the style at once and again on each theme change, never twice for the same style', async () => {
+    const setStyle = vi.fn(async () => undefined);
+    const stop = watchSystemBars(shell(setStyle), document);
+    expect(setStyle).toHaveBeenLastCalledWith({ style: 'DARK' });
+    document.documentElement.setAttribute('data-theme', 'light');
+    await Promise.resolve();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setStyle).toHaveBeenLastCalledWith({ style: 'LIGHT' });
+    document.documentElement.setAttribute('data-theme', 'light'); // same value again
+    await new Promise((r) => setTimeout(r, 0));
+    document.documentElement.setAttribute('data-theme', 'dark');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setStyle.mock.calls.map((c) => (c as unknown as [{ style: string }])[0].style)).toEqual(['DARK', 'LIGHT', 'DARK']);
+    stop();
+    document.documentElement.setAttribute('data-theme', 'light');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setStyle).toHaveBeenCalledTimes(3);
+  });
+
+  it('survives an older shell without the plugin and a plugin that rejects or throws', async () => {
+    expect(() => watchSystemBars({ Capacitor: { isNativePlatform: () => true } }, document)()).not.toThrow();
+    expect(() => watchSystemBars(shell(vi.fn(async () => Promise.reject(new Error('no')))), document)()).not.toThrow();
+    expect(() => watchSystemBars(shell(vi.fn(() => { throw new Error('boom'); })), document)()).not.toThrow();
+    await new Promise((r) => setTimeout(r, 0)); // no unhandled rejection
+  });
+});
