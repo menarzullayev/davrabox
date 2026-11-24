@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1
-# Node >= 22.23.4 is required (CVE-2026-111497, Brotli decoder out-of-bounds write). The distroless nodejs22 image still shipped
-# 22.22.0 on 2026-11-24, so the runtime binary comes from the patched official image (same Debian 12 / glibc as distroless).
-FROM node:22.23.5-slim AS build
-RUN corepack enable
+# Node 26.13.1 or newer is required (CVE-2026-111497, Brotli decoder out-of-bounds write); the distroless image ships the same patched build on Debian 13.
+FROM node:26.13.1-slim AS build
+RUN npm install -g pnpm@12.21.0 --no-fund --no-audit
 WORKDIR /repo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json apps/api/
@@ -11,8 +10,7 @@ COPY apps/api apps/api
 RUN pnpm --filter @davrabox/api build \
  && pnpm --filter @davrabox/api deploy --prod --legacy /out
 
-FROM gcr.io/distroless/nodejs22-debian12:nonroot
-COPY --from=node:22.23.5-slim /usr/local/bin/node /nodejs/bin/node
+FROM gcr.io/distroless/nodejs26-debian13:nonroot
 WORKDIR /app
 COPY --from=build /out/node_modules ./node_modules
 COPY --from=build /repo/apps/api/dist ./dist
