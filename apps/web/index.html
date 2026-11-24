@@ -21,9 +21,19 @@
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script src="/theme-init.js"></script>
+    <style>
+      /* Boot screen: visible as soon as the HTML arrives, replaced when React mounts (no script, so the CSP is unaffected). */
+      html { background: #0a0d21; }
+      html[data-theme='light'] { background: #f4f5fb; }
+      .boot { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+      .boot img { width: 72px; height: 72px; }
+      .boot i { width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(58, 214, 202, 0.25); border-top-color: #3ad6ca; animation: boot-spin 0.9s linear infinite; }
+      @keyframes boot-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .boot i { animation-duration: 3s; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot" role="status" aria-label="DavraBox"><img src="/brand/favicon.svg" alt="" width="72" height="72" /><i aria-hidden="true"></i></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

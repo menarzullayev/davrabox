@@ -3,9 +3,14 @@ package uz.davrabox.app;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.WebView;
 
+import androidx.core.splashscreen.SplashScreen;
+
 import com.getcapacitor.BridgeActivity;
+import com.getcapacitor.BridgeWebViewClient;
 
 /**
  * The web client is loaded from server.url. An Android App Link (https://HOST/app?join=CODE#k=KEY) must land on that
@@ -14,9 +19,33 @@ import com.getcapacitor.BridgeActivity;
  */
 public class MainActivity extends BridgeActivity {
 
+    /** The launch screen is released after at most this long even if the page never paints (offline, slow network). */
+    private static final long SPLASH_MAX_MS = 8000;
+
+    private volatile boolean pageVisible = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Keep the branded launch screen up until the hosted page paints its first frame, so there is no empty window in between.
+        SplashScreen splash = SplashScreen.installSplashScreen(this);
+        splash.setKeepOnScreenCondition(() -> !pageVisible);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> pageVisible = true, SPLASH_MAX_MS);
         super.onCreate(savedInstanceState);
+        if (getBridge() != null) {
+            getBridge().setWebViewClient(new BridgeWebViewClient(getBridge()) {
+                @Override
+                public void onPageCommitVisible(WebView view, String url) {
+                    super.onPageCommitVisible(view, url);
+                    pageVisible = true;
+                }
+
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    pageVisible = true;
+                }
+            });
+        }
         routeAppLink(getIntent());
     }
 
