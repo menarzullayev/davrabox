@@ -163,8 +163,11 @@
   .hm-footer { margin-top: var(--space-12); color: var(--text-subtle); font-size: var(--text-xs); line-height: var(--leading-xs); letter-spacing: 0.08em; text-align: center; }
 
   /* ---- settings popover -------------------------------------------------------------------------------------- */
-  .hm-settings { display: grid; gap: var(--space-4); box-sizing: border-box; width: min(300px, calc(100vw - 32px)); padding: var(--space-3); }
-  .hm-settings__group { display: grid; gap: var(--space-1); }
+  .hm-settings { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); box-sizing: border-box; width: min(300px, calc(100vw - 32px)); padding: var(--space-3); }
+  .hm-settings__group { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  /* Three choices must fit the 300px panel even in a monospace style (Terminal): size to content, smaller type, tight padding. */
+  .hm-settings .dx-seg { display: grid; width: 100%; max-width: 100%; box-sizing: border-box; grid-auto-columns: auto; }
+  .hm-settings .dx-seg__btn { min-width: 0; padding: 0 var(--space-1); font-size: var(--text-xs); white-space: nowrap; }
 
   /* ---- new meeting dialog ------------------------------------------------------------------------------------ */
   .hm-new__form { display: grid; gap: var(--space-4); }
