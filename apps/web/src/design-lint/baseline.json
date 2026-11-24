@@ -131,29 +131,11 @@
   "literalPx": 1,
   "rawControls": 0
  },
- "home/AuthScreens.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
- },
  "home/home.css": {
   "colours": 0,
   "offBreakpoints": 6,
-  "literalPx": 98,
+  "literalPx": 84,
   "rawControls": 0
- },
- "home/PreJoin.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
- },
- "home/SettingsMenu.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 1
  },
  "landing/landing.css": {
   "colours": 0,
@@ -170,14 +152,8 @@
  "privacy/privacy.css": {
   "colours": 0,
   "offBreakpoints": 0,
-  "literalPx": 9,
+  "literalPx": 8,
   "rawControls": 0
- },
- "privacy/PrivacyPage.tsx": {
-  "colours": 0,
-  "offBreakpoints": 0,
-  "literalPx": 0,
-  "rawControls": 2
  },
  "styleguide/styleguide.css": {
   "colours": 4,
@@ -215,6 +191,12 @@
   "literalPx": 0,
   "rawControls": 1
  },
+ "ui/Segmented.tsx": {
+  "colours": 0,
+  "offBreakpoints": 0,
+  "literalPx": 0,
+  "rawControls": 1
+ },
  "ui/Tabs.tsx": {
   "colours": 0,
   "offBreakpoints": 0,
@@ -224,7 +206,7 @@
  "ui/ui.css": {
   "colours": 1,
   "offBreakpoints": 0,
-  "literalPx": 101,
+  "literalPx": 105,
   "rawControls": 0
  }
 }

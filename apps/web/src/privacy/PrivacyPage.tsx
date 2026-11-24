@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { t, type Lang } from '../i18n';
 import { LANGS, setPref, usePrefs } from '../prefs';
-import { Logo } from '../ui';
+import { Button, Logo, Segmented } from '../ui';
 import { LegalLinks } from './LegalLinks';
 import { PRIVACY_TEXT } from './legal-privacy';
 import { TERMS_TEXT } from './legal-terms';
@@ -41,16 +41,18 @@ export function PrivacyPage({ kind, initialLang }: { kind: LegalKind; initialLan
         <a href="/" className="legal__home" aria-label={t(lang, 'privBackHome')}>
           <Logo height={28} />
         </a>
-        <button type="button" className="legal__back" data-testid="legal-back" onClick={goBack}>
+        <Button variant="secondary" size="sm" className="legal__back" data-testid="legal-back" onClick={goBack}>
           ← {t(lang, 'hJoinBack')}
-        </button>
-        <div className="legal__langs" role="group" aria-label={t(lang, 'privLangLabel')}>
-          {LANGS.map((l) => (
-            <button key={l.id} type="button" aria-pressed={lang === l.id} onClick={() => setLang(l.id)} lang={l.id}>
-              {l.name}
-            </button>
-          ))}
-        </div>
+        </Button>
+        <Segmented
+          className="legal__langs"
+          variant="pill"
+          mode="pressed"
+          label={t(lang, 'privLangLabel')}
+          value={lang}
+          onChange={setLang}
+          options={LANGS.map((l) => ({ id: l.id, label: l.name, lang: l.id }))}
+        />
       </header>
       <main className="legal__main" id="main">
         <h1 className="legal__title">{doc.title}</h1>

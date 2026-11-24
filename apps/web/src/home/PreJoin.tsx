@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Lang } from '../i18n';
-import { Button, Switch } from '../ui';
+import { Button, Checkbox, Switch } from '../ui';
 import { mediaErrorText } from '../platform/capacitor';
 import { tx } from './text';
 
@@ -110,9 +110,7 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
         <Switch label={tx(lang, 'hPreMic')} checked={mic && hasMic} disabled={!hasMic} data-testid="prejoin-mic" onChange={(e) => setMic(e.target.checked)} />
         <Switch label={tx(lang, 'hPreCam')} checked={cam && hasCam} disabled={!hasCam} data-testid="prejoin-cam" onChange={(e) => setCam(e.target.checked)} />
       </div>
-      <label className="pj__skip">
-        <input type="checkbox" checked={skip} onChange={(e) => setSkip(e.target.checked)} data-testid="prejoin-skip" /> {tx(lang, 'hPreSkip')}
-      </label>
+      <Checkbox className="pj__skip" label={tx(lang, 'hPreSkip')} checked={skip} data-testid="prejoin-skip" onChange={(e) => setSkip(e.target.checked)} />
       <div className="pj__actions">
         <Button variant="primary" size="lg" fullWidth onClick={join} data-testid="prejoin-join">
           {tx(lang, 'hPreJoin')}

@@ -545,4 +545,13 @@
     .dx-davra__hub { fill: Highlight; forced-color-adjust: none; }
     .dx-avatar { border: 1px solid CanvasText; background: Canvas; color: CanvasText; forced-color-adjust: none; }
   }
+  /* ---- Segmented: a short either-or choice ---- */
+  .dx-seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--space-1); padding: var(--space-1); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-1); }
+  .dx-seg[data-variant='pill'] { display: inline-flex; gap: calc(var(--space-1) / 2); padding: calc(var(--space-1) / 2); border-radius: var(--radius-pill); }
+  .dx-seg__btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--target-coarse); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); font: inherit; font-size: var(--text-sm); font-weight: var(--weight-semibold); cursor: pointer; }
+  .dx-seg[data-variant='pill'] .dx-seg__btn { min-width: var(--target-touch); min-height: var(--target-touch); padding: 0 var(--space-2); border-radius: var(--radius-pill); }
+  .dx-seg__btn:hover { color: var(--text); }
+  .dx-seg__btn[aria-checked='true'], .dx-seg__btn[aria-pressed='true'] { background: var(--accent-soft); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+  .dx-seg[data-variant='pill'] .dx-seg__btn[aria-pressed='true'] { background: var(--accent); color: var(--text-on-accent); box-shadow: none; }
+  .dx-seg__btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 }
