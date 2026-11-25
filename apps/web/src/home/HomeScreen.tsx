@@ -97,7 +97,7 @@ function HomeBody(props: HomeScreenProps) {
   const copyRow = useCallback(
     async (m: TimelineMeeting) => {
       const ok = await copyJoinLink(location.origin, m.code);
-      if (!ok) toast({ tone: 'danger', title: tx(lang, 'hCopyFailed') });
+      toast(ok ? { tone: 'success', title: tx(lang, 'hLinkCopied') } : { tone: 'danger', title: tx(lang, 'hCopyFailed') });
       return ok;
     },
     [lang, toast],
