@@ -191,10 +191,10 @@ export function HomeScreen(props: HomeScreenProps) {
             <Logo height={30} title={t(lang, 'appName')} />
             <span className="hm-spacer" />
             {props.isAdmin ? (
-              <a href="/admin" className="dx-btn hm-admin" data-variant="ghost" data-size="sm" data-testid="admin-link">
+              <a href="/admin" className="dx-btn hm-admin" data-variant="ghost" data-size="sm" title={t(lang, 'admLink')} data-testid="admin-link">
                 <span className="dx-btn__label">
                   <IconShieldCheck size={18} />
-                  {t(lang, 'admLink')}
+                  <span className="hm-admin__label">{t(lang, 'admLink')}</span>
                 </span>
               </a>
             ) : null}
