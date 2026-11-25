@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Badge, Button, EmptyState, IconButton, IconCalendar, IconCheck, IconLink, IconLock, IconPlus, IconShield, Skeleton } from '../ui';
+import { Badge, Button, EmptyState, Tabs, IconButton, IconCalendar, IconCheck, IconLink, IconLock, IconPlus, IconShield, Skeleton } from '../ui';
 import type { Key, Lang } from '../i18n';
-import { GROUP_ORDER, createdLabel, formatClock, formatCode, joinLink, timelineSize, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
+import { TAB_GROUPS, TAB_ORDER, createdLabel, defaultTab, formatClock, formatCode, joinLink, tabSize, timelineSize, type MeetingTab, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
 import { buildShareLink, loadStoredKey } from '../e2ee/keys';
+
+const TAB_KEY: Record<MeetingTab, Key> = { ongoing: 'hTabOngoing', upcoming: 'hTabUpcoming', ended: 'hTabEnded' };
+const TAB_EMPTY_KEY: Record<MeetingTab, Key> = { ongoing: 'hTabEmptyOngoing', upcoming: 'hTabEmptyUpcoming', ended: 'hTabEmptyEnded' };
 
 const GROUP_KEY: Record<TimelineGroup, Key> = {
   now: 'hGroupNow',
@@ -112,9 +115,10 @@ export interface TimelineViewProps {
   onCalendar?: (m: TimelineMeeting) => void;
 }
 
-/** Meetings as a day timeline: a rail with a dot per meeting, grouped now / later today / upcoming / recent / earlier. */
+/** Meetings as a day timeline in three tabs (Ongoing / Upcoming / Ended); inside a tab a rail with a dot per meeting, grouped as before. */
 export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy, onNew, onCalendar }: TimelineViewProps) {
   const [open, setOpen] = useState<Partial<Record<TimelineGroup, boolean>>>({});
+  const [picked, setPicked] = useState<MeetingTab | null>(null);
   if (!timeline) {
     return (
       <div className="hm-skeletons" aria-busy="true" aria-label={tx(lang, 'hListLoading')} role="status">
@@ -143,26 +147,50 @@ export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy,
       </div>
     );
   }
+  const tab = picked ?? defaultTab(timeline);
+  const groups = (tabId: MeetingTab) => {
+    const shown = TAB_GROUPS[tabId].filter((g) => timeline[g].length > 0);
+    if (shown.length === 0) return <p className="hm-tab-empty" data-testid={`tab-empty-${tabId}`}>{tx(lang, TAB_EMPTY_KEY[tabId])}</p>;
+    return (
+      <div className="hm-days">
+        {shown.map((g) => (
+          <section className="hm-group" data-group={g} key={g} aria-labelledby={`hm-g-${g}`}>
+            <h3 className="hm-group__title" id={`hm-g-${g}`}>
+              {tx(lang, GROUP_KEY[g])}
+              <span className="hm-group__count dx-tabular">{timeline[g].length}</span>
+            </h3>
+            <ul className="hm-list">
+              {(open[g] || timeline[g].length <= GROUP_CAP ? timeline[g] : timeline[g].slice(0, GROUP_CAP)).map((m) => (
+                <MeetingRow key={m.id} lang={lang} m={m} group={g} now={now} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} />
+              ))}
+            </ul>
+            {timeline[g].length > GROUP_CAP ? (
+              <Button variant="ghost" size="sm" data-testid={`group-more-${g}`} aria-expanded={!!open[g]} onClick={() => setOpen((o) => ({ ...o, [g]: !o[g] }))}>
+                {open[g] ? tx(lang, 'hShowLess') : tx(lang, 'hShowAll', { n: timeline[g].length })}
+              </Button>
+            ) : null}
+          </section>
+        ))}
+      </div>
+    );
+  };
   return (
-    <div className="hm-days">
-      {GROUP_ORDER.filter((g) => timeline[g].length > 0).map((g) => (
-        <section className="hm-group" data-group={g} key={g} aria-labelledby={`hm-g-${g}`}>
-          <h3 className="hm-group__title" id={`hm-g-${g}`}>
-            {tx(lang, GROUP_KEY[g])}
-            <span className="hm-group__count dx-tabular">{timeline[g].length}</span>
-          </h3>
-          <ul className="hm-list">
-            {(open[g] || timeline[g].length <= GROUP_CAP ? timeline[g] : timeline[g].slice(0, GROUP_CAP)).map((m) => (
-              <MeetingRow key={m.id} lang={lang} m={m} group={g} now={now} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} />
-            ))}
-          </ul>
-          {timeline[g].length > GROUP_CAP ? (
-            <Button variant="ghost" size="sm" data-testid={`group-more-${g}`} aria-expanded={!!open[g]} onClick={() => setOpen((o) => ({ ...o, [g]: !o[g] }))}>
-              {open[g] ? tx(lang, 'hShowLess') : tx(lang, 'hShowAll', { n: timeline[g].length })}
-            </Button>
-          ) : null}
-        </section>
-      ))}
+    <div className="hm-tabs">
+      <Tabs
+        label={tx(lang, 'hTabsAria')}
+        value={tab}
+        onChange={(id) => setPicked(id as MeetingTab)}
+        tabs={TAB_ORDER.map((id) => ({
+          id,
+          label: (
+            <>
+              {tx(lang, TAB_KEY[id])}
+              <span className="hm-tab__count dx-tabular">{tabSize(timeline, id)}</span>
+            </>
+          ),
+          panel: groups(id),
+        }))}
+      />
     </div>
   );
 }

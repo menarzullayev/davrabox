@@ -126,6 +126,25 @@ export function createdLabel(created: Date | null, now: Date, monthNames: readon
   return { key: 'hCreatedOn', vars: { day: created.getDate(), month: monthNames[created.getMonth()] ?? '', time } };
 }
 
+export type MeetingTab = 'ongoing' | 'upcoming' | 'ended';
+export const TAB_ORDER: readonly MeetingTab[] = ['ongoing', 'upcoming', 'ended'];
+/**
+ * Which timeline groups each tab shows. Meetings without a schedule can be joined at any time, so they sit under
+ * Ongoing with the ones that are running now.
+ */
+export const TAB_GROUPS: Record<MeetingTab, readonly TimelineGroup[]> = {
+  ongoing: ['now', 'recent'],
+  upcoming: ['later', 'upcoming'],
+  ended: ['earlier'],
+};
+
+export const tabSize = (t: Timeline, tab: MeetingTab): number => TAB_GROUPS[tab].reduce((n, g) => n + t[g].length, 0);
+
+/** The tab opened first: the first one that has meetings, Ongoing when there are none at all. */
+export function defaultTab(t: Timeline): MeetingTab {
+  return TAB_ORDER.find((tab) => tabSize(t, tab) > 0) ?? 'ongoing';
+}
+
 export const timelineSize = (t: Timeline): number => GROUP_ORDER.reduce((n, g) => n + t[g].length, 0);
 
 // ---- greeting and names ------------------------------------------------------------------------------------

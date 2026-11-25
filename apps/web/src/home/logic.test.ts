@@ -5,6 +5,8 @@ import {
   displayName,
   firstName,
   createdLabel,
+  defaultTab,
+  tabSize,
   formatClock,
   formatCode,
   formatDay,
@@ -233,5 +235,20 @@ describe('planSummary', () => {
     expect(planSummary(st(null, { trial: false }), NOW)).toBeNull();
     expect(planSummary(st('2031-01-01T00:00:00Z', { trial: false }), NOW)).toBeNull();
     expect(planSummary(st('not a date'), NOW)).toBeNull();
+  });
+});
+
+describe('meeting tabs', () => {
+  it('maps groups to tabs: ongoing = now + unscheduled, upcoming = later + coming days, ended = earlier', () => {
+    const g = groupMeetings([mk('n', at(0, 14, 0)), mk('u', null), mk('l', at(0, 18, 0)), mk('t', at(1, 10, 0)), mk('e', at(-1, 10, 0))], NOW);
+    expect(tabSize(g, 'ongoing')).toBe(2);
+    expect(tabSize(g, 'upcoming')).toBe(2);
+    expect(tabSize(g, 'ended')).toBe(1);
+  });
+  it('opens the first tab that has meetings, Ongoing when there are none', () => {
+    expect(defaultTab(groupMeetings([], NOW))).toBe('ongoing');
+    expect(defaultTab(groupMeetings([mk('l', at(0, 18, 0))], NOW))).toBe('upcoming');
+    expect(defaultTab(groupMeetings([mk('e', at(-1, 10, 0))], NOW))).toBe('ended');
+    expect(defaultTab(groupMeetings([mk('n', at(0, 14, 0)), mk('e', at(-1, 10, 0))], NOW))).toBe('ongoing');
   });
 });
