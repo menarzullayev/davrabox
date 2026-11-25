@@ -101,9 +101,11 @@
   /* Nothing to announce: take no room (the region stays in the page for screen readers), so the checkbox and Join sit close together. */
   .hm-join__live:empty { flex: 0 0 0; min-height: 0; }
   .hm-join__ok { display: inline-flex; align-items: center; gap: 6px; color: var(--success); font-size: var(--text-sm); font-weight: var(--weight-medium); }
-  @container (max-width: 420px) { .hm-join__live:empty { position: absolute; } .hm-join__foot .dx-btn { width: 100%; } .hm-join .dx-input--code { font-size: var(--text-xl); letter-spacing: 0.04em; } }
+  @container (max-width: 420px) { .hm-join__live:empty { position: absolute; } .hm-join__foot .dx-btn { width: 100%; } }
 
-  .hm-join .dx-input--code { min-height: 56px; font-size: var(--text-2xl); }
+  /* Scales with the card so a full 12-digit code fits on a narrow phone in every density (it was fixed at 2xl before). */
+  .hm-join .dx-input--code { min-height: 56px; font-size: clamp(var(--text-base), 7.6cqi, var(--text-2xl)); }
+  @container (max-width: 420px) { .hm-join .dx-input--code { letter-spacing: 0.02em; } }
   .hm-new { display: flex; flex-direction: column; gap: var(--space-4); min-height: 180px; border-color: color-mix(in srgb, var(--accent) 36%, var(--border)); background: var(--accent-soft); }
   .hm-new .hm-card__lead { flex: 1; margin: 0; color: var(--text); font-size: var(--text-base); line-height: var(--leading-base); text-wrap: pretty; }
 
