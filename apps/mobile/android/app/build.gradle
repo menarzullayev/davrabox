@@ -13,6 +13,10 @@ def ksPath = System.getenv('ANDROID_KEYSTORE_PATH')
 def ksPassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
 def ksAlias = System.getenv('ANDROID_KEY_ALIAS')
 def ksKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+// One debug key for every CI build (the workflow writes it from a secret), so a new debug APK installs over the last one.
+// Its password comes from the environment like the release key's. Unset locally: Gradle's own key.
+def debugKsPath = System.getenv('ANDROID_DEBUG_KEYSTORE_PATH')
+def debugKsPassword = System.getenv('ANDROID_DEBUG_KEYSTORE_PASSWORD')
 def hasSigning = ksPath && ksPassword && ksAlias && ksKeyPassword
 def davraVersionCode = Integer.parseInt(System.getenv('ANDROID_VERSION_CODE') ?: '1')
 def davraVersionName = System.getenv('ANDROID_VERSION_NAME') ?: '0.1.0'
@@ -38,6 +42,14 @@ android {
         }
     }
     signingConfigs {
+        if (debugKsPath && debugKsPassword) {
+            debug {
+                storeFile file(debugKsPath)
+                storePassword debugKsPassword
+                keyAlias 'androiddebugkey'
+                keyPassword debugKsPassword
+            }
+        }
         if (hasSigning) {
             release {
                 storeFile file(ksPath)
