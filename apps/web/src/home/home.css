@@ -104,21 +104,22 @@
   .hm-new .hm-card__lead { flex: 1; margin: 0; color: var(--text); font-size: var(--text-base); line-height: var(--leading-base); text-wrap: pretty; }
 
   /* ---- timeline ----------------------------------------------------------------------------------------------- */
-  .hm-plan { margin-top: var(--space-5); }
+  .hm-plan { margin-top: var(--space-8); }
   .hm-plan__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
   .hm-plan__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--space-4); margin: var(--space-4) 0 0; }
   .hm-plan__item { min-width: 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--surface-2); }
   .hm-plan__item dt { color: var(--text-muted); font-size: var(--text-xs); line-height: var(--leading-xs); }
   .hm-plan__item dd { margin: var(--space-1) 0 0; color: var(--text); font-size: var(--text-lg); line-height: var(--leading-lg); font-weight: var(--weight-semibold); }
-  /* Phones: one row of bare figures, so the meeting list stays on the first screen. */
+  /* Phones: one row of bare figures. */
   @media (max-width: 640px) {
-    .hm-card.hm-plan { margin-top: var(--space-4); padding: var(--space-4); }
+    .hm-card.hm-plan { padding: var(--space-4); }
     .hm-plan .hm-card__title { font-size: var(--text-base); line-height: var(--leading-base); }
     .hm-plan__list { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; gap: var(--space-3); margin-top: var(--space-3); }
     .hm-plan__item { padding: 0; border-radius: 0; background: none; }
     .hm-plan__item dd { margin-top: 0; font-size: var(--text-base); line-height: var(--leading-base); }
   }
   .hm-timeline { margin-top: var(--space-12); }
+  @media (max-width: 640px) { .hm-timeline { margin-top: var(--space-8); } }
   .hm-section { margin: 0 0 var(--space-5); color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
   .hm-tabs .dx-tabpanel { padding-top: var(--space-5); }
   .hm-tab__count { margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--surface-3); color: var(--text-muted); font-size: var(--text-xs); }
