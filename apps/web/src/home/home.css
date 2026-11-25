@@ -183,7 +183,8 @@
     .hm-row__actions { justify-content: flex-end; }
     .hm-signout__label,
     .hm-admin__label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-    .hm-signout, .hm-admin { --btn-px: var(--space-2); flex: none; }
+    /* Icon only here; the attribute outranks the size rule of the button itself. */
+    .dx-btn.hm-signout[data-size='sm'], .dx-btn.hm-admin[data-size='sm'] { --btn-px: 0; flex: none; }
   }
   @media (max-width: 719px) { .hm-who__name { display: none; } }
   @media (max-width: 479px) { .hm-who { display: none; } }
