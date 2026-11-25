@@ -83,6 +83,8 @@ jobs:
         run: |
           printf '%s' "$DEBUG_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/debug.keystore"
           echo "ANDROID_DEBUG_KEYSTORE_PATH=$RUNNER_TEMP/debug.keystore" >> "$GITHUB_ENV"
+          # Android's debug convention (the same password on every developer machine), not a secret.
+          echo "ANDROID_DEBUG_KEYSTORE_PASSWORD=android" >> "$GITHUB_ENV"
       - name: Build debug APK
         working-directory: apps/mobile/android
         env:
