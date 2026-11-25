@@ -100,6 +100,15 @@ describe('PreJoin', () => {
     expect(readSkipPreJoin()).toBe(true);
   });
 
+  it('keeps the layout class off the checkbox itself (it stretched the box across the screen)', async () => {
+    gum.mockResolvedValue(stream([track('audio')]));
+    render(<PreJoin {...props()} />);
+    const box = screen.getByTestId('prejoin-skip');
+    expect(box.classList.contains('pj__skip')).toBe(false);
+    expect(box.closest('.pj__skip')).toBeTruthy();
+    await waitFor(() => expect((screen.getByTestId('prejoin-mic') as HTMLInputElement).disabled).toBe(false));
+  });
+
   it('a device that opens after the person already left the screen is stopped at once', async () => {
     const a = track('audio');
     let resolve: (s: MediaStream) => void = () => undefined;
