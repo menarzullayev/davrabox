@@ -47,10 +47,32 @@ ${selector} #kc-header-wrapper, ${selector} #kc-header, ${selector} .kc-logo-tex
 ${selector} select, ${selector} .pf-v5-c-button.pf-m-control { background-color: ${c.surface3}; color: ${c.text}; border: 1px solid ${c.borderStrong}; }
 ${selector} a { color: ${mode === 'dark' ? c.accent : c.accentActive}; }
 ${selector} :focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
+${selector} #kc-header-wrapper { font-size: 0; height: 36px; background: url(${mode === 'dark' ? '/brand/logo.svg' : '/brand/logo-light.svg'}) center / contain no-repeat; }
+${selector} .dx-kc-langs a { border: 1px solid ${c.borderStrong}; color: ${c.text}; }
+${selector} .dx-kc-langs a[aria-current='true'] { background: ${c.accentSoft}; border-color: ${c.accent}; }
+${selector} .pf-v5-c-form-control:focus-within { border-color: ${c.focusRing}; outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
+${selector} .pf-v5-c-form-control input:focus-visible { outline: none; }
+${selector} .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
+${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
 `;
   };
+  const shared = `/* Layout shared by both modes: card margins, one border per field, the eye button joined to its field, tighter action spacing, language pills. */
+.pf-v5-c-login__container { max-width: 30rem; margin-inline: auto; padding-inline: 1rem; }
+.pf-v5-c-login__main { width: 100%; }
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after { display: none; }
+.pf-v5-c-form-control { min-height: 2.75rem; }
+.pf-v5-c-form-control input { background: transparent; border: 0; box-shadow: none; outline: none; height: 100%; min-height: inherit; }
+.pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
+.pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
+.pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
+.pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
+.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
+`;
   return `/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
-${block('light', ':root')}${block('dark', ':root.pf-v5-theme-dark')}`;
+${shared}${block('light', ':root')}${block('dark', ':root.pf-v5-theme-dark')}`;
 }
 
 export const targets: Target[] = [

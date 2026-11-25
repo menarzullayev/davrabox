@@ -16,14 +16,9 @@ try {
   await page.goto(BASE + '/app');
   await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
-  // The language picker is a <select> whose option values are navigation URLs.
+  // The language choice is a group of links (UZ / RU / EN) built from the select that Keycloak renders; the select itself is hidden.
   const text = async (loc) => {
-    const value = await page.evaluate((l) => {
-      const o = Array.from(document.querySelectorAll('#login-select-toggle option')).find((x) => x.value.includes(`kc_locale=${l}`));
-      return o ? o.value : null;
-    }, loc);
-    if (!value) throw new Error(`no language option for ${loc}`);
-    await Promise.all([page.waitForNavigation(), page.selectOption('#login-select-toggle', value)]);
+    await Promise.all([page.waitForNavigation(), page.locator(`.dx-kc-langs a[lang="${loc}"]`).click()]);
     await page.waitForSelector('#username');
     return (await page.locator('body').innerText()).replace(/\s+/g, ' ');
   };

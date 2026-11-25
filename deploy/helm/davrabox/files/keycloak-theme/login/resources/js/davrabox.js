@@ -19,3 +19,31 @@
   apply();
   new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ['class'] });
 })();
+
+// The language choice as three short buttons (links) instead of the browser's own dropdown: no native popup, no script needed to follow them.
+(function () {
+  function init() {
+  var select = document.getElementById('login-select-toggle');
+  if (!select || !select.options.length) return;
+  var box = document.createElement('div');
+  box.className = 'dx-kc-langs';
+  box.setAttribute('role', 'group');
+  box.setAttribute('aria-label', select.getAttribute('aria-label') || 'Language');
+  Array.prototype.forEach.call(select.options, function (o) {
+    var m = /[?&]kc_locale=([a-z-]+)/i.exec(o.value);
+    var a = document.createElement('a');
+    a.href = o.value;
+    a.textContent = (m ? m[1] : o.text).toUpperCase().slice(0, 2);
+    a.title = o.text.trim();
+    a.setAttribute('aria-label', o.text.trim());
+    a.setAttribute('lang', m ? m[1] : '');
+    if (o.selected) a.setAttribute('aria-current', 'true');
+    box.appendChild(a);
+  });
+  var holder = select.closest('.pf-v5-c-login__main-header-utilities') || select.parentNode;
+  holder.appendChild(box);
+  }
+  // The script is loaded in <head>: wait for the page before looking for the language select.
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
