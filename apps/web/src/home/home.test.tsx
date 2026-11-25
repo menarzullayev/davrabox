@@ -38,6 +38,7 @@ function props(over: Partial<HomeScreenProps> = {}): HomeScreenProps {
   };
 }
 
+const openTab = (name: RegExp | string) => fireEvent.click(screen.getByRole('tab', { name }));
 const joinForm = () => document.querySelector<HTMLFormElement>('[data-testid=join-form]')!;
 const codeInput = () => joinForm().querySelector<HTMLInputElement>('input[inputmode=numeric]')!;
 
@@ -55,11 +56,47 @@ describe('created label on rows without a schedule', () => {
     ];
     render(<HomeScreen {...props({ meetings })} />);
     const label = (t: string) => screen.getByText(t).closest('li')!.querySelector('[data-testid=row-created]')?.textContent;
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Ongoing/);
     expect(label('Fresh')).toBe('Created just now');
     expect(label('Today')).toBe('Created 09:05');
     expect(label('Old')).toBe('Created 20 November, 15:24');
-    expect(label('Planned')).toBeUndefined();
     expect(label('Legacy')).toBeUndefined();
+    openTab(/^Upcoming/);
+    expect(label('Planned')).toBeUndefined();
+  });
+});
+
+describe('meeting tabs', () => {
+  const tabNames = () => screen.getAllByRole('tab').map((t) => t.textContent);
+  it('has Ongoing / Upcoming / Ended with counts and opens the first one that has meetings', () => {
+    render(<HomeScreen {...props({ meetings: labMeetings('many') })} />);
+    expect(tabNames()).toEqual(['Ongoing4', 'Upcoming6', 'Ended4']);
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Ongoing/);
+  });
+  it('opens Upcoming when nothing is ongoing and Ended when only past meetings exist', () => {
+    const past = { id: 'p', code: '30000000009', title: 'Past', waiting_room: true, locked: false, scheduled_at: new Date(2026, 10, 20, 10, 0).toISOString(), has_passcode: false } as Meeting;
+    const soon = { ...past, id: 's', title: 'Soon', scheduled_at: new Date(2026, 10, 23, 18, 0).toISOString() };
+    const { rerender } = render(<HomeScreen {...props({ meetings: [soon, past] })} />);
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Upcoming/);
+    rerender(<HomeScreen {...props({ meetings: [past] })} />);
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Ended/);
+  });
+  it('shows a message in an empty tab and keeps the chosen tab when the list refreshes', () => {
+    const past = { id: 'p', code: '30000000009', title: 'Past', waiting_room: true, locked: false, scheduled_at: new Date(2026, 10, 20, 10, 0).toISOString(), has_passcode: false } as Meeting;
+    const { rerender } = render(<HomeScreen {...props({ meetings: [past] })} />);
+    openTab(/^Upcoming/);
+    expect(screen.getByTestId('tab-empty-upcoming').textContent).toBe('No upcoming meetings.');
+    rerender(<HomeScreen {...props({ meetings: [past, { ...past, id: 'q', title: 'Past 2' }] })} />);
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Upcoming/);
+  });
+  it('moves between tabs with the arrow keys and is translated', () => {
+    const { rerender } = render(<HomeScreen {...props({ meetings: labMeetings('many') })} />);
+    fireEvent.keyDown(screen.getByRole('tab', { selected: true }), { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { selected: true }).textContent).toMatch(/^Upcoming/);
+    rerender(<HomeScreen {...props({ lang: 'uz', meetings: labMeetings('many') })} />);
+    expect(tabNames()).toEqual(['Davom etayotgan4', 'Kutilayotgan6', 'Tugagan4']);
+    rerender(<HomeScreen {...props({ lang: 'ru', meetings: labMeetings('many') })} />);
+    expect(tabNames()).toEqual(['Идущие4', 'Предстоящие6', 'Завершённые4']);
   });
 });
 
@@ -99,16 +136,22 @@ describe('HomeScreen content', () => {
     render(<HomeScreen {...props()} />);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Good afternoon, Alisher');
     expect(screen.getByText('Monday, 23 November')).toBeTruthy();
-    const groups = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
-    expect(groups.map((g) => g!.replace(/\d+$/, ''))).toEqual(['Now', 'Later today', 'Recent meetings', 'Earlier']);
+    const groups = () => screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent!.replace(/\d+$/, ''));
+    expect(groups()).toEqual(['Now', 'Recent meetings']);
+    openTab(/^Upcoming/);
+    expect(groups()).toEqual(['Later today']);
+    openTab(/^Ended/);
+    expect(groups()).toEqual(['Earlier']);
   });
 
   it('shows the passcode, locked and host markers on a row', () => {
     render(<HomeScreen {...props()} />);
+    openTab(/^Upcoming/);
     const locked = screen.getByText('Client meeting'.replace('Client meeting', 'Mijozlar bilan uchrashuv')).closest('li')!;
     expect(within(locked).getByText('Locked')).toBeTruthy();
     const pass = screen.getByText('Loyiha taqdimoti').closest('li')!;
     expect(within(pass).getByText('Passcode')).toBeTruthy();
+    openTab(/^Ongoing/);
     const host = screen.getByText('Haftalik yig‘ilish').closest('li')!;
     expect(within(host).getByText('You host')).toBeTruthy();
     expect(within(host).getByText('In progress')).toBeTruthy();
@@ -131,9 +174,13 @@ describe('HomeScreen content', () => {
 
   it('survives 40% longer text: a very long title stays in its row and keeps its full text for assistive technology', () => {
     render(<HomeScreen {...props({ meetings: labMeetings('long') })} />);
-    const rows = document.querySelectorAll('li.hm-row');
+    const rows: Element[] = [];
+    for (const name of [/^Ongoing/, /^Upcoming/, /^Ended/]) {
+      openTab(name);
+      rows.push(...document.querySelectorAll('li.hm-row'));
+    }
     expect(rows).toHaveLength(4);
-    expect(rows[0]!.querySelector('.hm-row__title')!.getAttribute('title')!.length).toBeGreaterThan(100);
+    expect(rows.some((r) => r.querySelector('.hm-row__title')!.getAttribute('title')!.length > 100)).toBe(true);
   });
 
   it('copies the join link of a row', async () => {
@@ -196,6 +243,7 @@ describe('join by code or link', () => {
   it('a protected meeting row hands over to the passcode field; an open one joins directly', async () => {
     const onJoin = vi.fn(async () => undefined);
     render(<HomeScreen {...props({ onJoin })} />);
+    openTab(/^Upcoming/);
     const protectedRow = screen.getByText('Loyiha taqdimoti').closest('li')!;
     fireEvent.click(within(protectedRow).getByRole('button', { name: /Join: Loyiha taqdimoti/ }));
     expect(onJoin).not.toHaveBeenCalled();
@@ -203,6 +251,7 @@ describe('join by code or link', () => {
     await act(raf);
     expect(document.activeElement).toBe(joinForm().querySelector('input[type=password]'));
     expect(screen.getByText('This meeting is protected by a passcode. Enter it to continue.')).toBeTruthy();
+    openTab(/^Ongoing/);
     const openRow = screen.getByText('Haftalik yig‘ilish').closest('li')!;
     await act(async () => {
       fireEvent.click(within(openRow).getByRole('button', { name: /Join: Haftalik/ }));

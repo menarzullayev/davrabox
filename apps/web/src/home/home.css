@@ -112,6 +112,9 @@
   .hm-plan__item dd { margin: var(--space-1) 0 0; color: var(--text); font-size: var(--text-lg); line-height: var(--leading-lg); font-weight: var(--weight-semibold); }
   .hm-timeline { margin-top: var(--space-12); }
   .hm-section { margin: 0 0 var(--space-5); color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
+  .hm-tabs .dx-tabpanel { padding-top: var(--space-5); }
+  .hm-tab__count { margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--surface-3); color: var(--text-muted); font-size: var(--text-xs); }
+  .hm-tab-empty { margin: 0; padding: var(--space-6) 0; color: var(--text-muted); font-size: var(--text-base); line-height: var(--leading-base); text-align: center; }
   .hm-days { display: grid; gap: var(--space-8); }
   .hm-group__title { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); color: var(--text-muted); font-size: var(--text-xs); line-height: var(--leading-xs); font-weight: var(--weight-bold); letter-spacing: 0.08em; text-transform: uppercase; }
   .hm-group[data-group='now'] .hm-group__title { color: var(--gold-fg); }
