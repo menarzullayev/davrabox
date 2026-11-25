@@ -24,13 +24,13 @@ export function PlanPanel({ lang, plan }: { lang: Lang; plan: PlanSummary }) {
         {plan.maxParticipants ? (
           <div className="hm-plan__item" data-testid="plan-participants">
             <dt>{tx(lang, 'hPlanParticipants')}</dt>
-            <dd className="dx-tabular">{tx(lang, 'hPlanUpTo', { n: plan.maxParticipants })}</dd>
+            <dd className="dx-tabular">{plan.maxParticipants}</dd>
           </div>
         ) : null}
         {plan.maxMinutes ? (
           <div className="hm-plan__item" data-testid="plan-minutes">
             <dt>{tx(lang, 'hPlanMinutes')}</dt>
-            <dd className="dx-tabular">{tx(lang, 'hPlanUpToMin', { n: plan.maxMinutes })}</dd>
+            <dd className="dx-tabular">{tx(lang, 'hPlanMin', { n: plan.maxMinutes })}</dd>
           </div>
         ) : null}
       </dl>
