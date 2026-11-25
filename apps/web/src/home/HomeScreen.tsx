@@ -140,7 +140,7 @@ function HomeBody(props: HomeScreenProps) {
           <h2 className="hm-section" id="hm-meetings-h">
             {t(lang, 'meetings')}
           </h2>
-          <TimelineView lang={lang} timeline={timeline} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} />
+          <TimelineView lang={lang} timeline={timeline} now={clock} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} />
         </section>
 
         <footer className="hm-footer">{tx(lang, 'hBrandLine')}</footer>

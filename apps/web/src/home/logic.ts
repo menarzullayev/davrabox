@@ -56,6 +56,8 @@ export function joinLink(origin: string, code: string): string {
 export interface TimelineMeeting extends Meeting {
   /** Parsed scheduled_at, null when the meeting is not scheduled (or the value is not a date). */
   start: Date | null;
+  /** Parsed created_at, null when the API did not send it (or the value is not a date). */
+  created: Date | null;
 }
 
 export interface Timeline {
@@ -83,15 +85,15 @@ function parseStart(v: string | null): Date | null {
 /**
  * Groups meetings for the home timeline. `now` is injected so the result is deterministic.
  *  - now: started within the last hour; later: starts later today; upcoming: starts on a later day;
- *  - earlier: started more than an hour ago (latest first); recent: not scheduled (created_at is not returned,
- *    so unscheduled meetings keep the order the API gave them).
+ *  - earlier: started more than an hour ago (latest first); recent: not scheduled (newest created first; the order
+ *    the API gave is kept for meetings without created_at).
  */
 export function groupMeetings(meetings: readonly Meeting[], now: Date, windowMin = NOW_WINDOW_MIN): Timeline {
   const out: Timeline = { now: [], later: [], upcoming: [], recent: [], earlier: [] };
   const windowMs = windowMin * 60_000;
   for (const m of meetings) {
     const start = parseStart(m.scheduled_at);
-    const row: TimelineMeeting = { ...m, start };
+    const row: TimelineMeeting = { ...m, start, created: parseStart(m.created_at ?? null) };
     if (!start) out.recent.push(row);
     else if (start.getTime() > now.getTime()) (sameDay(start, now) ? out.later : out.upcoming).push(row);
     else if (now.getTime() - start.getTime() < windowMs) out.now.push(row);
@@ -102,7 +104,26 @@ export function groupMeetings(meetings: readonly Meeting[], now: Date, windowMin
   out.later.sort(byStart);
   out.upcoming.sort(byStart);
   out.earlier.sort((a, b) => byStart(b, a));
+  out.recent.sort((a, b) => (b.created?.getTime() ?? 0) - (a.created?.getTime() ?? 0)); // stable: no created_at keeps API order
   return out;
+}
+
+export type CreatedLabel =
+  | { key: 'hCreatedJustNow' }
+  | { key: 'hCreatedAt'; vars: { time: string } }
+  | { key: 'hCreatedOn'; vars: { day: number; month: string; time: string } };
+
+/**
+ * "Created just now / Created 15:24 / Created 21 November, 15:24" for a meeting without a schedule. Under a minute
+ * (a small clock skew into the future counts too) is "just now"; the same calendar day shows the time only.
+ */
+export function createdLabel(created: Date | null, now: Date, monthNames: readonly string[]): CreatedLabel | null {
+  if (!created) return null;
+  const age = now.getTime() - created.getTime();
+  if (age < 60_000 && age > -5 * 60_000) return { key: 'hCreatedJustNow' };
+  const time = formatClock(created);
+  if (sameDay(created, now)) return { key: 'hCreatedAt', vars: { time } };
+  return { key: 'hCreatedOn', vars: { day: created.getDate(), month: monthNames[created.getMonth()] ?? '', time } };
 }
 
 export const timelineSize = (t: Timeline): number => GROUP_ORDER.reduce((n, g) => n + t[g].length, 0);

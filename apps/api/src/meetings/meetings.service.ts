@@ -99,7 +99,7 @@ export class MeetingsService {
           const r = await c.query(
             `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room, e2ee, guest_mode)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-             RETURNING id, code, title, waiting_room, locked, scheduled_at, e2ee, guest_mode, (passcode_hash IS NOT NULL) AS has_passcode`,
+             RETURNING id, code, title, waiting_room, locked, scheduled_at, created_at, e2ee, guest_mode, (passcode_hash IS NOT NULL) AS has_passcode`,
             [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault, input.e2ee === true, guests],
           );
           await this.audit(c, user, 'meeting.create', code);
@@ -123,7 +123,7 @@ export class MeetingsService {
   async list(user: AuthedUser) {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT id, code, title, waiting_room, locked, scheduled_at, e2ee, guest_mode, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
+        `SELECT id, code, title, waiting_room, locked, scheduled_at, created_at, e2ee, guest_mode, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
          FROM meetings ORDER BY created_at DESC LIMIT 100`,
         [user.userId],
       );
