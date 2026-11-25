@@ -175,6 +175,8 @@ describe('HomeScreen content', () => {
     expect(screen.queryByTestId('admin-link')).toBeNull();
     rerender(<HomeScreen {...props({ isAdmin: true })} />);
     expect(screen.getByTestId('admin-link').getAttribute('href')).toBe('/admin');
+    // The label is its own element: the phone layout hides it and leaves the icon.
+    expect(screen.getByRole('link', { name: 'Admin' }).querySelector('.hm-admin__label')).toBeTruthy();
   });
 
   it('survives 40% longer text: a very long title stays in its row and keeps its full text for assistive technology', () => {
