@@ -54,6 +54,9 @@ ${selector} .pf-v5-c-form-control:focus-within { border-color: ${c.focusRing}; o
 ${selector} .pf-v5-c-form-control input:focus-visible { outline: none; }
 ${selector} .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
 ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
+${selector} .pf-v5-c-input-group:focus-within { border-radius: 10px; outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
+${selector} .pf-v5-c-input-group .pf-v5-c-form-control:focus-within { outline: none; }
+${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { outline-offset: -4px; }
 `;
   };
   const shared = `/* Layout shared by both modes: card margins, one border per field, the eye button joined to its field, tighter action spacing, language pills. */

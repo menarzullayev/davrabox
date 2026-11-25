@@ -42,6 +42,9 @@
 :root .pf-v5-c-form-control input:focus-visible { outline: none; }
 :root .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
 :root .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
+:root .pf-v5-c-input-group:focus-within { border-radius: 10px; outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root .pf-v5-c-input-group .pf-v5-c-form-control:focus-within { outline: none; }
+:root .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { outline-offset: -4px; }
 :root.pf-v5-theme-dark {
   --pf-v5-global--primary-color--100: #3dd6c8;
   --pf-v5-global--primary-color--200: #6fe5da;
@@ -71,3 +74,6 @@
 :root.pf-v5-theme-dark .pf-v5-c-form-control input:focus-visible { outline: none; }
 :root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
 :root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group:focus-within { border-radius: 10px; outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control:focus-within { outline: none; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { outline-offset: -4px; }
