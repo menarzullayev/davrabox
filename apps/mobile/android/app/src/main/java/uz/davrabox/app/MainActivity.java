@@ -51,17 +51,25 @@ public class MainActivity extends BridgeActivity {
                 }
             });
         }
-        // Back first goes back inside the web client (privacy notice, sign-in, steps that push a history entry) and closes
-        // the app only when there is nothing left to go back to.
+        // Back. This callback is added after the App plugin's, so it runs first. On the web client's own pages the press goes
+        // on to the App plugin, whose listener in the page decides (close a menu or panel, ask before leaving a call, go back,
+        // leave the app). Pages without that listener (the sign-in pages under /auth/) go back in the WebView history, and
+        // the app closes when there is nothing left to go back to.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 WebView web = getBridge() != null ? getBridge().getWebView() : null;
-                if (web != null && web.canGoBack()) {
+                if (web != null && isWebClientPage(web.getUrl())) {
+                    setEnabled(false);
+                    try {
+                        getOnBackPressedDispatcher().onBackPressed();
+                    } finally {
+                        setEnabled(true);
+                    }
+                } else if (web != null && web.canGoBack()) {
                     web.goBack();
                 } else {
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
+                    finish();
                 }
             }
         });
@@ -73,6 +81,14 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         routeAppLink(intent);
+    }
+
+    /** True for pages of the hosted web client, which handle Back themselves; false for the sign-in pages under /auth/. */
+    static boolean isWebClientPage(String url) {
+        if (url == null) return false;
+        Uri u = Uri.parse(url);
+        String path = u.getPath();
+        return "https".equals(u.getScheme()) && path != null && !path.startsWith("/auth/");
     }
 
     private void routeAppLink(Intent intent) {
