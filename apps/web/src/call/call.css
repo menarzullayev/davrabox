@@ -595,7 +595,7 @@
     .dv-secure .dv-pill__text,
     .dv-lock__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .dv-pill { padding: 0 8px; }
-    .dv-lock.dx-btn { padding: 0 8px; }
+    .dv-lock.dx-btn { min-width: var(--target-coarse); height: var(--target-coarse); padding: 0 8px; }
     .dv-requests { top: auto; bottom: 12px; right: 12px; left: 12px; width: auto; }
     .dv-request { grid-template-columns: auto minmax(0, 1fr) auto auto; }
   }

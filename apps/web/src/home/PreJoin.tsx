@@ -110,7 +110,10 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
         <Switch label={tx(lang, 'hPreMic')} checked={mic && hasMic} disabled={!hasMic} data-testid="prejoin-mic" onChange={(e) => setMic(e.target.checked)} />
         <Switch label={tx(lang, 'hPreCam')} checked={cam && hasCam} disabled={!hasCam} data-testid="prejoin-cam" onChange={(e) => setCam(e.target.checked)} />
       </div>
-      <Checkbox className="pj__skip" label={tx(lang, 'hPreSkip')} checked={skip} data-testid="prejoin-skip" onChange={(e) => setSkip(e.target.checked)} />
+      {/* Checkbox puts className on the input itself, so the layout class sits on a wrapper. */}
+      <div className="pj__skip">
+        <Checkbox label={tx(lang, 'hPreSkip')} checked={skip} data-testid="prejoin-skip" onChange={(e) => setSkip(e.target.checked)} />
+      </div>
       <div className="pj__actions">
         <Button variant="primary" size="lg" fullWidth onClick={join} data-testid="prejoin-join">
           {tx(lang, 'hPreJoin')}

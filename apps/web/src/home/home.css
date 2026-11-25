@@ -245,7 +245,7 @@
   .pj__off { margin: 0; color: var(--text-muted); font-size: var(--text-base); }
   .pj__problem { margin: 0; max-width: 42ch; color: var(--danger-text, var(--danger)); font-size: var(--text-sm); text-align: center; }
   .pj__toggles { display: grid; gap: var(--space-2); width: min(calc(100vw - 32px), 420px); justify-items: start; }
-  .pj__skip { display: flex; align-items: center; gap: var(--space-2); width: min(calc(100vw - 32px), 420px); color: var(--text-muted); font-size: var(--text-sm); }
+  .pj__skip { width: min(calc(100vw - 32px), 420px); color: var(--text-muted); }
   .pj__actions { display: grid; gap: var(--space-2); width: min(calc(100vw - 32px), 420px); }
   .si__hint { margin: 0; color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }
   .si__err { margin: 0; color: var(--danger-text, var(--danger)); font-size: var(--text-sm); line-height: var(--leading-sm); }
