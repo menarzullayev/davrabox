@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Badge, Button, EmptyState, IconButton, IconCalendar, IconCheck, IconLink, IconLock, IconPlus, IconShield, Skeleton } from '../ui';
 import type { Key, Lang } from '../i18n';
-import { GROUP_ORDER, formatClock, formatCode, joinLink, timelineSize, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
-import { tx } from './text';
+import { GROUP_ORDER, createdLabel, formatClock, formatCode, joinLink, timelineSize, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
+import { dayNames, tx } from './text';
 import { buildShareLink, loadStoredKey } from '../e2ee/keys';
 
 const GROUP_KEY: Record<TimelineGroup, Key> = {
@@ -20,6 +20,8 @@ export interface MeetingRowProps {
   lang: Lang;
   m: TimelineMeeting;
   group: TimelineGroup;
+  /** The clock the "created" label is measured against. */
+  now: Date;
   busy: boolean;
   onJoin: (m: TimelineMeeting) => void;
   onCopy: (m: TimelineMeeting) => Promise<boolean>;
@@ -27,7 +29,7 @@ export interface MeetingRowProps {
   onCalendar?: (m: TimelineMeeting) => void;
 }
 
-function MeetingRow({ lang, m, group, busy, onJoin, onCopy, onCalendar }: MeetingRowProps) {
+function MeetingRow({ lang, m, group, now, busy, onJoin, onCopy, onCalendar }: MeetingRowProps) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -39,6 +41,7 @@ function MeetingRow({ lang, m, group, busy, onJoin, onCopy, onCalendar }: Meetin
     timer.current = setTimeout(() => setCopied(false), 1800);
   };
 
+  const created = m.start ? null : createdLabel(m.created, now, dayNames(lang).months);
   return (
     <li className="hm-row" data-group={group}>
       <div className="hm-row__time dx-tabular">{m.start ? formatClock(m.start) : <span className="hm-row__notime">{tx(lang, 'hNoTime')}</span>}</div>
@@ -70,6 +73,11 @@ function MeetingRow({ lang, m, group, busy, onJoin, onCopy, onCalendar }: Meetin
                 {tx(lang, 'e2eeRowBadge')}
               </Badge>
             ) : null}
+            {created ? (
+              <span className="hm-row__created" data-testid="row-created">
+                {tx(lang, created.key, 'vars' in created ? created.vars : undefined)}
+              </span>
+            ) : null}
             {m.is_host ? <Badge tone="gold">{tx(lang, 'hHostYou')}</Badge> : null}
             {group === 'now' ? (
               <Badge tone="success" dot>
@@ -96,6 +104,7 @@ export interface TimelineViewProps {
   lang: Lang;
   /** null while the first load is running. */
   timeline: Timeline | null;
+  now: Date;
   joiningCode: string | null;
   onJoin: (m: TimelineMeeting) => void;
   onCopy: (m: TimelineMeeting) => Promise<boolean>;
@@ -104,7 +113,7 @@ export interface TimelineViewProps {
 }
 
 /** Meetings as a day timeline: a rail with a dot per meeting, grouped now / later today / upcoming / recent / earlier. */
-export function TimelineView({ lang, timeline, joiningCode, onJoin, onCopy, onNew, onCalendar }: TimelineViewProps) {
+export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy, onNew, onCalendar }: TimelineViewProps) {
   const [open, setOpen] = useState<Partial<Record<TimelineGroup, boolean>>>({});
   if (!timeline) {
     return (
@@ -144,7 +153,7 @@ export function TimelineView({ lang, timeline, joiningCode, onJoin, onCopy, onNe
           </h3>
           <ul className="hm-list">
             {(open[g] || timeline[g].length <= GROUP_CAP ? timeline[g] : timeline[g].slice(0, GROUP_CAP)).map((m) => (
-              <MeetingRow key={m.id} lang={lang} m={m} group={g} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} />
+              <MeetingRow key={m.id} lang={lang} m={m} group={g} now={now} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} />
             ))}
           </ul>
           {timeline[g].length > GROUP_CAP ? (

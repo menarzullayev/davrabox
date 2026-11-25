@@ -41,6 +41,28 @@ function props(over: Partial<HomeScreenProps> = {}): HomeScreenProps {
 const joinForm = () => document.querySelector<HTMLFormElement>('[data-testid=join-form]')!;
 const codeInput = () => joinForm().querySelector<HTMLInputElement>('input[inputmode=numeric]')!;
 
+describe('created label on rows without a schedule', () => {
+  const row = (title: string, created_at: string | undefined, scheduled_at: string | null = null): Meeting => ({
+    id: title, code: '30000000001', title, waiting_room: true, locked: false, scheduled_at, created_at, has_passcode: false,
+  });
+  it('shows "Created just now", a time today and a date earlier; scheduled rows have none', () => {
+    const meetings = [
+      row('Fresh', new Date(LAB_NOW.getTime() - 20_000).toISOString()),
+      row('Today', new Date(2026, 10, 23, 9, 5).toISOString()),
+      row('Old', new Date(2026, 10, 20, 15, 24).toISOString()),
+      row('Planned', new Date(2026, 10, 23, 9, 5).toISOString(), new Date(2026, 10, 24, 10, 0).toISOString()),
+      row('Legacy', undefined),
+    ];
+    render(<HomeScreen {...props({ meetings })} />);
+    const label = (t: string) => screen.getByText(t).closest('li')!.querySelector('[data-testid=row-created]')?.textContent;
+    expect(label('Fresh')).toBe('Created just now');
+    expect(label('Today')).toBe('Created 09:05');
+    expect(label('Old')).toBe('Created 20 November, 15:24');
+    expect(label('Planned')).toBeUndefined();
+    expect(label('Legacy')).toBeUndefined();
+  });
+});
+
 describe('HomeScreen content', () => {
   it('greets by first name and groups meetings now / later / recent / earlier', () => {
     render(<HomeScreen {...props()} />);

@@ -4,6 +4,7 @@ import { dictionaries } from '../i18n';
 import {
   displayName,
   firstName,
+  createdLabel,
   formatClock,
   formatCode,
   formatDay,
@@ -190,5 +191,28 @@ describe('time and date formatting in uz / ru / en', () => {
       expect(day(lang).weekdays).toHaveLength(7);
       expect(day(lang).months).toHaveLength(12);
     }
+  });
+});
+
+describe('created_at on unscheduled meetings', () => {
+  const MONTHS = splitNames('January,February,March,April,May,June,July,August,September,October,November,December');
+  const made = (iso: string) => new Date(iso);
+  it('says "just now" under a minute, tolerating a little clock skew', () => {
+    expect(createdLabel(new Date(NOW.getTime() - 59_000), NOW, MONTHS)).toEqual({ key: 'hCreatedJustNow' });
+    expect(createdLabel(new Date(NOW.getTime() + 2 * 60_000), NOW, MONTHS)).toEqual({ key: 'hCreatedJustNow' });
+  });
+  it('shows only the time on the same day and the date on another day', () => {
+    expect(createdLabel(new Date(2026, 10, 23, 9, 5), NOW, MONTHS)).toEqual({ key: 'hCreatedAt', vars: { time: '09:05' } });
+    expect(createdLabel(new Date(2026, 10, 21, 15, 24), NOW, MONTHS)).toEqual({ key: 'hCreatedOn', vars: { day: 21, month: 'November', time: '15:24' } });
+  });
+  it('has no label without a date', () => {
+    expect(createdLabel(null, NOW, MONTHS)).toBeNull();
+    expect(groupMeetings([{ ...mk('x', null), created_at: 'garbage' }], NOW).recent[0]?.created).toBeNull();
+  });
+  it('lists unscheduled meetings newest created first and keeps API order without created_at', () => {
+    const a = { ...mk('a', null), created_at: made('2026-11-20T10:00:00Z').toISOString() };
+    const b = { ...mk('b', null), created_at: made('2026-11-22T10:00:00Z').toISOString() };
+    expect(groupMeetings([a, b], NOW).recent.map((m) => m.title)).toEqual(['b', 'a']);
+    expect(groupMeetings([mk('p', null), mk('q', null)], NOW).recent.map((m) => m.title)).toEqual(['p', 'q']);
   });
 });

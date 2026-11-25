@@ -60,6 +60,20 @@ describe('meetings against real Postgres and LiveKit', () => {
     expect(JSON.stringify(m)).not.toContain('argon2');
   });
 
+  it('returns created_at on create and in the list, newest first', async () => {
+    const before = Date.now() - 5000;
+    const a = await svc.create(host, { waitingRoom: false, title: 'Created-a' });
+    const b = await svc.create(host, { waitingRoom: false, title: 'Created-b', scheduledAt: '2031-01-01T10:00:00Z' });
+    for (const m of [a, b]) {
+      expect(m.created_at).toBeInstanceOf(Date);
+      expect(m.created_at.getTime()).toBeGreaterThan(before);
+    }
+    const rows = await svc.list(host);
+    const ra = rows.find((r) => r.id === a.id);
+    expect(ra?.created_at.getTime()).toBe(a.created_at.getTime());
+    expect(rows.findIndex((r) => r.id === b.id)).toBeLessThan(rows.findIndex((r) => r.id === a.id));
+  });
+
   it('host joins and gets a short-lived, room-scoped admin token; the room exists in LiveKit', async () => {
     const m = await svc.create(host, { waitingRoom: false, title: 'Room test', passcode: 'secret-pass' });
     const j = joined(await svc.join(host, m.code));

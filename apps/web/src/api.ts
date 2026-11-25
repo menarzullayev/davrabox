@@ -9,6 +9,8 @@ export interface Meeting {
   waiting_room: boolean;
   locked: boolean;
   scheduled_at: string | null;
+  /** When the meeting was created (ISO); absent on an API that predates the field. */
+  created_at?: string;
   has_passcode: boolean;
   is_host?: boolean;
   /** End-to-end encrypted meeting (absent on an API that predates the feature: treated as false). */
