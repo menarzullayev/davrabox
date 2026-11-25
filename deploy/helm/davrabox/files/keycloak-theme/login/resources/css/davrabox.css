@@ -1,4 +1,18 @@
 /* Generated from packages/design-tokens (pnpm sync). Do not edit. */
+/* Layout shared by both modes: card margins, one border per field, the eye button joined to its field, tighter action spacing, language pills. */
+.pf-v5-c-login__container { max-width: 30rem; margin-inline: auto; padding-inline: 1rem; }
+.pf-v5-c-login__main { width: 100%; }
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after { display: none; }
+.pf-v5-c-form-control { min-height: 2.75rem; }
+.pf-v5-c-form-control input { background: transparent; border: 0; box-shadow: none; outline: none; height: 100%; min-height: inherit; }
+.pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
+.pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
+.pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
+.pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
+.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
 :root {
   --pf-v5-global--primary-color--100: #087069;
   --pf-v5-global--primary-color--200: #06605a;
@@ -21,6 +35,13 @@
 :root select, :root .pf-v5-c-button.pf-m-control { background-color: #eceef8; color: #12163a; border: 1px solid #767ea9; }
 :root a { color: #054d48; }
 :root :focus-visible { outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo-light.svg) center / contain no-repeat; }
+:root .dx-kc-langs a { border: 1px solid #767ea9; color: #12163a; }
+:root .dx-kc-langs a[aria-current='true'] { background: #d6f2ee; border-color: #087069; }
+:root .pf-v5-c-form-control:focus-within { border-color: #4e59d6; outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root .pf-v5-c-form-control input:focus-visible { outline: none; }
+:root .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
+:root .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
 :root.pf-v5-theme-dark {
   --pf-v5-global--primary-color--100: #3dd6c8;
   --pf-v5-global--primary-color--200: #6fe5da;
@@ -43,3 +64,10 @@
 :root.pf-v5-theme-dark select, :root.pf-v5-theme-dark .pf-v5-c-button.pf-m-control { background-color: #20264d; color: #eef0fc; border: 1px solid #6f78b9; }
 :root.pf-v5-theme-dark a { color: #3dd6c8; }
 :root.pf-v5-theme-dark :focus-visible { outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo.svg) center / contain no-repeat; }
+:root.pf-v5-theme-dark .dx-kc-langs a { border: 1px solid #6f78b9; color: #eef0fc; }
+:root.pf-v5-theme-dark .dx-kc-langs a[aria-current='true'] { background: #0e3a43; border-color: #3dd6c8; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control:focus-within { border-color: #7ee9df; outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control input:focus-visible { outline: none; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
