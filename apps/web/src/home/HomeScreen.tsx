@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Meeting } from '../api';
+import type { Meeting, TrialStatus } from '../api';
 import { t, type Key, type Lang } from '../i18n';
 import { Alert, Avatar, Button, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
 import { AppearanceControls } from './AppearanceControls';
 import { TimelineView, copyJoinLink } from './Timeline';
-import { displayName, firstName, formatDay, greetingSlot, groupMeetings, type ProfileLike, type TimelineMeeting } from './logic';
+import { PlanPanel } from './PlanPanel';
+import { displayName, firstName, formatDay, greetingSlot, groupMeetings, planSummary, type ProfileLike, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
 import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
 import { useCalendarReturn } from '../calendar/useCalendarReturn';
@@ -33,6 +34,8 @@ export interface HomeScreenProps {
   onSignOut: () => void;
   /** Free-trial notice ("ends in less than N days"); omitted or null for paid organizations. */
   banner?: { key: Key; n?: number } | null;
+  /** The organization's trial status; the "Plan & Limits" card shows for trial organizations only. */
+  trial?: TrialStatus | null;
   /** Bearer token for the calendar integration; when set, hosts can add a meeting to Google Calendar or Outlook. */
   calendarToken?: string;
   /** The most the organization allows for guests (shown in the new-meeting dialog). */
@@ -73,6 +76,7 @@ function HomeBody(props: HomeScreenProps) {
   useCalendarReturn(lang, toast);
 
   const timeline = useMemo(() => (meetings ? groupMeetings(meetings, clock) : null), [meetings, clock]);
+  const plan = planSummary(props.trial, clock);
   const name = firstName(props.profile);
   const greeting = tx(lang, GREETING[greetingSlot(clock)]);
 
@@ -135,6 +139,8 @@ function HomeBody(props: HomeScreenProps) {
             </Button>
           </section>
         </div>
+
+        {plan ? <PlanPanel lang={lang} plan={plan} /> : null}
 
         <section className="hm-timeline" aria-labelledby="hm-meetings-h">
           <h2 className="hm-section" id="hm-meetings-h">
