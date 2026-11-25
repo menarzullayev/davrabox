@@ -108,8 +108,8 @@ describe('Plan & Limits panel', () => {
     expect(within(panel).getByRole('heading', { level: 2 }).textContent).toBe('Plan & Limits');
     expect(within(panel).getByText('Free trial')).toBeTruthy();
     expect(within(screen.getByTestId('plan-days')).getByText('4')).toBeTruthy();
-    expect(within(screen.getByTestId('plan-participants')).getByText('up to 10')).toBeTruthy();
-    expect(within(screen.getByTestId('plan-minutes')).getByText('up to 30 min')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-participants')).getByText('10')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-minutes')).getByText('30 min')).toBeTruthy();
   });
   it('says the trial ended and omits limits the API did not send', () => {
     render(<HomeScreen {...props({ trial: trial({ endsAt: new Date(LAB_NOW.getTime() - 1000).toISOString(), expired: true, maxMinutes: null }) })} />);
@@ -125,9 +125,9 @@ describe('Plan & Limits panel', () => {
   it('speaks Uzbek and Russian too', () => {
     const { rerender } = render(<HomeScreen {...props({ lang: 'uz', trial: trial() })} />);
     expect(within(screen.getByTestId('plan-panel')).getByRole('heading').textContent).toBe('Reja va cheklovlar');
-    expect(within(screen.getByTestId('plan-participants')).getByText('10 tagacha')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-participants')).getByText('10')).toBeTruthy();
     rerender(<HomeScreen {...props({ lang: 'ru', trial: trial() })} />);
-    expect(within(screen.getByTestId('plan-minutes')).getByText('до 30 мин')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-minutes')).getByText('30 мин')).toBeTruthy();
   });
 });
 
