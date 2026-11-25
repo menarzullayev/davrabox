@@ -1,5 +1,8 @@
 {
   "realm": "davrabox",
+  "rememberMe": true,
+  "ssoSessionIdleTimeoutRememberMe": 604800,
+  "ssoSessionMaxLifespanRememberMe": 2592000,
   "enabled": true,
   "displayName": "DavraBox",
   "sslRequired": "none",

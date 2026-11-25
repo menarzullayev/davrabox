@@ -14,6 +14,7 @@ import { loadStoredKey, storeKey } from './e2ee/keys';
 import type { ChatLineView, ManageActions, PanelId, ParticipantView, Quality, RecordingItem } from './call/types';
 import { mediaErrorText } from './platform/capacitor';
 import { useBackLayer } from './platform/back';
+import { holdUpdates } from './platform/update-check';
 
 type ChatLine = ChatLineView;
 
@@ -112,6 +113,7 @@ export function Call({
   const gateOpen = join.e2ee === true && (!e2eeKey || e2eeUnsupported);
   useBackLayer(true, () => (gateOpen ? onLeave() : setLeaveAsk(true)));
   useBackLayer(panel !== null, () => setPanel(null));
+  useEffect(() => holdUpdates(), []); // a new deploy never reloads the page during a call
 
   // The E2EE provider (and its worker) is a separate chunk that only E2EE meetings download.
   useEffect(() => {

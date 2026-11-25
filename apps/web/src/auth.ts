@@ -1,5 +1,16 @@
 import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts';
 import { detectLang, type Lang } from './i18n';
+import { isCapacitorShell } from './platform/capacitor';
+
+/**
+ * Where the signed-in user (tokens) is kept. A browser tab keeps it for the tab's life only. The Android app keeps it in
+ * the app's private storage, so reopening the app does not ask for the password again (Android ends the WebView's session
+ * storage with the app).
+ */
+export function userStorage(win: (Window & { Capacitor?: unknown }) | undefined = typeof window === 'undefined' ? undefined : window): Storage | undefined {
+  if (!win) return undefined;
+  return isCapacitorShell(win as Parameters<typeof isCapacitorShell>[0]) ? win.localStorage : win.sessionStorage;
+}
 
 // Same-origin deployment: Caddy serves the app, /auth (Keycloak), /api and /livekit on one HTTPS origin.
 export const manager = new UserManager({
@@ -9,7 +20,7 @@ export const manager = new UserManager({
   post_logout_redirect_uri: `${location.origin}/app`,
   response_type: 'code', // authorization code + PKCE (S256 is the library default)
   scope: 'openid profile email',
-  userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+  userStore: new WebStorageStateStore({ store: userStorage() ?? window.sessionStorage }),
   automaticSilentRenew: true,
 });
 
@@ -46,8 +57,24 @@ export function currentUser(): Promise<User | null> {
       history.replaceState({}, document.title, location.pathname); // drop code/state from the URL
       return user;
     }
-    const user = await manager.getUser();
-    return user && !user.expired ? user : null;
+    return restoreUser(manager);
   })();
   return pending;
+}
+
+/**
+ * The stored user. When the access token has expired (an app reopened later, a tab left idle) and a refresh token is
+ * kept, it is renewed instead of signing the person out; a refused renewal drops the stored user.
+ */
+export async function restoreUser(mgr: Pick<UserManager, 'getUser' | 'signinSilent' | 'removeUser'>): Promise<User | null> {
+  const user = await mgr.getUser();
+  if (!user) return null;
+  if (!user.expired) return user;
+  if (!user.refresh_token) return null;
+  try {
+    return await mgr.signinSilent();
+  } catch {
+    await mgr.removeUser();
+    return null;
+  }
 }
