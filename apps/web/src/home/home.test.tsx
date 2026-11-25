@@ -111,6 +111,11 @@ describe('Plan & Limits panel', () => {
     expect(within(screen.getByTestId('plan-participants')).getByText('10')).toBeTruthy();
     expect(within(screen.getByTestId('plan-minutes')).getByText('30 min')).toBeTruthy();
   });
+  it('comes after the meeting list', () => {
+    render(<HomeScreen {...props({ trial: trial() })} />);
+    const list = screen.getByRole('region', { name: 'Meetings' });
+    expect(list.compareDocumentPosition(screen.getByTestId('plan-panel')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
   it('says the trial ended and omits limits the API did not send', () => {
     render(<HomeScreen {...props({ trial: trial({ endsAt: new Date(LAB_NOW.getTime() - 1000).toISOString(), expired: true, maxMinutes: null }) })} />);
     expect(within(screen.getByTestId('plan-panel')).getByText('Trial ended')).toBeTruthy();
