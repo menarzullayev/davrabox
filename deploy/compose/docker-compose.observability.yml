@@ -3,6 +3,7 @@
 services:
   prometheus:
     image: prom/prometheus:v2.55.1
+    restart: unless-stopped
     container_name: davra-prometheus
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.retention.time=7d", "--web.enable-lifecycle"]
     volumes:
@@ -15,6 +16,7 @@ services:
 
   loki:
     image: grafana/loki:3.3.2
+    restart: unless-stopped
     container_name: davra-loki
     command: ["-config.file=/etc/loki/local-config.yaml"]
     volumes:
@@ -25,6 +27,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.4.0
+    restart: unless-stopped
     container_name: davra-grafana
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}

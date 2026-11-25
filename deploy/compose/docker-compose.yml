@@ -3,6 +3,7 @@ name: davra
 services:
   postgres:
     image: postgres:17-alpine
+    restart: unless-stopped
     container_name: davra-postgres
     environment:
       POSTGRES_USER: davra_admin
@@ -24,6 +25,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     container_name: davra-redis
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     ports:
@@ -33,6 +35,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
+    restart: unless-stopped
     container_name: davra-keycloak
     command: ["start-dev", "--import-realm", "--http-port=8080", "--http-relative-path=/auth", "--proxy-headers=xforwarded"]
     environment:
@@ -59,6 +62,7 @@ services:
 
   livekit:
     image: livekit/livekit-server:v1.13.11
+    restart: unless-stopped
     container_name: davra-livekit
     command: ["--config", "/etc/livekit.yaml", "--node-ip", "${LAN_IP}"]
     environment:
@@ -82,6 +86,7 @@ services:
   # Room composite at 720p30 needs about 4 CPUs; verified 2026-11-24 (see docs/PROGRESS.md).
   egress:
     image: livekit/egress:v1.15.0
+    restart: unless-stopped
     container_name: davra-egress
     environment:
       LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
@@ -101,6 +106,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
+    restart: unless-stopped
     container_name: davra-caddy
     environment:
       LAN_IP: ${LAN_IP}
@@ -122,6 +128,7 @@ services:
   # Dev object store for shared files (S3 API). Production: managed S3-compatible storage.
   minio:
     image: cgr.dev/chainguard/minio:latest-dev@sha256:5735e8125c4af7dd310dc5780508bfb850f0b68783a1a56089b5c64316a8f603
+    restart: unless-stopped
     container_name: davra-minio
     command: ["server", "/data", "--address", ":9000"]
     environment:
@@ -137,6 +144,7 @@ services:
   # Antivirus for uploaded files (clamd on 3310). Needs ~1.5 GB RAM and downloads signatures on first start.
   clamav:
     image: clamav/clamav:1.4.7
+    restart: unless-stopped
     container_name: davra-clamav
     ports:
       - "127.0.0.1:53310:3310"
