@@ -95,13 +95,21 @@
   .hm-join__foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-4); }
   .hm-join__live { flex: 1 1 200px; min-height: 1.25rem; }
   /* Nothing to announce: take no room (the region stays in the page for screen readers), so the checkbox and Join sit close together. */
-  .hm-join__live:empty { flex: 0 0 0; min-height: 0; }
+  .hm-join__live:empty { position: absolute; min-height: 0; }
   .hm-join__ok { display: inline-flex; align-items: center; gap: 6px; color: var(--success); font-size: var(--text-sm); font-weight: var(--weight-medium); }
   @container (max-width: 420px) { .hm-join__foot .dx-btn { width: 100%; } .hm-join .dx-input--code { font-size: var(--text-xl); letter-spacing: 0.04em; } }
 
   .hm-join .dx-input--code { min-height: 56px; font-size: var(--text-2xl); }
   .hm-new { display: flex; flex-direction: column; gap: var(--space-4); min-height: 180px; border-color: color-mix(in srgb, var(--accent) 36%, var(--border)); background: var(--accent-soft); }
   .hm-new .hm-card__lead { flex: 1; margin: 0; color: var(--text); font-size: var(--text-base); line-height: var(--leading-base); text-wrap: pretty; }
+
+  /* Phones: the titles, the field label and the buttons say the same, so the leads go and the meeting tabs fit the first screen. */
+  @media (max-width: 640px) {
+    .hm-join > .hm-card__lead, .hm-new > .hm-card__lead { display: none; }
+    .hm-actions { gap: var(--space-4); }
+    .hm-new { min-height: 0; }
+    .hm-join__form { margin-top: var(--space-3); }
+  }
 
   /* ---- timeline ----------------------------------------------------------------------------------------------- */
   .hm-plan { margin-top: var(--space-8); }
@@ -119,7 +127,7 @@
     .hm-plan__item dd { margin-top: 0; font-size: var(--text-base); line-height: var(--leading-base); }
   }
   .hm-timeline { margin-top: var(--space-12); }
-  @media (max-width: 640px) { .hm-timeline { margin-top: var(--space-8); } }
+  @media (max-width: 640px) { .hm-timeline { margin-top: var(--space-6); } }
   .hm-section { margin: 0 0 var(--space-5); color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
   .hm-tabs .dx-tabpanel { padding-top: var(--space-5); }
   .hm-tab__count { margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--surface-3); color: var(--text-muted); font-size: var(--text-xs); }
