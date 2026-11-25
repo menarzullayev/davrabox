@@ -66,7 +66,9 @@ describe('parseJoinInput', () => {
 describe('formatCode and joinLink', () => {
   it('groups 3-4-rest, progressively', () => {
     expect(formatCode('12345678901')).toBe('123 4567 8901');
-    expect(formatCode('123456789012')).toBe('123 4567 89012');
+    expect(formatCode('123456789012')).toBe('1234 5678 9012');
+    expect(formatCode('1234 5678 9012')).toBe('1234 5678 9012');
+    expect(formatCode('1234567890123')).toBe('123 4567 890123');
     expect(formatCode('1234')).toBe('123 4');
     expect(formatCode('')).toBe('');
   });

@@ -17,6 +17,8 @@ export type JoinParse =
 /** "12345678901" -> "123 4567 8901" (progressive: also formats partial input). */
 export function formatCode(code: string): string {
   const d = code.replace(/\D/g, '');
+  // 11 digits (what the server makes) read 3-4-4; a 12-digit code reads in even groups of four.
+  if (d.length === 12) return [d.slice(0, 4), d.slice(4, 8), d.slice(8)].join(' ');
   return [d.slice(0, 3), d.slice(3, 7), d.slice(7)].filter(Boolean).join(' ');
 }
 

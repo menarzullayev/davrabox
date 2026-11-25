@@ -7,7 +7,7 @@ import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
 import { AppearanceControls } from './AppearanceControls';
 import { TimelineView, copyJoinLink } from './Timeline';
 import { PlanPanel } from './PlanPanel';
-import { displayName, firstName, formatDay, greetingSlot, groupMeetings, planSummary, type ProfileLike, type TimelineMeeting } from './logic';
+import { displayName, firstName, formatCode, formatDay, greetingSlot, groupMeetings, planSummary, type ProfileLike, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
 import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
 import { useCalendarReturn } from '../calendar/useCalendarReturn';
@@ -167,7 +167,7 @@ function HomeBody(props: HomeScreenProps) {
             if (key) setE2eeLink(buildShareLink(location.origin, m.code, key));
           }
           if (opts?.calendar) setCalendarFor(m);
-          toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: m.code.replace(/(\d{3})(\d{4})(\d+)/, '$1 $2 $3') }) });
+          toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: formatCode(m.code) }) });
         }}
       />
       <E2eeLinkDialog lang={lang} link={e2eeLink} onClose={() => setE2eeLink(null)} />
