@@ -12,6 +12,7 @@ import {
   groupMeetings,
   joinLink,
   parseJoinInput,
+  planSummary,
   splitNames,
   timelineSize,
 } from './logic';
@@ -214,5 +215,23 @@ describe('created_at on unscheduled meetings', () => {
     const b = { ...mk('b', null), created_at: made('2026-11-22T10:00:00Z').toISOString() };
     expect(groupMeetings([a, b], NOW).recent.map((m) => m.title)).toEqual(['b', 'a']);
     expect(groupMeetings([mk('p', null), mk('q', null)], NOW).recent.map((m) => m.title)).toEqual(['p', 'q']);
+  });
+});
+
+describe('planSummary', () => {
+  const st = (endsAt: string | null, over = {}) => ({ trial: true, endsAt, maxParticipants: 10, maxMinutes: 30, ...over });
+  it('counts whole days left, rounded up', () => {
+    expect(planSummary(st(new Date(NOW.getTime() + 5 * 86_400_000).toISOString()), NOW)).toEqual({ daysLeft: 5, expired: false, maxParticipants: 10, maxMinutes: 30 });
+    expect(planSummary(st(new Date(NOW.getTime() + 5 * 3_600_000).toISOString()), NOW)?.daysLeft).toBe(1);
+  });
+  it('marks an ended trial', () => {
+    expect(planSummary(st(new Date(NOW.getTime() - 1000).toISOString()), NOW)).toMatchObject({ daysLeft: 0, expired: true });
+  });
+  it('has nothing for a paid organization, missing data or a broken date', () => {
+    expect(planSummary(null, NOW)).toBeNull();
+    expect(planSummary(undefined, NOW)).toBeNull();
+    expect(planSummary(st(null, { trial: false }), NOW)).toBeNull();
+    expect(planSummary(st('2031-01-01T00:00:00Z', { trial: false }), NOW)).toBeNull();
+    expect(planSummary(st('not a date'), NOW)).toBeNull();
   });
 });

@@ -201,3 +201,25 @@ export function formatDay(d: Date, names: DayNames): string {
 export function fillTemplate(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (m, k: string) => (k in values ? String(values[k]) : m));
 }
+
+// ---- plan and limits ---------------------------------------------------------------------------------------
+
+export interface PlanSummary {
+  /** Whole days left, rounded up (a trial with 5 h left shows 1); 0 once it is over. */
+  daysLeft: number;
+  expired: boolean;
+  maxParticipants: number | null;
+  maxMinutes: number | null;
+}
+
+/** What the "Plan & Limits" card shows for a trial organization; null for a paid one (nothing to show) or bad data. */
+export function planSummary(
+  s: { trial: boolean; endsAt: string | null; maxParticipants: number | null; maxMinutes: number | null } | null | undefined,
+  now: Date,
+): PlanSummary | null {
+  if (!s || !s.trial || !s.endsAt) return null;
+  const end = Date.parse(s.endsAt);
+  if (!Number.isFinite(end)) return null;
+  const left = end - now.getTime();
+  return { daysLeft: left > 0 ? Math.ceil(left / 86_400_000) : 0, expired: left <= 0, maxParticipants: s.maxParticipants, maxMinutes: s.maxMinutes };
+}

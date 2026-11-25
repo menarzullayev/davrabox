@@ -63,6 +63,37 @@ describe('created label on rows without a schedule', () => {
   });
 });
 
+describe('Plan & Limits panel', () => {
+  const trial = (over = {}) => ({ trial: true, expired: false, endsAt: new Date(LAB_NOW.getTime() + 4 * 86_400_000).toISOString(), maxParticipants: 10, maxMinutes: 30, ...over });
+  it('shows days left and the trial limits for a trial organization', () => {
+    render(<HomeScreen {...props({ trial: trial() })} />);
+    const panel = screen.getByTestId('plan-panel');
+    expect(within(panel).getByRole('heading', { level: 2 }).textContent).toBe('Plan & Limits');
+    expect(within(panel).getByText('Free trial')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-days')).getByText('4')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-participants')).getByText('up to 10')).toBeTruthy();
+    expect(within(screen.getByTestId('plan-minutes')).getByText('up to 30 min')).toBeTruthy();
+  });
+  it('says the trial ended and omits limits the API did not send', () => {
+    render(<HomeScreen {...props({ trial: trial({ endsAt: new Date(LAB_NOW.getTime() - 1000).toISOString(), expired: true, maxMinutes: null }) })} />);
+    expect(within(screen.getByTestId('plan-panel')).getByText('Trial ended')).toBeTruthy();
+    expect(screen.queryByTestId('plan-minutes')).toBeNull();
+  });
+  it('is absent for a paid organization and while the status is unknown', () => {
+    const { rerender } = render(<HomeScreen {...props({ trial: { trial: false, expired: false, endsAt: null, maxParticipants: null, maxMinutes: null } })} />);
+    expect(screen.queryByTestId('plan-panel')).toBeNull();
+    rerender(<HomeScreen {...props({ trial: null })} />);
+    expect(screen.queryByTestId('plan-panel')).toBeNull();
+  });
+  it('speaks Uzbek and Russian too', () => {
+    const { rerender } = render(<HomeScreen {...props({ lang: 'uz', trial: trial() })} />);
+    expect(within(screen.getByTestId('plan-panel')).getByRole('heading').textContent).toBe('Reja va cheklovlar');
+    expect(within(screen.getByTestId('plan-participants')).getByText('10 tagacha')).toBeTruthy();
+    rerender(<HomeScreen {...props({ lang: 'ru', trial: trial() })} />);
+    expect(within(screen.getByTestId('plan-minutes')).getByText('до 30 мин')).toBeTruthy();
+  });
+});
+
 describe('HomeScreen content', () => {
   it('greets by first name and groups meetings now / later / recent / earlier', () => {
     render(<HomeScreen {...props()} />);

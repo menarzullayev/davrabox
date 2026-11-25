@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
-import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting } from './api';
+import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting, type TrialStatus } from './api';
 import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
@@ -104,10 +104,11 @@ export function App() {
     };
   }, [token]);
   // Free-trial end date of the organization (null for a paid one); drives the "ends soon" notice on the home screen.
-  const [trialEnds, setTrialEnds] = useState<string | null>(null);
+  const [trialStatus, setTrialStatus] = useState<TrialStatus | null>(null);
+  const trialEnds = trialStatus?.trial ? trialStatus.endsAt : null;
   useEffect(() => {
     if (!token) return;
-    api.trial(token).then((s) => setTrialEnds(s.trial ? s.endsAt : null)).catch(() => setTrialEnds(null));
+    api.trial(token).then(setTrialStatus).catch(() => setTrialStatus(null));
   }, [token]);
   useEffect(() => {
     if (!token) return;
@@ -294,6 +295,7 @@ export function App() {
       isAdmin={isOrgAdmin(token)}
       meetings={meetings}
       banner={trialBanner(trialEnds, Date.now())}
+      trial={trialStatus}
       error={err}
       onDismissError={() => setErr(null)}
       initialCode={pendingCode}
