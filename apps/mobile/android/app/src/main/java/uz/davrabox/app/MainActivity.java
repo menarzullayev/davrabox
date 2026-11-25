@@ -53,8 +53,8 @@ public class MainActivity extends BridgeActivity {
         }
         // Back. This callback is added after the App plugin's, so it runs first. On the web client's own pages the press goes
         // on to the App plugin, whose listener in the page decides (close a menu or panel, ask before leaving a call, go back,
-        // leave the app). Pages without that listener (the sign-in pages under /auth/) go back in the WebView history, and
-        // the app closes when there is nothing left to go back to.
+        // leave the app). Pages without that listener (the sign-in pages under /auth/) go back in the WebView history; with
+        // nothing to go back to (the sign-in redirect may leave no entry) they return to the app's start page.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -68,6 +68,8 @@ public class MainActivity extends BridgeActivity {
                     }
                 } else if (web != null && web.canGoBack()) {
                     web.goBack();
+                } else if (web != null && getBridge().getServerUrl() != null) {
+                    web.loadUrl(getBridge().getServerUrl());
                 } else {
                     finish();
                 }

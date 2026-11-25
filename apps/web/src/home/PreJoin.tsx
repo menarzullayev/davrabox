@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Lang } from '../i18n';
 import { Button, Checkbox, Switch } from '../ui';
 import { mediaErrorText } from '../platform/capacitor';
+import { holdUpdates } from '../platform/update-check';
 import { tx } from './text';
 
 export interface MediaChoice {
@@ -59,6 +60,7 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
   const [hasCam, setHasCam] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [skip, setSkip] = useState(readSkipPreJoin());
+  useEffect(() => holdUpdates(), []);
 
   useEffect(() => {
     let stopped = false;

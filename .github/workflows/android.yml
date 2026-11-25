@@ -54,6 +54,7 @@ jobs:
       # Optional repository variable; the default is the pilot host. Must be an https URL (checked at build time).
       DAVRA_APP_URL: ${{ vars.DAVRA_APP_URL }}
       HAS_SIGNING: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+      HAS_DEBUG_KEY: ${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -73,6 +74,15 @@ jobs:
       - name: Sync Capacitor (writes capacitor.config.json with server.url)
         working-directory: apps/mobile
         run: pnpm exec cap sync android
+      # One debug key for every build, so a new debug APK installs over the previous one (otherwise each runner makes its own
+      # key and Android refuses the update). Without the secret (forks) Gradle makes a throw-away key as before.
+      - name: Stable debug signing key
+        if: env.HAS_DEBUG_KEY == 'true'
+        env:
+          DEBUG_KEYSTORE_BASE64: ${{ secrets.ANDROID_DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p "$HOME/.android"
+          printf '%s' "$DEBUG_KEYSTORE_BASE64" | base64 -d > "$HOME/.android/debug.keystore"
       - name: Build debug APK
         working-directory: apps/mobile/android
         env:
