@@ -62,12 +62,19 @@ export class ApiError extends Error {
   }
 }
 
+let sessionLost: ((token: string) => void) | null = null;
+/** The app registers what to do when the API refuses the signed-in person's token (401). Guest tokens never reach it. */
+export function onSessionLost(fn: ((token: string) => void) | null): void {
+  sessionLost = fn;
+}
+
 async function call<T>(token: string, path: string, init?: { method?: string; body?: unknown }): Promise<T> {
   const headers = { Authorization: `Bearer ${token}`, ...(init?.body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
   const body = init?.body !== undefined ? JSON.stringify(init.body) : undefined;
   assertNoMeetingKey({ url: `/api${path}`, headers, body }); // an E2EE meeting key never leaves the browser
   const res = await fetch(`/api${path}`, { method: init?.method ?? 'GET', headers, body });
   if (!res.ok) {
+    if (res.status === 401) sessionLost?.(token);
     let detail = '';
     try {
       detail = String(((await res.json()) as { message?: unknown }).message ?? '');

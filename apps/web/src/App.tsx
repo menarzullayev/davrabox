@@ -1,11 +1,12 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
-import { api, type GuestMode, type JoinedResult, type Meeting } from './api';
+import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting } from './api';
 import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
 import { isOrgAdmin } from './admin/jwt';
 import { currentUser, freshToken, manager, signIn } from './auth';
+import { recoverSession } from './session-recovery';
 import { Call } from './Call';
 import { t, type Key, type Lang } from './i18n';
 import { LoadingScreen, SignInScreen } from './home/AuthScreens';
@@ -83,6 +84,14 @@ export function App() {
   }, []);
 
   const token = user?.access_token ?? '';
+  // The identity provider lost the session (API answers 401 to our own token): back to the sign-in screen.
+  useEffect(() => {
+    onSessionLost((sent) => {
+      if (!sent || sent !== token) return;
+      recoverSession({ now: Date.now, store: sessionStorage, removeUser: () => manager.removeUser(), goHome: () => location.assign('/app') });
+    });
+    return () => onSessionLost(null);
+  }, [token]);
   // The person's saved look follows them to every device, inside the organization's rules.
   useEffect(() => {
     if (!token) return undefined;
