@@ -2,7 +2,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { tx } from '../home/text';
 import { AppearanceControls } from '../home/AppearanceControls';
 import type { Key } from '../i18n';
-import { Alert, Button, Logo, Spinner, TextField } from '../ui';
+import { Alert, Button, Checkbox, Logo, Spinner, TextField } from '../ui';
 import { solveInWorker, solveWithTimeout, SolveTimeoutError, type AltchaChallenge, type Solver } from './altcha';
 import { usePrefs } from './usePrefs';
 import './landing.css';
@@ -62,6 +62,7 @@ export default function Signup({ deps = defaultDeps }: { deps?: SignupDeps }) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<Key | null>(null);
   const [values, setValues] = useState({ org: '', name: '', email: '', password: '' });
+  const [saved, setSaved] = useState(false);
   const busy = useRef(false);
   const set = (k: keyof typeof values) => (e: { target: { value: string } }) => {
     setValues((v) => ({ ...v, [k]: e.target.value }));
@@ -74,6 +75,10 @@ export default function Signup({ deps = defaultDeps }: { deps?: SignupDeps }) {
     const v = { org: values.org.trim(), name: values.name.trim(), email: values.email.trim(), password: values.password };
     if (v.org.length < 2 || v.name.length < 1 || !EMAIL.test(v.email) || v.password.length < 12) {
       setError('lnSuErrInvalid');
+      return;
+    }
+    if (!saved) {
+      setError('lnSuErrSaved');
       return;
     }
     busy.current = true;
@@ -130,6 +135,7 @@ export default function Signup({ deps = defaultDeps }: { deps?: SignupDeps }) {
               disabled={working}
               hint={tx(lang, 'lnSuPasswordHint')}
             />
+            <Checkbox label={tx(lang, 'lnSuSaved')} checked={saved} onChange={(e) => { setSaved(e.target.checked); setError(null); }} disabled={working} data-testid="su-saved" />
             <div className="ln-su__actions">
               {error ? (
                 <Alert tone="danger">

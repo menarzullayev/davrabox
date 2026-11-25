@@ -1,5 +1,8 @@
-import { forwardRef, useEffect, useId, useRef, type InputHTMLAttributes, type ReactNode } from 'react';
-import { IconError } from './icons';
+import { forwardRef, useEffect, useId, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { t } from '../i18n';
+import { usePrefs } from '../prefs';
+import { IconButton } from './Button';
+import { IconError, IconEye, IconEyeOff } from './icons';
 
 interface FieldCommon {
   label: ReactNode;
@@ -18,31 +21,63 @@ function describedBy(...ids: Array<string | false | undefined>): string | undefi
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'children'>, FieldCommon {
   /** Larger tabular figures with letter spacing: meeting codes and passcodes. */
   code?: boolean;
+  /** Password fields get a show/hide button; set false only where the form must keep a single button (the join card, see its e2e contract). */
+  reveal?: boolean;
+}
+
+/** The eye button of a password field: shows or hides the typed text (the label follows the page language). */
+function PasswordEye({ shown, onToggle, controls }: { shown: boolean; onToggle: () => void; controls: string }) {
+  const { lang } = usePrefs();
+  return (
+    <IconButton
+      label={t(lang, shown ? 'uiHidePassword' : 'uiShowPassword')}
+      icon={shown ? <IconEyeOff /> : <IconEye />}
+      tooltip={false}
+      className="dx-input-eye"
+      aria-pressed={shown}
+      aria-controls={controls}
+      data-testid="password-eye"
+      onClick={onToggle}
+    />
+  );
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, hint, error, optionalText, code, className, id, required, ...rest },
+  { label, hint, error, optionalText, code, className, id, required, type, reveal = true, ...rest },
   ref,
 ) {
   const auto = useId();
   const fid = id ?? auto;
   const hintId = `${fid}-hint`;
   const errId = `${fid}-err`;
+  const [shown, setShown] = useState(false);
+  const isPassword = type === 'password' && reveal;
+  const input = (
+    <input
+      {...rest}
+      ref={ref}
+      id={fid}
+      type={isPassword && shown ? 'text' : type}
+      required={required}
+      className={`dx-input${code ? ' dx-input--code' : ''}${isPassword ? ' dx-input--eye' : ''}${className ? ` ${className}` : ''}`}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={describedBy(rest['aria-describedby'], !!hint && hintId, !!error && errId)}
+    />
+  );
   return (
     <div className="dx-field">
       <label className="dx-field__label" htmlFor={fid}>
         {label}
         {!required && optionalText ? <span className="dx-field__opt">{optionalText}</span> : null}
       </label>
-      <input
-        {...rest}
-        ref={ref}
-        id={fid}
-        required={required}
-        className={`dx-input${code ? ' dx-input--code' : ''}${className ? ` ${className}` : ''}`}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={describedBy(rest['aria-describedby'], !!hint && hintId, !!error && errId)}
-      />
+      {isPassword ? (
+        <span className="dx-input-wrap">
+          {input}
+          <PasswordEye shown={shown} onToggle={() => setShown((s) => !s)} controls={fid} />
+        </span>
+      ) : (
+        input
+      )}
       {hint ? (
         <div className="dx-field__hint" id={hintId}>
           {hint}

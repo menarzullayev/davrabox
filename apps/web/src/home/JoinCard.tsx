@@ -142,6 +142,7 @@ export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinC
             ref={passRef}
             label={tx(lang, 'passcodeRequired')}
             type="password"
+            reveal={false} /* the join form keeps exactly one button (e2e contract) */
             autoComplete="off"
             value={pass}
             onChange={(e) => setPass(e.target.value)}

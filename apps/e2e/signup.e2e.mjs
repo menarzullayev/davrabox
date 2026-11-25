@@ -36,6 +36,7 @@ try {
   await page.getByLabel('Your name').fill('E2E Person');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: false }).first().fill(password);
+  await page.getByTestId('su-saved').check();
   await page.getByRole('button', { name: 'Create organisation' }).click();
   await page.waitForSelector('#username', { timeout: 60000 });
   check('after the proof of work the visitor is sent to the sign-in page with the email prefilled', (await page.inputValue('#username')) === email);
@@ -64,6 +65,7 @@ try {
   await again.getByLabel('Your name').fill('E2E Person');
   await again.getByLabel('Email').fill(email.toUpperCase().replace('@SIGNUP-E2E.EXAMPLE.ORG', '@signup-e2e.example.org'));
   await again.getByLabel('Password', { exact: false }).first().fill(password);
+  await again.getByTestId('su-saved').check();
   await again.getByRole('button', { name: 'Create organisation' }).click();
   await again.getByRole('alert').waitFor({ timeout: 60000 });
   check('a second sign-up with the same email shows the "already registered" message', /already registered/i.test(await again.getByRole('alert').innerText()));

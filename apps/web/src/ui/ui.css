@@ -125,6 +125,9 @@
   .dx-input:disabled,
   .dx-select__control:disabled { opacity: 0.5; cursor: not-allowed; background: var(--surface-1); }
   .dx-input[aria-invalid='true'] { border-color: var(--danger); box-shadow: inset 3px 0 0 var(--danger); }
+  .dx-input-wrap { position: relative; display: block; }
+  .dx-input--eye { padding-inline-end: calc(var(--target-coarse) + var(--space-2)); }
+  .dx-input-eye { position: absolute; inset-block: 0; inset-inline-end: 0; margin-block: auto; }
   .dx-input--code { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; letter-spacing: 0.08em; font-size: var(--text-lg); }
 
   .dx-select { position: relative; display: block; min-width: 0; }
