@@ -217,7 +217,7 @@
   .dx-select__chevron { position: absolute; inset-block: 0; inset-inline-end: var(--space-3); display: grid; align-items: center; pointer-events: none; color: var(--text-muted); }
 
   .dx-check,
-  .dx-switch { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--space-3); align-items: start; cursor: pointer; }
+  .dx-switch { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--space-3); align-items: start; text-align: start; cursor: pointer; }
   .dx-check__body,
   .dx-switch__body { display: grid; gap: 2px; padding-top: 1px; }
   .dx-check__label,
@@ -231,6 +231,7 @@
     width: 20px;
     height: 20px;
     margin: 0;
+    padding: 0; /* the legacy layer pads every input; a padded box grew to 29px wide */
     border: 1.5px solid var(--border-strong);
     border-radius: var(--radius-xs);
     background: var(--bg);
