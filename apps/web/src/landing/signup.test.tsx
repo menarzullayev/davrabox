@@ -17,17 +17,44 @@ function setup(over: Partial<SignupDeps> = {}) {
   return { post, solve, signIn };
 }
 
-function fill(values: Partial<Record<'org' | 'name' | 'email' | 'password', string>> = {}) {
+function fill(values: Partial<Record<'org' | 'name' | 'email' | 'password', string>> = {}, saved = true) {
   const v = { org: 'Acme Corp', name: 'Aziza Karimova', email: 'aziza@acme.example', password: 'correct-horse-battery', ...values };
   fireEvent.change(screen.getByLabelText(en.lnSuOrgName), { target: { value: v.org } });
   fireEvent.change(screen.getByLabelText(en.lnSuName), { target: { value: v.name } });
   fireEvent.change(screen.getByLabelText(en.lnSuEmail), { target: { value: v.email } });
   fireEvent.change(screen.getByLabelText(new RegExp(`^${en.lnSuPassword}`)), { target: { value: v.password } });
+  if (saved) fireEvent.click(screen.getByTestId('su-saved'));
 }
 const submit = () => fireEvent.submit(screen.getByRole('button', { name: en.lnSuSubmit }).closest('form')!);
 
 beforeEach(() => localStorage.clear());
 afterEach(cleanup);
+
+describe('password care on the sign-up form', () => {
+  it('refuses to create the organisation until the person confirms the password is saved, and posts nothing', async () => {
+    const { post } = setup();
+    fill({}, false);
+    submit();
+    expect(await screen.findByText(en.lnSuErrSaved)).toBeTruthy();
+    expect(post).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('su-saved'));
+    expect(screen.queryByText(en.lnSuErrSaved)).toBeNull();
+  });
+
+  it('the eye button shows and hides the typed password and says which it will do', () => {
+    setup();
+    const input = screen.getByLabelText(new RegExp(`^${en.lnSuPassword}`)) as HTMLInputElement;
+    const eye = screen.getByTestId('password-eye');
+    expect(input.type).toBe('password');
+    expect(eye.getAttribute('aria-label')).toBe('Show password');
+    fireEvent.click(eye);
+    expect(input.type).toBe('text');
+    expect(eye.getAttribute('aria-label')).toBe('Hide password');
+    expect(eye.getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(eye);
+    expect(input.type).toBe('password');
+  });
+});
 
 describe('signupErrorKey', () => {
   it.each([
