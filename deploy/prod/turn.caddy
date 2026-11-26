@@ -1,0 +1,11 @@
+# Shared-host variant only (docker-compose.shared-host.yml): a certificate for LiveKit's TURN over TLS. Public 443 belongs
+# to LiveKit there, so the TLS-ALPN challenge cannot reach Caddy; HTTP-01 on port 80 is used instead. LiveKit reads the
+# issued files from the caddy-data volume.
+{$TURN_HOST} {
+	tls {
+		issuer acme {
+			disable_tlsalpn_challenge
+		}
+	}
+	respond 404
+}
