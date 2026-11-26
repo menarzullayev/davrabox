@@ -2,7 +2,7 @@
 // colour resources and plugin, the Electron window and the style guide swatches. `syncPlatforms(root, false)` only reports
 // drift (the test uses it, so CI fails when a copy goes stale); `pnpm sync` rewrites the files.
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromeColour, chromeOverrides, resolveColours, styles, themes, type StyleId, type ThemeName } from './tokens.js';
 
@@ -175,14 +175,13 @@ export const targets: Target[] = [
   },
   {
     // Keycloak serves theme files under a version path that does not change when the files do, and the CDN in front keeps
-    // them for 30 days: each file is referenced with a hash of its content, so a changed file is a new URL.
+    // them for 30 days (ignoring query strings): the page loads content-hashed copies (see keycloakHashedCopies), so a
+    // changed file is a new URL.
     file: 'deploy/helm/davrabox/files/keycloak-theme/login/theme.properties',
     apply: (s, root) => {
-      const dir = 'deploy/helm/davrabox/files/keycloak-theme/login/resources';
-      // Line endings are normalised first, so a Windows checkout and the Linux server compute the same hash.
-      const v = (rel: string) => `${rel}?v=${createHash('sha256').update(readFileSync(join(root, dir, rel), 'utf8').replace(/\r\n/g, '\n')).digest('hex').slice(0, 10)}`;
-      let t = replaceOnce(s, /^styles=.*$/m, `styles=css/styles.css ${v('css/davrabox.css')}`, 'keycloak styles');
-      t = replaceOnce(t, /^scripts=.*$/m, `scripts=${v('js/davrabox.js')} ${v('js/glass.js')}`, 'keycloak scripts');
+      const name = (src: string) => keycloakHashedCopies(root).find((c) => c.src === src)!.out;
+      let t = replaceOnce(s, /^styles=.*$/m, `styles=css/styles.css ${name('css/davrabox.css')}`, 'keycloak styles');
+      t = replaceOnce(t, /^scripts=.*$/m, `scripts=${name('js/davrabox.js')} ${name('js/glass.js')}`, 'keycloak scripts');
       return t;
     },
   },
@@ -224,5 +223,46 @@ export function syncPlatforms(root: string, write: boolean): string[] {
       if (write) writeFileSync(path, crlf ? next.replace(/\n/g, '\r\n') : next);
     }
   }
+  // The content-hashed copies of the Keycloak theme files: present and identical, and no stale ones left behind.
+  const copies = keycloakHashedCopies(root);
+  for (const c of copies) {
+    const out = join(root, KC_RESOURCES, c.out);
+    let have: string | null = null;
+    try {
+      have = readFileSync(out, 'utf8').replace(/\r\n/g, '\n'); // a Windows checkout may have CRLF
+    } catch {
+      /* not written yet */
+    }
+    if (have !== c.content) {
+      drift.push(`${KC_RESOURCES}/${c.out}`);
+      if (write) writeFileSync(out, c.content);
+    }
+  }
+  const keep = new Set(copies.map((c) => c.out));
+  for (const sub of ['css', 'js']) {
+    for (const f of readdirSync(join(root, KC_RESOURCES, sub))) {
+      const rel = `${sub}/${f}`;
+      if (HASHED.test(f) && !keep.has(rel)) {
+        drift.push(`${KC_RESOURCES}/${rel}`);
+        if (write) unlinkSync(join(root, KC_RESOURCES, rel));
+      }
+    }
+  }
   return drift;
+}
+
+const KC_RESOURCES = 'deploy/helm/davrabox/files/keycloak-theme/login/resources';
+const HASHED = /^[a-z]+\.[0-9a-f]{10}\.(css|js)$/;
+
+/**
+ * The theme files the sign-in page loads, as copies named after a hash of their content (davrabox.1a2b3c4d5e.js). The sources
+ * (davrabox.css generated above, davrabox.js and glass.js written by hand) stay the files to edit. Line endings are normalised
+ * first, so a Windows checkout and the Linux server agree on the names.
+ */
+export function keycloakHashedCopies(root: string): Array<{ src: string; out: string; content: string }> {
+  return ['css/davrabox.css', 'js/davrabox.js', 'js/glass.js'].map((src) => {
+    const content = readFileSync(join(root, KC_RESOURCES, src), 'utf8').replace(/\r\n/g, '\n');
+    const hash = createHash('sha256').update(content).digest('hex').slice(0, 10);
+    return { src, out: src.replace(/\.(css|js)$/, `.${hash}.$1`), content };
+  });
 }

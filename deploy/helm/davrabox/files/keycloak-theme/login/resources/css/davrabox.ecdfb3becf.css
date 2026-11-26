@@ -1,0 +1,111 @@
+/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
+/* Layout shared by both modes: card margins, one border per field, the eye button joined to its field, tighter action spacing, language pills. */
+.pf-v5-c-login__container { max-width: 30rem; margin-inline: auto; padding-inline: 1rem; }
+.pf-v5-c-login__main { width: 100%; }
+.pf-v5-c-form-control::before, .pf-v5-c-form-control::after { display: none; }
+.pf-v5-c-form-control { min-height: 2.75rem; }
+.pf-v5-c-form-control input { background: transparent; border: 0; box-shadow: none; outline: none; height: 100%; min-height: inherit; }
+.pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
+.pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-button.pf-m-primary { min-height: 2.75rem; }
+.pf-v5-c-check { align-items: center; min-height: 2.75rem; }
+.pf-v5-c-check__input { width: 1.25rem; height: 1.25rem; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
+.pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
+.pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
+.pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
+.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+.pf-v5-c-login__main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+.dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
+:root {
+  --pf-v5-global--primary-color--100: #087069;
+  --pf-v5-global--primary-color--200: #06605a;
+  --pf-v5-global--link--Color: #054d48;
+  --pf-v5-global--link--Color--hover: #06605a;
+  --pf-v5-global--BackgroundColor--100: #ffffff;
+  --pf-v5-global--BackgroundColor--200: #f4f5fb;
+  --pf-v5-global--Color--100: #12163a;
+  --pf-v5-global--Color--200: #454c7a;
+  --pf-v5-global--BorderColor--100: #767ea9;
+  --pf-v5-global--danger-color--100: #b3202f;
+}
+:root body, :root .pf-v5-c-login { background: #f4f5fb; color: #12163a; }
+:root .pf-v5-c-login__main { background: #ffffff; color: #12163a; border: 1px solid #d5d9ee; border-radius: 14px; }
+:root .pf-v5-c-login__main-header h1, :root .pf-v5-c-title, :root .pf-v5-c-form__label-text { color: #12163a; }
+:root .pf-v5-c-form-control { background: #eceef8; color: #12163a; border: 1px solid #767ea9; border-radius: 10px; }
+:root .pf-v5-c-button.pf-m-primary { background: #087069; color: #ffffff; border-radius: 10px; }
+:root .pf-v5-c-button.pf-m-primary:hover { background: #06605a; }
+:root #kc-header-wrapper, :root #kc-header, :root .kc-logo-text { color: #12163a !important; }
+:root select, :root .pf-v5-c-button.pf-m-control { background-color: #eceef8; color: #12163a; border: 1px solid #767ea9; }
+:root a { color: #054d48; }
+:root :focus-visible { outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo-light.svg) center / contain no-repeat; }
+:root .dx-kc-langs a { border: 1px solid #767ea9; color: #12163a; }
+:root .dx-kc-langs a[aria-current='true'] { background: #d6f2ee; border-color: #087069; }
+:root .pf-v5-c-form-control:focus-within { border-color: #4e59d6; outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root .pf-v5-c-form-control input:focus-visible { outline: none; }
+:root .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
+:root .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
+:root .pf-v5-c-input-group:focus-within { border-radius: 10px; outline: 2px solid #4e59d6; outline-offset: 2px; }
+:root .pf-v5-c-input-group .pf-v5-c-form-control:focus-within { outline: none; }
+:root .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { outline-offset: -4px; }
+:root.pf-v5-theme-dark {
+  --pf-v5-global--primary-color--100: #3dd6c8;
+  --pf-v5-global--primary-color--200: #6fe5da;
+  --pf-v5-global--link--Color: #3dd6c8;
+  --pf-v5-global--link--Color--hover: #6fe5da;
+  --pf-v5-global--BackgroundColor--100: #10142f;
+  --pf-v5-global--BackgroundColor--200: #0a0d21;
+  --pf-v5-global--Color--100: #eef0fc;
+  --pf-v5-global--Color--200: #b4b9de;
+  --pf-v5-global--BorderColor--100: #6f78b9;
+  --pf-v5-global--danger-color--100: #ff6b7a;
+}
+:root.pf-v5-theme-dark body, :root.pf-v5-theme-dark .pf-v5-c-login { background: #0a0d21; color: #eef0fc; }
+:root.pf-v5-theme-dark .pf-v5-c-login__main { background: #10142f; color: #eef0fc; border: 1px solid #2a3163; border-radius: 14px; }
+:root.pf-v5-theme-dark .pf-v5-c-login__main-header h1, :root.pf-v5-theme-dark .pf-v5-c-title, :root.pf-v5-theme-dark .pf-v5-c-form__label-text { color: #eef0fc; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control { background: #20264d; color: #eef0fc; border: 1px solid #6f78b9; border-radius: 10px; }
+:root.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary { background: #3dd6c8; color: #04211f; border-radius: 10px; }
+:root.pf-v5-theme-dark .pf-v5-c-button.pf-m-primary:hover { background: #6fe5da; }
+:root.pf-v5-theme-dark #kc-header-wrapper, :root.pf-v5-theme-dark #kc-header, :root.pf-v5-theme-dark .kc-logo-text { color: #eef0fc !important; }
+:root.pf-v5-theme-dark select, :root.pf-v5-theme-dark .pf-v5-c-button.pf-m-control { background-color: #20264d; color: #eef0fc; border: 1px solid #6f78b9; }
+:root.pf-v5-theme-dark a { color: #3dd6c8; }
+:root.pf-v5-theme-dark :focus-visible { outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo.svg) center / contain no-repeat; }
+:root.pf-v5-theme-dark .dx-kc-langs a { border: 1px solid #6f78b9; color: #eef0fc; }
+:root.pf-v5-theme-dark .dx-kc-langs a[aria-current='true'] { background: #0e3a43; border-color: #3dd6c8; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control:focus-within { border-color: #7ee9df; outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark .pf-v5-c-form-control input:focus-visible { outline: none; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 10px 10px 0; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group:focus-within { border-radius: 10px; outline: 2px solid #7ee9df; outline-offset: 2px; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control:focus-within { outline: none; }
+:root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { outline-offset: -4px; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) body, :root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-login { background: radial-gradient(900px 620px at 12% 8%, rgba(61, 214, 200, 0.42), transparent 62%), radial-gradient(820px 600px at 92% 18%, rgba(140, 120, 255, 0.36), transparent 60%), radial-gradient(900px 700px at 70% 100%, rgba(255, 196, 120, 0.4), transparent 60%), linear-gradient(160deg, #eef1fa 0%, #e4e9f8 55%, #f1eef8 100%), #eaeef8; background-attachment: fixed; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-login__main { background: rgb(255 255 255 / 0.9); border: 0; border-radius: 30px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(18, 22, 58, 0.08), 0 10px 30px rgba(18, 22, 58, 0.16), 0 2px 8px rgba(18, 22, 58, 0.1); -webkit-backdrop-filter: blur(14px) saturate(1.9); backdrop-filter: var(--dx-refract, blur(14px) saturate(1.9)); }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-login__main-header h1, :root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-form-control { border-radius: 16px; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 16px 0 0 16px; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 16px 16px 0; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-input-group:focus-within { border-radius: 16px; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-button.pf-m-primary { border-radius: 999px; min-height: 3rem; font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(18, 22, 58, 0.08); transition: transform 400ms linear(0, 0.053, 0.184, 0.355, 0.535, 0.705, 0.85, 0.964, 1.045, 1.096, 1.121, 1.126, 1.117, 1.099, 1.077, 1.054, 1.033, 1.016, 1.002, 0.993, 0.987, 0.984, 0.984, 0.986, 1); }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .pf-v5-c-button.pf-m-primary:active { transform: scale(0.97); }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .dx-kc-langs { gap: 0.125rem; padding: 0.1875rem; border-radius: 999px; background: rgb(255 255 255 / 0.76); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(18, 22, 58, 0.08); }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .dx-kc-langs a { flex: 1; border: 0; border-radius: 999px; background: transparent; }
+:root[data-style='liquid-glass']:not(.pf-v5-theme-dark) .dx-kc-langs a[aria-current='true'] { background: #ffffff; color: #12163a; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(18, 22, 58, 0.08), 0 2px 10px rgba(18, 22, 58, 0.08); }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] body, :root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-login { background: radial-gradient(900px 620px at 12% 8%, rgba(61, 214, 200, 0.34), transparent 62%), radial-gradient(820px 600px at 92% 18%, rgba(118, 92, 255, 0.36), transparent 60%), radial-gradient(900px 700px at 70% 100%, rgba(244, 194, 79, 0.16), transparent 60%), linear-gradient(160deg, #060818 0%, #0b1030 55%, #070a1d 100%), #060818; background-attachment: fixed; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-login__main { background: rgb(12 16 41 / 0.9); border: 0; border-radius: 30px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 10px 34px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28); -webkit-backdrop-filter: blur(14px) saturate(1.9); backdrop-filter: var(--dx-refract, blur(14px) saturate(1.9)); }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-login__main-header h1, :root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif; font-weight: 700; letter-spacing: -0.02em; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-form-control { border-radius: 16px; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 16px 0 0 16px; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 16px 16px 0; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-input-group:focus-within { border-radius: 16px; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-button.pf-m-primary { border-radius: 999px; min-height: 3rem; font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.12); transition: transform 400ms linear(0, 0.053, 0.184, 0.355, 0.535, 0.705, 0.85, 0.964, 1.045, 1.096, 1.121, 1.126, 1.117, 1.099, 1.077, 1.054, 1.033, 1.016, 1.002, 0.993, 0.987, 0.984, 0.984, 0.986, 1); }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .pf-v5-c-button.pf-m-primary:active { transform: scale(0.97); }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .dx-kc-langs { gap: 0.125rem; padding: 0.1875rem; border-radius: 999px; background: rgb(12 16 41 / 0.7); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .dx-kc-langs a { flex: 1; border: 0; border-radius: 999px; background: transparent; }
+:root.pf-v5-theme-dark[data-style='liquid-glass'] .dx-kc-langs a[aria-current='true'] { background: #0f1430; color: #eef0fc; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 10px rgba(0, 0, 0, 0.32); }
+@media (prefers-reduced-transparency: reduce) { :root[data-style='liquid-glass'] .pf-v5-c-login__main { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--pf-v5-global--BackgroundColor--100); } }
+@media (prefers-reduced-motion: reduce) { :root[data-style='liquid-glass'] .pf-v5-c-button.pf-m-primary { transition: none; } }
