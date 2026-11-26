@@ -7,6 +7,8 @@
   "scripts": {
     "test:styles": "bash run-suite.sh && E2E_STYLE=liquid-glass bash run-suite.sh",
     "test:recording": "node recording.e2e.mjs",
+    "test:landing": "node landing.e2e.mjs && node landing.axe.mjs",
+    "demo:videos": "node demo.videos.mjs",
     "test:e2ee": "node e2ee.e2e.mjs",
     "test:2fa": "node totp.e2e.mjs && node admin2fa.e2e.mjs && node passkey.e2e.mjs",
     "test": "node call.e2e.mjs && node admin.e2e.mjs && node hostcontrols.e2e.mjs && node chat.e2e.mjs && node noise.e2e.mjs && node layout.e2e.mjs && node blur.e2e.mjs && node logini18n.e2e.mjs && node cohost.e2e.mjs && node files.e2e.mjs && node turn.e2e.mjs && node desktop.e2e.mjs && node sso.e2e.mjs && node signup.e2e.mjs && node guest.e2e.mjs && node styles.e2e.mjs && node glass.e2e.mjs",

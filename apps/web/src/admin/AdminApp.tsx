@@ -5,7 +5,7 @@ import { t, type Lang } from '../i18n';
 import { Avatar, Button, IconChat, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLock, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
 import { AssistantLog } from './AssistantLog';
 import { Audit } from './Audit';
-import { createAdminClient } from './client';
+import { createAdminClient, type AdminClient } from './client';
 import { Departments } from './Departments';
 import { Encryption } from './Encryption';
 import { Integrations } from './Integrations';
@@ -41,10 +41,11 @@ const LABEL = {
   assistant: 'admAssistant',
 } as const;
 
-export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void }) {
+export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void; client?: AdminClient }) {
   const [section, setSection] = useState<Section>('overview');
   const [forbidden, setForbidden] = useState(false);
-  const client = useMemo(() => createAdminClient(freshToken), []);
+  // `client` is injected only by the admin lab (fake data for the demo clips); the product always talks to the API.
+  const client = useMemo(() => injected ?? createAdminClient(freshToken), [injected]);
   const report = useMemo(() => makeReport(() => setForbidden(true)), []);
   const ctx = useMemo(() => ({ client, lang, report }), [client, lang, report]);
   // The "Assistant conversations" section exists for the platform owner only (decision 5d); the API enforces it too.

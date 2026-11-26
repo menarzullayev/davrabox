@@ -22,6 +22,8 @@ services:
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Beta app downloads (scripts/publish-downloads.mjs); an empty or missing folder just answers 404.
+      - ./downloads:/srv/downloads:ro
       - caddy-data:/data
       - caddy-config:/config
     ports:

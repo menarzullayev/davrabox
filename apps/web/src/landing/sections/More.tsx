@@ -35,7 +35,8 @@ export const DEMOS = [
   { id: 'admin', title: 'lnDemo4T', desc: 'lnDemo4D' },
 ] as const satisfies ReadonlyArray<{ id: string; title: Key; desc: Key }>;
 
-export const demoSrc = (id: string) => ({ video: `/landing/demo/${id}.mp4`, poster: `/landing/demo/${id}.webp` });
+/** One clip per demo and language (the clips show the interface text): /landing/demo/<id>-<lang>.mp4 + .webp poster. */
+export const demoSrc = (id: string, lang: Lang) => ({ video: `/landing/demo/${id}-${lang}.mp4`, poster: `/landing/demo/${id}-${lang}.webp` });
 
 /**
  * A silent looping clip that costs nothing until it is near the viewport: no `src` before that (preload none), playing
@@ -47,7 +48,7 @@ function DemoVideo({ id, label, lang }: { id: string; label: string; lang: Lang 
   const [near, setNear] = useState(false);
   const [paused, setPaused] = useState(reducedMotion);
   const visible = useRef(false);
-  const { video, poster } = demoSrc(id);
+  const { video, poster } = demoSrc(id, lang);
 
   useEffect(() => {
     const el = ref.current;

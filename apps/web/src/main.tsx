@@ -32,6 +32,9 @@ const isCallLab = LAB_ENABLED && location.pathname.replace(/\/+$/, '') === '/lab
 // build-time constant: a normal production build drops the import, so the lab and its fake data are not shipped.
 const Lab = import.meta.env.DEV || import.meta.env.VITE_HOME_LAB === '1' ? lazy(() => import('./home/HomeLab')) : null;
 const isLab = Lab !== null && location.pathname.replace(/\/+$/, '') === '/lab/home';
+// /lab/admin renders the admin console with fake data (admin/AdminLab.tsx) for the landing demo clips; same build gate.
+const AdminLab = import.meta.env.DEV || import.meta.env.VITE_HOME_LAB === '1' ? lazy(() => import('./admin/AdminLab')) : null;
+const isAdminLab = AdminLab !== null && location.pathname.replace(/\/+$/, '') === '/lab/admin';
 
 // "/" is the landing page and "/app/signup" the trial sign-up, both lazy chunks that cost the application nothing; every
 // other path (/app, /admin) is the application. Old meeting links (/j/<code>, /?join=<code>, /?code=<code>) are sent to /app.
@@ -65,6 +68,10 @@ createRoot(document.getElementById('root')!).render(
     ) : isStyleguide && Styleguide ? (
       <Suspense fallback={null}>
         <Styleguide />
+      </Suspense>
+    ) : isAdminLab && AdminLab ? (
+      <Suspense fallback={null}>
+        <AdminLab />
       </Suspense>
     ) : isLab && Lab ? (
       <Suspense fallback={null}>
