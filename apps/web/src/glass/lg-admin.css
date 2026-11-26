@@ -1,0 +1,53 @@
+/*
+ * Liquid Glass, admin layout (owner-approved iOS layout, 2026-11-26): on wide screens the section menu is a floating glass
+ * panel; on phones and tablets it becomes a floating glass capsule at the bottom that scrolls sideways. Lists and tables sit on
+ * content glass (inset grouped). Markup and test ids are the shared ones (AdminApp.tsx).
+ */
+:root[data-style='liquid-glass'] .adm-top { margin: var(--space-2) var(--space-3) 0; border-radius: var(--radius-pill); top: var(--space-2); }
+:root[data-style='liquid-glass'] .adm-badge { box-shadow: var(--glass-rim); }
+:root[data-style='liquid-glass'] .adm-back { padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--glass-pressed); color: var(--text); }
+:root[data-style='liquid-glass'] .table-wrap { border: 0; border-radius: var(--radius-lg); overflow: auto; }
+
+@media (min-width: 960px) {
+  :root[data-style='liquid-glass'] .adm-body { grid-template-columns: 16rem minmax(0, 1fr); }
+  :root[data-style='liquid-glass'] .adm-nav button { justify-content: flex-start; min-width: 0; white-space: normal; text-align: start; line-height: var(--leading-sm); }
+  :root[data-style='liquid-glass'] .adm-nav ul {
+    top: 5.5rem;
+    padding: var(--space-2);
+    border-radius: var(--radius-xl);
+    background: var(--glass-sheen), var(--glass-regular);
+    box-shadow: var(--glass-rim), var(--shadow-2);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  }
+}
+@media (max-width: 959px) {
+  /* The bar wraps onto two rows here: continuous corners instead of a capsule. */
+  :root[data-style='liquid-glass'] .adm-top { border-radius: var(--radius-xl); }
+  :root[data-style='liquid-glass'] .adm-body { grid-template-columns: minmax(0, 1fr); padding-bottom: calc(env(safe-area-inset-bottom, 0rem) + 6rem); }
+  :root[data-style='liquid-glass'] .adm-nav {
+    position: fixed;
+    inset: auto var(--space-3) calc(env(safe-area-inset-bottom, 0rem) + var(--space-3));
+    z-index: var(--z-sticky);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    background: var(--glass-sheen), var(--glass-clear);
+    box-shadow: var(--glass-rim), var(--glass-shadow);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  }
+  :root[data-style='liquid-glass'][data-glass='refract'] .adm-nav { backdrop-filter: var(--lg-refract, ) blur(var(--glass-refract-blur)) saturate(var(--glass-sat)); }
+  :root[data-style='liquid-glass'] .adm-nav ul {
+    position: static;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  :root[data-style='liquid-glass'] .adm-nav li { scroll-snap-align: center; }
+  :root[data-style='liquid-glass'] .adm-nav button { min-height: 3rem; padding: 0 var(--space-4); }
+}

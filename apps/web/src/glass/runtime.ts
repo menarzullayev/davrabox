@@ -32,6 +32,7 @@ export const REFRACT_SELECTORS = [
   '.pj__actions',
   '.hm-tabbar',
   '.si__card',
+  '.adm-nav',
 ] as const;
 const SELECTOR = REFRACT_SELECTORS.join(',');
 const SVG_NS = 'http://www.w3.org/2000/svg';

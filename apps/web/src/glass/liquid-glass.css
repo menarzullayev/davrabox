@@ -19,6 +19,7 @@
 @import './lg-home.css';
 @import './lg-landing.css';
 @import './lg-signin.css';
+@import './lg-admin.css';
 
 /* ---- materials ------------------------------------------------------------------------------------------------ */
 :root[data-style='liquid-glass'] :is(
