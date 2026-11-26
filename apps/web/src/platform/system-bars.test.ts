@@ -69,3 +69,22 @@ describe('watchSystemBars: ThemeBars (window colour and icons together)', () => 
     expect(old).toHaveBeenCalledWith({ style: 'DARK' });
   });
 });
+
+describe('desktop title bar', () => {
+  it('sends the page colour mode to the desktop shell once per change, and does nothing in a browser', async () => {
+    const { watchDesktopTitleBar } = await import('./system-bars');
+    const setTheme = vi.fn();
+    document.documentElement.removeAttribute('data-theme');
+    const stop = watchDesktopTitleBar({ davraDesktop: { isDesktop: true, setTheme } }, document);
+    expect(setTheme).toHaveBeenLastCalledWith('dark');
+    document.documentElement.setAttribute('data-theme', 'light');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setTheme).toHaveBeenLastCalledWith('light');
+    document.documentElement.setAttribute('data-theme', 'light');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setTheme).toHaveBeenCalledTimes(2);
+    stop();
+    document.documentElement.removeAttribute('data-theme');
+    expect(watchDesktopTitleBar({}, document)).toBeTypeOf('function');
+  });
+});

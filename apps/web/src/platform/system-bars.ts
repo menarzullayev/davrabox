@@ -43,3 +43,28 @@ export function watchSystemBars(win: ShellWindow | undefined = typeof window ===
   mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   return () => mo.disconnect();
 }
+
+interface DesktopWindow {
+  davraDesktop?: { isDesktop?: boolean; setTheme?: (mode: 'light' | 'dark') => void };
+}
+
+/** Desktop app (Electron): tells the shell the page's colour mode, so the native title bar is not white over a dark page. */
+export function watchDesktopTitleBar(win: DesktopWindow | undefined = typeof window === 'undefined' ? undefined : (window as unknown as DesktopWindow), doc: Document | undefined = typeof document === 'undefined' ? undefined : document): () => void {
+  const setTheme = win?.davraDesktop?.setTheme;
+  if (!doc || typeof setTheme !== 'function') return () => undefined;
+  let last: string | null = null;
+  const apply = () => {
+    const mode = barStyleFor(doc.documentElement.getAttribute('data-theme')) === 'LIGHT' ? 'light' : 'dark';
+    if (mode === last) return;
+    last = mode;
+    try {
+      setTheme(mode);
+    } catch {
+      /* an older shell: the title bar keeps its colour */
+    }
+  };
+  apply();
+  const mo = new MutationObserver(apply);
+  mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => mo.disconnect();
+}

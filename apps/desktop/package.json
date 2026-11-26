@@ -91,6 +91,9 @@
     "nsis": {
       "oneClick": true,
       "perMachine": false
+    },
+    "extraMetadata": {
+      "name": "davrabox"
     }
   },
   "dependencies": {

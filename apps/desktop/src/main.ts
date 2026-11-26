@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu, desktopCapturer, dialog, session, shell, type WebContents } from 'electron';
+import { app, BrowserWindow, Menu, desktopCapturer, dialog, ipcMain, nativeTheme, screen, session, shell, type WebContents } from 'electron';
 import { join } from 'node:path';
 import { startAutoUpdates } from './updater';
+import { WINDOW_BG, initialWindowSize, parseThemeMessage } from './window';
 import { DEEP_LINK_SCHEME, appOriginFrom, isAllowedNavigation, isAllowedPermission, isSafeExternalUrl, parseDeepLink } from './security';
 
 // The desktop app is a hardened shell around the web client. It opens no local port, exposes no Node.js to the page,
@@ -70,13 +71,14 @@ function hardenContents(wc: WebContents): void {
 }
 
 function createWindow(): void {
+  const size = initialWindowSize(screen.getPrimaryDisplay().workAreaSize);
   win = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    ...size,
+    center: true,
     minWidth: 800,
     minHeight: 560,
     show: false,
-    backgroundColor: '#0a0d21',
+    backgroundColor: WINDOW_BG.dark,
     title: 'DavraBox',
     webPreferences: {
       preload: join(__dirname, 'preload.cjs'),
@@ -92,7 +94,15 @@ function createWindow(): void {
       devTools: !app.isPackaged,
     },
   });
-  win.once('ready-to-show', () => win?.show());
+  win.once('ready-to-show', () => {
+    // Shown at the computed size even if the window manager restored something smaller.
+    const b = win?.getBounds();
+    if (win && b && (b.width < size.width || b.height < size.height)) {
+      win.setSize(size.width, size.height);
+      win.center();
+    }
+    win?.show();
+  });
   win.on('closed', () => {
     win = null;
   });
@@ -122,6 +132,14 @@ if (!app.requestSingleInstanceLock()) {
   app.setAsDefaultProtocolClient(DEEP_LINK_SCHEME);
   void app.whenReady().then(() => {
     hardenSession();
+    // The app starts dark (its default); the page reports its colour mode so the title bar follows it.
+    nativeTheme.themeSource = 'dark';
+    ipcMain.on('davra:theme', (event, value) => {
+      const mode = parseThemeMessage(value);
+      if (!mode || !win || event.sender !== win.webContents || !isAllowedNavigation(event.senderFrame?.url ?? '', APP_ORIGIN)) return;
+      nativeTheme.themeSource = mode;
+      win.setBackgroundColor(WINDOW_BG[mode]);
+    });
     if (app.isPackaged) Menu.setApplicationMenu(null);
     handleDeepLink(process.argv.find((a) => a.startsWith(`${DEEP_LINK_SCHEME}://`)));
     createWindow();

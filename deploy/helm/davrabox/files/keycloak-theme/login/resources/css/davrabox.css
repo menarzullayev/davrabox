@@ -11,7 +11,8 @@
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
 .pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
-.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+.pf-v5-c-login__main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
 .dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
 :root {
   --pf-v5-global--primary-color--100: #087069;
