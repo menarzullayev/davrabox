@@ -14,6 +14,8 @@
  * Values are tokens only (design-lint: no literal colours, no literal px, named breakpoints).
  */
 
+@import './lg-call.css';
+
 /* ---- materials ------------------------------------------------------------------------------------------------ */
 :root[data-style='liquid-glass'] :is(
     .dv-toolbar, .dv-topbar .dv-pill, .dv-topbar .dv-lock, .hm-header, .ln-header, .adm-top, .si__tools .dx-btn--icon,
@@ -182,7 +184,6 @@
   :root[data-style='liquid-glass'] .dx-dialog[open] { animation: lg-pop var(--dur-spring) var(--ease-spring) both; }
   :root[data-style='liquid-glass'] :is(.dx-sheet, .dv-drawer) { animation: lg-sheet var(--dur-spring) var(--ease-spring-calm) both; }
   :root[data-style='liquid-glass'] .dx-toasts > * { animation: lg-pop var(--dur-spring) var(--ease-spring) both; }
-  :root[data-style='liquid-glass'] .dv-stage .tile { animation: lg-pop var(--dur-spring) var(--ease-spring) both; }
 }
 @keyframes lg-morph {
   from { opacity: 0; transform: scale(0.6, 0.2); filter: blur(var(--space-1)); }

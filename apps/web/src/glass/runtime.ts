@@ -14,6 +14,7 @@ export const REFRACT_SELECTORS = [
   '.dv-toolbar',
   '.dv-topbar .dv-pill',
   '.dv-topbar .dv-lock',
+  '.dv-topbar .dv-title',
   '.hm-header',
   '.ln-header',
   '.adm-top',

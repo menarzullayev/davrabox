@@ -1,0 +1,118 @@
+/*
+ * Liquid Glass, call screen layout (owner-approved iOS layout, 2026-11-26): the stage fills the screen, the top bar becomes
+ * floating glass capsules, the control bar floats over the video as one refracting capsule, chat and people are iOS sheets on
+ * phones and a floating inset panel on wider screens. Markup, roles and test ids are the shared ones (CallView.tsx).
+ */
+:root[data-style='liquid-glass'] .dv-call {
+  --lg-top: calc(env(safe-area-inset-top, 0rem) + 3.5rem);
+  --lg-bottom: calc(env(safe-area-inset-bottom, 0rem) + 5.25rem);
+  /* The control bar overlaps the stage by this much, so the glass sits on the video, not beside it. */
+  --lg-overlap: 1.75rem;
+  grid-template-rows: minmax(0, 1fr);
+}
+:root[data-style='liquid-glass'] .dv-call > :is(.dv-topbar, .dv-main, .dv-controls) { grid-area: 1 / 1; }
+:root[data-style='liquid-glass'] .dv-call > .dv-main { z-index: 1; }
+/* An open sheet (phones) covers the floating bars, like an iOS sheet; the stage under it is dimmed by the scrim. */
+:root[data-style='liquid-glass'] .dv-call:not([data-panel='none']) > .dv-main { z-index: 50; }
+
+/* ---- top bar: separate floating capsules --------------------------------------------------------------------- */
+:root[data-style='liquid-glass'] .dv-call > .dv-topbar {
+  z-index: 40;
+  align-self: start;
+  min-height: 0;
+  padding: calc(env(safe-area-inset-top, 0rem) + var(--space-2)) var(--space-3) 0;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+:root[data-style='liquid-glass'] .dv-topbar > * { pointer-events: auto; }
+:root[data-style='liquid-glass'] .dv-topbar .dv-mark { display: none; }
+:root[data-style='liquid-glass'] .dv-topbar .dv-title {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--glass-sheen), var(--glass-clear);
+  box-shadow: var(--glass-rim), var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+:root[data-style='liquid-glass'][data-glass='refract'] .dv-topbar .dv-title { backdrop-filter: var(--lg-refract, ) blur(var(--glass-refract-blur)) saturate(var(--glass-sat)); }
+:root[data-style='liquid-glass'] .dv-topbar .dv-top-right { margin-inline-start: auto; }
+:root[data-style='liquid-glass'] .dv-topbar :is(.dv-pill, .dv-lock) { height: 2.5rem; min-height: 2.5rem; padding: 0 var(--space-3); border-radius: var(--radius-pill); }
+:root[data-style='liquid-glass'] .dv-topbar .dv-pill__text { color: var(--text); }
+
+/* ---- stage: everything between the bars, the bottom edge under the floating control bar ---------------------- */
+:root[data-style='liquid-glass'] .dv-stagewrap { padding: var(--lg-top) 0 calc(var(--lg-bottom) - var(--lg-overlap)); }
+:root[data-style='liquid-glass'] .dv-connecting { inset: calc(-1 * var(--lg-top)) 0 calc(var(--lg-overlap) - var(--lg-bottom)); }
+
+/* ---- control bar: one floating capsule --------------------------------------------------------------------- */
+:root[data-style='liquid-glass'] .dv-call > .dv-controls {
+  z-index: 40;
+  align-self: end;
+  padding: 0 var(--space-3) calc(env(safe-area-inset-bottom, 0rem) + var(--space-3));
+  pointer-events: none;
+}
+:root[data-style='liquid-glass'] .dv-controls .dv-toolbar { pointer-events: auto; }
+:root[data-style='liquid-glass'] .dv-toolbar .dv-ctl { min-width: 3.25rem; min-height: 3.25rem; }
+:root[data-style='liquid-glass'] .dv-toolbar .dv-ctl[data-variant='danger'] { min-width: 4rem; }
+
+/* ---- chat and people ---------------------------------------------------------------------------------------- */
+/* Wide screens: a floating inset glass panel beside the stage. */
+@media (min-width: 960px) {
+  :root[data-style='liquid-glass'] .dv-main.with-chat { grid-template-columns: minmax(0, 1fr) 23.75rem; }
+  :root[data-style='liquid-glass'] .dv-drawer {
+    margin: var(--lg-top) var(--space-3) calc(var(--lg-bottom) - var(--lg-overlap)) 0;
+    border: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+}
+/* Phones and tablets: an iOS sheet. Medium detent by default; large while typing (the keyboard needs the room). */
+@media (max-width: 959px) {
+  :root[data-style='liquid-glass'] .dv-main.with-chat { grid-template-columns: minmax(0, 1fr); }
+  :root[data-style='liquid-glass'] .dv-drawer {
+    position: fixed;
+    inset: auto var(--space-2) calc(env(safe-area-inset-bottom, 0rem) + var(--space-2));
+    z-index: var(--z-overlay);
+    height: min(62dvh, 40rem);
+    border: 0;
+    border-radius: var(--radius-xl);
+    transition: height var(--dur-spring) var(--ease-spring-calm);
+  }
+  :root[data-style='liquid-glass'] .dv-drawer:focus-within:has(.dv-form :focus) { height: min(92dvh, 56rem); }
+  :root[data-style='liquid-glass'] .dv-scrim { display: block; position: fixed; inset: 0; z-index: calc(var(--z-overlay) - 1); background: var(--scrim); }
+  :root[data-style='liquid-glass'] .dv-drawer__head { position: relative; padding-top: var(--space-4); border-bottom: 0; }
+  :root[data-style='liquid-glass'] .dv-drawer__head::before {
+    content: '';
+    position: absolute;
+    top: var(--space-2);
+    left: 50%;
+    width: 2.25rem;
+    height: 0.3125rem;
+    margin-left: -1.125rem;
+    border-radius: var(--radius-pill);
+    background: var(--border-strong);
+    opacity: 0.7;
+  }
+}
+
+/* Waiting-room requests and notices sit under the floating top bar. */
+:root[data-style='liquid-glass'] .dv-requests { border: 0; border-radius: var(--radius-lg); }
+:root[data-style='liquid-glass'] .dv-notice { border-radius: var(--radius-lg); }
+
+/* Phones: a tighter top bar and a control capsule that spans the width. */
+@media (max-width: 639px) {
+  :root[data-style='liquid-glass'] .dv-call { --lg-top: calc(env(safe-area-inset-top, 0rem) + 3.25rem); --lg-bottom: calc(env(safe-area-inset-bottom, 0rem) + 4.75rem); --lg-overlap: 1.5rem; }
+  :root[data-style='liquid-glass'] .dv-call > .dv-topbar { padding-inline: var(--space-2); gap: var(--space-1); }
+  :root[data-style='liquid-glass'] .dv-topbar .dv-title { min-width: 0; height: 2.25rem; padding: 0 var(--space-3); font-size: var(--text-sm); }
+  :root[data-style='liquid-glass'] .dv-topbar :is(.dv-pill, .dv-lock) { height: 2.25rem; min-height: 2.25rem; padding: 0 var(--space-2); }
+  :root[data-style='liquid-glass'] .dv-call > .dv-controls { padding-inline: var(--space-2); }
+  :root[data-style='liquid-glass'] .dv-toolbar { width: 100%; justify-content: space-between; padding: var(--space-1) var(--space-2); }
+  :root[data-style='liquid-glass'] .dv-toolbar .dv-ctl { min-width: 2.75rem; width: 2.75rem; min-height: 2.75rem; }
+  :root[data-style='liquid-glass'] .dv-toolbar .dv-ctl[data-variant='danger'] { min-width: 3.25rem; width: 3.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-style='liquid-glass'] .dv-drawer { transition: none; }
+}
