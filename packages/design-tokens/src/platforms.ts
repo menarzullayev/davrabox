@@ -116,7 +116,9 @@ ${sel} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 ${r(
 ${sel} .pf-v5-c-input-group:focus-within { border-radius: ${r('radiusMd', '14px')}; }
 ${sel} .pf-v5-c-button.pf-m-primary { border-radius: 999px; min-height: 3rem; font-weight: 600; box-shadow: ${rim}; transition: transform ${r('durSpring', '400ms')} ${r('easeSpring', 'ease-out')}; }
 ${sel} .pf-v5-c-button.pf-m-primary:active { transform: scale(0.97); }
-${sel} .dx-kc-langs a { background: ${tint(g.clear)}; box-shadow: ${rim}; }
+${sel} .dx-kc-langs { gap: 0.125rem; padding: 0.1875rem; border-radius: 999px; background: ${tint(g.clear)}; box-shadow: ${rim}; }
+${sel} .dx-kc-langs a { flex: 1; border: 0; border-radius: 999px; background: transparent; }
+${sel} .dx-kc-langs a[aria-current='true'] { background: ${c.surface1}; color: ${c.text}; box-shadow: ${rim}, ${mv['shadow1'] ?? 'none'}; }
 `);
     }
     out.push(`@media (prefers-reduced-transparency: reduce) { :root[data-style='${id}'] .pf-v5-c-login__main { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--pf-v5-global--BackgroundColor--100); } }

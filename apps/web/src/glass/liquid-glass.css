@@ -18,6 +18,7 @@
 @import './lg-prejoin.css';
 @import './lg-home.css';
 @import './lg-landing.css';
+@import './lg-signin.css';
 
 /* ---- materials ------------------------------------------------------------------------------------------------ */
 :root[data-style='liquid-glass'] :is(
@@ -31,7 +32,7 @@
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
 :root[data-style='liquid-glass'] :is(
-    .dx-dialog, .dx-popover, .dx-sheet, .dv-drawer, .dv-requests, .dv-notice, .dx-toasts > *, .lg-panel, .pj__actions
+    .dx-dialog, .dx-popover, .dx-sheet, .dv-drawer, .dv-requests, .dv-notice, .dx-toasts > *, .lg-panel, .pj__actions, .si__card
   ) {
   border-color: transparent;
   background: var(--glass-sheen), var(--glass-regular);
@@ -41,12 +42,12 @@
 }
 /* Refraction where the runtime has built the element's displacement filter (Chromium; not in degraded mode). */
 :root[data-style='liquid-glass'][data-glass='refract'] :is(
-    .dv-toolbar, .dv-topbar .dv-pill, .dv-topbar .dv-lock, .hm-header, .ln-header, .adm-top, .dv-drawer, .dv-requests, .dv-notice, .dx-popover, .dx-dialog, .dx-sheet, .lg-glass, .pj__title, .pj__meeting, .pj__toggles > *, .pj__skip > *, .pj__actions, .hm-tabbar
+    .dv-toolbar, .dv-topbar .dv-pill, .dv-topbar .dv-lock, .hm-header, .ln-header, .adm-top, .dv-drawer, .dv-requests, .dv-notice, .dx-popover, .dx-dialog, .dx-sheet, .lg-glass, .pj__title, .pj__meeting, .pj__toggles > *, .pj__skip > *, .pj__actions, .hm-tabbar, .si__card
   ) {
   backdrop-filter: var(--lg-refract, ) blur(var(--glass-refract-blur)) saturate(var(--glass-sat));
 }
 :root[data-style='liquid-glass'] :is(
-    .hm-card, .hm-row__card, .si__card, .dx-card, .ln-su__card, .ln-tile, .ln-step, .stat, .menu-list, .table-wrap, .int-block, .hm-wait__code, .dv-more__info
+    .hm-card, .hm-row__card, .dx-card, .ln-su__card, .ln-tile, .ln-step, .stat, .menu-list, .table-wrap, .int-block, .hm-wait__code, .dv-more__info
   ) {
   border-color: transparent;
   background: var(--glass-sheen), var(--glass-regular);
@@ -208,7 +209,7 @@
   :root[data-style='liquid-glass'] :is(
       .dv-toolbar, .dv-topbar .dv-pill, .dv-topbar .dv-lock, .hm-header, .ln-header, .adm-top, .lg-chrome, .lg-glass,
       .dx-dialog, .dx-popover, .dx-sheet, .dv-drawer, .dv-requests, .dv-notice, .dx-toasts > *, .lg-panel,
-      .hm-card, .hm-row__card, .si__card, .dx-card, .ln-su__card, .dv-stage .label, .pj__title, .pj__meeting, .pj__toggles > *, .pj__skip > *, .pj__actions, .hm-tabbar
+      .hm-card, .hm-row__card, .si__card, .dx-card, .ln-su__card, .dv-stage .label, .pj__title, .pj__meeting, .pj__toggles > *, .pj__skip > *, .pj__actions, .hm-tabbar, .si__card
     ) {
     background: var(--surface-2);
     -webkit-backdrop-filter: none;
