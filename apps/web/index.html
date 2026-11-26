@@ -25,6 +25,10 @@
       /* Boot screen: visible as soon as the HTML arrives, replaced when React mounts (no script, so the CSP is unaffected). */
       html { background: #0a0d21; }
       html[data-theme='light'] { background: #f4f5fb; }
+      /* <style-boot> */
+      html[data-style='liquid-glass'] { background: #060818; }
+      html[data-style='liquid-glass'][data-theme='light'] { background: #eaeef8; }
+      /* </style-boot> */
       .boot { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
       .boot img { width: 120px; height: 120px; }
       .boot i { width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(58, 214, 202, 0.25); border-top-color: #3ad6ca; animation: boot-spin 0.9s linear infinite; }

@@ -3,11 +3,13 @@
 // drift (the test uses it, so CI fails when a copy goes stale); `pnpm sync` rewrites the files.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { chromeColour, themes, type ThemeName } from './tokens.js';
+import { chromeColour, chromeOverrides, resolveColours, styles, themes, type StyleId, type ThemeName } from './tokens.js';
 
 const dark = chromeColour('dark');
 const light = chromeColour('light');
 const argb = (hex: string) => `0xFF${hex.slice(1).toUpperCase()}`;
+/** Styles with their own chrome colour: `{ 'liquid-glass': { dark: '#..', light: '#..' } }` as a TypeScript literal. */
+const overrideLiteral = () => `{ ${chromeOverrides().map((o) => `'${o.style}': { dark: '${o.dark}', light: '${o.light}' }`).join(', ')} }`;
 
 interface Target {
   file: string;
@@ -79,14 +81,58 @@ ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { ou
 .dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
 `;
   return `/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
-${shared}${block('light', ':root')}${block('dark', ':root.pf-v5-theme-dark')}`;
+${shared}${block('light', ':root')}${block('dark', ':root.pf-v5-theme-dark')}${keycloakGlassCss()}`;
+}
+
+/**
+ * The glass look of the sign-in page for styles that have glass (liquid-glass). davrabox.js copies the app's style choice
+ * into data-style; glass.js adds the refraction (--dx-refract) where the browser supports it, otherwise the frosted glass
+ * below is what shows. Reduced transparency gets the opaque card back; reduced motion, no spring.
+ */
+function keycloakGlassCss(): string {
+  const out: string[] = [];
+  for (const id of Object.keys(styles) as StyleId[]) {
+    const def = styles[id];
+    if (!def.glass) continue;
+    const v = def.vars ?? {};
+    const r = (k: string, d: string) => v[k] ?? d;
+    const frost = `blur(${r('glassBlur', '14px')}) saturate(${r('glassSat', '1.8')})`;
+    for (const mode of ['light', 'dark'] as const) {
+      const g = def.glass[mode];
+      if (!g) continue;
+      const c = resolveColours(id, mode);
+      const mv = def.modeVars?.[mode] ?? {};
+      const n = parseInt(g.tint.slice(1), 16);
+      const tint = (a: number) => `rgb(${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255} / ${a})`;
+      const rim = mv['glassRim'] ?? 'none';
+      const sel = mode === 'dark' ? `:root.pf-v5-theme-dark[data-style='${id}']` : `:root[data-style='${id}']:not(.pf-v5-theme-dark)`;
+      out.push(`${sel} body, ${sel} .pf-v5-c-login { background: ${mv['bgImage'] ? `${mv['bgImage']}, ` : ''}${c.bg}; background-attachment: fixed; }
+${sel} body { font-family: ${r('fontSans', 'inherit')}; }
+${sel} .pf-v5-c-login__main { background: ${tint(g.regular)}; border: 0; border-radius: ${r('radiusXl', '28px')}; box-shadow: ${rim}, ${mv['glassShadow'] ?? 'none'}; -webkit-backdrop-filter: ${frost}; backdrop-filter: var(--dx-refract, ${frost}); }
+${sel} .pf-v5-c-login__main-header h1, ${sel} .pf-v5-c-title { font-family: ${r('fontHeading', 'inherit')}; font-weight: 700; letter-spacing: -0.02em; }
+${sel} .pf-v5-c-form-control { border-radius: ${r('radiusMd', '14px')}; }
+${sel} .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: ${r('radiusMd', '14px')} 0 0 ${r('radiusMd', '14px')}; }
+${sel} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { border-radius: 0 ${r('radiusMd', '14px')} ${r('radiusMd', '14px')} 0; }
+${sel} .pf-v5-c-input-group:focus-within { border-radius: ${r('radiusMd', '14px')}; }
+${sel} .pf-v5-c-button.pf-m-primary { border-radius: 999px; min-height: 3rem; font-weight: 600; box-shadow: ${rim}; transition: transform ${r('durSpring', '400ms')} ${r('easeSpring', 'ease-out')}; }
+${sel} .pf-v5-c-button.pf-m-primary:active { transform: scale(0.97); }
+${sel} .dx-kc-langs { gap: 0.125rem; padding: 0.1875rem; border-radius: 999px; background: ${tint(g.clear)}; box-shadow: ${rim}; }
+${sel} .dx-kc-langs a { flex: 1; border: 0; border-radius: 999px; background: transparent; }
+${sel} .dx-kc-langs a[aria-current='true'] { background: ${c.surface1}; color: ${c.text}; box-shadow: ${rim}, ${mv['shadow1'] ?? 'none'}; }
+`);
+    }
+    out.push(`@media (prefers-reduced-transparency: reduce) { :root[data-style='${id}'] .pf-v5-c-login__main { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--pf-v5-global--BackgroundColor--100); } }
+@media (prefers-reduced-motion: reduce) { :root[data-style='${id}'] .pf-v5-c-button.pf-m-primary { transition: none; } }
+`);
+  }
+  return out.join('');
 }
 
 export const targets: Target[] = [
   {
     file: 'apps/web/src/prefs/theme-colors.generated.ts',
     apply: () =>
-      `// Generated from packages/design-tokens by \`pnpm --filter @davrabox/design-tokens sync\`. Do not edit.\nexport const THEME_COLOR = { dark: '${dark}', light: '${light}' } as const;\n`,
+      `// Generated from packages/design-tokens by \`pnpm --filter @davrabox/design-tokens sync\`. Do not edit.\nexport const THEME_COLOR = { dark: '${dark}', light: '${light}' } as const;\n/** Styles whose page background (and so the browser and system bar colour) differs from the base. */\nexport const STYLE_THEME_COLOR: Readonly<Record<string, { dark: string; light: string }>> = ${overrideLiteral()};\n`,
   },
   {
     file: 'apps/web/index.html',
@@ -94,6 +140,10 @@ export const targets: Target[] = [
       let t = replaceOnce(s, /(<meta name="theme-color" content=")#[0-9a-fA-F]{6}(")/, `$1${dark}$2`, 'theme-color meta');
       t = replaceOnce(t, /(html \{ background: )#[0-9a-fA-F]{6}(; \})/, `$1${dark}$2`, 'boot dark background');
       t = replaceOnce(t, /(html\[data-theme='light'\] \{ background: )#[0-9a-fA-F]{6}(; \})/, `$1${light}$2`, 'boot light background');
+      const boot = chromeOverrides()
+        .map((o) => `      html[data-style='${o.style}'] { background: ${o.dark}; }\n      html[data-style='${o.style}'][data-theme='light'] { background: ${o.light}; }\n`)
+        .join('');
+      t = replaceOnce(t, /( *\/\* <style-boot> \*\/\n)[\s\S]*?( *\/\* <\/style-boot> \*\/)/, `$1${boot}$2`, 'boot style backgrounds');
       return t;
     },
   },
@@ -111,6 +161,10 @@ export const targets: Target[] = [
     apply: (s) => {
       let t = replaceOnce(s, /(DARK_BG = )0x[0-9A-Fa-f]{8}(;)/, `$1${argb(dark)}$2`, 'DARK_BG');
       t = replaceOnce(t, /(LIGHT_BG = )0x[0-9A-Fa-f]{8}(;)/, `$1${argb(light)}$2`, 'LIGHT_BG');
+      const rows = chromeOverrides()
+        .map((o) => `        if ("${o.style}".equals(style)) return new int[] { ${argb(o.dark)}, ${argb(o.light)} };\n`)
+        .join('');
+      t = replaceOnce(t, /( *\/\/ <generated-style-chrome>[^\n]*\n[^\n]*\n)[\s\S]*?( *return null;\n)/, `$1${rows}$2`, 'style chrome table');
       return t;
     },
   },
@@ -121,8 +175,9 @@ export const targets: Target[] = [
   {
     file: 'apps/desktop/src/window.ts',
     apply: (s) => {
-      let t = replaceOnce(s, /(dark: ')#[0-9a-fA-F]{6}(')/, `$1${dark}$2`, 'desktop dark window');
-      t = replaceOnce(t, /(light: ')#[0-9a-fA-F]{6}(')/, `$1${light}$2`, 'desktop light window');
+      let t = replaceOnce(s, /(WINDOW_BG = \{ dark: ')#[0-9a-fA-F]{6}(')/, `$1${dark}$2`, 'desktop dark window');
+      t = replaceOnce(t, /(WINDOW_BG = \{ dark: '#[0-9a-fA-F]{6}', light: ')#[0-9a-fA-F]{6}(')/, `$1${light}$2`, 'desktop light window');
+      t = replaceOnce(t, /(export const STYLE_WINDOW_BG: [^=]+= ).*?(;\n)/, `$1${overrideLiteral()}$2`, 'desktop style windows');
       return t;
     },
   },

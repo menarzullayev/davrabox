@@ -1,0 +1,16 @@
+/*
+ * Liquid Glass, sign-in layout (owner-approved iOS layout, 2026-11-26): a large title over the colour field, the sign-in card
+ * as refracting glass, theme and settings as round glass buttons. The Keycloak page gets the same look from the generated
+ * keycloak-theme CSS (packages/design-tokens/src/platforms.ts) and its own glass.js.
+ */
+:root[data-style='liquid-glass'] .si__tools .dx-btn--icon { border-radius: 50%; }
+:root[data-style='liquid-glass'] .si__card { border-radius: var(--radius-xl); }
+:root[data-style='liquid-glass'] .si__statement { letter-spacing: -0.035em; }
+@media (max-width: 639px) {
+  /* The ornament gives the first screen to the title and the card. */
+  :root[data-style='liquid-glass'] .si[data-view='start'] .si__art { display: none; }
+  :root[data-style='liquid-glass'] .si__main { align-content: center; gap: var(--space-6); }
+  :root[data-style='liquid-glass'] .si__statement { font-size: var(--text-3xl); line-height: var(--leading-3xl); }
+  :root[data-style='liquid-glass'] .si__line { display: block; }
+  :root[data-style='liquid-glass'] .si__card { padding: var(--space-5); }
+}

@@ -1,0 +1,66 @@
+/*
+ * Liquid Glass, pre-join layout (owner-approved iOS layout, 2026-11-26): the camera preview fills the screen, the title and
+ * the meeting name float at the top as glass capsules, the microphone and camera switches float over the video, and Join sits
+ * in a glass sheet at the bottom. Markup and test ids are the shared ones (PreJoin.tsx).
+ */
+:root[data-style='liquid-glass'] .pj {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top, 0rem) + 7rem) var(--space-3) calc(env(safe-area-inset-bottom, 0rem) + var(--space-3));
+  background: none;
+}
+:root[data-style='liquid-glass'] .pj > :not(.pj__preview) { position: relative; z-index: 1; width: min(100%, 28rem); }
+:root[data-style='liquid-glass'] .pj__preview {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: auto;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-image), var(--video-bg);
+}
+:root[data-style='liquid-glass'] .pj__off {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--glass-clear);
+  color: var(--text);
+  box-shadow: var(--glass-rim);
+}
+
+/* Title and meeting name: capsules at the top. */
+:root[data-style='liquid-glass'] .pj > .pj__title,
+:root[data-style='liquid-glass'] .pj > .pj__meeting {
+  position: absolute;
+  left: 50%;
+  width: auto;
+  max-width: calc(100% - 2 * var(--space-3));
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+:root[data-style='liquid-glass'] .pj > .pj__title { top: calc(env(safe-area-inset-top, 0rem) + var(--space-3)); font-size: var(--text-base); line-height: var(--leading-base); }
+:root[data-style='liquid-glass'] .pj > .pj__meeting { top: calc(env(safe-area-inset-top, 0rem) + 3.75rem); color: var(--text); font-size: var(--text-sm); }
+
+/* Microphone and camera: two floating glass capsules side by side over the video. */
+:root[data-style='liquid-glass'] .pj__toggles { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); }
+:root[data-style='liquid-glass'] .pj__toggles > * {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+}
+
+/* The bottom sheet: "do not show again" and the buttons. */
+:root[data-style='liquid-glass'] .pj__skip { display: flex; justify-content: center; }
+:root[data-style='liquid-glass'] .pj__skip > * { padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); }
+:root[data-style='liquid-glass'] .pj__actions { gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-xl); }
+:root[data-style='liquid-glass'] .pj__problem { padding: var(--space-2) var(--space-4); border-radius: var(--radius-lg); background: var(--glass-regular); color: var(--danger); }

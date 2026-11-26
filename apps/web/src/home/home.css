@@ -203,6 +203,9 @@
   .hm-empty { border: 1px dashed var(--border-strong); border-radius: var(--radius-xl); background: var(--surface-1); }
   .hm-footer { margin-top: var(--space-12); color: var(--text-subtle); font-size: var(--text-xs); line-height: var(--leading-xs); letter-spacing: 0.08em; text-align: center; }
 
+  /* Phone tab bar: only the liquid-glass style shows it (glass/lg-home.css); every other style keeps the header controls. */
+  .hm-tabbar { display: none; }
+
   /* ---- settings popover -------------------------------------------------------------------------------------- */
   .hm-settings { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); box-sizing: border-box; width: min(300px, calc(100vw - 32px)); padding: var(--space-3); }
   .hm-settings__group { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }

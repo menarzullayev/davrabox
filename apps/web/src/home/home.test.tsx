@@ -292,6 +292,24 @@ describe('new meeting dialog', () => {
   });
 });
 
+describe('liquid-glass phone tab bar (present in every style, shown only by that style)', () => {
+  it('New opens the new-meeting dialog, Settings opens the settings panel, Join focuses the code field', async () => {
+    render(<HomeScreen {...props()} />);
+    const bar = screen.getByRole('navigation', { name: 'Sections' });
+    fireEvent.click(within(bar).getByTestId('tab-new'));
+    expect(await screen.findByRole('dialog', { name: 'New meeting' })).toBeTruthy();
+    fireEvent.click(within(bar).getByTestId('tab-settings'));
+    expect(within(bar).getByTestId('tab-settings').getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(within(bar).getByTestId('tab-join'));
+    expect(document.activeElement?.closest('.hm-join')).toBeTruthy();
+  });
+  it('keeps the shared test ids unique (the header settings button is still the only "settings")', () => {
+    render(<HomeScreen {...props()} />);
+    expect(screen.getAllByTestId('settings')).toHaveLength(1);
+    expect(screen.getAllByTestId('new-meeting')).toHaveLength(1);
+  });
+});
+
 describe('settings menu', () => {
   it('holds language, appearance and the firewall mode, and reports changes', async () => {
     const p = props();

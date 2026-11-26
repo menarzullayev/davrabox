@@ -47,7 +47,7 @@ try {
     bridge: window.davraDesktop ? Object.keys(window.davraDesktop).sort().join(',') : null,
     ipc: typeof window.ipcRenderer,
   }));
-  check('the page has no Node.js; only the fixed bridge {isDesktop, platform} exists', bridge.require === 'undefined' && bridge.process === 'undefined' && bridge.ipc === 'undefined' && bridge.bridge === 'isDesktop,platform', JSON.stringify(bridge));
+  check('the page has no Node.js; only the fixed bridge {isDesktop, platform, setTheme} exists', bridge.require === 'undefined' && bridge.process === 'undefined' && bridge.ipc === 'undefined' && bridge.bridge === 'isDesktop,platform,setTheme', JSON.stringify(bridge));
 
   // Replace shell.openExternal in the main process so the test records the hand-over instead of opening a real browser.
   await app.evaluate(({ shell }) => {

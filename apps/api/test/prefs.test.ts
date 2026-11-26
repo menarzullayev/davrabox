@@ -14,7 +14,7 @@ const tokenList = (name: string): string[] => {
   const start = tokensSrc.indexOf(`${name} = [`);
   const m = start < 0 ? null : /\[([^\]]*)\]/.exec(tokensSrc.slice(start));
   if (!m) throw new Error('list not found in tokens.ts: ' + name);
-  return [...m[1]!.matchAll(/'([a-z]+)'/g)].map((x) => x[1]!);
+  return [...m[1]!.matchAll(/'([a-z][a-z-]*)'/g)].map((x) => x[1]!);
 };
 const TOKEN_STYLES = tokenList('STYLE_IDS');
 const TOKEN_DENSITIES = tokenList('DENSITY_IDS');

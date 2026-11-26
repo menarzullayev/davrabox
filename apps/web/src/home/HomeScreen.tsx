@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GuestMode, Meeting, TrialStatus } from '../api';
 import { MeetingGuestsDialog } from './MeetingGuestsDialog';
 import { t, type Key, type Lang } from '../i18n';
-import { Alert, Avatar, Button, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
+import { Alert, Avatar, Button, IconCalendar, IconLink, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
+import { SettingsMenu } from './SettingsMenu';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
 import { AppearanceControls } from './AppearanceControls';
@@ -87,6 +88,11 @@ function HomeBody(props: HomeScreenProps) {
   const name = firstName(props.profile);
   const greeting = tx(lang, GREETING[greetingSlot(clock)]);
 
+  const focusJoin = useCallback(() => {
+    window.scrollTo?.({ top: 0, behavior: 'smooth' });
+    document.querySelector<HTMLInputElement>('.hm-join input')?.focus({ preventScroll: true });
+  }, []);
+
   const joinRow = useCallback(
     async (m: TimelineMeeting) => {
       // A protected meeting needs the passcode first: hand over to the join form instead of failing on the server.
@@ -166,6 +172,20 @@ function HomeBody(props: HomeScreenProps) {
 
         <footer className="hm-footer">{tx(lang, 'hBrandLine')}</footer>
       </main>
+
+      {/* Phone tab bar of the liquid-glass style (hidden in every other style and on wider screens: see home.css). */}
+      <nav className="hm-tabbar" aria-label={tx(lang, 'hTabs')}>
+        <Button variant="ghost" className="hm-tabbar__item" icon={<IconLink />} data-testid="tab-join" onClick={() => focusJoin()}>
+          {tx(lang, 'hTabJoin')}
+        </Button>
+        <Button variant="ghost" className="hm-tabbar__item" icon={<IconPlus />} data-testid="tab-new" onClick={() => setDialog(true)}>
+          {tx(lang, 'hTabNew')}
+        </Button>
+        <Button variant="ghost" className="hm-tabbar__item" icon={<IconCalendar />} data-testid="tab-meetings" onClick={() => document.getElementById('hm-meetings-h')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })}>
+          {tx(lang, 'hTabMeetings')}
+        </Button>
+        <SettingsMenu lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={{ value: props.relayMode, onChange: props.onRelayMode }} tab={{ testId: 'tab-settings', className: 'hm-tabbar__item' }} />
+      </nav>
 
       <NewMeetingDialog
         lang={lang}

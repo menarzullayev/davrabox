@@ -88,3 +88,31 @@ describe('desktop title bar', () => {
     expect(watchDesktopTitleBar({}, document)).toBeTypeOf('function');
   });
 });
+
+describe('a style with its own page colour (liquid-glass) is passed to the shells', () => {
+  afterEach(() => document.documentElement.removeAttribute('data-style'));
+  it('Android ThemeBars gets the style with the mode; other styles still send only the mode', async () => {
+    const setTheme = vi.fn(async (_o: { theme: 'dark' | 'light'; style?: string }) => undefined);
+    document.documentElement.setAttribute('data-style', 'terminal');
+    const stop = watchSystemBars({ Capacitor: { isNativePlatform: () => true, Plugins: { ThemeBars: { setTheme } } } }, document);
+    document.documentElement.setAttribute('data-style', 'liquid-glass');
+    await new Promise((r) => setTimeout(r, 0));
+    document.documentElement.setAttribute('data-theme', 'light');
+    await new Promise((r) => setTimeout(r, 0));
+    document.documentElement.setAttribute('data-style', 'swiss');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setTheme.mock.calls.map((c) => c[0])).toEqual([{ theme: 'dark' }, { theme: 'dark', style: 'liquid-glass' }, { theme: 'light', style: 'liquid-glass' }, { theme: 'light' }]);
+    stop();
+  });
+  it('the desktop shell gets the style name only for such a style', async () => {
+    const { watchDesktopTitleBar } = await import('./system-bars');
+    const setTheme = vi.fn();
+    document.documentElement.setAttribute('data-style', 'liquid-glass');
+    const stop = watchDesktopTitleBar({ davraDesktop: { isDesktop: true, setTheme } }, document);
+    expect(setTheme).toHaveBeenLastCalledWith('dark', 'liquid-glass');
+    document.documentElement.setAttribute('data-style', 'flat');
+    await new Promise((r) => setTimeout(r, 0));
+    expect(setTheme).toHaveBeenLastCalledWith('dark');
+    stop();
+  });
+});

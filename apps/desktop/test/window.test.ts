@@ -13,3 +13,12 @@ describe('main window helpers', () => {
     for (const bad of ['system', '', null, undefined, 1, { theme: 'dark' }, 'DARK']) expect(parseThemeMessage(bad)).toBeNull();
   });
 });
+
+import { STYLE_WINDOW_BG, WINDOW_BG, windowBackground } from '../src/window';
+describe('window colour per style', () => {
+  it('a style with its own page colour gets it; anything else gets the mode colour', () => {
+    expect(windowBackground('dark', 'liquid-glass')).toBe(STYLE_WINDOW_BG['liquid-glass']!.dark);
+    expect(windowBackground('light', 'liquid-glass')).toBe(STYLE_WINDOW_BG['liquid-glass']!.light);
+    for (const other of [undefined, 'terminal', 'toString', '__proto__', 1, null]) expect(windowBackground('dark', other)).toBe(WINDOW_BG.dark);
+  });
+});

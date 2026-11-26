@@ -40,7 +40,7 @@ async function adminPolicy(admin, { all, allowed, def }) {
     if (!(await allBox.isChecked())) await allBox.check();
   } else {
     if (await allBox.isChecked()) await allBox.uncheck();
-    const ids = ['dashboard', 'swiss', 'flat', 'material', 'editorial', 'neobrutalism', 'terminal', 'glassmorphism', 'neumorphism', 'claymorphism', 'aurora', 'skeuomorphism'];
+    const ids = ['dashboard', 'swiss', 'flat', 'material', 'editorial', 'neobrutalism', 'terminal', 'glassmorphism', 'neumorphism', 'claymorphism', 'aurora', 'skeuomorphism', 'liquid-glass'];
     // Tick the wanted ones first: the form never lets the last allowed style be unticked.
     for (const id of [...ids.filter((i) => allowed.includes(i)), ...ids.filter((i) => !allowed.includes(i))]) {
       const box = admin.page.getByTestId(`style-allow-${id}`);

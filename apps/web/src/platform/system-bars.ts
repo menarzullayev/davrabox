@@ -4,6 +4,7 @@
 // SystemBars plugin (style 'DARK' = light icons, 'LIGHT' = dark icons).
 // Outside the shell this does nothing. The page theme is read from `data-theme` on <html> (set by theme-init.js and applyTheme);
 // no attribute means the default, dark.
+import { hasOwnChrome } from '../prefs/options';
 import { isCapacitorShell } from './capacitor';
 
 interface SystemBarsPlugin {
@@ -11,7 +12,7 @@ interface SystemBarsPlugin {
 }
 /** The shell's own plugin (ThemeBarsPlugin.java): window colour and icon colour together. */
 interface ThemeBarsPlugin {
-  setTheme?: (o: { theme: 'dark' | 'light' }) => unknown;
+  setTheme?: (o: { theme: 'dark' | 'light'; style?: string }) => unknown;
 }
 interface ShellWindow {
   Capacitor?: { isNativePlatform?: () => boolean; Plugins?: { SystemBars?: SystemBarsPlugin; ThemeBars?: ThemeBarsPlugin } };
@@ -27,12 +28,17 @@ export function watchSystemBars(win: ShellWindow | undefined = typeof window ===
   let last: string | null = null;
   const apply = () => {
     const style = barStyleFor(doc.documentElement.getAttribute('data-theme'));
-    if (style === last) return;
-    last = style;
+    // The page style matters only when it has its own background colour (liquid-glass); otherwise only the mode is sent.
+    const look = doc.documentElement.getAttribute('data-style');
+    const own = hasOwnChrome(look) ? (look as string) : null;
+    const key = `${style}:${own ?? ''}`;
+    if (key === last) return;
+    last = key;
     try {
       const plugins = win.Capacitor?.Plugins;
+      const theme = style === 'LIGHT' ? 'light' : 'dark';
       // ThemeBars sets the window colour too (a light page needs a light band, not only dark icons); an older shell only has SystemBars.
-      const r = plugins?.ThemeBars?.setTheme ? plugins.ThemeBars.setTheme({ theme: style === 'LIGHT' ? 'light' : 'dark' }) : plugins?.SystemBars?.setStyle?.({ style });
+      const r = plugins?.ThemeBars?.setTheme ? plugins.ThemeBars.setTheme(own ? { theme, style: own } : { theme }) : plugins?.SystemBars?.setStyle?.({ style });
       if (r && typeof (r as Promise<unknown>).catch === 'function') void (r as Promise<unknown>).catch(() => undefined);
     } catch {
       /* the plugin is not there (an older shell): the bar keeps its default colour */
@@ -40,12 +46,12 @@ export function watchSystemBars(win: ShellWindow | undefined = typeof window ===
   };
   apply();
   const mo = new MutationObserver(apply);
-  mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-style'] });
   return () => mo.disconnect();
 }
 
 interface DesktopWindow {
-  davraDesktop?: { isDesktop?: boolean; setTheme?: (mode: 'light' | 'dark') => void };
+  davraDesktop?: { isDesktop?: boolean; setTheme?: (mode: 'light' | 'dark', style?: string) => void };
 }
 
 /** Desktop app (Electron): tells the shell the page's colour mode, so the native title bar is not white over a dark page. */
@@ -55,16 +61,20 @@ export function watchDesktopTitleBar(win: DesktopWindow | undefined = typeof win
   let last: string | null = null;
   const apply = () => {
     const mode = barStyleFor(doc.documentElement.getAttribute('data-theme')) === 'LIGHT' ? 'light' : 'dark';
-    if (mode === last) return;
-    last = mode;
+    const look = doc.documentElement.getAttribute('data-style');
+    const own = hasOwnChrome(look) ? (look as string) : null;
+    const key = `${mode}:${own ?? ''}`;
+    if (key === last) return;
+    last = key;
     try {
-      setTheme(mode);
+      if (own) setTheme(mode, own);
+      else setTheme(mode);
     } catch {
       /* an older shell: the title bar keeps its colour */
     }
   };
   apply();
   const mo = new MutationObserver(apply);
-  mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  mo.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-style'] });
   return () => mo.disconnect();
 }

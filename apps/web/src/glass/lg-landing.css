@@ -1,0 +1,31 @@
+/*
+ * Liquid Glass, landing layout (owner-approved iOS layout, 2026-11-26): the menu is a floating glass capsule detached from
+ * the screen edge, and on phones "Start free" floats at the bottom as a capsule that stays in reach while scrolling.
+ * Markup and test ids are the shared ones (landing/sections).
+ */
+:root[data-style='liquid-glass'] .ln-header {
+  top: var(--space-2);
+  width: min(100% - 2 * var(--space-3), var(--ln-max) + 2 * var(--space-4));
+  box-sizing: border-box;
+  margin: var(--space-2) auto 0;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-pill);
+}
+:root[data-style='liquid-glass'] .ln-header__in { width: 100%; min-height: 3.5rem; padding-inline: var(--space-2); }
+:root[data-style='liquid-glass'] .ln-nav a { border-radius: var(--radius-pill); }
+:root[data-style='liquid-glass'] .ln-cta { border: 0; background: var(--glass-sheen), var(--glass-regular); box-shadow: var(--glass-rim), var(--shadow-2); }
+:root[data-style='liquid-glass'] .ln-shot { border-radius: var(--radius-xl); box-shadow: var(--glass-rim), var(--shadow-3); }
+
+@media (max-width: 639px) {
+  :root[data-style='liquid-glass'] .ln-header__in { min-height: 3.25rem; }
+  /* The header's own "Start free" gives way to the floating one below. */
+  :root[data-style='liquid-glass'] .ln-header__in > a[href='/app/signup'] { display: none; }
+  :root[data-style='liquid-glass'] .ln-hero__cta > a[href='/app/signup'] {
+    position: fixed;
+    inset: auto var(--space-3) calc(env(safe-area-inset-bottom, 0rem) + var(--space-3));
+    z-index: var(--z-sticky);
+    min-height: 3.25rem;
+    box-shadow: var(--glass-rim), var(--glass-shadow);
+  }
+  :root[data-style='liquid-glass'] .ln-page { padding-bottom: calc(env(safe-area-inset-bottom, 0rem) + 5rem); }
+}

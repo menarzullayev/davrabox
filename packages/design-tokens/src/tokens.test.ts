@@ -101,3 +101,46 @@ describe('every style x mode meets WCAG 2.1 AA (a style cannot be added if it fa
     expect(DENSITY_IDS).toContain('comfortable');
   });
 });
+
+import { GLASS_BACKDROPS, chromeColour, chromeOverrides, composite, glassFailures } from './tokens.js';
+
+describe('glass stays legible over any backdrop (live video, a white shared screen)', () => {
+  for (const style of STYLE_IDS) {
+    for (const mode of names) {
+      if (!styles[style].glass?.[mode]) continue;
+      it(`${style} / ${mode}: clear and regular glass over ${GLASS_BACKDROPS.join(' and ')} reach AA`, () => {
+        expect(glassFailures(style, mode)).toEqual([]);
+      });
+    }
+  }
+  it('liquid-glass defines glass in both modes', () => {
+    expect(styles['liquid-glass'].glass?.dark).toBeDefined();
+    expect(styles['liquid-glass'].glass?.light).toBeDefined();
+  });
+  it('negative: glass that is too thin fails over white (dark) and over black (light)', () => {
+    const thin = { glass: { dark: { tint: '#0c1029', clear: 0.3, regular: 0.5 }, light: { tint: '#ffffff', clear: 0.2, regular: 0.4 } } };
+    const dark = glassFailures('liquid-glass', 'dark', thin);
+    expect(dark.some((f) => f.fg === 'text' && f.bg === 'glass-clear@#ffffff')).toBe(true);
+    const light = glassFailures('liquid-glass', 'light', thin);
+    expect(light.some((f) => f.fg === 'text' && f.bg === 'glass-clear@#000000')).toBe(true);
+  });
+  it('composite is plain sRGB alpha blending', () => {
+    expect(composite('#000000', 0.5, '#ffffff')).toBe('#808080');
+    expect(composite('#123456', 1, '#ffffff')).toBe('#123456');
+    expect(composite('#123456', 0, '#abcdef')).toBe('#abcdef');
+    expect(() => composite('red', 0.5, '#ffffff')).toThrow();
+  });
+});
+
+describe('system chrome follows the style', () => {
+  it('the base style keeps the theme background', () => {
+    expect(chromeColour('dark')).toBe(themes.dark.bg);
+    expect(chromeColour('light', 'dashboard')).toBe(themes.light.bg);
+  });
+  it('a style that changes the page background changes the chrome too, and is listed as an override', () => {
+    expect(chromeColour('dark', 'liquid-glass')).toBe(resolveColours('liquid-glass', 'dark').bg);
+    const o = chromeOverrides();
+    expect(o.find((x) => x.style === 'liquid-glass')).toEqual({ style: 'liquid-glass', dark: '#060818', light: '#eaeef8' });
+    expect(o.some((x) => x.style === 'dashboard')).toBe(false);
+  });
+});
