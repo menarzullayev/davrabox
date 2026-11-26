@@ -50,12 +50,14 @@
       "redirectUris": [
         "https://${PUBLIC_HOST}/*",
         "https://localhost:8443/*",
-        "https://davrabox.bugvector.uz/*"
+        "https://davrabox.bugvector.uz/*",
+        "https://davrabox-staging.bugvector.uz/*"
       ],
       "webOrigins": [
         "https://${PUBLIC_HOST}",
         "https://localhost:8443",
-        "https://davrabox.bugvector.uz"
+        "https://davrabox.bugvector.uz",
+        "https://davrabox-staging.bugvector.uz"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",

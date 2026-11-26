@@ -110,6 +110,7 @@ services:
     container_name: davra-caddy
     environment:
       LAN_IP: ${LAN_IP}
+      TUNNEL_HOST: ${DAVRA_TUNNEL_HOST:-davrabox-staging.bugvector.uz}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - davra-caddy-data:/data
@@ -137,7 +138,8 @@ services:
     volumes:
       - davra-minio-data:/data
     ports:
-      - "127.0.0.1:59000:9000"
+      # Host port is configurable: Windows may reserve a range around 59000 (netsh excludedportrange); set MINIO_HOST_PORT in dev.env.
+      - "127.0.0.1:${MINIO_HOST_PORT:-59000}:9000"
     mem_limit: 512m
     cpus: 1
 
