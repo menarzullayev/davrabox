@@ -314,3 +314,10 @@
     .hm-seg__btn[aria-checked='true'] { outline: 2px solid Highlight; }
   }
 }
+
+/* Pre-join: small link to the help page for camera and microphone problems (decision 5e; no assistant on the call path). */
+@layer dx {
+  .pj__help { color: var(--text-muted); font-size: var(--text-sm); text-align: center; }
+  .pj__help:hover { color: var(--accent); }
+  .pj__help:focus-visible { outline: 0.125rem solid var(--focus-ring); outline-offset: 0.125rem; border-radius: var(--radius-sm); }
+}

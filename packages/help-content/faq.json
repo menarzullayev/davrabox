@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "start", "uz": "Boshlash", "ru": "Начало работы", "en": "Getting started" },
+    { "id": "meetings", "uz": "Uchrashuvlar", "ru": "Встречи", "en": "Meetings" },
+    { "id": "security", "uz": "Xavfsizlik va maxfiylik", "ru": "Безопасность и конфиденциальность", "en": "Security and privacy" },
+    { "id": "admin", "uz": "Tashkilot va boshqaruv", "ru": "Организация и управление", "en": "Organisation and admin" },
+    { "id": "apps", "uz": "Ilovalar", "ru": "Приложения", "en": "Apps" },
+    { "id": "account", "uz": "Hisob va tariflar", "ru": "Аккаунт и тарифы", "en": "Account and plans" }
+  ],
+  "faq": [
+    {
+      "id": "what-is",
+      "cat": "start",
+      "uz": { "q": "DavraBox nima?", "a": "DavraBox tashkilotlar uchun video uchrashuvlar platformasi. Uchrashuvga brauzerdan bir bosishda qo‘shilasiz, hech narsa o‘rnatish shart emas. Tashkilot uchun yagona kirish (SSO), audit jurnali, boshqaruv konsoli va ixtiyoriy uchidan-uchigacha shifrlash bor. Interfeys o‘zbek, rus va ingliz tillarida.", "k": "nima haqida platforma video aloqa zoom muqobil" },
+      "ru": { "q": "Что такое DavraBox?", "a": "DavraBox — платформа видеовстреч для организаций. К встрече можно подключиться из браузера в один клик, ничего устанавливать не нужно. Для организации есть единый вход (SSO), журнал аудита, консоль управления и необязательное сквозное шифрование. Интерфейс на узбекском, русском и английском.", "k": "что это платформа видеосвязь аналог zoom" },
+      "en": { "q": "What is DavraBox?", "a": "DavraBox is a video meeting platform for organisations. You join a meeting from the browser in one click, with nothing to install. Organisations get single sign-on (SSO), an audit log, an admin console and optional end-to-end encryption. The interface is in Uzbek, Russian and English.", "k": "about platform video conferencing zoom alternative" }
+    },
+    {
+      "id": "join-code",
+      "cat": "meetings",
+      "uz": { "q": "Uchrashuvga qanday qo‘shilaman?", "a": "Taklif havolasini oching yoki bosh sahifadagi «Uchrashuv kodi bormi?» maydoniga 11-12 xonali kodni kiriting. Brauzer kamera va mikrofonga ruxsat so‘raydi: «Ruxsat berish»ni bosing. Tashkilotingiz hisobi bilan kiring yoki, agar uchrashuv mehmonlarga ochiq bo‘lsa, «Mehmon sifatida qo‘shilish»ni tanlang. Hech narsa o‘rnatish kerak emas.", "k": "qoshilish kirish kod havola link ulanish" },
+      "ru": { "q": "Как подключиться к встрече?", "a": "Откройте ссылку-приглашение или введите 11–12-значный код в поле «Есть код встречи?» на главной странице. Браузер спросит доступ к камере и микрофону — нажмите «Разрешить». Войдите с аккаунтом своей организации или, если встреча открыта для гостей, выберите «Войти как гость». Устанавливать ничего не нужно.", "k": "подключиться войти код ссылка присоединиться" },
+      "en": { "q": "How do I join a meeting?", "a": "Open the invitation link, or type the 11-12 digit code into the “Have a meeting code?” field on the home page. Your browser asks for camera and microphone access: choose “Allow”. Sign in with your organisation account or, if the meeting is open to guests, choose “Join as a guest”. Nothing needs to be installed.", "k": "join enter code link connect" }
+    },
+    {
+      "id": "guest",
+      "cat": "meetings",
+      "uz": { "q": "Hisobsiz qo‘shilsa bo‘ladimi?", "a": "Ha, agar tashkilot administratori mehmonlarga ruxsat bergan bo‘lsa. Standart holatda mehmonlar o‘chirilgan; administrator ularni kutish xonasi orqali yoki to‘g‘ridan-to‘g‘ri kirishga ruxsat berishi mumkin. Mehmon video, ovoz, chat, qo‘l ko‘tarish va reaksiyalardan foydalanadi; fayllar va boshqaruv uchun hisob kerak.", "k": "mehmon hisobsiz akkauntsiz ro‘yxatdan o‘tmasdan" },
+      "ru": { "q": "Можно ли подключиться без аккаунта?", "a": "Да, если администратор организации разрешил гостей. По умолчанию гости выключены; администратор может пускать их через зал ожидания или сразу. Гостю доступны видео, звук, чат, поднятая рука и реакции; для файлов и управления нужен аккаунт.", "k": "гость без аккаунта без регистрации" },
+      "en": { "q": "Can I join without an account?", "a": "Yes, if your organisation's administrator allows guests. Guests are off by default; an administrator can let them in through the waiting room or directly. A guest gets video, audio, chat, raised hand and reactions; files and host controls need an account.", "k": "guest without account no registration" }
+    },
+    {
+      "id": "start-meeting",
+      "cat": "meetings",
+      "uz": { "q": "Uchrashuvni qanday boshlayman yoki rejalashtiraman?", "a": "Hisobingizga kiring va «Yangi uchrashuv»ni bosing. Mavzu, vaqt, ixtiyoriy parol va kutish xonasini tanlang. Tayyor bo‘lgach kod va havolani ulashing yoki uchrashuvni Outlook yoki Google kalendaringizga qo‘shing.", "k": "boshlash yaratish rejalashtirish yangi uchrashuv" },
+      "ru": { "q": "Как начать или запланировать встречу?", "a": "Войдите в аккаунт и нажмите «Новая встреча». Выберите тему, время, необязательный пароль и зал ожидания. Затем поделитесь кодом и ссылкой или добавьте встречу в календарь Outlook или Google.", "k": "начать создать запланировать новая встреча" },
+      "en": { "q": "How do I start or schedule a meeting?", "a": "Sign in and choose “New meeting”. Pick a title, a time, an optional passcode and the waiting room. Then share the code and link, or add the meeting to your Outlook or Google calendar.", "k": "start create schedule new meeting host" }
+    },
+    {
+      "id": "camera-mic",
+      "cat": "meetings",
+      "uz": { "q": "Kamera yoki mikrofon ishlamayapti", "a": "1) Manzil satridagi qulf belgisini bosing va kamera hamda mikrofonga «Ruxsat berish»ni tanlang, keyin sahifani yangilang. 2) Kamerani boshqa dastur (Zoom, Teams, Telegram) band qilmaganini tekshiring. 3) Windows: Sozlamalar → Maxfiylik → Kamera/Mikrofon; macOS: Tizim sozlamalari → Maxfiylik; Android: ilova yoki brauzer ruxsatlari. 4) Qo‘shilishdan oldingi oynada kerakli qurilmani tanlang. 5) Brauzeringiz yangi versiyada ekanini tekshiring.", "k": "kamera mikrofon ovoz eshitilmayapti ko‘rinmayapti ruxsat qurilma" },
+      "ru": { "q": "Не работает камера или микрофон", "a": "1) Нажмите на значок замка в адресной строке, выберите «Разрешить» для камеры и микрофона и обновите страницу. 2) Проверьте, что камеру не заняла другая программа (Zoom, Teams, Telegram). 3) Windows: Параметры → Конфиденциальность → Камера/Микрофон; macOS: Системные настройки → Конфиденциальность; Android: разрешения приложения или браузера. 4) Выберите нужное устройство в окне перед входом. 5) Обновите браузер до свежей версии.", "k": "камера микрофон не слышно не видно разрешение устройство звук" },
+      "en": { "q": "My camera or microphone does not work", "a": "1) Click the lock icon in the address bar, set camera and microphone to “Allow” and reload the page. 2) Make sure no other app (Zoom, Teams, Telegram) is using the camera. 3) Windows: Settings → Privacy → Camera/Microphone; macOS: System Settings → Privacy; Android: the app or browser permissions. 4) Pick the right device in the window before you join. 5) Update your browser to a current version.", "k": "camera microphone mic audio sound not working permission device" }
+    },
+    {
+      "id": "browsers",
+      "cat": "start",
+      "uz": { "q": "Qaysi brauzerlar qo‘llab-quvvatlanadi?", "a": "Chrome, Edge, Firefox va Safari’ning yangi versiyalari. Telefonda brauzerdan yoki Android beta ilovasidan foydalaning. Ekran ulashish odatda faqat kompyuter brauzerlarida ishlaydi.", "k": "brauzer chrome edge firefox safari telefon" },
+      "ru": { "q": "Какие браузеры поддерживаются?", "a": "Свежие версии Chrome, Edge, Firefox и Safari. На телефоне используйте браузер или бета-приложение для Android. Демонстрация экрана обычно работает только в браузерах на компьютере.", "k": "браузер chrome edge firefox safari телефон" },
+      "en": { "q": "Which browsers are supported?", "a": "Current versions of Chrome, Edge, Firefox and Safari. On a phone, use the browser or the Android beta app. Screen sharing usually works only in desktop browsers.", "k": "browser chrome edge firefox safari phone mobile" }
+    },
+    {
+      "id": "screen-share",
+      "cat": "meetings",
+      "uz": { "q": "Ekranni qanday ulashaman?", "a": "Uchrashuvda pastki paneldagi «Ekran ulashish» tugmasini bosing va butun ekran, oyna yoki brauzer yorlig‘ini tanlang. To‘xtatish uchun «Ulashishni to‘xtatish»ni bosing. Bu kompyuter brauzerlarida ishlaydi; telefon brauzerlari odatda ekran ulashishni qo‘llamaydi.", "k": "ekran ulashish namoyish taqdimot" },
+      "ru": { "q": "Как показать свой экран?", "a": "Во встрече нажмите «Демонстрация экрана» на нижней панели и выберите весь экран, окно или вкладку браузера. Чтобы закончить, нажмите «Остановить демонстрацию». Это работает в браузерах на компьютере; мобильные браузеры обычно не поддерживают демонстрацию экрана.", "k": "демонстрация экрана показать экран презентация" },
+      "en": { "q": "How do I share my screen?", "a": "In the meeting, press “Share screen” in the bottom bar and pick the whole screen, a window or a browser tab. Press “Stop sharing” to end it. This works in desktop browsers; phone browsers usually cannot share the screen.", "k": "share screen presentation present" }
+    },
+    {
+      "id": "waiting-room",
+      "cat": "meetings",
+      "uz": { "q": "Kutish xonasi nima?", "a": "Kutish xonasi yoqilgan bo‘lsa, qo‘shilmoqchi bo‘lgan odam host uni kiritmaguncha kutadi. Host yoki co-host ishtirokchilar panelida «Kiritish» yoki «Rad etish»ni bosadi. Yangi uchrashuvlarda kutish xonasi standart holatda yoqilgan.", "k": "kutish xonasi kiritish ruxsat host" },
+      "ru": { "q": "Что такое зал ожидания?", "a": "Если зал ожидания включён, человек ждёт, пока хост его не впустит. Хост или со-хост нажимает «Впустить» или «Отклонить» в панели участников. В новых встречах зал ожидания включён по умолчанию.", "k": "зал ожидания впустить пропустить хост" },
+      "en": { "q": "What is the waiting room?", "a": "With the waiting room on, a person who wants to join waits until the host lets them in. The host or a co-host chooses “Admit” or “Deny” in the participants panel. New meetings have the waiting room on by default.", "k": "waiting room admit lobby host" }
+    },
+    {
+      "id": "host-controls",
+      "cat": "meetings",
+      "uz": { "q": "Host qanday boshqaruvlarga ega?", "a": "Host ishtirokchining ovozini o‘chirishi, uni chiqarib yuborishi, uchrashuvni qulflashi, co-host tayinlashi va kutish xonasini boshqarishi mumkin. Chiqarib yuborilgan odam o‘sha uchrashuvga qayta kira olmaydi.", "k": "host boshqaruv ovozni o‘chirish chiqarish qulflash cohost" },
+      "ru": { "q": "Какие возможности есть у хоста?", "a": "Хост может выключить микрофон участнику, удалить его, заблокировать встречу, назначить со-хоста и управлять залом ожидания. Удалённый участник не может вернуться в ту же встречу.", "k": "хост управление выключить звук удалить заблокировать соведущий" },
+      "en": { "q": "What controls does the host have?", "a": "The host can mute a participant, remove them, lock the meeting, make someone a co-host and manage the waiting room. A removed person cannot come back into the same meeting.", "k": "host controls mute remove kick lock cohost" }
+    },
+    {
+      "id": "e2ee",
+      "cat": "security",
+      "uz": { "q": "Uchidan-uchigacha shifrlash nima beradi?", "a": "Bu rejimda ovoz, video va chat ishtirokchilarning qurilmalarida shifrlanadi, server ularni o‘qiy olmaydi. Kalit havolaning «#» belgisidan keyingi qismida bo‘ladi va serverga yuborilmaydi, shuning uchun havolani faqat kerakli odamlarga ulashing. Bunday uchrashuvlar yozib olinmaydi. Rejimni uchrashuv yaratishda host yoqadi.", "k": "shifrlash e2ee uchidan uchigacha kalit xavfsiz" },
+      "ru": { "q": "Что даёт сквозное шифрование?", "a": "В этом режиме звук, видео и чат шифруются на устройствах участников, и сервер не может их прочитать. Ключ находится в части ссылки после знака «#» и на сервер не передаётся, поэтому делитесь ссылкой только с нужными людьми. Такие встречи не записываются. Режим включает хост при создании встречи.", "k": "шифрование e2ee сквозное ключ безопасность" },
+      "en": { "q": "What does end-to-end encryption do?", "a": "In this mode audio, video and chat are encrypted on the participants' devices, and the server cannot read them. The key is in the part of the link after “#” and is never sent to the server, so share the link only with the right people. These meetings cannot be recorded. The host turns the mode on when creating the meeting.", "k": "encryption e2ee end to end key secure" }
+    },
+    {
+      "id": "recording",
+      "cat": "meetings",
+      "uz": { "q": "Uchrashuvni yozib olish mumkinmi?", "a": "Yozib olish server sozlamasiga bog‘liq: u yoqilgan serverlarda host yozuvni boshlaydi va bu haqda hamma ogohlantiriladi. Yozuvlar shifrlangan holda saqlanadi va 90 kundan keyin avtomatik o‘chiriladi. Uchidan-uchigacha shifrlangan uchrashuvlar yozib olinmaydi.", "k": "yozib olish yozuv record video saqlash" },
+      "ru": { "q": "Можно ли записать встречу?", "a": "Запись зависит от настроек сервера: где она включена, хост начинает запись, и все участники видят предупреждение. Записи хранятся в зашифрованном виде и автоматически удаляются через 90 дней. Встречи со сквозным шифрованием не записываются.", "k": "запись записать сохранить видео" },
+      "en": { "q": "Can I record a meeting?", "a": "Recording depends on the server: where it is enabled, the host starts a recording and everyone in the meeting sees a notice. Recordings are stored encrypted and deleted automatically after 90 days. End-to-end encrypted meetings cannot be recorded.", "k": "record recording save video" }
+    },
+    {
+      "id": "files-chat",
+      "cat": "meetings",
+      "uz": { "q": "Chat va fayllar qanday ishlaydi?", "a": "Chatda hammaga yoki bitta odamga yozish mumkin; chat xabarlari saqlanmaydi. Fayllar 25 MB gacha bo‘ladi, zararli dasturga tekshiriladi, shifrlangan holda saqlanadi va 90 kundan keyin o‘chiriladi. Fayllar uchun hisob kerak, mehmonlar fayl ulasha olmaydi.", "k": "chat xabar fayl yuborish hajm 25" },
+      "ru": { "q": "Как работают чат и файлы?", "a": "В чате можно писать всем или одному человеку; сообщения чата не сохраняются. Файлы — до 25 МБ, проверяются на вредоносные программы, хранятся зашифрованными и удаляются через 90 дней. Для файлов нужен аккаунт, гости не могут делиться файлами.", "k": "чат сообщение файл отправить размер 25" },
+      "en": { "q": "How do chat and files work?", "a": "In chat you can write to everyone or to one person; chat messages are not stored. Files can be up to 25 MB, are scanned for malware, stored encrypted and deleted after 90 days. Files need an account; guests cannot share files.", "k": "chat message file send size 25 upload" }
+    },
+    {
+      "id": "data-location",
+      "cat": "security",
+      "uz": { "q": "Ma’lumotlarim qayerda saqlanadi?", "a": "Hozir DavraBox serverlari Germaniyaning Frankfurt shahridagi ma’lumotlar markazida (Oracle Cloud) ishlaydi, media-server ham o‘zimizniki. Tashkilot o‘z infratuzilmasida ishlatishni ham tanlashi mumkin. Batafsil: «Maxfiylik siyosati» sahifasi.", "k": "ma’lumot qayerda saqlanadi server joylashuv mahalliy" },
+      "ru": { "q": "Где хранятся мои данные?", "a": "Сейчас серверы DavraBox работают в дата-центре во Франкфурте, Германия (Oracle Cloud), медиасервер тоже наш собственный. Организация может выбрать и размещение в своей инфраструктуре. Подробно — на странице «Политика конфиденциальности».", "k": "данные где хранятся сервер расположение локально" },
+      "en": { "q": "Where is my data stored?", "a": "Today the DavraBox servers run in a data centre in Frankfurt, Germany (Oracle Cloud), and the media server is our own. An organisation can also choose to run it in its own infrastructure. Details: the Privacy notice page.", "k": "data where stored server location hosting" }
+    },
+    {
+      "id": "sign-in-security",
+      "cat": "security",
+      "uz": { "q": "Ikki bosqichli tasdiqlash va passkey bormi?", "a": "Ha. Kirishda ikki bosqichli tasdiqlash (autentifikator ilovasidagi kod) va passkey ishlaydi. Administrator tashkilotdagi hamma uchun ikki bosqichli tasdiqlashni majburiy qilishi mumkin. Parolni taxmin qilishga urinishlar bloklanadi.", "k": "ikki bosqichli 2fa totp passkey parol kirish xavfsizlik" },
+      "ru": { "q": "Есть ли двухэтапная проверка и passkey?", "a": "Да. При входе работают двухэтапная проверка (код из приложения-аутентификатора) и passkey. Администратор может сделать двухэтапную проверку обязательной для всей организации. Попытки подобрать пароль блокируются.", "k": "двухэтапная 2fa totp passkey пароль вход безопасность" },
+      "en": { "q": "Is there two-step verification and passkey support?", "a": "Yes. Sign-in supports two-step verification (a code from an authenticator app) and passkeys. An administrator can make two-step verification mandatory for the whole organisation. Password-guessing attempts are blocked.", "k": "two step 2fa totp passkey password sign in security" }
+    },
+    {
+      "id": "audit",
+      "cat": "admin",
+      "uz": { "q": "Audit jurnali nima va uni qanday olaman?", "a": "Audit jurnali muhim amallarni yozib boradi: kim uchrashuv yaratgani, fayl yuklagani, sozlamani o‘zgartirgani. Yozuvlar hash bilan zanjirlanadi, shuning uchun o‘zgartirish darhol bilinadi. Administrator jurnalni konsolda qidiradi, faylga yuklab oladi yoki SIEM tizimiga vebhuk orqali yuboradi.", "k": "audit jurnal log eksport siem" },
+      "ru": { "q": "Что такое журнал аудита и как его получить?", "a": "Журнал аудита записывает важные действия: кто создал встречу, загрузил файл, изменил настройку. Записи связаны цепочкой хешей, поэтому любое изменение сразу заметно. Администратор ищет по журналу в консоли, выгружает его в файл или отправляет в SIEM через вебхук.", "k": "аудит журнал лог экспорт siem" },
+      "en": { "q": "What is the audit log and how do I get it?", "a": "The audit log records important actions: who created a meeting, uploaded a file or changed a setting. Entries are hash-chained, so any change is detectable. An administrator searches it in the console, downloads it as a file or forwards it to a SIEM through a webhook.", "k": "audit log export siem trail" }
+    },
+    {
+      "id": "sso",
+      "cat": "admin",
+      "uz": { "q": "Yagona kirishni (SSO) qanday ulayman?", "a": "DavraBox OIDC, SAML va LDAP/Active Directory orqali yagona kirishni qo‘llaydi. Uni DavraBox jamoasi tashkilotingiz IT bo‘limi bilan birga sozlaydi: biz bilan bog‘laning. Sozlangandan keyin xodimlar o‘zlarining ish hisobi bilan kiradi.", "k": "sso yagona kirish saml oidc ldap active directory" },
+      "ru": { "q": "Как подключить единый вход (SSO)?", "a": "DavraBox поддерживает единый вход через OIDC, SAML и LDAP/Active Directory. Его настраивает команда DavraBox вместе с IT-отделом вашей организации — свяжитесь с нами. После настройки сотрудники входят со своей рабочей учётной записью.", "k": "sso единый вход saml oidc ldap active directory" },
+      "en": { "q": "How do I connect single sign-on (SSO)?", "a": "DavraBox supports single sign-on through OIDC, SAML and LDAP/Active Directory. The DavraBox team sets it up together with your IT department: contact us. Once it is set up, people sign in with their work account.", "k": "sso single sign on saml oidc ldap active directory" }
+    },
+    {
+      "id": "admin-console",
+      "cat": "admin",
+      "uz": { "q": "Boshqaruv konsolida nimalar bor?", "a": "Administrator konsolda foydalanuvchilar va bo‘limlarni boshqaradi, uchrashuv siyosatlarini (parol, kutish xonasi, mehmonlar, ishtirokchilar chegarasi, ikki bosqichli tasdiqlash, ko‘rinish uslublari) belgilaydi, audit jurnalini ko‘radi, API kalitlari va vebhuklar yaratadi hamda shifrlash kalitlarini sozlaydi.", "k": "admin konsol boshqaruv foydalanuvchi bo‘lim siyosat" },
+      "ru": { "q": "Что есть в консоли управления?", "a": "В консоли администратор управляет пользователями и отделами, задаёт политики встреч (пароль, зал ожидания, гости, лимит участников, двухэтапная проверка, стили оформления), смотрит журнал аудита, создаёт API-ключи и вебхуки и настраивает ключи шифрования.", "k": "админ консоль управление пользователи отделы политики" },
+      "en": { "q": "What is in the admin console?", "a": "In the console an administrator manages users and departments, sets meeting policies (passcode, waiting room, guests, participant limit, two-step verification, visual styles), reviews the audit log, creates API keys and webhooks and configures encryption keys.", "k": "admin console manage users departments policies" }
+    },
+    {
+      "id": "api-webhooks",
+      "cat": "admin",
+      "uz": { "q": "REST API va vebhuklar bormi?", "a": "Ha. Administrator konsolning «Integratsiyalar» bo‘limida API kalit yaratadi va o‘z tizimlaridan uchrashuv va foydalanuvchilarni boshqaradi. Vebhuklar uchrashuv hodisalarini imzo bilan yuboradi, shuning uchun qabul qiluvchi ularning haqiqiyligini tekshira oladi.", "k": "api rest vebhuk integratsiya kalit" },
+      "ru": { "q": "Есть ли REST API и вебхуки?", "a": "Да. Администратор создаёт API-ключ в разделе «Интеграции» консоли и управляет встречами и пользователями из своих систем. Вебхуки отправляют события встреч с подписью, чтобы получатель мог проверить их подлинность.", "k": "api rest вебхук интеграция ключ" },
+      "en": { "q": "Is there a REST API and webhooks?", "a": "Yes. An administrator creates an API key in the console's “Integrations” section and manages meetings and users from their own systems. Webhooks deliver meeting events with a signature, so the receiver can verify they are genuine.", "k": "api rest webhook integration key" }
+    },
+    {
+      "id": "byok",
+      "cat": "security",
+      "uz": { "q": "O‘z shifrlash kalitimizdan foydalansak bo‘ladimi?", "a": "Ha. Fayllar va yozuvlar har bir obyekt uchun alohida kalit bilan shifrlanadi. Tashkilot bu kalitlarni o‘zining HashiCorp Vault xizmatidagi kalit bilan himoyalashi mumkin (BYOK). Sozlama konsolning «Shifrlash» bo‘limida.", "k": "byok kalit shifrlash vault o‘z kalitimiz" },
+      "ru": { "q": "Можно ли использовать свой ключ шифрования?", "a": "Да. Файлы и записи шифруются отдельным ключом для каждого объекта. Организация может защищать эти ключи ключом из своего HashiCorp Vault (BYOK). Настройка — в разделе «Шифрование» консоли.", "k": "byok ключ шифрование vault свой ключ" },
+      "en": { "q": "Can we use our own encryption key?", "a": "Yes. Files and recordings are encrypted with a separate key per object. An organisation can protect those keys with a key in its own HashiCorp Vault (BYOK). The setting is in the console's “Encryption” section.", "k": "byok own key encryption vault" }
+    },
+    {
+      "id": "trial",
+      "cat": "account",
+      "uz": { "q": "Bepul sinov shartlari qanday?", "a": "Sinov 7 kun davom etadi: 10 tagacha ishtirokchi va hisob, har bir uchrashuv 30 daqiqagacha. To‘lov kartasi ham, elektron pochta tasdig‘i ham kerak emas. Sinov tugagach yangi uchrashuv ochish va qo‘shilish to‘xtaydi; tashkilot sinov tugaganidan 30 kun o‘tib o‘chiriladi.", "k": "bepul sinov trial 7 kun muddat chegara" },
+      "ru": { "q": "Каковы условия бесплатного пробного периода?", "a": "Пробный период длится 7 дней: до 10 участников и аккаунтов, каждая встреча до 30 минут. Не нужны ни банковская карта, ни подтверждение почты. После окончания нельзя создавать встречи и подключаться к ним; организация удаляется через 30 дней после окончания пробного периода.", "k": "бесплатно пробный trial 7 дней срок лимит" },
+      "en": { "q": "What are the free trial terms?", "a": "The trial lasts 7 days: up to 10 participants and accounts, each meeting up to 30 minutes. No payment card and no e-mail confirmation are needed. When it ends, new meetings and joining stop; the organisation is deleted 30 days after the trial ended.", "k": "free trial 7 days limits terms" }
+    },
+    {
+      "id": "pricing",
+      "cat": "account",
+      "uz": { "q": "Business va Enterprise tariflari qancha turadi?", "a": "Narx tashkilot hajmi va joylashtirish usuliga bog‘liq, shuning uchun uni kelishib belgilaymiz. Sinovdan keyin davom etish yoki o‘z serveringizda ishlatish uchun biz bilan bog‘laning: hello@davrabox.uz.", "k": "narx tarif business enterprise to‘lov qancha" },
+      "ru": { "q": "Сколько стоят тарифы Business и Enterprise?", "a": "Цена зависит от размера организации и способа размещения, поэтому мы согласуем её индивидуально. Чтобы продолжить после пробного периода или развернуть DavraBox на своём сервере, напишите нам: hello@davrabox.uz.", "k": "цена тариф business enterprise оплата сколько стоит" },
+      "en": { "q": "How much do Business and Enterprise cost?", "a": "The price depends on the size of the organisation and how it is hosted, so we agree it with you. To continue after the trial or to run DavraBox on your own server, contact us: hello@davrabox.uz.", "k": "price pricing plan business enterprise cost payment" }
+    },
+    {
+      "id": "password-reset",
+      "cat": "account",
+      "uz": { "q": "Parolimni unutdim", "a": "Tashkilotingiz hisobidan foydalansangiz, administratoringizga murojaat qiling. Bepul sinov davrida parolni elektron pochta orqali tiklab bo‘lmaydi, shuning uchun ro‘yxatdan o‘tishda uni saqlab qo‘yish so‘raladi; yordam kerak bo‘lsa hello@davrabox.uz manziliga yozing.", "k": "parol unutdim tiklash kira olmayapman" },
+      "ru": { "q": "Я забыл пароль", "a": "Если вы входите с аккаунтом организации, обратитесь к её администратору. В бесплатном пробном периоде пароль нельзя восстановить по почте, поэтому при регистрации мы просим его сохранить; если нужна помощь, напишите на hello@davrabox.uz.", "k": "пароль забыл восстановить не могу войти" },
+      "en": { "q": "I forgot my password", "a": "If you use an organisation account, ask your administrator. During the free trial a password cannot be reset by e-mail, which is why sign-up asks you to save it; if you need help, write to hello@davrabox.uz.", "k": "forgot password reset cannot sign in" }
+    },
+    {
+      "id": "language-style",
+      "cat": "start",
+      "uz": { "q": "Til va ko‘rinishni qanday o‘zgartiraman?", "a": "Yuqori paneldagi til tugmasi bilan o‘zbek, rus yoki ingliz tilini tanlang. Sozlamalarda yorug‘ yoki qorong‘i mavzu va 13 ta ko‘rinish uslubidan birini tanlash mumkin (standart: Liquid Glass). Administrator tashkilot uchun ruxsat etilgan uslublarni cheklashi mumkin.", "k": "til o‘zbek rus ingliz mavzu qorong‘i uslub ko‘rinish" },
+      "ru": { "q": "Как сменить язык и оформление?", "a": "Кнопкой языка на верхней панели выберите узбекский, русский или английский. В настройках можно выбрать светлую или тёмную тему и один из 13 стилей оформления (по умолчанию Liquid Glass). Администратор может ограничить разрешённые стили для организации.", "k": "язык узбекский русский английский тема тёмная стиль оформление" },
+      "en": { "q": "How do I change the language and look?", "a": "Use the language button in the top bar to pick Uzbek, Russian or English. In settings you can choose a light or dark theme and one of 13 visual styles (default: Liquid Glass). An administrator can limit which styles the organisation may use.", "k": "language uzbek russian english theme dark style appearance" }
+    },
+    {
+      "id": "android",
+      "cat": "apps",
+      "uz": { "q": "Android ilovasini qanday o‘rnataman?", "a": "Ilova hozir beta va Google Play’da emas. Bosh sahifadagi «Yuklab olish» bo‘limidan APK faylni yuklang, «Noma’lum manbalardan o‘rnatish»ga brauzeringiz uchun ruxsat bering va faylni oching. Play Protect ogohlantirsa, «Baribir o‘rnatish»ni tanlang. Faylning SHA-256 yig‘indisi sahifadagi qiymatga teng ekanini tekshirish tavsiya etiladi.", "k": "android apk telefon ilova o‘rnatish yuklab olish mobil" },
+      "ru": { "q": "Как установить приложение для Android?", "a": "Приложение сейчас в бета-версии и не опубликовано в Google Play. Скачайте APK в разделе «Скачать» на главной странице, разрешите своему браузеру «Установку из неизвестных источников» и откройте файл. Если Play Protect предупредит, выберите «Всё равно установить». Рекомендуем проверить, что SHA-256 файла совпадает со значением на странице.", "k": "android apk телефон приложение установить скачать мобильное" },
+      "en": { "q": "How do I install the Android app?", "a": "The app is a beta and is not in Google Play yet. Download the APK from the “Download” section of the home page, allow your browser to “Install unknown apps” and open the file. If Play Protect warns you, choose “Install anyway”. We recommend checking that the file's SHA-256 matches the value on the page.", "k": "android apk phone app install download mobile" }
+    },
+    {
+      "id": "windows",
+      "cat": "apps",
+      "uz": { "q": "Windows ilovasini qanday o‘rnataman?", "a": "Ilova hozir beta va raqamli imzo bilan imzolanmagan, shuning uchun Windows SmartScreen ogohlantiradi. O‘rnatuvchini yuklab oling, avval uning SHA-256 yig‘indisini tekshiring (PowerShell: Get-FileHash fayl.exe), keyin oching va «Batafsil» → «Baribir ishga tushirish»ni bosing. Brauzerda ishlash uchun hech narsa o‘rnatish shart emas.", "k": "windows kompyuter ilova o‘rnatish exe smartscreen desktop" },
+      "ru": { "q": "Как установить приложение для Windows?", "a": "Приложение сейчас в бета-версии и не подписано цифровой подписью, поэтому Windows SmartScreen покажет предупреждение. Скачайте установщик, сначала проверьте его SHA-256 (PowerShell: Get-FileHash файл.exe), затем откройте и нажмите «Подробнее» → «Выполнить в любом случае». Для работы в браузере ничего устанавливать не нужно.", "k": "windows компьютер приложение установить exe smartscreen десктоп" },
+      "en": { "q": "How do I install the Windows app?", "a": "The app is a beta and is not code-signed yet, so Windows SmartScreen shows a warning. Download the installer, first check its SHA-256 (PowerShell: Get-FileHash file.exe), then open it and choose “More info” → “Run anyway”. To use DavraBox in the browser you do not need to install anything.", "k": "windows desktop app install exe smartscreen" }
+    },
+    {
+      "id": "checksum",
+      "cat": "apps",
+      "uz": { "q": "SHA-256 yig‘indisini qanday tekshiraman?", "a": "Windows: PowerShell’da Get-FileHash .\\fayl nomi buyrug‘ini bajaring. macOS yoki Linux: shasum -a 256 fayl nomi. Chiqqan qiymat yuklab olish bo‘limidagi qiymat bilan bir xil bo‘lishi kerak. Farq qilsa, faylni ochmang va bizga xabar bering.", "k": "sha256 checksum yig‘indi tekshirish hash" },
+      "ru": { "q": "Как проверить SHA-256?", "a": "Windows: выполните в PowerShell Get-FileHash .\\имя файла. macOS или Linux: shasum -a 256 имя файла. Полученное значение должно совпасть со значением в разделе загрузок. Если отличается, не открывайте файл и сообщите нам.", "k": "sha256 контрольная сумма проверить хеш" },
+      "en": { "q": "How do I check the SHA-256?", "a": "Windows: run Get-FileHash .\\file-name in PowerShell. macOS or Linux: shasum -a 256 file-name. The value must match the one in the download section. If it differs, do not open the file and tell us.", "k": "sha256 checksum verify hash" }
+    },
+    {
+      "id": "assistant",
+      "cat": "security",
+      "uz": { "q": "Yordamchi chat bot suhbatlarni saqlaydimi?", "a": "Ha. Savol-javoblar FAQ’ni yaxshilash uchun 30 kun saqlanadi va keyin avtomatik o‘chiriladi. Saqlashdan oldin telefon raqami, elektron pochta va karta raqamiga o‘xshash qatorlar yashiriladi. Suhbatlarni faqat platforma egasi ko‘radi, tashkilot administratorlari ko‘rmaydi. Botga parol yoki shaxsiy ma’lumot yozmang.", "k": "bot yordamchi chat suhbat saqlanadimi maxfiylik" },
+      "ru": { "q": "Сохраняет ли чат-помощник переписку?", "a": "Да. Вопросы и ответы хранятся 30 дней, чтобы улучшать FAQ, затем удаляются автоматически. Перед сохранением номера телефонов, адреса почты и строки, похожие на номер карты, скрываются. Переписку видит только владелец платформы, администраторы организаций — нет. Не пишите боту пароли и личные данные.", "k": "бот помощник чат переписка сохраняется конфиденциальность" },
+      "en": { "q": "Does the help assistant store conversations?", "a": "Yes. Questions and answers are kept for 30 days to improve the FAQ and then deleted automatically. Phone numbers, e-mail addresses and card-like numbers are masked before storing. Only the platform owner can read them; organisation administrators cannot. Do not type passwords or personal data into the assistant.", "k": "bot assistant chat conversation stored privacy" }
+    },
+    {
+      "id": "contact",
+      "cat": "start",
+      "uz": { "q": "Qanday bog‘lansam bo‘ladi?", "a": "hello@davrabox.uz manziliga yozing. Tashkilotingiz hisobidan foydalansangiz, avval o‘z administratoringizga murojaat qiling: foydalanuvchilar va siyosatlarni u boshqaradi.", "k": "bog‘lanish aloqa yordam qo‘llab-quvvatlash email" },
+      "ru": { "q": "Как с вами связаться?", "a": "Напишите на hello@davrabox.uz. Если вы пользуетесь аккаунтом организации, сначала обратитесь к своему администратору: он управляет пользователями и политиками.", "k": "связаться контакт поддержка помощь email" },
+      "en": { "q": "How can I contact you?", "a": "Write to hello@davrabox.uz. If you use an organisation account, ask your own administrator first: they manage users and policies.", "k": "contact support help email" }
+    }
+  ],
+  "guides": [
+    {
+      "id": "join",
+      "uz": { "title": "Birinchi uchrashuvga qo‘shilish", "steps": ["Taklif havolasini oching yoki bosh sahifada uchrashuv kodini kiriting.", "Brauzer so‘raganda kamera va mikrofonga ruxsat bering.", "Qo‘shilishdan oldingi oynada o‘zingizni ko‘ring, kerak bo‘lsa kamera yoki mikrofonni o‘chiring.", "Hisobingiz bilan kiring yoki ruxsat bo‘lsa mehmon sifatida ismingizni yozing.", "Kutish xonasi yoqilgan bo‘lsa, host sizni kiritishini kuting."] },
+      "ru": { "title": "Первое подключение к встрече", "steps": ["Откройте ссылку-приглашение или введите код встречи на главной странице.", "Разрешите доступ к камере и микрофону, когда браузер спросит.", "В окне перед входом проверьте изображение, при необходимости выключите камеру или микрофон.", "Войдите с аккаунтом или, если разрешено, введите имя как гость.", "Если включён зал ожидания, дождитесь, пока хост вас впустит."] },
+      "en": { "title": "Join your first meeting", "steps": ["Open the invitation link or type the meeting code on the home page.", "Allow camera and microphone when the browser asks.", "Check yourself in the window before joining; turn the camera or microphone off if you like.", "Sign in with your account or, if allowed, type your name as a guest.", "If the waiting room is on, wait for the host to let you in."] }
+    },
+    {
+      "id": "host",
+      "uz": { "title": "Uchrashuv o‘tkazish", "steps": ["Hisobingizga kiring va «Yangi uchrashuv»ni bosing.", "Mavzu va vaqtni kiriting; kerak bo‘lsa parol va uchidan-uchigacha shifrlashni yoqing.", "Kod yoki havolani ulashing, yoki uchrashuvni kalendarga qo‘shing.", "Uchrashuvda kutish xonasidagilarni kiriting, kerak bo‘lsa co-host tayinlang.", "Oxirida «Hamma uchun tugatish» bilan uchrashuvni yoping."] },
+      "ru": { "title": "Провести встречу", "steps": ["Войдите в аккаунт и нажмите «Новая встреча».", "Укажите тему и время; при необходимости включите пароль и сквозное шифрование.", "Поделитесь кодом или ссылкой либо добавьте встречу в календарь.", "Во встрече впускайте людей из зала ожидания, при необходимости назначьте со-хоста.", "В конце закройте встречу кнопкой «Завершить для всех»."] },
+      "en": { "title": "Host a meeting", "steps": ["Sign in and choose “New meeting”.", "Enter a title and time; turn on a passcode and end-to-end encryption if you need them.", "Share the code or link, or add the meeting to your calendar.", "In the meeting, admit people from the waiting room and make a co-host if needed.", "At the end, close the meeting with “End for all”."] }
+    },
+    {
+      "id": "devices",
+      "uz": { "title": "Kamera va mikrofonni sozlash", "steps": ["Manzil satridagi qulf belgisini bosing va kamera hamda mikrofonga ruxsat bering.", "Kamerani band qilgan boshqa dasturlarni yoping.", "Qo‘shilishdan oldingi oynada to‘g‘ri kamera va mikrofonni tanlang.", "Operatsion tizimning maxfiylik sozlamalarida brauzerga ruxsat borligini tekshiring.", "Hech narsa yordam bermasa, sahifani yangilang yoki boshqa brauzerda urinib ko‘ring."] },
+      "ru": { "title": "Настройка камеры и микрофона", "steps": ["Нажмите на значок замка в адресной строке и разрешите камеру и микрофон.", "Закройте другие программы, которые используют камеру.", "В окне перед входом выберите нужные камеру и микрофон.", "Проверьте в настройках конфиденциальности системы, что браузеру разрешён доступ.", "Если ничего не помогло, обновите страницу или попробуйте другой браузер."] },
+      "en": { "title": "Set up camera and microphone", "steps": ["Click the lock icon in the address bar and allow camera and microphone.", "Close other apps that use the camera.", "Pick the right camera and microphone in the window before joining.", "Check the operating system's privacy settings allow your browser.", "If nothing helps, reload the page or try another browser."] }
+    },
+    {
+      "id": "android-install",
+      "uz": { "title": "Android beta ilovasini o‘rnatish", "steps": ["Telefonda bosh sahifadagi «Yuklab olish» bo‘limini oching va APK’ni yuklang.", "Fayl ochilganda brauzerga «Noma’lum ilovalarni o‘rnatish»ga ruxsat bering.", "«O‘rnatish»ni bosing; Play Protect ogohlantirsa «Baribir o‘rnatish»ni tanlang.", "Ilovani oching va tashkilotingiz hisobi bilan kiring.", "Yangi beta chiqqanda shu sahifadan qayta yuklab o‘rnating: ma’lumotlar saqlanib qoladi."] },
+      "ru": { "title": "Установка бета-приложения для Android", "steps": ["На телефоне откройте раздел «Скачать» главной страницы и скачайте APK.", "При открытии файла разрешите браузеру «Установку неизвестных приложений».", "Нажмите «Установить»; если Play Protect предупредит, выберите «Всё равно установить».", "Откройте приложение и войдите с аккаунтом организации.", "Когда выйдет новая бета, скачайте и установите её с этой же страницы: данные сохранятся."] },
+      "en": { "title": "Install the Android beta", "steps": ["On your phone, open the “Download” section of the home page and download the APK.", "When the file opens, allow your browser to “Install unknown apps”.", "Tap “Install”; if Play Protect warns you, choose “Install anyway”.", "Open the app and sign in with your organisation account.", "When a new beta is out, download and install it from the same page: your data stays."] }
+    },
+    {
+      "id": "org-setup",
+      "uz": { "title": "Tashkilotni ochish va jamoani taklif qilish", "steps": ["«Bepul boshlash»ni bosing va tashkilot nomi, ismingiz, pochta va parolni kiriting.", "Parolni xavfsiz joyga saqlang: sinovda uni pochta orqali tiklab bo‘lmaydi.", "Boshqaruv konsolida «Foydalanuvchilar» bo‘limida hamkasblaringizni qo‘shing.", "«Siyosatlar»da parol, kutish xonasi va mehmonlar qoidalarini tanlang.", "Birinchi uchrashuvni yarating va havolani jamoaga yuboring."] },
+      "ru": { "title": "Открыть организацию и пригласить команду", "steps": ["Нажмите «Начать бесплатно» и введите название организации, имя, почту и пароль.", "Сохраните пароль в надёжном месте: в пробном периоде его нельзя восстановить по почте.", "В консоли управления в разделе «Пользователи» добавьте коллег.", "В «Политиках» выберите правила пароля, зала ожидания и гостей.", "Создайте первую встречу и отправьте ссылку команде."] },
+      "en": { "title": "Open your organisation and invite the team", "steps": ["Choose “Start free” and enter the organisation name, your name, e-mail and password.", "Save the password somewhere safe: during the trial it cannot be reset by e-mail.", "In the admin console, add colleagues under “Users”.", "Under “Policies”, choose the passcode, waiting-room and guest rules.", "Create your first meeting and send the link to the team."] }
+    }
+  ]
+}

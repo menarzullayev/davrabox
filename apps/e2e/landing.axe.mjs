@@ -1,4 +1,4 @@
-// Audit of the landing page and the sign-up page: axe-core (WCAG 2.0/2.1 A+AA + best-practice) in dark and light at 360, 768,
+// Audit of the landing page, /help and the sign-up page (plus the open mega-menu, menu sheet and help assistant): axe-core (WCAG 2.0/2.1 A+AA + best-practice) in dark and light at 360, 768,
 // 1280 and 1920 px in uz, ru and en; no horizontal overflow; no request to another origin; no console error.
 // Exits 1 on any serious or critical violation, overflow, foreign request or error.
 //   LANDING_URL=http://127.0.0.1:5231 node landing.axe.mjs      (a production build served with `vite preview`; no backend needed)
@@ -7,7 +7,7 @@ import { chromium } from 'playwright-core';
 
 const base = process.env.LANDING_URL ?? 'http://127.0.0.1:5231';
 const origin = new URL(base).origin;
-const pages = [['landing', '/'], ['signup', '/app/signup']];
+const pages = [['landing', '/'], ['help', '/help'], ['signup', '/app/signup']];
 const widths = [360, 768, 1280, 1920];
 const langs = ['uz', 'ru', 'en'];
 
@@ -29,6 +29,15 @@ for (const theme of ['dark', 'light']) {
         await page.goto(`${base}${path}`, { waitUntil: 'networkidle' });
         await page.evaluate(() => document.fonts.ready);
         await page.waitForTimeout(300);
+        // Overlays of the landing package: the open mega-menu (wide) or menu sheet (narrow), then the assistant window.
+        if (name === 'landing' && lang === 'en') {
+          if (width >= 960) await page.getByTestId('menu-trigger-product').click();
+          else await page.getByTestId('menu-open').click();
+        }
+        if (name === 'help' && width === 1280) {
+          await page.getByTestId('assistant-open').click();
+          await page.getByTestId('assistant-panel').waitFor();
+        }
         const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']).analyze();
         const bad = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

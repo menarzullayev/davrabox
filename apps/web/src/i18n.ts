@@ -9,6 +9,8 @@ import { platformEn, platformRu, platformUz } from './platform/i18n-platform';
 import { byokEn, byokRu, byokUz } from './admin/i18n-byok';
 import { e2eeEn, e2eeRu, e2eeUz } from './e2ee/i18n-e2ee';
 import { privacyEn, privacyRu, privacyUz } from './privacy/i18n-privacy';
+import { helpEn, helpRu, helpUz } from './help/i18n-help';
+import { admAsEn, admAsRu, admAsUz } from './admin/i18n-assistant-admin';
 
 export type Lang = 'uz' | 'ru' | 'en';
 
@@ -113,6 +115,8 @@ const uz = {
   ...callUz,
   ...featUz,
   ...landingUz,
+  ...helpUz,
+  ...admAsUz,
   ...integrationsUz,
   ...byokUz,
   ...calUz,
@@ -223,6 +227,8 @@ const ru: Record<Key, string> = {
   ...callRu,
   ...featRu,
   ...landingRu,
+  ...helpRu,
+  ...admAsRu,
   ...integrationsRu,
   ...byokRu,
   ...calRu,
@@ -331,6 +337,8 @@ const en: Record<Key, string> = {
   ...callEn,
   ...featEn,
   ...landingEn,
+  ...helpEn,
+  ...admAsEn,
   ...integrationsEn,
   ...byokEn,
   ...calEn,

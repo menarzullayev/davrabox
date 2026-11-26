@@ -5,7 +5,10 @@ RUN npm install -g pnpm@12.23.0 --no-fund --no-audit
 WORKDIR /repo
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json apps/api/
+COPY packages/help-content/package.json packages/help-content/
 RUN pnpm install --frozen-lockfile --filter @davrabox/api...
+# The FAQ the help assistant answers from (shared with the web /help page).
+COPY packages/help-content packages/help-content
 COPY apps/api apps/api
 RUN pnpm --filter @davrabox/api build \
  && pnpm --filter @davrabox/api deploy --prod --legacy /out

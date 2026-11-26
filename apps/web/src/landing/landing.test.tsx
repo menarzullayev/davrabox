@@ -95,7 +95,7 @@ describe('landing page', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('loads nothing from another site: every src and href is local, a fragment or mailto:', () => {
+  it('loads nothing from another site: every src and href is local, a fragment, mailto: or an evidence link to the public repository', () => {
     for (const lang of LANGS) {
       const { container, unmount } = renderLanding(lang);
       const urls = [...container.querySelectorAll('[src],[href],[srcset],[action],[poster],[data]')].flatMap((el) =>
@@ -103,7 +103,16 @@ describe('landing page', () => {
       );
       expect(urls.length).toBeGreaterThan(5);
       for (const u of urls) {
-        expect(/^(\/(?!\/)|#|mailto:)/.test(u), `${lang}: ${u}`).toBe(true);
+        expect(/^(\/(?!\/)|#|mailto:|https:\/\/github\.com\/menarzullayev\/davrabox(\/|$))/.test(u), `${lang}: ${u}`).toBe(true);
+      }
+      // Links that leave the site open in a new tab without handing this page to the other site.
+      for (const a of container.querySelectorAll('a[href^="https://"]')) {
+        expect(a.getAttribute('target')).toBe('_blank');
+        expect(a.getAttribute('rel')).toContain('noopener');
+      }
+      // Nothing is LOADED from elsewhere: no remote src, srcset or poster at all.
+      for (const el of container.querySelectorAll('[src],[srcset],[poster]')) {
+        for (const a of ['src', 'srcset', 'poster']) expect(el.getAttribute(a) ?? '/', a).toMatch(/^\//);
       }
       unmount();
     }
@@ -117,9 +126,11 @@ describe('landing page', () => {
       'Video meetings', 'Waiting room and host control', 'Chat and files', 'SSO and admin console', 'Audit trail', 'End-to-end encryption',
       'Recording', 'Calendar', 'REST API and webhooks', 'Your own keys', 'Mobile', 'Desktop app',
     ]);
-    // truthful state: only what a visitor cannot use today (recording on the pilot, calendar, mobile, desktop) says so
+    // truthful state: what a visitor cannot use today (recording on production, calendar) says so; the apps are betas
     const soon = tiles.map((t, i) => (t.querySelector('[data-testid=capability-soon]') ? i : -1)).filter((i) => i >= 0);
-    expect(soon).toEqual([6, 7, 10, 11]);
+    expect(soon).toEqual([6, 7]);
+    const beta = tiles.map((t, i) => (t.querySelector('[data-testid=capability-beta]') ? i : -1)).filter((i) => i >= 0);
+    expect(beta).toEqual([10, 11]);
   });
 
   it('the coming-soon marker is translated in every language', () => {
@@ -139,12 +150,14 @@ describe('landing page', () => {
     expect(localStorage.getItem('lang')).toBe('ru');
   });
 
-  it('shows the contact address as a mailto link and the legal pages as plain text until they are published', () => {
+  it('the footer links the help centre, the published legal pages, the contact address and the source code', () => {
     renderLanding('en');
     const footer = document.querySelector('footer')!;
     const mail = within(footer).getByRole('link', { name: 'Contact' });
     expect(mail.getAttribute('href')).toMatch(/^mailto:[^@\s]+@[^@\s]+$/);
-    expect(within(footer).getByText('Privacy policy').closest('a')).toBeNull();
-    expect(within(footer).getByText('Terms of use').closest('a')).toBeNull();
+    expect(within(footer).getByRole('link', { name: 'Help' }).getAttribute('href')).toBe('/help');
+    expect(within(footer).getByRole('link', { name: 'Privacy policy' }).getAttribute('href')).toBe('/privacy');
+    expect(within(footer).getByRole('link', { name: 'Terms of use' }).getAttribute('href')).toBe('/terms');
+    expect(within(footer).getByRole('link', { name: /Source code/ }).getAttribute('href')).toBe('https://github.com/menarzullayev/davrabox');
   });
 });

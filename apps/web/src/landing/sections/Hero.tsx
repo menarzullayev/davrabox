@@ -1,6 +1,6 @@
 import { tx } from '../../home/text';
 import type { Lang } from '../../i18n';
-import { Davra, IconChevronRight, type ThemeChoice } from '../../ui';
+import { Davra, IconCheck, IconChevronRight, type ThemeChoice } from '../../ui';
 import { ButtonLink } from '../ButtonLink';
 import { JoinForm } from '../JoinForm';
 
@@ -25,6 +25,14 @@ export function Hero({ lang, theme, navigate }: HeroProps) {
           {tx(lang, 'lnHeroTitle')}
         </h1>
         <p className="ln-hero__text">{tx(lang, 'lnHeroText')}</p>
+        <ul className="ln-ease" aria-label={tx(lang, 'lnHeroKicker')}>
+          {(['lnEase1', 'lnEase2', 'lnEase3'] as const).map((k) => (
+            <li key={k} className="ln-ease__item">
+              <IconCheck size={16} />
+              {tx(lang, k)}
+            </li>
+          ))}
+        </ul>
         <div className="ln-hero__cta">
           <ButtonLink href="/app/signup" variant="primary" size="lg" iconEnd={<IconChevronRight size={18} />}>
             {tx(lang, 'lnStartFree')}

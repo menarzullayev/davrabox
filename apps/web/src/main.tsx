@@ -1,7 +1,7 @@
 import { BootScreen } from './ui/BootScreen';
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import { isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
+import { isHelpPath, isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
 import '@davrabox/design-tokens/tokens.css';
 import './fonts.css';
 import './styles.css';
@@ -32,6 +32,9 @@ const isCallLab = LAB_ENABLED && location.pathname.replace(/\/+$/, '') === '/lab
 // build-time constant: a normal production build drops the import, so the lab and its fake data are not shipped.
 const Lab = import.meta.env.DEV || import.meta.env.VITE_HOME_LAB === '1' ? lazy(() => import('./home/HomeLab')) : null;
 const isLab = Lab !== null && location.pathname.replace(/\/+$/, '') === '/lab/home';
+// /lab/admin renders the admin console with fake data (admin/AdminLab.tsx) for the landing demo clips; same build gate.
+const AdminLab = import.meta.env.DEV || import.meta.env.VITE_HOME_LAB === '1' ? lazy(() => import('./admin/AdminLab')) : null;
+const isAdminLab = AdminLab !== null && location.pathname.replace(/\/+$/, '') === '/lab/admin';
 
 // "/" is the landing page and "/app/signup" the trial sign-up, both lazy chunks that cost the application nothing; every
 // other path (/app, /admin) is the application. Old meeting links (/j/<code>, /?join=<code>, /?code=<code>) are sent to /app.
@@ -43,6 +46,9 @@ const Landing = lazy(() => import('./landing/Landing'));
 const Signup = lazy(() => import('./landing/Signup'));
 // /privacy and /terms: static legal pages (a lazy chunk of their own, no sign-in, no backend call).
 const PrivacyPage = lazy(() => import('./privacy/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
+// /help: the help centre (FAQ, guides, help assistant), a lazy chunk of its own like the legal pages.
+const HelpPage = lazy(() => import('./help/HelpPage'));
+const isHelp = isHelpPath(location.pathname);
 const legalKind = isPrivacyPath(location.pathname) ? 'privacy' : isTermsPath(location.pathname) ? 'terms' : null;
 const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
@@ -63,9 +69,17 @@ createRoot(document.getElementById('root')!).render(
       <Suspense fallback={null}>
         <Styleguide />
       </Suspense>
+    ) : isAdminLab && AdminLab ? (
+      <Suspense fallback={null}>
+        <AdminLab />
+      </Suspense>
     ) : isLab && Lab ? (
       <Suspense fallback={null}>
         <Lab />
+      </Suspense>
+    ) : isHelp ? (
+      <Suspense fallback={<BootScreen />}>
+        <HelpPage />
       </Suspense>
     ) : legalKind ? (
       <Suspense fallback={<BootScreen />}>

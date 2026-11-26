@@ -278,6 +278,39 @@ export const IconCheckCircle = /*#__PURE__*/ makeIcon('check-circle', () => (
     <path d="m8.2 12.4 2.6 2.6 5-5.4" />
   </>
 ));
+export const IconHelp = /*#__PURE__*/ makeIcon('help', () => (
+  <>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.1-2.4 3.7" />
+    <path d="M12 17.2v.01" />
+  </>
+));
+export const IconBook = /*#__PURE__*/ makeIcon('book', () => (
+  <>
+    <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z" />
+    <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z" />
+  </>
+));
+export const IconPlay = /*#__PURE__*/ makeIcon('play', () => <path d="M8 5.5v13a.7.7 0 0 0 1.05.6l10.4-6.5a.7.7 0 0 0 0-1.2L9.05 4.9A.7.7 0 0 0 8 5.5z" />);
+export const IconPause = /*#__PURE__*/ makeIcon('pause', () => <path d="M8 5v14M16 5v14" />);
+export const IconSmartphone = /*#__PURE__*/ makeIcon('smartphone', () => (
+  <>
+    <rect x="7" y="3" width="10" height="18" rx="2" />
+    <path d="M11 17.5h2" />
+  </>
+));
+export const IconMonitor = /*#__PURE__*/ makeIcon('monitor', () => (
+  <>
+    <rect x="3" y="4" width="18" height="12" rx="2" />
+    <path d="M8 20h8M12 16v4" />
+  </>
+));
+export const IconTag = /*#__PURE__*/ makeIcon('tag', () => (
+  <>
+    <path d="M3.5 12.1V4.5a1 1 0 0 1 1-1h7.6l8.4 8.4a1 1 0 0 1 0 1.4l-7.2 7.2a1 1 0 0 1-1.4 0z" />
+    <path d="M8 8h.01" />
+  </>
+));
 
 // ---- in-call feature package (2026-11-26) ----------------------------------------------------------------------------
 export const IconSpotlight = /*#__PURE__*/ makeIcon('spotlight', () => (

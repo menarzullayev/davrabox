@@ -31,3 +31,5 @@ docs/design/critic/*.jpg
 PRODUCTION-READINESS.md
 deploy/compose/*.cred.txt
 apps/web/public/.well-known/
+# beta app files published to the server (scripts/publish-downloads.mjs), never committed
+deploy/prod/downloads/

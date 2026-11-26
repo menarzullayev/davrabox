@@ -73,6 +73,26 @@ Full steps for every secret, what breaks, and the incident checklist: `docs/runb
 ## Meeting recording
 The `egress` service (LiveKit Egress, headless Chrome) records a meeting to the `davra-recordings` bucket in MinIO; the API then envelope-encrypts the file with `FILE_MASTER_KEY` and deletes the plaintext. Only the host, a co-host or an org admin can start, stop, list and download. A room composite recording at 720p30 needs about 4 CPUs and 4 GB of RAM on top of the rest of the stack. Egress reaches LiveKit over the internal network (`ws://livekit:7880`); with `use_external_ip: true` its media connection uses the host's public address, so the host must be able to reach its own public IP (hairpin). Check one 20-second recording after the first deploy.
 
+## Beta app downloads (`/downloads/`)
+
+Caddy serves `deploy/prod/downloads/` (git-ignored) at `/downloads/`: the Android APK, the Windows installer,
+`manifest.json` (read by the landing page) and `SHA256SUMS`. Fill it from successful GitHub Actions builds on main,
+from a machine with `gh` signed in:
+
+```sh
+node scripts/publish-downloads.mjs --upload <user>@<host>:<repo dir>/deploy/prod/downloads --ssh-key <key file>
+```
+
+Without run ids the newest successful `android.yml` / `desktop.yml` runs on main are used (`--android-run`,
+`--windows-run` pick others). Packages are copied first and the manifest last; older packages are then removed.
+The builds are unsigned betas (the landing page says so and shows the checksums). After the first deploy of this
+change, recreate Caddy once so it mounts the folder: `docker compose ... up -d --force-recreate caddy`.
+
+## Help assistant
+
+See `docs/help-assistant.md`. `.env`: `ANTHROPIC_API_KEY` (empty = FAQ mode), `ASSISTANT_DAILY_USD_CAP`,
+`PLATFORM_OWNER_SUBS`; then `docker compose ... up -d api`.
+
 ## Monitoring, alerts and error tracking
 ```
 docker compose --env-file .env -f docker-compose.observability.yml up -d     # Prometheus, Alertmanager (to Telegram), Grafana, GlitchTip, blackbox, node-exporter

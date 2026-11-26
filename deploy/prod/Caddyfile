@@ -58,6 +58,21 @@
 		reverse_proxy api:3000
 	}
 
+	# Beta app downloads (owner decision 4 of 2026-11-26): the files and their manifest are written into ./downloads by
+	# scripts/publish-downloads.mjs from a GitHub Actions build. No directory listing; packages download as attachments.
+	handle_path /downloads/* {
+		root * /srv/downloads
+		header X-Content-Type-Options nosniff
+		@pkg path *.apk *.exe
+		header @pkg Content-Disposition attachment
+		header @pkg Cache-Control "public, max-age=86400, immutable"
+		@apk path *.apk
+		header @apk Content-Type application/vnd.android.package-archive
+		@meta path /manifest.json /SHA256SUMS
+		header @meta Cache-Control "no-cache"
+		file_server
+	}
+
 	# Web app: nginx image with the strict CSP (frame-ancestors none, no unsafe-inline scripts)
 	handle {
 		reverse_proxy web:8080

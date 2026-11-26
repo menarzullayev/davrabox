@@ -1,0 +1,65 @@
+/*
+ * Help assistant: the floating launcher and the chat window (landing, /help, sign-in, home; never in the call).
+ * Tokens only; in liquid-glass the window takes the regular glass material through the lg-panel class.
+ */
+@layer legacy, dx;
+
+@layer dx {
+  .as-launch {
+    position: fixed; inset: auto max(var(--space-4), env(safe-area-inset-right, 0rem)) calc(env(safe-area-inset-bottom, 0rem) + var(--space-4)) auto;
+    z-index: var(--z-overlay); border-radius: var(--radius-pill); box-shadow: var(--shadow-3);
+  }
+  /* Phones: an icon-only round button (the label stays the accessible name through the visually hidden span). */
+  @media (max-width: 639px) {
+    .as-launch .as-launch__label { position: absolute; width: var(--border-w); height: var(--border-w); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .as-launch { min-width: var(--target-coarse); min-height: var(--target-coarse); padding-inline: var(--space-3); }
+  }
+
+  .as-panel {
+    position: fixed; z-index: var(--z-overlay); box-sizing: border-box;
+    inset: auto var(--space-4) calc(env(safe-area-inset-bottom, 0rem) + var(--space-4) + 3.5rem) auto;
+    width: min(26rem, calc(100vw - 2 * var(--space-4))); max-height: min(38rem, calc(100dvh - 7rem));
+    display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto; gap: var(--space-2);
+    padding: var(--space-4); border: var(--border-w) solid var(--border); border-radius: var(--radius-xl); background: var(--surface-2); box-shadow: var(--shadow-3);
+  }
+  @media (max-width: 479px) { .as-panel { inset-inline: var(--space-2); width: auto; } }
+  .as-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+  .as-title { margin: 0; color: var(--text); font-size: var(--text-md); font-weight: var(--weight-semibold); }
+  .as-notice { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--surface-3); color: var(--text-muted); font-size: var(--text-xs); line-height: var(--leading-sm); }
+  .as-notice a, .as-error a { color: var(--accent); font-weight: var(--weight-semibold); }
+  .as-mode { margin: 0; color: var(--text-subtle); font-size: var(--text-xs); }
+  .as-log { display: grid; align-content: start; gap: var(--space-2); overflow-y: auto; overscroll-behavior: contain; min-height: 6rem; padding-block: var(--space-1); }
+  .as-msg { display: grid; gap: var(--space-1); max-width: 92%; padding: var(--space-2) var(--space-3); border-radius: var(--radius-lg); font-size: var(--text-sm); line-height: var(--leading-sm); }
+  .as-msg--assistant { justify-self: start; background: var(--surface-1); color: var(--text); border: var(--border-w) solid var(--border); }
+  .as-msg--user { justify-self: end; background: var(--accent); color: var(--text-on-accent); }
+  .as-msg--busy { display: flex; align-items: center; gap: var(--space-2); color: var(--text-muted); }
+  .as-msg__text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .as-msg__meta { margin: 0; color: var(--text-subtle); font-size: var(--text-xs); }
+  .as-chips, .as-ready { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+  .as-ready { align-items: center; padding-top: var(--space-2); border-top: var(--border-w) solid var(--border); }
+  .as-ready__title { color: var(--text-subtle); font-size: var(--text-xs); font-weight: var(--weight-semibold); margin-inline-end: var(--space-1); }
+  .as-chip { max-width: 100%; white-space: normal; text-align: start; height: auto; min-height: 2rem; }
+  .as-error { margin: 0; color: var(--danger-text); font-size: var(--text-sm); }
+  .as-form { display: grid; gap: var(--space-2); }
+  .as-input {
+    box-sizing: border-box; width: 100%; resize: none; min-height: 3.5rem; padding: var(--space-2) var(--space-3);
+    border: var(--border-w) solid var(--border-strong, var(--border)); border-radius: var(--radius-md); background: var(--surface-1); color: var(--text);
+    font: inherit; font-size: var(--text-sm); line-height: var(--leading-sm);
+  }
+  .as-input:focus-visible { outline: 0.125rem solid var(--focus-ring); outline-offset: 0.0625rem; }
+  .as-input[aria-invalid='true'] { border-color: var(--danger); }
+  .as-form__row { display: flex; align-items: center; gap: var(--space-2); }
+  .as-counter { flex: 1; color: var(--text-subtle); font-size: var(--text-xs); }
+  .as-counter--over { color: var(--danger-text); }
+  .as-help { display: inline-flex; align-items: center; gap: var(--space-1); color: var(--text-muted); font-size: var(--text-xs); }
+  .as-help:focus-visible { outline: 0.125rem solid var(--focus-ring); outline-offset: 0.125rem; }
+
+  @media (forced-colors: active) { .as-panel, .as-msg { border: var(--border-w) solid CanvasText; } }
+}
+
+/* Liquid Glass phones: the landing's floating "Start free" capsule sits at the bottom; the launcher rides above it. */
+@media (max-width: 639px) {
+  :root[data-style='liquid-glass'] .ln-page ~ .as-launch,
+  :root[data-style='liquid-glass'] .ln-page .as-launch { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 5rem); }
+  :root[data-style='liquid-glass'] .ln-page .as-panel { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 9rem); }
+}

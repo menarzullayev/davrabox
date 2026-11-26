@@ -30,6 +30,11 @@ export function isTermsPath(pathname: string): boolean {
   return trim(pathname) === '/terms';
 }
 
+/** The public help centre ("/help"): FAQ, short guides and the help assistant. */
+export function isHelpPath(pathname: string): boolean {
+  return trim(pathname) === '/help';
+}
+
 /** `appUrl()` -> "/app"; `appUrl('signup')` -> "/app/signup"; `appUrl('?join=1')` -> "/app?join=1". */
 export function appUrl(path = ''): string {
   if (!path) return '/app';

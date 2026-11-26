@@ -8,6 +8,7 @@ import { LegalLinks } from '../privacy/LegalLinks';
 import { AppearanceControls } from './AppearanceControls';
 import { formatCode, parseJoinInput } from './logic';
 import { tx } from './text';
+import { AssistantLauncher } from '../help/AssistantLauncher';
 
 /** Splits "A. B. C." into its sentences so the brand line can be set as a statement, one sentence per line. */
 export const brandSentences = (line: string): string[] => line.split(/(?<=\.)\s+/).filter(Boolean);
@@ -220,6 +221,7 @@ export function SignInScreen({ lang, notice, onLang, theme, onTheme, onSignIn, o
         ) : null}
       </main>
       <LegalLinks lang={lang} />
+      <AssistantLauncher lang={lang} page="signin" />
     </div>
   );
 }
