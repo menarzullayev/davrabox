@@ -63,12 +63,18 @@ function compile(gl: WebGL2RenderingContext, type: number, src: string): WebGLSh
   return s;
 }
 
+let probed: boolean | undefined;
+/** Whether the browser can run the correction (WebGL2 on an OffscreenCanvas, VideoFrame). Probed once per page. */
 export function lowLightSupported(): boolean {
+  if (probed !== undefined) return probed;
   try {
-    return typeof VideoFrame !== 'undefined' && typeof OffscreenCanvas !== 'undefined' && !!new OffscreenCanvas(1, 1).getContext('webgl2');
+    const gl = typeof VideoFrame !== 'undefined' && typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(1, 1).getContext('webgl2') : null;
+    probed = !!gl;
+    gl?.getExtension('WEBGL_lose_context')?.loseContext(); // give the context back at once
   } catch {
-    return false;
+    probed = false;
   }
+  return probed;
 }
 
 /** The GPU pass. `process` returns a new corrected frame, or null when the frame should pass through as it is. */

@@ -105,14 +105,14 @@ export function Call({
   const [fx, setFxState] = useState<CamFx>(loadFx);
   const [bgOpen, setBgOpen] = useState(false);
   const [customs, setCustoms] = useState<Array<{ id: string; url: string }>>([]);
-  const fxSupport = useRef(cameraFxSupport()).current;
+  const [fxSupport] = useState(cameraFxSupport); // probed once (it creates a throw-away WebGL context)
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const [spotlightId, setSpotlightId] = useState<string | null>(null);
   const [muteAllAsk, setMuteAllAsk] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [pipWin, setPipWin] = useState<Window | null>(null);
   const [videoPip, setVideoPip] = useState(false);
-  const pipSupport = useRef(pipKind()).current;
+  const [pipSupport] = useState(pipKind);
   const [qaSort, setQaSort] = useState<'top' | 'new'>('top');
   const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);

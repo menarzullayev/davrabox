@@ -108,6 +108,15 @@ export function useBoard(room: Room | null, connected: boolean, boardOpen: boole
     };
   }, [room, connected, receiveEls, amLead, transmit]);
 
+  // Test and support hook: how many elements are on the board (a number, never the content).
+  useEffect(() => {
+    const w = window as unknown as { __davraBoard?: { count(): number } };
+    w.__davraBoard = { count: () => ordered(store.current).length };
+    return () => {
+      delete w.__davraBoard;
+    };
+  }, []);
+
   const flush = useCallback(() => {
     timer.current = null;
     const els = Array.from(pending.current.values());
