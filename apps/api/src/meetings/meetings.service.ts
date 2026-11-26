@@ -55,6 +55,7 @@ interface MeetingRow {
   locked: boolean;
   waiting_room: boolean;
   e2ee: boolean;
+  guest_mode: GuestMode;
   is_cohost: boolean;
 }
 
@@ -261,17 +262,33 @@ export class MeetingsService {
    * run unencrypted cannot be made private after the fact (the server cannot know who already holds recordings or
    * transcripts), and an encrypted one must not be downgraded. The attempt is audited.
    */
-  async update(user: AuthedUser, code: string, patch: Record<string, unknown>): Promise<never> {
-    // The audit row must be committed, so the refusal is thrown after the transaction, not inside it.
-    const touchesE2ee = await withTenant(this.pool, user.orgId, async (c) => {
+  /**
+   * Changes a meeting after creation. Only the guest setting can change (host, co-host or organization admin), and never
+   * above what the organization allows; asking to change `e2ee` is an explicit, audited 409; anything else is a 400.
+   */
+  async update(user: AuthedUser, code: string, patch: Record<string, unknown>): Promise<{ guest_mode: GuestMode }> {
+    // The audit row must be committed, so a refusal is thrown after the transaction, not inside it.
+    const out = await withTenant(this.pool, user.orgId, async (c) => {
       const meeting = await this.meetingByCode(c, code, user.userId);
       this.mustManage(user, meeting);
-      if (!Object.prototype.hasOwnProperty.call(patch, 'e2ee')) return false;
-      await this.audit(c, user, 'meeting.e2ee.change.denied', code);
-      return true;
+      if (Object.prototype.hasOwnProperty.call(patch, 'e2ee')) {
+        await this.audit(c, user, 'meeting.e2ee.change.denied', code);
+        return { refused: 409 as const };
+      }
+      const keys = Object.keys(patch);
+      const guests = patch['guests'];
+      if (keys.length !== 1 || keys[0] !== 'guests' || (guests !== 'off' && guests !== 'waiting_room' && guests !== 'open')) return { refused: 400 as const };
+      const policy = await loadPolicies(c);
+      const rank = { off: 0, waiting_room: 1, open: 2 };
+      if (rank[guests] > rank[policy.guestPolicy]) return { refused: 'policy' as const };
+      await c.query('UPDATE meetings SET guest_mode = $1 WHERE id = $2', [guests, meeting.id]);
+      await this.audit(c, user, 'meeting.guests.change', `${code}:${guests}`);
+      return { guest_mode: guests as GuestMode };
     });
-    if (touchesE2ee) throw new MeetingError(409, 'end-to-end encryption cannot be changed after the meeting is created');
-    throw new MeetingError(400, 'nothing can be updated');
+    if ('guest_mode' in out && out.guest_mode) return { guest_mode: out.guest_mode };
+    if ('refused' in out && out.refused === 409) throw new MeetingError(409, 'end-to-end encryption cannot be changed after the meeting is created');
+    if ('refused' in out && out.refused === 'policy') throw new MeetingError(400, 'this organization does not allow that guest setting');
+    throw new MeetingError(400, 'only the guest setting can be changed');
   }
 
   async setLocked(user: AuthedUser, code: string, locked: boolean) {
@@ -416,7 +433,7 @@ export class MeetingsService {
   private async meetingByCode(c: PoolClient, code: string, userId: string): Promise<MeetingRow> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     const r = await c.query(
-      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room, m.e2ee,
+      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room, m.e2ee, m.guest_mode,
               EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2) AS is_cohost
        FROM meetings m WHERE m.code = $1`,
       [code, userId],
@@ -469,6 +486,7 @@ export class MeetingsService {
       roomAdmin: manages,
     });
     const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
-    return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages, e2ee: meeting.e2ee };
+    // The host side also gets the meeting's guest setting, so the call screen can show and change it.
+    return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: manages, e2ee: meeting.e2ee, ...(manages ? { guestMode: meeting.guest_mode } : {}) };
   }
 }

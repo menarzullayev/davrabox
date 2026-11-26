@@ -151,7 +151,9 @@ describe('E2EE meetings over HTTP', () => {
   it('the join result and the room carry no key material: only the documented fields', async () => {
     const m = await http('POST', '/v1/meetings', 'host', { title: 'Fields', waitingRoom: false, e2ee: true });
     const j = await http('POST', `/v1/meetings/${m.json.code}/join`, 'host', {});
-    expect(Object.keys(j.json).sort()).toEqual(['e2ee', 'isHost', 'meetingId', 'status', 'title', 'token', 'url']);
+    // guestMode (the host side's guest setting: off, waiting_room or open) is a setting, not key material.
+    expect(Object.keys(j.json).sort()).toEqual(['e2ee', 'guestMode', 'isHost', 'meetingId', 'status', 'title', 'token', 'url']);
+    expect(['off', 'waiting_room', 'open']).toContain(j.json.guestMode);
   });
 });
 

@@ -126,6 +126,10 @@ export const homeUz = {
   hNewGuestsOff: 'Ruxsat yo‘q',
   hNewGuestsWait: 'Kutish xonasi orqali (siz kiritasiz)',
   hNewGuestsOpen: 'Bevosita qo‘shilishsin',
+  hEditGuestsTitle: 'Mehmonlar sozlamasi',
+  hEditGuestsSave: 'Saqlash',
+  hEditGuestsFailed: 'Saqlab bo‘lmadi. Qayta urinib ko‘ring.',
+  hEditGuestsAria: '«{title}» uchun mehmonlar sozlamasi',
 
   hWaitTitle: 'Host sizni kiritishini kutyapmiz',
   hWaitText: 'Ruxsat berilishi bilan uchrashuvga avtomatik kirasiz. Bu oynani yopmang.',
@@ -260,6 +264,10 @@ export const homeRu: Record<HomeKey, string> = {
   hNewGuestsOff: 'Нельзя',
   hNewGuestsWait: 'Через зал ожидания (вы впускаете)',
   hNewGuestsOpen: 'Сразу входят',
+  hEditGuestsTitle: 'Гости встречи',
+  hEditGuestsSave: 'Сохранить',
+  hEditGuestsFailed: 'Не удалось сохранить. Попробуйте ещё раз.',
+  hEditGuestsAria: 'Гости встречи «{title}»',
 
   hWaitTitle: 'Ждём, пока хост вас впустит',
   hWaitText: 'Как только вас впустят, вы войдёте во встречу сами. Не закрывайте это окно.',
@@ -392,6 +400,10 @@ export const homeEn: Record<HomeKey, string> = {
   hNewGuestsOff: 'Not allowed',
   hNewGuestsWait: 'Through the waiting room (you let them in)',
   hNewGuestsOpen: 'Join directly',
+  hEditGuestsTitle: 'Meeting guests',
+  hEditGuestsSave: 'Save',
+  hEditGuestsFailed: 'Could not save. Please try again.',
+  hEditGuestsAria: 'Guests for “{title}”',
 
   hWaitTitle: 'Waiting for the host to let you in',
   hWaitText: 'You will enter the meeting on your own as soon as you are admitted. Keep this window open.',

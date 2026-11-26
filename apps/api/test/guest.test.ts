@@ -107,6 +107,36 @@ describe('guests refused', () => {
     expect(await status(join(m.code))).toBe(404);
   });
 
+  it('the host can open an existing meeting to guests later, never above the organization limit', async () => {
+    await setPolicy(orgAdmin, 'off');
+    const m = await meetings.create(host, { title: 'Made while guests were off' });
+    await setPolicy(orgAdmin, 'waiting_room');
+    expect(await status(join(m.code))).toBe(404); // still off until the host changes it
+    expect(await status(meetings.update(host, m.code, { guests: 'open' }))).toBe(400); // above the policy
+    expect(await meetings.update(host, m.code, { guests: 'waiting_room' })).toEqual({ guest_mode: 'waiting_room' });
+    expect((await join(m.code)).status).toBe('waiting');
+    expect(await meetings.join(host, m.code)).toMatchObject({ status: 'joined', guestMode: 'waiting_room' }); // the call screen shows it
+    expect(await meetings.update(orgAdmin, m.code, { guests: 'off' })).toEqual({ guest_mode: 'off' }); // an organization admin may too
+    expect(await status(join(m.code))).toBe(404);
+  });
+
+  it('only the host side can change it, and only the guest setting', async () => {
+    await setPolicy(orgAdmin, 'open');
+    const m = await meetings.create(host, { title: 'Guarded' });
+    const member = await mkUser(slugA, `mem-${sfx}`, 'member');
+    expect(await status(meetings.update(member, m.code, { guests: 'open' }))).toBe(403);
+    expect(await status(meetings.update(outsider, m.code, { guests: 'open' }))).toBe(404);
+    expect(await status(meetings.update(host, m.code, { guests: 'everyone' }))).toBe(400);
+    expect(await status(meetings.update(host, m.code, { guests: 'open', title: 'x' }))).toBe(400);
+    expect(await status(meetings.update(host, m.code, { title: 'x' }))).toBe(400);
+    expect(await status(meetings.update(host, m.code, { e2ee: true, guests: 'open' }))).toBe(409);
+    const row = await admin.query('SELECT guest_mode FROM meetings WHERE code = $1', [m.code]);
+    expect(row.rows[0].guest_mode).toBe('off');
+    await meetings.update(host, m.code, { guests: 'open' });
+    const audit = await admin.query("SELECT target FROM audit_log WHERE org_id = $1 AND action = 'meeting.guests.change' ORDER BY id DESC LIMIT 1", [host.orgId]);
+    expect(audit.rows[0]?.target).toBe(`${m.code}:open`);
+  });
+
   it('refuses bad names, malformed codes and wrong types without touching the database', async () => {
     await setPolicy(orgAdmin, 'open');
     const m = await meetings.create(host, { title: 'Names', guests: 'open' });

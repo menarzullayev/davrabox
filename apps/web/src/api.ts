@@ -27,6 +27,8 @@ export interface JoinedResult {
   isHost: boolean;
   /** The media is end-to-end encrypted; the key comes from the link fragment and is never sent to the server. */
   e2ee?: boolean;
+  /** The meeting's guest setting; sent to the host side only (the call screen can change it). */
+  guestMode?: GuestMode;
   /** Set when the person joined as a guest (no account). */
   guest?: boolean;
   guestToken?: string;
@@ -172,6 +174,9 @@ export const api = {
   listRequests: (token: string, code: string) => call<JoinRequest[]>(token, `/v1/meetings/${enc(code)}/requests`),
   decide: (token: string, code: string, id: string, admit: boolean) =>
     call<{ status: string }>(token, `/v1/meetings/${enc(code)}/requests/${enc(id)}/${admit ? 'admit' : 'deny'}`, { method: 'POST', body: {} }),
+  /** Host side: who may join without an account, within the organization's limit. */
+  setGuests: (token: string, code: string, guests: GuestMode) =>
+    call<{ guest_mode: GuestMode }>(token, `/v1/meetings/${enc(code)}`, { method: 'PATCH', body: { guests } }),
   lock: (token: string, code: string, locked: boolean) =>
     call<{ locked: boolean }>(token, `/v1/meetings/${enc(code)}/lock`, { method: 'POST', body: { locked } }),
   me: (token: string, code: string) => call<{ role: 'host' | 'cohost' | 'member' }>(token, `/v1/meetings/${enc(code)}/me`),

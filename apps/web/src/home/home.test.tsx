@@ -474,3 +474,27 @@ describe('join card passcode (critic D-13)', () => {
     expect(onJoin).toHaveBeenCalledWith('30812345678', undefined);
   });
 });
+
+describe('changing a meeting\'s guests from the home screen', () => {
+  it('a host row opens the guest setting and saves it within the organization limit', async () => {
+    const onSetGuests = vi.fn(async () => undefined);
+    const meetings = labMeetings('few')!.map((m) => ({ ...m, is_host: true, guest_mode: 'off' as const }));
+    render(<HomeScreen {...props({ meetings, guestMax: 'waiting_room', onSetGuests })} />);
+    const buttons = screen.getAllByTestId('guests-row');
+    expect(buttons.length).toBeGreaterThan(0); // one per hosted row in the open tab
+    fireEvent.click(buttons[0]!);
+    pickOption('guests-edit', 'waiting_room');
+    fireEvent.click(screen.getByTestId('guests-save'));
+    await waitFor(() => expect(onSetGuests).toHaveBeenCalledWith(expect.stringMatching(/^\d{11,12}$/), 'waiting_room'));
+  });
+
+  it('shows no guests button when the organization allows no guests or for rows the person does not host', () => {
+    const own = labMeetings('few')!.map((m) => ({ ...m, is_host: true }));
+    render(<HomeScreen {...props({ meetings: own, guestMax: 'off', onSetGuests: vi.fn() })} />);
+    expect(screen.queryByTestId('guests-row')).toBeNull();
+    cleanup();
+    const others = labMeetings('few')!.map((m) => ({ ...m, is_host: false }));
+    render(<HomeScreen {...props({ meetings: others, guestMax: 'open', onSetGuests: vi.fn() })} />);
+    expect(screen.queryByTestId('guests-row')).toBeNull();
+  });
+});
