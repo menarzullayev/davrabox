@@ -17,6 +17,7 @@
 @import './lg-call.css';
 @import './lg-prejoin.css';
 @import './lg-home.css';
+@import './lg-landing.css';
 
 /* ---- materials ------------------------------------------------------------------------------------------------ */
 :root[data-style='liquid-glass'] :is(
