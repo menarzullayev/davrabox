@@ -28,7 +28,8 @@ try {
     const { ctx, page } = await open('/');
     const product = page.getByTestId('menu-trigger-product');
     await product.click();
-    const panelVisible = await page.locator(`#${await product.getAttribute('aria-controls')}`.replace(/:/g, '\\:')).isVisible();
+    const panelId = await product.getAttribute('aria-controls');
+    const panelVisible = await page.evaluate((id) => !!id && !!document.getElementById(id)?.checkVisibility(), panelId);
     check('mega-menu: Product opens a panel with described links', panelVisible && (await page.getByTestId('menu-security').isVisible()));
     await page.keyboard.press('Escape');
     check('mega-menu: Escape closes and returns focus', (await product.getAttribute('aria-expanded')) === 'false' && (await page.evaluate(() => document.activeElement?.getAttribute('data-testid'))) === 'menu-trigger-product');
