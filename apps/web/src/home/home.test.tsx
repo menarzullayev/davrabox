@@ -498,3 +498,20 @@ describe('changing a meeting\'s guests from the home screen', () => {
     expect(screen.queryByTestId('guests-row')).toBeNull();
   });
 });
+
+describe('one-off notices', () => {
+  it('home shows a dismissible notice (the host ended the meeting)', () => {
+    const onDismissNotice = vi.fn();
+    render(<HomeScreen {...props({ notice: 'The host ended the meeting for everyone.', onDismissNotice })} />);
+    expect(screen.getByTestId('home-notice').textContent).toContain('The host ended the meeting');
+    fireEvent.click(within(screen.getByTestId('home-notice')).getByRole('button'));
+    expect(onDismissNotice).toHaveBeenCalled();
+  });
+  it('the sign-in screen shows it to a guest, and nothing without one', () => {
+    const base = { lang: 'en' as Lang, onLang: vi.fn(), theme: 'dark' as const, onTheme: vi.fn(), onSignIn: vi.fn() };
+    const { rerender } = render(<SignInScreen {...base} notice="The host ended the meeting for everyone." />);
+    expect(screen.getByTestId('signin-notice').textContent).toContain('ended');
+    rerender(<SignInScreen {...base} />);
+    expect(screen.queryByTestId('signin-notice')).toBeNull();
+  });
+});

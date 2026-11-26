@@ -56,6 +56,7 @@ vi.mock('livekit-client', async () => {
     Track: { Source: { Camera: 'camera', Microphone: 'microphone', ScreenShare: 'screen_share' } },
     ConnectionQuality: { Excellent: 'excellent', Good: 'good', Poor: 'poor', Lost: 'lost', Unknown: 'unknown' },
     __FakeParticipant: FakeParticipant,
+    DisconnectReason: { CLIENT_INITIATED: 1, ROOM_DELETED: 5 },
   };
 });
 vi.mock('@livekit/track-processors', () => ({ BackgroundProcessor: vi.fn(), supportsBackgroundProcessors: () => false }));
@@ -245,6 +246,18 @@ describe('Call with a fake room', () => {
     expect(onLeave).not.toHaveBeenCalled();
     act(() => void h.rooms[1]!.emit('disconnected'));
     expect(onLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('a room closed by the host tells the screen behind that the meeting was ended; a plain disconnect does not', async () => {
+    const onLeave = mount();
+    await flush();
+    act(() => void room().emit('disconnected', 5));
+    expect(onLeave).toHaveBeenCalledWith({ ended: true });
+    cleanup();
+    const again = mount();
+    await flush();
+    act(() => void room().emit('disconnected', 1));
+    expect(again).toHaveBeenCalledWith(undefined);
   });
 
   it('adds and removes participants as tiles and keeps join order (yourself first)', async () => {
