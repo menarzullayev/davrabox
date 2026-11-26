@@ -72,7 +72,7 @@ for (const theme of ['dark', 'light']) {
 // ---- 2. keyboard path -------------------------------------------------------------------------------------------
 {
   const { ctx, page } = await open('n=5&speaker=2&role=host&requests=1', { lang: 'en' });
-  const order = ['mic', 'cam', 'share', 'hand', 'reactions', 'chat-toggle', 'people-toggle', 'layout', 'more', 'leave'];
+  const order = ['mic', 'cam', 'share', 'hand', 'reactions', 'chat-toggle', 'people-toggle', 'layout', 'record', 'more', 'leave'];
   const active = () => page.evaluate(() => document.activeElement?.getAttribute('data-testid') ?? document.activeElement?.tagName);
   const stops = () => page.evaluate(() => Array.from(document.querySelectorAll('[role=toolbar] [data-roving]')).filter((b) => b.tabIndex === 0).map((b) => b.getAttribute('data-testid')));
   const inToolbar = () => page.evaluate(() => !!document.activeElement?.closest('[role=toolbar]'));

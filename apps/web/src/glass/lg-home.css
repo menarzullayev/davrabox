@@ -1,8 +1,8 @@
 /*
  * Liquid Glass, home layout (owner-approved iOS layout, 2026-11-26).
  *  - Large title; the glass header appears only once the page scrolls (scroll-driven, where supported).
- *  - Phones: a floating glass tab bar at the bottom (Join, New, Meetings, Settings). Theme and settings leave the header for
- *    it, the "new meeting" card moves into it. Wider screens keep the header controls and the card.
+ *  - Phones: a floating glass tab bar at the bottom (Join, New, Meetings, Settings) within thumb reach. The header buttons
+ *    and the new-meeting button stay too (round glass / a compact card), so every shared test id works at every width.
  * Markup and test ids are the shared ones (HomeScreen.tsx); the tab bar has its own test ids (tab-*).
  */
 :root[data-style='liquid-glass'] .hm-header__in { min-height: 3.5rem; }
@@ -44,10 +44,9 @@
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item .dx-btn__label { flex-direction: column; gap: calc(var(--space-1) / 2); }
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item[aria-expanded='true'],
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item:hover { background: var(--glass-pressed); color: var(--accent); }
-  /* The header keeps the logo, admin and sign-out; theme and settings live in the tab bar. */
-  :root[data-style='liquid-glass'] .hm-header [data-testid='theme-toggle'],
-  :root[data-style='liquid-glass'] .hm-header [data-testid='settings'] { display: none; }
-  :root[data-style='liquid-glass'] .hm-header :is(.hm-admin, .hm-signout) {
+  /* Header buttons become round glass buttons. They all stay (the shared test ids must work in every style and width);
+     the tab bar repeats the common ones within thumb reach. */
+  :root[data-style='liquid-glass'] .hm-header :is(.hm-admin, .hm-signout, .dx-btn--icon) {
     width: 2.75rem;
     min-width: 2.75rem;
     height: 2.75rem;
@@ -55,7 +54,9 @@
     background: var(--glass-sheen), var(--glass-clear);
     box-shadow: var(--glass-rim);
   }
-  :root[data-style='liquid-glass'] .hm-new { display: none; }
+  /* The new-meeting card shrinks to its button (the tab bar has New too). */
+  :root[data-style='liquid-glass'] .hm-new { padding: var(--space-2); gap: 0; }
+  :root[data-style='liquid-glass'] .hm-new > .hm-card__title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   :root[data-style='liquid-glass'] .hm-main { padding-bottom: calc(env(safe-area-inset-bottom, 0rem) + 6rem); }
   :root[data-style='liquid-glass'] .hm-greeting { font-size: var(--text-3xl); line-height: var(--leading-3xl); }
   /* Meeting tabs: three equal segments that fit the narrow capsule. */
