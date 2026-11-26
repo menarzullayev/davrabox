@@ -168,3 +168,34 @@ describe('Select (custom dropdown)', () => {
     expect(onChange).toHaveBeenCalledWith('guest');
   });
 });
+
+describe('a dropdown inside another panel', () => {
+  afterEach(cleanup);
+  function Nested({ onPick }: { onPick: (v: string) => void }) {
+    const anchor = { current: document.body.appendChild(document.createElement('button')) };
+    return (
+      <Popover open anchorRef={anchor} onClose={() => onPick('closed')}>
+        <div style={{ backdropFilter: 'blur(0px)' }}>
+          <Select label="Style" defaultValue="a" onChange={(e) => onPick(e.target.value)}>
+            <option value="a">A</option>
+            <option value="b">B</option>
+          </Select>
+        </div>
+      </Popover>
+    );
+  }
+  it('renders its list at the top of the page, not inside the parent panel, and choosing keeps the parent open', () => {
+    const onPick = vi.fn();
+    render(<Nested onPick={onPick} />);
+    fireEvent.click(screen.getByRole('combobox'));
+    const list = screen.getByRole('listbox');
+    // A parent with a backdrop filter is the reference box of fixed children: the list must not live inside it.
+    expect(list.closest('.dx-popover')?.parentElement).toBe(document.body);
+    expect(list.closest('.dx-popover')?.contains(screen.getByRole('combobox'))).toBe(false);
+    const option = screen.getByRole('option', { name: 'B' });
+    fireEvent.pointerDown(option);
+    fireEvent.click(option);
+    expect(onPick).toHaveBeenCalledWith('b');
+    expect(onPick).not.toHaveBeenCalledWith('closed');
+  });
+});

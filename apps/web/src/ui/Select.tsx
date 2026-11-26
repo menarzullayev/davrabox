@@ -138,7 +138,11 @@ export function Select({ label, hint, error, optionalText, className, id, requir
 
   useEffect(() => {
     if (!open) return;
+    // The panel stays hidden until it is placed; focusing it then is ignored, so wait for the next frame
+    // (otherwise arrows and Enter after a mouse click went to the trigger and did nothing).
     list.current?.focus({ preventScroll: true });
+    const id = requestAnimationFrame(() => list.current?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(id);
   }, [open]);
   useEffect(() => {
     if (!open) return;
