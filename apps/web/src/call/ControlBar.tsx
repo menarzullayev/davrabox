@@ -279,6 +279,7 @@ export function ControlBar(p: ControlBarProps) {
           label={t(lang, 'clMore')}
           extra={`, ${t(lang, 'clMoreTitle')}${compact ? `, ${t(lang, 'clLayout')}: ${layoutName}` : ''}`}
           icon={<IconMore />}
+          badge={p.activities ? p.activities.polls + p.activities.qa : 0}
           corner={compact ? <span className="dv-ctl__mode" data-testid="more-mode" aria-hidden="true"><LayoutIcon size={12} /></span> : undefined}
           showText={wide}
           haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />

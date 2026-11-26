@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Patch, P
 import { z } from 'zod';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
 import { noControl } from '../common/text.js';
-import { MeetingError, MeetingsService } from './meetings.service.js';
+import { ACTIVITY_EVENTS, MeetingError, MeetingsService } from './meetings.service.js';
 
 export const MEETINGS = Symbol('MEETINGS');
 
@@ -17,6 +17,7 @@ const createSchema = z.object({
 const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional() });
 const lockSchema = z.object({ locked: z.boolean() });
 const spotlightSchema = z.object({ identity: z.string().max(80).nullable() }).strict();
+const activitySchema = z.object({ event: z.enum(ACTIVITY_EVENTS) }).strict();
 
 type Req = { user: AuthedUser; headers: Record<string, string | string[] | undefined> };
 
@@ -125,6 +126,14 @@ export class MeetingsController {
     const parsed = spotlightSchema.safeParse(body);
     if (!parsed.success) throw new HttpException('invalid input', 400);
     return wrap(this.svc.setSpotlight(req.user, code, parsed.data.identity));
+  }
+
+  @Post(':code/activity')
+  @HttpCode(200)
+  activity(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
+    const parsed = activitySchema.safeParse(body);
+    if (!parsed.success) throw new HttpException('invalid input', 400);
+    return wrap(this.svc.recordActivity(req.user, code, parsed.data.event));
   }
 
   @Post(':code/participants/:identity/remove')

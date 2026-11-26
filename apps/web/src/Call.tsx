@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { ConnectionQuality, DisconnectReason, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { ApiError, api, type GuestMode, type JoinedResult } from './api';
@@ -9,6 +9,12 @@ import { BackgroundPicker, pickImageFile } from './call/effects/BackgroundPicker
 import { PipWindow, openDocumentPip, pipKind, toggleVideoPip } from './call/Pip';
 import { pickFeatured } from './call/layout';
 import { fmt } from './call/announcer';
+import { useActivity, type ActivityEvent } from './call/activity/useActivity';
+import { PollsPanel, QaPanel } from './call/activity/ActivityPanels';
+import { isManagerRole, pollsCsv, qaCsv, visibleQuestions } from './call/activity/protocol';
+import { useBoard } from './call/board/useBoard';
+import { BoardPanel } from './call/board/BoardPanel';
+import { fileBase, saveBlob, stamp } from './call/download';
 import { CallView } from './call/CallView';
 import { Alert, Button, Dialog } from './ui';
 import { LiveMedia } from './call/LiveMedia';
@@ -107,6 +113,7 @@ export function Call({
   const [pipWin, setPipWin] = useState<Window | null>(null);
   const [videoPip, setVideoPip] = useState(false);
   const pipSupport = useRef(pipKind()).current;
+  const [qaSort, setQaSort] = useState<'top' | 'new'>('top');
   const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
@@ -376,6 +383,20 @@ export function Call({
     return () => document.removeEventListener('leavepictureinpicture', onLeavePip, true);
   }, []);
 
+  // Polls, Q&A and the whiteboard: data-channel state in the browsers only; the API records that events happened, never content.
+  const recordActivity = useCallback(
+    (e: ActivityEvent) => {
+      if (guest) return;
+      void getToken()
+        .then((tk) => api.activity(tk, code, e))
+        .catch(() => undefined);
+    },
+    [guest, getToken, code],
+  );
+  const liveRoom = connected ? roomRef.current : null;
+  const activity = useActivity(liveRoom, connected, panel, recordActivity);
+  const board = useBoard(liveRoom, connected, panel === 'board', (grant) => recordActivity(grant ? 'board.draw.grant' : 'board.draw.revoke'));
+
   const room = roomRef.current;
   if (join.e2ee && (!e2eeKey || e2eeUnsupported)) {
     return (
@@ -631,6 +652,10 @@ export function Call({
         onMuteAll: () => setMuteAllAsk(true),
       }
     : null;
+  const nameOf = (id: string) => {
+    const p = participants.find((x) => x.identity === id);
+    return p ? p.name || p.identity : id;
+  };
   // The person shown in the picture-in-picture window: the same choice as the centre of the stage.
   const pipFeaturedId = pickFeatured(
     participants.map((x) => x.identity),
@@ -689,7 +714,28 @@ export function Call({
       spotlightId={spotlightId}
       pinnedId={pinnedId}
       onPin={(id) => setPinnedId((cur) => (cur === id ? null : id))}
-      notices={notice ? <Alert tone="info" className="dv-notice" onDismiss={() => setNotice(null)} dismissLabel={t(lang, 'uiDismiss')}>{notice}</Alert> : null}
+      notices={
+        <>
+          {notice ? <Alert tone="info" className="dv-notice" onDismiss={() => setNotice(null)} dismissLabel={t(lang, 'uiDismiss')}>{notice}</Alert> : null}
+          {activity.lastPoll && panel !== 'polls' ? (
+            <Alert tone="info" className="dv-notice" onDismiss={activity.clearLastPoll} dismissLabel={t(lang, 'uiDismiss')}>
+              <span data-testid="poll-notice">{fmt(t(lang, 'annPoll'), { q: activity.lastPoll.q })}</span>{' '}
+              <Button
+                size="sm"
+                variant="primary"
+                data-testid="poll-notice-open"
+                onClick={() => {
+                  setPanel('polls');
+                  activity.markSeen('polls');
+                  activity.clearLastPoll();
+                }}
+              >
+                {t(lang, 'pollVote')}
+              </Button>
+            </Alert>
+          ) : null}
+        </>
+      }
       onMoreOpen={() => {
         readNoise();
         void loadRecordings();
@@ -700,7 +746,54 @@ export function Call({
       onPanel={(id) => {
         setPanel(id);
         if (id === 'chat') setUnread(0);
+        if (id === 'polls') {
+          activity.markSeen('polls');
+          activity.clearLastPoll();
+        }
+        if (id === 'qa') activity.markSeen('qa');
+        if (id === 'board') board.clearActivity();
       }}
+      activities={{ polls: activity.unseen.polls, qa: activity.unseen.qa, board: board.activity }}
+      activityPanel={
+        panel === 'polls' ? (
+          <PollsPanel
+            lang={lang}
+            polls={activity.state.polls}
+            manager={activity.manager}
+            managersPresent={activity.managersPresent}
+            onCreate={(poll) => activity.send({ t: 'poll.open', poll })}
+            onEnd={(id) => activity.send({ t: 'poll.close', id })}
+            onVote={(id, choices) => activity.send({ t: 'poll.vote', id, choices })}
+            onCsv={() => saveBlob(new Blob([pollsCsv(activity.state.polls, nameOf)], { type: 'text/csv;charset=utf-8' }), `${fileBase(join.title, 'meeting')}-polls-${stamp()}.csv`)}
+            onClose={() => setPanel(null)}
+          />
+        ) : panel === 'qa' ? (
+          <QaPanel
+            lang={lang}
+            questions={visibleQuestions(activity.state.qa, activity.manager, qaSort)}
+            manager={activity.manager}
+            anonAllowed={activity.state.anon}
+            myId={room?.localParticipant.identity ?? ''}
+            sort={qaSort}
+            onSort={setQaSort}
+            onAsk={(text, anon) => activity.send({ t: 'qa.ask', id: crypto.randomUUID().toLowerCase(), text, anon })}
+            onVote={(id, up) => activity.send({ t: 'qa.vote', id, up })}
+            onMod={(id, op) => activity.send({ t: 'qa.mod', id, op })}
+            onAnonAllowed={(on) => activity.send({ t: 'qa.cfg', anon: on })}
+            onCsv={() => saveBlob(new Blob([qaCsv(activity.state.qa, t(lang, 'qaAnonName'))], { type: 'text/csv;charset=utf-8' }), `${fileBase(join.title, 'meeting')}-qa-${stamp()}.csv`)}
+            onClose={() => setPanel(null)}
+          />
+        ) : panel === 'board' ? (
+          <BoardPanel
+            lang={lang}
+            board={board}
+            others={participants.filter((x) => !x.isLocal).map((x) => ({ id: x.identity, name: x.name || x.identity, manager: isManagerRole(x.attributes?.role) }))}
+            title={join.title}
+            e2ee={join.e2ee === true}
+            onClose={() => setPanel(null)}
+          />
+        ) : null
+      }
       unread={unread}
       chat={{ lines, target, onTarget: setTarget, draft, onDraft: setDraft, onSend: (e) => void sendChat(e), onAttach: (f) => void attach(f), onSave: (f) => void saveFile(f), noFiles: join.e2ee === true || guest, guest }}
       layout={layout}

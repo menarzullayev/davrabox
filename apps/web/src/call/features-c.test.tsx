@@ -131,7 +131,7 @@ describe('virtual backgrounds', () => {
 });
 
 describe('pin and spotlight on tiles and in the roster', () => {
-  const base = { rect: { x: 0, y: 0, w: 240, h: 240 }, shape: 'rounded' as const, slot: 'ring' as const, hidden: false, featured: false, lang: 'en' as const, animate: false, reduced: true, media: null };
+  const base = { rect: { x: 0, y: 0, w: 240, h: 240 }, shape: 'rect' as const, slot: 'ring' as const, hidden: false, featured: false, lang: 'en' as const, animate: false, reduced: true, media: null };
   it('everyone can pin another tile; only managers get the spotlight button; nobody pins themselves', () => {
     const onPin = vi.fn();
     const { unmount } = render(<ParticipantTile p={person(1)} manage={null} onPin={onPin} {...base} />);

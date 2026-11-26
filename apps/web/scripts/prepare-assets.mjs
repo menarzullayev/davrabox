@@ -22,3 +22,20 @@ const dst = join(root, 'public', 'mediapipe', 'wasm');
 mkdirSync(dst, { recursive: true });
 for (const f of readdirSync(src)) copyFileSync(join(src, f), join(dst, f));
 console.log(`mediapipe assets ready (${readdirSync(dst).length} wasm files, model verified)`);
+
+// Excalidraw (whiteboard, MIT): its hand-drawn fonts are served from our own origin too (window.EXCALIDRAW_ASSET_PATH =
+// '/excalidraw/'; the CSP allows fonts only from 'self'). The 13 MB CJK fallback family (Xiaolai) is left out: the whiteboard
+// falls back to a system font for those scripts.
+const exPkg = createRequire(join(root, 'package.json')).resolve('@excalidraw/excalidraw');
+const exFonts = join(dirname(exPkg), 'fonts'); // the resolved entry is dist/prod/index.js
+const exDst = join(root, 'public', 'excalidraw', 'fonts');
+let exCount = 0;
+for (const family of readdirSync(exFonts)) {
+  if (family === 'Xiaolai') continue;
+  mkdirSync(join(exDst, family), { recursive: true });
+  for (const f of readdirSync(join(exFonts, family))) {
+    copyFileSync(join(exFonts, family, f), join(exDst, family, f));
+    exCount++;
+  }
+}
+console.log(`excalidraw fonts ready (${exCount} files)`);

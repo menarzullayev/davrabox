@@ -80,6 +80,19 @@ describe('mute all', () => {
   });
 });
 
+describe('activity audit events', () => {
+  it('managers record content-free events; members and unknown events are refused', async () => {
+    const m = await svc.create(host, { title: 'IC activity' });
+    expect(await svc.recordActivity(host, m.code, 'poll.open')).toEqual({ recorded: true });
+    expect(await status(svc.recordActivity(member, m.code, 'poll.open'))).toBe(403);
+    expect(await status(svc.recordActivity(host, m.code, 'poll.leak' as never))).toBe(400);
+    const r = await admin.query('SELECT action, target FROM audit_log WHERE target = $1', [m.code]);
+    const acts = r.rows.map((x: { action: string }) => x.action);
+    expect(acts).toContain('meeting.poll.open');
+    expect(r.rows.every((x: { target: string }) => x.target === m.code)).toBe(true);
+  });
+});
+
 describe('spotlight', () => {
   it('members cannot spotlight; a participant who is not in the room cannot be spotlighted', async () => {
     const m = await svc.create(host, { title: 'IC spotlight' });

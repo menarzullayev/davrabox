@@ -60,6 +60,9 @@ interface MeetingRow {
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Events the call screen reports for the audit log (content-free). */
+export const ACTIVITY_EVENTS = ['poll.open', 'poll.close', 'qa.anon.on', 'qa.anon.off', 'board.draw.grant', 'board.draw.revoke'] as const;
+export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 const CODE_RE = /^[0-9]{11,12}$/;
 
 /** A LiveKit participant identity this API manages: a member's user id or a guest's `guest:<id>`. */
@@ -385,6 +388,17 @@ export class MeetingsService {
     }
     await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, identity ? 'meeting.spotlight' : 'meeting.spotlight.clear', identity ? `${code}:${identity}` : code));
     return { spotlight: identity };
+  }
+
+  /**
+   * In-meeting activity events (polls, Q&A settings, whiteboard drawing rights). Their content never reaches the server
+   * (owner decision 10: ephemeral, end-to-end encrypted in E2EE meetings); only the fact that the event happened is audited.
+   */
+  async recordActivity(user: AuthedUser, code: string, event: ActivityEvent): Promise<{ recorded: true }> {
+    if (!ACTIVITY_EVENTS.includes(event)) throw new MeetingError(400, 'unknown event');
+    await this.managedMeeting(user, code);
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, `meeting.${event}`, code));
+    return { recorded: true };
   }
 
   /** Read-modify-write of the room metadata JSON: other keys (the recording flag) are kept; a null value removes the key. */
