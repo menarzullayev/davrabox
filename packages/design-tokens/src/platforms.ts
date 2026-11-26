@@ -71,7 +71,8 @@ ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { ou
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
 .pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
-.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+.pf-v5-c-login__main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
 .dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
 `;
   return `/* Generated from packages/design-tokens (pnpm sync). Do not edit. */
@@ -115,8 +116,12 @@ export const targets: Target[] = [
     apply: () => keycloakCss(),
   },
   {
-    file: 'apps/desktop/src/main.ts',
-    apply: (s) => replaceOnce(s, /(backgroundColor: ')#[0-9a-fA-F]{6}(')/, `$1${dark}$2`, 'window backgroundColor'),
+    file: 'apps/desktop/src/window.ts',
+    apply: (s) => {
+      let t = replaceOnce(s, /(dark: ')#[0-9a-fA-F]{6}(')/, `$1${dark}$2`, 'desktop dark window');
+      t = replaceOnce(t, /(light: ')#[0-9a-fA-F]{6}(')/, `$1${light}$2`, 'desktop light window');
+      return t;
+    },
   },
   {
     file: 'apps/web/src/styleguide/styleguide.css',

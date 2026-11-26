@@ -210,8 +210,8 @@
   /* ---- sign-in ------------------------------------------------------------------------------------------------ */
   .si { position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; overflow: hidden; }
   .si__bar { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; width: min(100%, 1240px); margin-inline: auto; padding: var(--space-4) clamp(16px, 4vw, 40px); }
-  .si__main { box-sizing: border-box; display: grid; flex: 1; align-content: center; justify-items: start; gap: var(--space-6); width: min(100%, 1240px); margin-inline: auto; padding: var(--space-4) clamp(16px, 4vw, 40px) var(--space-12); outline: none; }
-  .si__copy { display: grid; gap: var(--space-8); min-width: 0; max-width: 560px; }
+  .si__main { box-sizing: border-box; display: grid; flex: 1; align-content: center; justify-items: center; gap: var(--space-6); width: min(100%, 1240px); margin-inline: auto; padding: var(--space-4) clamp(16px, 4vw, 40px) var(--space-12); outline: none; }
+  .si__copy { display: grid; gap: var(--space-8); min-width: 0; width: 100%; max-width: 560px; }
   .si__art { order: -1; justify-self: center; opacity: 0.9; pointer-events: none; }
   .si__art svg { width: min(200px, 52vw); height: auto; }
   @media (min-width: 960px) {

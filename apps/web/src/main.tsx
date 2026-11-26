@@ -8,7 +8,7 @@ import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
 import { initErrorTracking } from './observability/errorTracking';
-import { watchSystemBars } from './platform/system-bars';
+import { watchDesktopTitleBar, watchSystemBars } from './platform/system-bars';
 import { watchBackButton } from './platform/back-button';
 import { watchForUpdates } from './platform/update-check';
 
@@ -46,6 +46,7 @@ const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
 
 watchSystemBars(); // Android shell only: status-bar icons that match the page theme
+watchDesktopTitleBar(); // Windows/macOS app only: the native title bar follows the page theme
 watchBackButton(); // Android shell only: Back closes the innermost layer, then goes back, then leaves the app
 watchForUpdates(); // a page left open picks up a new deploy when the person returns to it (never during a call)
 

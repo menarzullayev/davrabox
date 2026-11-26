@@ -41,7 +41,11 @@
   .ln-nav { display: none; gap: var(--space-1); margin-inline-start: var(--space-6); }
   .ln-nav a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--text-muted); font-size: var(--text-sm); font-weight: var(--weight-medium); text-decoration: none; }
   .ln-nav a:hover { color: var(--text); background: var(--surface-3); }
-  @media (min-width: 900px) { .ln-nav { display: flex; } }
+  /* The section links need the full width: below it they wrapped onto two lines and pushed "Start free" off the edge. */
+  @media (min-width: 1280px) { .ln-nav { display: flex; } }
+  .ln-nav a { white-space: nowrap; }
+  .ln-header__in > * { flex-shrink: 0; }
+  .ln-header__in > .ln-spacer { flex-shrink: 1; }
   .ln-spacer { flex: 1; }
   .ln-signin { display: none; }
   @media (min-width: 520px) { .ln-signin { display: inline-flex; } }
@@ -65,6 +69,8 @@
   .ln-mandala { position: absolute; inset: 50% auto auto 50%; width: 118%; height: auto; max-width: none; transform: translate(-50%, -50%); opacity: 0.38; pointer-events: none; z-index: 0; }
   .ln-shot { position: relative; z-index: 1; margin: 0; width: 100%; border: var(--border-w) solid var(--border); border-radius: var(--radius-xl); overflow: hidden; background: var(--video-bg); box-shadow: var(--shadow-3, var(--shadow-2)); }
   .ln-shot img { display: block; width: 100%; height: auto; }
+  /* One column: the ring was wider than the screenshot and sat behind the join form above it. */
+  @media (max-width: 959px) { .ln-mandala { display: none; } }
 
   /* ---- proof strip ------------------------------------------------------------------------------------------ */
   .ln-proof { border-block: var(--border-w) solid var(--border); padding-block: var(--space-6); }
