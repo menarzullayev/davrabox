@@ -84,7 +84,20 @@ node scripts/publish-downloads.mjs --upload <user>@<host>:<repo dir>/deploy/prod
 ```
 
 Without run ids the newest successful `android.yml` / `desktop.yml` runs on main are used (`--android-run`,
-`--windows-run` pick others). Packages are copied first and the manifest last; older packages are then removed.
+`--windows-run` pick others). Packages are copied first and the manifest last; `sha256sum -c` must pass on the server
+before the new `manifest.json` goes live; older packages are then removed.
+
+When the uplink of the machine running the script is slow, add `--server-fetch`: the server downloads the packages
+itself from the same CI artifacts (about a minute for both on the Oracle host, against hours over a slow home uplink):
+
+```sh
+node scripts/publish-downloads.mjs --upload <user>@<host>:<repo dir>/deploy/prod/downloads --ssh-key <key file> --server-fetch
+```
+
+The script still downloads and hashes every package locally. For each package it asks GitHub for the artifact's
+short-lived signed download URL and passes it to the server on stdin: the GitHub token stays on this machine, and the
+URL is never on a command line. The server keeps a package only when its SHA-256 equals the local hash. Only
+`SHA256SUMS` and `manifest.json` are copied from this machine. The server needs `curl`, `python3` and `sha256sum`.
 The builds are unsigned betas (the landing page says so and shows the checksums). After the first deploy of this
 change, recreate Caddy once so it mounts the folder: `docker compose ... up -d --force-recreate caddy`.
 
