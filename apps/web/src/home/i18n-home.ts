@@ -12,6 +12,10 @@ export const homeUz = {
   hMonths: 'yanvar,fevral,mart,aprel,may,iyun,iyul,avgust,sentabr,oktabr,noyabr,dekabr',
   hAccount: 'Hisob',
   hSettings: 'Sozlamalar',
+  hTabs: 'Bo‘limlar',
+  hTabJoin: 'Qo‘shilish',
+  hTabNew: 'Yangi',
+  hTabMeetings: 'Uchrashuvlar',
   hBrandLine: 'Xavfsiz. Mahalliy. Sizning nazoratingizda.',
 
   hJoinTitle: 'Uchrashuvga qo‘shil',
@@ -151,6 +155,10 @@ export const homeRu: Record<HomeKey, string> = {
   hMonths: 'января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря',
   hAccount: 'Аккаунт',
   hSettings: 'Настройки',
+  hTabs: 'Разделы',
+  hTabJoin: 'Войти',
+  hTabNew: 'Новая',
+  hTabMeetings: 'Встречи',
   hBrandLine: 'Безопасно. Локально. Под вашим контролем.',
 
   hJoinTitle: 'Присоединиться к встрече',
@@ -288,6 +296,10 @@ export const homeEn: Record<HomeKey, string> = {
   hMonths: 'January,February,March,April,May,June,July,August,September,October,November,December',
   hAccount: 'Account',
   hSettings: 'Settings',
+  hTabs: 'Sections',
+  hTabJoin: 'Join',
+  hTabNew: 'New',
+  hTabMeetings: 'Meetings',
   hBrandLine: 'Secure. Local. Under your control.',
 
   hJoinTitle: 'Join a meeting',
