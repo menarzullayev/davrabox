@@ -29,17 +29,19 @@ import { recordingControllers, recordingProviders } from './recording/recording.
 import { calendarControllers, calendarProviders } from './calendar/calendar.module.js';
 import { byokControllers, byokProviders } from './byok/byok.module.js';
 import { privacyControllers, privacyProviders } from './privacy/privacy.module.js';
+import { assistantControllers, assistantProviders } from './assistant/assistant.module.js';
 
 export const AUDIT_FORWARDER = Symbol('AUDIT_FORWARDER');
 export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
-  controllers: [MeetingsController, GuestController, PrefsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers],
+  controllers: [MeetingsController, GuestController, PrefsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
     ...privacyProviders,
+    ...assistantProviders,
     { provide: CONFIG, useFactory: () => loadConfig() },
     { provide: POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 10), inject: [CONFIG] },
     { provide: READINESS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ReadinessService(pool, { livekitApiUrl: cfg.LIVEKIT_API_URL }, { rate }), inject: [POOL, CONFIG, RateLimitService] },

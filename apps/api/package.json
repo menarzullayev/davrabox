@@ -13,7 +13,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
     "@aws-sdk/client-s3": "^3.1175.0",
+    "@davrabox/help-content": "workspace:*",
     "@nestjs/common": "^12.6.0",
     "@nestjs/core": "^12.6.0",
     "@nestjs/platform-express": "^12.6.0",

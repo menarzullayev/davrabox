@@ -99,6 +99,12 @@ services:
       REDIS_URL: redis://redis:6379
       # Proxies in front of the API that append to X-Forwarded-For: Caddy alone = 1 (Cloudflare tunnel + Caddy = 2).
       SIGNUP_TRUSTED_PROXY_HOPS: ${SIGNUP_TRUSTED_PROXY_HOPS:-1}
+      # Help assistant (docs/help-assistant.md). Without ANTHROPIC_API_KEY it answers from the FAQ only (no language model).
+      DAVRA_ENV: production
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ASSISTANT_MODEL: ${ASSISTANT_MODEL:-claude-haiku-5-5}
+      ASSISTANT_DAILY_USD_CAP: ${ASSISTANT_DAILY_USD_CAP:-0.60}
+      PLATFORM_OWNER_SUBS: ${PLATFORM_OWNER_SUBS:-}
     read_only: true
     tmpfs: [/tmp]
     cap_drop: [ALL]

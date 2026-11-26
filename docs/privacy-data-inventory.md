@@ -40,6 +40,9 @@ Every tenant table has `FORCE ROW LEVEL SECURITY` keyed on `app.current_org`; th
 | `trial_signups` | keyed hash of the normalized e-mail, keyed hash of the network address | one trial per mailbox | the e-mail hash is kept so a trial cannot be restarted; the network hash is blanked after `RETENTION_SIGNUP_EVENTS_DAYS` | operators only | blanked by the retention job; the row keeps `org_id = NULL` after the organization is deleted |
 | `altcha_used` | hash of a solved proof-of-work challenge | replay protection | 1 day | operators only | pruned on use |
 | `retired_slugs` | slug of a purged trial organization | never reuse a tenant key | permanent | operators only | not deleted (it is an identifier of a deleted organization, not a person) |
+| `assistant_conversations` | keyed hash of the network address, language, page (landing/help/signin/home), times, message count | help assistant (public chat bot): abuse review and improving the FAQ | 30 days after the last message (`ASSISTANT_RETENTION_DAYS`, never more than 30) | the platform owner only (`PLATFORM_OWNER_SUBS`, admin console); org admins cannot; no application grant on the table | `assistant_purge` (hourly job), or deleted one by one by the platform owner |
+| `assistant_messages` | the visitor's question and the answer as text, with e-mail addresses, phone-like and card-like numbers replaced by `[email]`/`[phone]`/`[card]` BEFORE storing; answer source (faq/llm/fallback/refusal) | same | with its conversation (cascade) | the platform owner only | cascade with the conversation |
+| `assistant_usage_daily` | none (per-day counts of language-model calls, tokens and cost) | application-side daily spend cap | 400 days | the platform owner only | `assistant_purge` |
 | `schema_migrations` | none | migration bookkeeping | permanent | operators | n/a |
 
 ## 2. Object storage (S3 compatible, MinIO)
@@ -62,6 +65,7 @@ Chat messages are not stored by DavraBox (they travel over the media server's da
 | Reverse proxy (Caddy) | no access log is configured in `deploy/prod/Caddyfile` at the time of writing | n/a | n/a | n/a | n/a |
 | Browser storage | language, theme, `relayMode`, call preferences, pending meeting code, the sign-in session and the E2EE key of an open meeting (`sessionStorage`, gone when the tab closes); no cookies set by DavraBox, no third-party scripts | usability | until the browser clears it | the person | the person |
 | SIEM forwarder (optional, `AUDIT_WEBHOOK_URL`) | audit rows including the actor's e-mail at the time of sending | customer's security monitoring | decided by the customer's system | the customer | NOT reachable from DavraBox: already forwarded rows keep the old e-mail. Tell the customer when an erasure is requested |
+| Anthropic (Claude API, production; only when `ANTHROPIC_API_KEY` is set) | the masked text of a help-assistant question the FAQ could not answer, the last few masked turns of that conversation, and the public FAQ | answering product questions (no tools, no account data) | per Anthropic's commercial API terms | Anthropic per their terms | not controllable by DavraBox once sent. Without a key nothing is sent (FAQ mode) |
 | ClamAV | scans uploads in memory | malware check | none stored | n/a | n/a |
 | Google / Microsoft (only if a person connects a calendar) | the calendar event DavraBox creates, the OAuth grant | calendar integration | their terms | the person | revoked at erasure and on disconnect |
 

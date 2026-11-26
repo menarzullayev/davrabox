@@ -49,6 +49,7 @@ jobs:
         run: |
           pnpm --filter @davrabox/web test
           pnpm --filter @davrabox/design-tokens test
+          pnpm --filter @davrabox/help-content test
           pnpm --filter @davrabox/desktop test
       - name: Scripts tests and production bundle checks
         run: |

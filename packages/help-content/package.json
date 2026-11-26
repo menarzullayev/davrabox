@@ -1,0 +1,23 @@
+{
+  "name": "@davrabox/help-content",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "FAQ and short guides of the /help page and the help assistant (uz/ru/en), plus the shared FAQ search.",
+  "exports": {
+    "./faq.json": "./faq.json",
+    "./search": { "types": "./search.d.mts", "default": "./search.mjs" }
+  },
+  "files": ["faq.json", "search.mjs", "search.d.mts"],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}
