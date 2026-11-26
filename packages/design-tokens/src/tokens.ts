@@ -227,7 +227,8 @@ export function contrast(a: string, b: string): number {
 
 export interface PairFailure {
   fg: TokenName;
-  bg: TokenName;
+  /** A token name, or `glass-<tier>@<backdrop>` for glass over an extreme backdrop. */
+  bg: TokenName | `glass-${string}`;
   ratio: number;
   min: number;
 }
@@ -267,7 +268,7 @@ export const legacyAliases: Readonly<Record<string, string>> = {
 // an entry here (colour overrides per mode, plus plain CSS variables); components never change. Every entry is held to the
 // same WCAG tests as the base (see tokens.test.ts), per style and mode.
 
-export const STYLE_IDS = ['dashboard', 'swiss', 'flat', 'material', 'editorial', 'neobrutalism', 'terminal', 'glassmorphism', 'neumorphism', 'claymorphism', 'aurora', 'skeuomorphism'] as const;
+export const STYLE_IDS = ['dashboard', 'swiss', 'flat', 'material', 'editorial', 'neobrutalism', 'terminal', 'glassmorphism', 'neumorphism', 'claymorphism', 'aurora', 'skeuomorphism', 'liquid-glass'] as const;
 export type StyleId = (typeof STYLE_IDS)[number];
 export const DENSITY_IDS = ['compact', 'comfortable', 'spacious'] as const;
 export type DensityId = (typeof DENSITY_IDS)[number];
@@ -279,6 +280,23 @@ export interface StyleDef {
   vars?: Readonly<Record<string, string>>;
   /** Plain CSS variables per mode (shadows and effects usually differ between dark and light). */
   modeVars?: Partial<Record<ThemeName, Readonly<Record<string, string>>>>;
+  /**
+   * Translucent glass materials (liquid-glass). `tint` is the opaque colour of the material, `clear` and `regular` its
+   * opacity for bars/controls and for panels. The page behind glass can be anything (live video, a white shared screen), so
+   * the tests composite the tint over pure black AND pure white and hold text and controls on the result to WCAG AA.
+   */
+  glass?: Partial<Record<ThemeName, GlassMaterial>>;
+  /** The system chrome (browser bar, Android bars, desktop window) takes this style's page background instead of the base one. */
+  ownChrome?: boolean;
+}
+
+export interface GlassMaterial {
+  /** 6-digit hex. */
+  tint: string;
+  /** Opacity of bars, capsules and floating controls (text on them: primary text only). */
+  clear: number;
+  /** Opacity of panels, sheets, menus and dialogs (every text level). */
+  regular: number;
 }
 
 export const styles: Record<StyleId, StyleDef> = styleDefs;
@@ -301,9 +319,61 @@ export function resolveColours(style: StyleId, mode: ThemeName): ThemeColours {
   return { ...themes[mode], ...(styles[style].colours?.[mode] ?? {}) };
 }
 
-/** Where the system chrome (browser bar, Android status bar, window background) takes its colour from, per mode. */
-export function chromeColour(mode: ThemeName): string {
-  return themes[mode].bg;
+/** Where the system chrome (browser bar, Android status bar, window background) takes its colour from: the page background of the style and mode. */
+export function chromeColour(mode: ThemeName, style: StyleId = 'dashboard'): string {
+  return styles[style].ownChrome ? resolveColours(style, mode).bg : themes[mode].bg;
+}
+
+/** Styles with their own chrome colour in at least one mode (the platforms keep a table of these). */
+export function chromeOverrides(): Array<{ style: StyleId; dark: string; light: string }> {
+  return STYLE_IDS.filter((id) => (['dark', 'light'] as const).some((m) => chromeColour(m, id) !== chromeColour(m))).map((style) => ({
+    style,
+    dark: chromeColour('dark', style),
+    light: chromeColour('light', style),
+  }));
+}
+
+/** sRGB alpha compositing of an opaque colour at `alpha` over an opaque backdrop (what the browser paints). */
+export function composite(fg: string, alpha: number, backdrop: string): string {
+  const parse = (hex: string) => {
+    if (!HEX.test(hex)) throw new Error(`not a 6-digit hex colour: ${hex}`);
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255] as const;
+  };
+  const a = parse(fg);
+  const b = parse(backdrop);
+  return '#' + a.map((v, i) => Math.round(alpha * v + (1 - alpha) * b[i]!).toString(16).padStart(2, '0')).join('');
+}
+
+/** What must stay legible on each glass tier. Clear glass carries primary text and focus/accent marks; regular carries all text. */
+export const glassTextPairs = {
+  clear: { text: ['text'] as const, nonText: ['focusRing', 'accent'] as const },
+  regular: { text: ['text', 'textMuted', 'textSubtle', 'accent', 'success', 'warning', 'danger', 'goldFg'] as const, nonText: ['focusRing', 'borderStrong', 'accent', 'goldRing'] as const },
+} as const;
+
+/** The two extreme backdrops any glass can end up over (a black video frame, a white shared document). */
+export const GLASS_BACKDROPS = ['#000000', '#ffffff'] as const;
+
+/** Every glass tier x backdrop x pair of one style and mode that misses WCAG AA. Empty = legible over anything. */
+export function glassFailures(style: StyleId, mode: ThemeName, def: StyleDef = styles[style]): PairFailure[] {
+  const g = def.glass?.[mode];
+  if (!g) return [];
+  const c = { ...themes[mode], ...(def.colours?.[mode] ?? {}) };
+  const out: PairFailure[] = [];
+  for (const tier of ['clear', 'regular'] as const) {
+    for (const backdrop of GLASS_BACKDROPS) {
+      const surface = composite(g.tint, g[tier], backdrop);
+      for (const fg of glassTextPairs[tier].text) {
+        const ratio = contrast(c[fg], surface);
+        if (ratio < TEXT_MIN) out.push({ fg, bg: `glass-${tier}@${backdrop}`, ratio, min: TEXT_MIN });
+      }
+      for (const fg of glassTextPairs[tier].nonText) {
+        const ratio = contrast(c[fg], surface);
+        if (ratio < NON_TEXT_MIN) out.push({ fg, bg: `glass-${tier}@${backdrop}`, ratio, min: NON_TEXT_MIN });
+      }
+    }
+  }
+  return out;
 }
 
 /** The only viewport widths a stylesheet may switch layout at (px). `design-lint.test.ts` in the web app holds new code to this list. */

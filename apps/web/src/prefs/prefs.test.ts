@@ -122,7 +122,7 @@ describe('styles and densities come from the design tokens', () => {
     const { STYLE_IDS, DENSITY_IDS } = await import('@davrabox/design-tokens');
     expect([...STYLES]).toEqual([...STYLE_IDS]);
     expect([...DENSITIES]).toEqual([...DENSITY_IDS]);
-    expect(STYLES.length).toBe(12);
+    expect(STYLES.length).toBe(13);
     const off = subscribePrefs(() => undefined);
     setPref('style', 'terminal');
     setPref('density', 'compact');

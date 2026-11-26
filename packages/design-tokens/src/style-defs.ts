@@ -178,4 +178,60 @@ export const styleDefs = {
       light: { surface1: '#fafbfe', surface2: '#f1f3fa', surface3: '#e2e6f3' },
     },
   },
+
+  /**
+   * Liquid glass: translucent material that bends the light of what is behind it (an SVG displacement map in the backdrop
+   * filter, see apps/web/src/glass), continuous large corners, capsules, a floating control bar and spring motion. Behind the
+   * glass is a deep colour field (or live video); the glass opacity is chosen so text stays AA over pure black and pure white.
+   */
+  'liquid-glass': {
+    ownChrome: true,
+    vars: {
+      radiusXs: '8px', radiusSm: '12px', radiusMd: '16px', radiusLg: '22px', radiusXl: '30px',
+      blur: '18px',
+      fontSans: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif",
+      fontHeading: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Onest', system-ui, 'Segoe UI', Roboto, sans-serif",
+      controlH: '44px',
+      // Glass material: the CSS part (blur + vibrancy). The refraction (displacement) is added by the runtime where supported.
+      glassBlur: '14px',
+      glassSat: '1.9',
+      glassRefractBlur: '3px',
+      // Springs (CSS linear() easing sampled from a damped spring): a bouncy one for things that appear, a calm one for moves.
+      easeSpring: 'linear(0, 0.053, 0.184, 0.355, 0.535, 0.705, 0.85, 0.964, 1.045, 1.096, 1.121, 1.126, 1.117, 1.099, 1.077, 1.054, 1.033, 1.016, 1.002, 0.993, 0.987, 0.984, 0.984, 0.986, 1)',
+      easeSpringCalm: 'linear(0, 0.053, 0.175, 0.324, 0.473, 0.609, 0.723, 0.814, 0.883, 0.934, 0.968, 0.991, 1.005, 1.012, 1.015, 1.015, 1)',
+      durSpring: '400ms',
+    },
+    glass: {
+      dark: { tint: '#0c1029', clear: 0.7, regular: 0.9 },
+      light: { tint: '#ffffff', clear: 0.76, regular: 0.9 },
+    },
+    colours: {
+      dark: { bg: '#060818', surface1: '#0f1430', surface2: '#151b3c', surface3: '#1e2550', border: '#2c3468' },
+      light: { bg: '#eaeef8', surface1: '#ffffff', surface2: '#ffffff', surface3: '#e6e9f5', border: '#d3d8ec' },
+    },
+    modeVars: {
+      dark: {
+        bgImage:
+          'radial-gradient(900px 620px at 12% 8%, rgba(61, 214, 200, 0.34), transparent 62%), radial-gradient(820px 600px at 92% 18%, rgba(118, 92, 255, 0.36), transparent 60%), radial-gradient(900px 700px at 70% 100%, rgba(244, 194, 79, 0.16), transparent 60%), linear-gradient(160deg, #060818 0%, #0b1030 55%, #070a1d 100%)',
+        glassRim: 'inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.12)',
+        glassSheen: 'linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 42%)',
+        glassShadow: '0 10px 34px rgba(0, 0, 0, 0.42), 0 2px 8px rgba(0, 0, 0, 0.28)',
+        glassPressed: 'rgba(255, 255, 255, 0.1)',
+        shadow1: '0 2px 10px rgba(0, 0, 0, 0.32)',
+        shadow2: '0 10px 30px rgba(0, 0, 0, 0.4)',
+        shadow3: '0 24px 64px rgba(0, 0, 0, 0.52)',
+      },
+      light: {
+        bgImage:
+          'radial-gradient(900px 620px at 12% 8%, rgba(61, 214, 200, 0.42), transparent 62%), radial-gradient(820px 600px at 92% 18%, rgba(140, 120, 255, 0.36), transparent 60%), radial-gradient(900px 700px at 70% 100%, rgba(255, 196, 120, 0.4), transparent 60%), linear-gradient(160deg, #eef1fa 0%, #e4e9f8 55%, #f1eef8 100%)',
+        glassRim: 'inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(255, 255, 255, 0.4), inset 0 0 0 1px rgba(18, 22, 58, 0.08)',
+        glassSheen: 'linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 45%)',
+        glassShadow: '0 10px 30px rgba(18, 22, 58, 0.16), 0 2px 8px rgba(18, 22, 58, 0.1)',
+        glassPressed: 'rgba(18, 22, 58, 0.06)',
+        shadow1: '0 2px 10px rgba(18, 22, 58, 0.08)',
+        shadow2: '0 10px 30px rgba(18, 22, 58, 0.14)',
+        shadow3: '0 24px 64px rgba(18, 22, 58, 0.2)',
+      },
+    },
+  },
 } as const satisfies Record<string, StyleDef>;

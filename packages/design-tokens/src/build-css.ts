@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DENSITY_IDS, STYLE_IDS, cssName, densities, legacyAliases, scales, styles, themeEffects, themes, type ThemeName } from './tokens.js';
+import { DENSITY_IDS, STYLE_IDS, cssName, densities, legacyAliases, scales, styles, themeEffects, themes, type GlassMaterial, type ThemeName } from './tokens.js';
 
 const decl = (name: string, value: string) => `  --${name}: ${value};`;
 
@@ -33,6 +33,14 @@ function scaleBlock(): string {
   return out.join('\n');
 }
 
+/** The glass materials as colours with alpha: `--glass-clear` (bars, capsules) and `--glass-regular` (panels). */
+function glassDecls(g: GlassMaterial | undefined): string[] {
+  if (!g) return [];
+  const n = parseInt(g.tint.slice(1), 16);
+  const rgb = `${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255}`;
+  return [decl('glass-tint', g.tint), decl('glass-clear', `rgb(${rgb} / ${g.clear})`), decl('glass-regular', `rgb(${rgb} / ${g.regular})`)];
+}
+
 /** Overrides of the non-base styles and densities. The base (dashboard, comfortable) needs none: it is the plain blocks above. */
 function axisBlocks(): string {
   const out: string[] = [];
@@ -44,6 +52,7 @@ function axisBlocks(): string {
       block(`:root[data-style='${id}'][data-theme='${mode}']`, [
         ...Object.entries(def.colours?.[mode] ?? {}).map(([k, v]) => decl(cssName(k), v)),
         ...Object.entries(def.modeVars?.[mode] ?? {}).map(([k, v]) => decl(cssName(k), v)),
+        ...glassDecls(def.glass?.[mode]),
       ]);
     }
   }

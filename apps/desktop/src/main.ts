@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, desktopCapturer, dialog, ipcMain, nativeTheme, screen, session, shell, type WebContents } from 'electron';
 import { join } from 'node:path';
 import { startAutoUpdates } from './updater';
-import { WINDOW_BG, initialWindowSize, parseThemeMessage } from './window';
+import { WINDOW_BG, initialWindowSize, parseThemeMessage, windowBackground } from './window';
 import { DEEP_LINK_SCHEME, appOriginFrom, isAllowedNavigation, isAllowedPermission, isSafeExternalUrl, parseDeepLink } from './security';
 
 // The desktop app is a hardened shell around the web client. It opens no local port, exposes no Node.js to the page,
@@ -134,11 +134,11 @@ if (!app.requestSingleInstanceLock()) {
     hardenSession();
     // The app starts dark (its default); the page reports its colour mode so the title bar follows it.
     nativeTheme.themeSource = 'dark';
-    ipcMain.on('davra:theme', (event, value) => {
+    ipcMain.on('davra:theme', (event, value, style) => {
       const mode = parseThemeMessage(value);
       if (!mode || !win || event.sender !== win.webContents || !isAllowedNavigation(event.senderFrame?.url ?? '', APP_ORIGIN)) return;
       nativeTheme.themeSource = mode;
-      win.setBackgroundColor(WINDOW_BG[mode]);
+      win.setBackgroundColor(windowBackground(mode, style));
     });
     if (app.isPackaged) Menu.setApplicationMenu(null);
     handleDeepLink(process.argv.find((a) => a.startsWith(`${DEEP_LINK_SCHEME}://`)));

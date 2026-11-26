@@ -3,7 +3,7 @@
 // changes made in another tab all happen here. Screens only read it (usePrefs) and call set().
 import { useSyncExternalStore } from 'react';
 import { detectLang, type Lang } from '../i18n';
-import { DEFAULTS, THEME_COLOR, isDensity, isLang, isStyle, isTheme, type DensityId, type StyleId, type ThemeChoice } from './options';
+import { DEFAULTS, isDensity, isLang, isStyle, isTheme, themeColorFor, type DensityId, type StyleId, type ThemeChoice } from './options';
 
 export interface Prefs {
   lang: Lang;
@@ -61,7 +61,7 @@ function apply(p: Prefs): void {
   root.setAttribute('data-theme', p.theme);
   root.setAttribute('data-style', p.style);
   root.setAttribute('data-density', p.density);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[p.theme]);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColorFor(p.theme, p.style));
 }
 
 function emit(): void {

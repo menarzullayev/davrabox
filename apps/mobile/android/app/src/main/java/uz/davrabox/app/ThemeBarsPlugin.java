@@ -23,6 +23,14 @@ public class ThemeBarsPlugin extends Plugin {
     private static final int LIGHT_BG = 0xFFF4F5FB; // same as THEME_COLOR.light
 
     private boolean light = false;
+    /** The page's style id (only used to look up a style with its own background; anything unknown means the base colour). */
+    private String style = "";
+
+    // <generated-style-chrome> (pnpm sync): styles whose page background differs from the base, { dark, light }.
+    private static int[] styleBg(String style) {
+        if ("liquid-glass".equals(style)) return new int[] { 0xFF060818, 0xFFEAEEF8 };
+        return null;
+    }
 
     @PluginMethod
     public void setTheme(final PluginCall call) {
@@ -32,6 +40,8 @@ public class ThemeBarsPlugin extends Plugin {
             return;
         }
         light = "light".equals(theme);
+        final String s = call.getString("style", "");
+        style = s != null && s.length() <= 32 ? s : "";
         getBridge().executeOnMainThread(() -> {
             apply();
             call.resolve();
@@ -47,7 +57,8 @@ public class ThemeBarsPlugin extends Plugin {
 
     private void apply() {
         Window window = getActivity().getWindow();
-        window.getDecorView().setBackgroundColor(light ? LIGHT_BG : DARK_BG);
+        final int[] own = styleBg(style);
+        window.getDecorView().setBackgroundColor(own != null ? own[light ? 1 : 0] : (light ? LIGHT_BG : DARK_BG));
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
         controller.setAppearanceLightStatusBars(light);
         controller.setAppearanceLightNavigationBars(light);

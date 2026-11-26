@@ -13,3 +13,11 @@ export function parseThemeMessage(v: unknown): 'light' | 'dark' | null {
 
 /** Window background per mode (the design tokens' page background), shown before the page paints and behind the title bar. */
 export const WINDOW_BG = { dark: '#0a0d21', light: '#f4f5fb' } as const;
+/** Styles with their own page background (generated from the design tokens by pnpm sync). */
+export const STYLE_WINDOW_BG: Readonly<Record<string, { dark: string; light: string }>> = { 'liquid-glass': { dark: '#060818', light: '#eaeef8' } };
+
+/** The window colour for a mode and the page's style; an unknown or missing style gets the mode's base colour. */
+export function windowBackground(mode: 'light' | 'dark', style?: unknown): string {
+  const own = typeof style === 'string' && Object.prototype.hasOwnProperty.call(STYLE_WINDOW_BG, style) ? STYLE_WINDOW_BG[style] : undefined;
+  return (own ?? WINDOW_BG)[mode];
+}

@@ -8,6 +8,9 @@ try {
     theme = saved;
     document.documentElement.setAttribute('data-theme', saved);
   }
+  // The style too: a style with its own page colour (liquid-glass) then boots on that colour. Only a short id is accepted.
+  var style = localStorage.getItem('style');
+  if (style && /^[a-z-]{1,32}$/.test(style)) document.documentElement.setAttribute('data-style', style);
 } catch (e) {
   /* storage unavailable: stay on the default theme */
 }

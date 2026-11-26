@@ -7,10 +7,12 @@ import './fonts.css';
 import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
+import './glass/liquid-glass.css';
 import { initErrorTracking } from './observability/errorTracking';
 import { watchDesktopTitleBar, watchSystemBars } from './platform/system-bars';
 import { watchBackButton } from './platform/back-button';
 import { watchForUpdates } from './platform/update-check';
+import { watchGlass } from './glass/runtime';
 
 // Error tracking (GlitchTip) is off unless the deployment serves a DSN in /runtime-config.json; see docs/observability.md.
 void initErrorTracking();
@@ -49,6 +51,7 @@ watchSystemBars(); // Android shell only: status-bar icons that match the page t
 watchDesktopTitleBar(); // Windows/macOS app only: the native title bar follows the page theme
 watchBackButton(); // Android shell only: Back closes the innermost layer, then goes back, then leaves the app
 watchForUpdates(); // a page left open picks up a new deploy when the person returns to it (never during a call)
+watchGlass(); // liquid-glass style only: refraction filters and automatic degradation (does nothing in the other styles)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
