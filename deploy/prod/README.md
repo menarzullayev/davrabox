@@ -30,6 +30,25 @@ KEYCLOAK_URL=http://127.0.0.1:8180/auth KEYCLOAK_ADMIN_PASSWORD=... node scripts
 The e2e suites for the second factor are not part of `pnpm test`; run `pnpm --filter @davrabox/e2e test:2fa` after turning it ON.
 Create the first organization admin in the Keycloak console (same tunnel, realm `davrabox`): attribute `org_slug`, realm role `org_admin`.
 
+## Shared host behind a Cloudflare tunnel (`docker-compose.shared-host.yml`)
+For a host that also runs other services (for example one 2-OCPU / 12 GB arm64 VM) and reaches the web through a Cloudflare tunnel.
+Images are multi-arch (linux/amd64 and linux/arm64) from the Publish workflow.
+- `.env`: `SITE_ADDRESS=http://:8088`, `SIGNUP_TRUSTED_PROXY_HOPS=2`, `TURN_HOST=turn.<your domain>` (DNS-only `A` record to the host).
+- Tunnel ingress: `PUBLIC_HOST` -> `http://127.0.0.1:8088`.
+- Firewall (cloud security list and host iptables): **80/tcp** (certificate for `TURN_HOST` only), **443/tcp** (TURN over TLS), **7881/tcp**, **7882/udp**.
+- Resource slice, created once on the host. All containers join it; the other services on the host get twice its CPU weight when both are busy:
+```
+sudo tee /etc/systemd/system/davrabox.slice <<'UNIT'
+[Slice]
+MemoryMax=5G
+CPUWeight=50
+UNIT
+sudo systemctl daemon-reload && sudo systemctl start davrabox.slice
+```
+- Start: `docker compose --env-file .env -f docker-compose.yml -f docker-compose.shared-host.yml up -d`. LiveKit restarts until Caddy has the `TURN_HOST` certificate (first start, about a minute).
+- LiveKit reads the TURN certificate only at start, and Caddy renews it 30 days before expiry: restart LiveKit once a month (a systemd timer at a quiet hour; running meetings end).
+- Recording (`egress`) is not started in this variant: `--profile recording` starts it, but it needs about 4 CPUs.
+
 ## Update
 Pick a tag from the Publish workflow (`sha-<commit>` or `vX.Y.Z`), set `DAVRA_TAG` in `.env`, then:
 ```

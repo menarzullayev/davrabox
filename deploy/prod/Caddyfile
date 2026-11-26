@@ -63,3 +63,6 @@
 		reverse_proxy web:8080
 	}
 }
+
+# Optional site blocks mounted by a variant (docker-compose.shared-host.yml mounts turn.caddy). No match = nothing added.
+import /etc/caddy/extra/*.caddy

@@ -1,0 +1,82 @@
+# Shared-host variant: the same stack on a host that also runs other services and whose web traffic arrives through a
+# Cloudflare tunnel. Use it on top of docker-compose.yml:
+#   docker compose --env-file .env -f docker-compose.yml -f docker-compose.shared-host.yml up -d
+# Differences from the default bundle:
+# - The site is served on 127.0.0.1:8088 (plain HTTP) for the tunnel; Caddy keeps public port 80 only to obtain the
+#   certificate for TURN_HOST (ACME HTTP-01). Set SITE_ADDRESS=http://:8088 and SIGNUP_TRUSTED_PROXY_HOPS=2 in .env.
+# - Public 443/tcp belongs to LiveKit's TURN over TLS (corporate networks that allow only 443). TURN_HOST needs a DNS-only
+#   A record to this host. Media: 7881/tcp and 7882/udp. Nothing else is published (no 3478/udp, no relay range).
+# - Every container runs in the systemd slice `davrabox.slice` (see README): one memory ceiling for the whole stack and a
+#   lower CPU weight than the host's other services, which win when both are busy.
+# - Meeting recording (egress, needs about 4 CPUs) is not started; it stays available through `--profile recording`.
+# - ClamAV uses the Debian-based image, which is published for arm64 too.
+x-slice: &slice
+  cgroup_parent: davrabox.slice
+
+services:
+  caddy:
+    <<: *slice
+    ports: !override
+      - "80:80"
+      - "127.0.0.1:8088:8088"
+    environment:
+      TURN_HOST: ${TURN_HOST:?set TURN_HOST}
+    volumes:
+      - ./turn.caddy:/etc/caddy/extra/turn.caddy:ro
+
+  livekit:
+    <<: *slice
+    # The configuration comes from LIVEKIT_CONFIG so that TURN_HOST can be filled in by Compose.
+    command: !reset []
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        bind_addresses: ["0.0.0.0"]
+        rtc:
+          tcp_port: 7881
+          udp_port: 7882
+          use_external_ip: true
+        redis:
+          address: redis:6379
+        room:
+          auto_create: false
+          empty_timeout: 300
+          max_participants: 300
+        logging:
+          level: info
+        prometheus_port: 6789
+        turn:
+          enabled: true
+          domain: ${TURN_HOST}
+          tls_port: 443
+          udp_port: 0
+          relay_range_start: 52000
+          relay_range_end: 52019
+          # Issued and renewed by Caddy (turn.caddy). LiveKit reads the files at start: restart it monthly (README).
+          cert_file: /caddy/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${TURN_HOST}/${TURN_HOST}.crt
+          key_file: /caddy/caddy/certificates/acme-v02.api.letsencrypt.org-directory/${TURN_HOST}/${TURN_HOST}.key
+    ports: !override
+      - "7881:7881"
+      - "7882:7882/udp"
+      - "443:443/tcp"
+    volumes: !override
+      - caddy-data:/caddy:ro
+
+  api:
+    <<: *slice
+    environment:
+      RECORDING_ENABLED: "0"
+
+  egress:
+    profiles: ["recording"]
+
+  clamav:
+    <<: *slice
+    image: clamav/clamav-debian:1.4.7
+
+  web: *slice
+  migrate: *slice
+  keycloak: *slice
+  postgres: *slice
+  redis: *slice
+  minio: *slice
