@@ -85,7 +85,7 @@ try {
   check('unexpected error', false, String(e));
 } finally {
   try {
-    if (admin) await adminPolicy(admin, { all: true, allowed: [], def: 'dashboard' });
+    if (admin) await adminPolicy(admin, { all: true, allowed: [], def: 'liquid-glass' }); // the product default
   } catch {
     /* best effort */
   }

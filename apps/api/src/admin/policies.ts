@@ -21,7 +21,7 @@ export const DEFAULT_POLICIES: OrgPolicies = {
   maxParticipants: 300,
   requireTotp: false,
   guestPolicy: 'off',
-  defaultStyle: 'dashboard',
+  defaultStyle: 'liquid-glass', // the product default since 2026-11-26 (migration 016)
   defaultDensity: 'comfortable',
   allowedStyles: null,
 };
@@ -33,7 +33,7 @@ export const policiesSchema = z
     maxParticipants: z.number().int().min(2).max(300),
     requireTotp: z.boolean(),
     guestPolicy: z.enum(['off', 'waiting_room', 'open']).default('off'),
-    defaultStyle: z.enum(STYLE_IDS).default('dashboard'),
+    defaultStyle: z.enum(STYLE_IDS).default('liquid-glass'),
     defaultDensity: z.enum(DENSITY_IDS).default('comfortable'),
     allowedStyles: z.array(z.enum(STYLE_IDS)).min(1).max(STYLE_IDS.length).nullable().default(null),
   })

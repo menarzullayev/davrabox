@@ -28,7 +28,8 @@ const DENSITY_KEY: Record<DensityId, Key> = { compact: 'uiDensitycompact', comfo
 export const styleLabelKey = (id: StyleId): Key => STYLE_KEY[id];
 export const densityLabelKey = (id: DensityId): Key => DENSITY_KEY[id];
 
-export const DEFAULTS = { theme: 'dark', style: 'dashboard', density: 'comfortable' } as const satisfies { theme: ThemeChoice; style: StyleId; density: DensityId };
+/** Liquid Glass is the product default since 2026-11-26 (owner decision 12); `dashboard` stays the token base. */
+export const DEFAULTS = { theme: 'dark', style: 'liquid-glass', density: 'comfortable' } as const satisfies { theme: ThemeChoice; style: StyleId; density: DensityId };
 
 /** Colour of the browser / system bars per theme (the page background of that theme): generated from the design tokens. */
 export const THEME_COLOR: Readonly<Record<ThemeChoice, string>> = GENERATED_THEME_COLOR;
