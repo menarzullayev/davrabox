@@ -1,6 +1,7 @@
 // Keeps every place that must repeat a design colour in step with tokens.ts: the web boot screen and theme-color, the Android
 // colour resources and plugin, the Electron window and the style guide swatches. `syncPlatforms(root, false)` only reports
 // drift (the test uses it, so CI fails when a copy goes stale); `pnpm sync` rewrites the files.
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromeColour, chromeOverrides, resolveColours, styles, themes, type StyleId, type ThemeName } from './tokens.js';
@@ -14,7 +15,7 @@ const overrideLiteral = () => `{ ${chromeOverrides().map((o) => `'${o.style}': {
 interface Target {
   file: string;
   /** Returns the file's new content; a regex that no longer matches is reported as an error, never skipped. */
-  apply: (current: string) => string;
+  apply: (current: string, root: string) => string;
 }
 
 function replaceOnce(src: string, re: RegExp, to: string, what: string): string {
@@ -173,6 +174,19 @@ export const targets: Target[] = [
     apply: () => keycloakCss(),
   },
   {
+    // Keycloak serves theme files under a version path that does not change when the files do, and the CDN in front keeps
+    // them for 30 days: each file is referenced with a hash of its content, so a changed file is a new URL.
+    file: 'deploy/helm/davrabox/files/keycloak-theme/login/theme.properties',
+    apply: (s, root) => {
+      const dir = 'deploy/helm/davrabox/files/keycloak-theme/login/resources';
+      // Line endings are normalised first, so a Windows checkout and the Linux server compute the same hash.
+      const v = (rel: string) => `${rel}?v=${createHash('sha256').update(readFileSync(join(root, dir, rel), 'utf8').replace(/\r\n/g, '\n')).digest('hex').slice(0, 10)}`;
+      let t = replaceOnce(s, /^styles=.*$/m, `styles=css/styles.css ${v('css/davrabox.css')}`, 'keycloak styles');
+      t = replaceOnce(t, /^scripts=.*$/m, `scripts=${v('js/davrabox.js')} ${v('js/glass.js')}`, 'keycloak scripts');
+      return t;
+    },
+  },
+  {
     file: 'apps/desktop/src/window.ts',
     apply: (s) => {
       let t = replaceOnce(s, /(WINDOW_BG = \{ dark: ')#[0-9a-fA-F]{6}(')/, `$1${dark}$2`, 'desktop dark window');
@@ -204,7 +218,7 @@ export function syncPlatforms(root: string, write: boolean): string[] {
     }
     const crlf = raw.includes('\r\n');
     const current = raw.replace(/\r\n/g, '\n');
-    const next = apply(current);
+    const next = apply(current, root);
     if (next !== current) {
       drift.push(file);
       if (write) writeFileSync(path, crlf ? next.replace(/\n/g, '\r\n') : next);
