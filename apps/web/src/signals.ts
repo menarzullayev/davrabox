@@ -46,6 +46,19 @@ export function parseRoomRecording(metadata: string | undefined): boolean {
   return typeof v === 'object' && v !== null && !Array.isArray(v) && (v as Record<string, unknown>).recording === true;
 }
 
+/** The host's spotlight from the server-set room metadata (see parseRoomRecording for why it is not a data-channel signal). */
+export function parseRoomSpotlight(metadata: string | undefined): string | null {
+  if (!metadata || metadata.length > 4096) return null;
+  try {
+    const v: unknown = JSON.parse(metadata);
+    if (typeof v !== 'object' || v === null || Array.isArray(v)) return null;
+    const s = (v as Record<string, unknown>).spotlight;
+    return typeof s === 'string' && s.length > 0 && s.length <= 80 ? s : null;
+  } catch {
+    return null;
+  }
+}
+
 export function decode(bytes: Uint8Array): Signal | null {
   if (bytes.byteLength === 0 || bytes.byteLength > 8 * 1024) return null;
   let v: unknown;

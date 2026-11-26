@@ -17,6 +17,8 @@ export interface StageProps {
   sharer: ParticipantView | null;
   renderMedia: (kind: 'camera' | 'share', p: ParticipantView) => ReactNode;
   manage: ManageActions | null;
+  /** Pin / unpin a participant on this person's own stage. */
+  onPin?: (id: string) => void;
   onResolved?: (info: { mode: LayoutMode; reason: FallbackReason; overflow: number }) => void;
 }
 
@@ -46,7 +48,7 @@ function useSize<T extends HTMLElement>(): [React.RefObject<T>, Size] {
   return [ref as React.RefObject<T>, size];
 }
 
-export function Stage({ lang, requested, participants, featuredId, sharer, renderMedia, manage, onResolved }: StageProps) {
+export function Stage({ lang, requested, participants, featuredId, sharer, renderMedia, manage, onPin, onResolved }: StageProps) {
   const [ref, size] = useSize<HTMLDivElement>();
   const reduced = useReducedMotion();
   // Stable identity while nobody joins or leaves: the layout is recomputed for the people, not for every re-render.
@@ -123,6 +125,7 @@ export function Stage({ lang, requested, participants, featuredId, sharer, rende
             animate={animate}
             reduced={reduced}
             manage={manage}
+            onPin={onPin}
             media={renderMedia('camera', p)}
           />
         );

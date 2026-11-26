@@ -204,6 +204,7 @@ export class GuestService {
       identity,
       name,
       metadata: JSON.stringify({ guest: true }),
+      attributes: { role: 'guest' },
       ttl: limits.maxMinutes ? Math.min(this.cfg.MEETING_TOKEN_TTL_SECONDS, limits.maxMinutes * 60) : this.cfg.MEETING_TOKEN_TTL_SECONDS,
     });
     // Guests talk and show themselves; they never administer the room (no roomAdmin, no recorder rights).

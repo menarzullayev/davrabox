@@ -60,6 +60,9 @@ interface MeetingRow {
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Events the call screen reports for the audit log (content-free). */
+export const ACTIVITY_EVENTS = ['poll.open', 'poll.close', 'qa.anon.on', 'qa.anon.off', 'board.draw.grant', 'board.draw.revoke'] as const;
+export type ActivityEvent = (typeof ACTIVITY_EVENTS)[number];
 const CODE_RE = /^[0-9]{11,12}$/;
 
 /** A LiveKit participant identity this API manages: a member's user id or a guest's `guest:<id>`. */
@@ -332,6 +335,90 @@ export class MeetingsService {
     return { muted: audio.length };
   }
 
+  /**
+   * Host "mute all": mutes every published microphone of everyone except the host, the co-hosts and the caller. People can
+   * unmute themselves afterwards (a request, not a lock). Audited as one event.
+   */
+  async muteAll(user: AuthedUser, code: string): Promise<{ muted: number }> {
+    const meeting = await this.managedMeeting(user, code);
+    const managers = await withTenant(this.pool, user.orgId, async (c) => {
+      const r = await c.query('SELECT user_id FROM meeting_cohosts WHERE meeting_id = $1', [meeting.id]);
+      return new Set<string>([meeting.host_user_id, user.userId, ...r.rows.map((x: { user_id: string }) => x.user_id)]);
+    });
+    let present: Awaited<ReturnType<RoomServiceClient['listParticipants']>> = [];
+    try {
+      present = await this.rooms.listParticipants(meeting.id);
+    } catch {
+      present = []; // no active room: nobody to mute
+    }
+    let muted = 0;
+    for (const p of present) {
+      if (managers.has(p.identity) || !isParticipantIdentity(p.identity)) continue;
+      for (const t of p.tracks.filter((x) => x.type === TrackType.AUDIO && !x.muted)) {
+        try {
+          await this.rooms.mutePublishedTrack(meeting.id, p.identity, t.sid, true);
+          muted++;
+        } catch {
+          /* the participant left meanwhile */
+        }
+      }
+    }
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'meeting.mute_all', code));
+    return { muted };
+  }
+
+  /**
+   * Spotlight: the host features one participant on everyone's stage (or clears it with null). It is written to the room
+   * metadata by the server, so nobody can forge it over the data channel and late joiners see it too. Audited.
+   */
+  async setSpotlight(user: AuthedUser, code: string, identity: string | null): Promise<{ spotlight: string | null }> {
+    if (identity !== null && !isParticipantIdentity(identity)) throw new MeetingError(404, 'participant not found');
+    const meeting = await this.managedMeeting(user, code);
+    if (identity !== null) {
+      try {
+        await this.rooms.getParticipant(meeting.id, identity);
+      } catch {
+        throw new MeetingError(404, 'participant not found');
+      }
+    }
+    try {
+      await this.mergeRoomMetadata(meeting.id, { spotlight: identity });
+    } catch {
+      throw new MeetingError(409, 'the meeting is not running');
+    }
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, identity ? 'meeting.spotlight' : 'meeting.spotlight.clear', identity ? `${code}:${identity}` : code));
+    return { spotlight: identity };
+  }
+
+  /**
+   * In-meeting activity events (polls, Q&A settings, whiteboard drawing rights). Their content never reaches the server
+   * (owner decision 10: ephemeral, end-to-end encrypted in E2EE meetings); only the fact that the event happened is audited.
+   */
+  async recordActivity(user: AuthedUser, code: string, event: ActivityEvent): Promise<{ recorded: true }> {
+    if (!ACTIVITY_EVENTS.includes(event)) throw new MeetingError(400, 'unknown event');
+    await this.managedMeeting(user, code);
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, `meeting.${event}`, code));
+    return { recorded: true };
+  }
+
+  /** Read-modify-write of the room metadata JSON: other keys (the recording flag) are kept; a null value removes the key. */
+  private async mergeRoomMetadata(room: string, patch: Record<string, unknown>): Promise<void> {
+    const [existing] = await this.rooms.listRooms([room]);
+    if (!existing) throw new Error('requested room does not exist');
+    let meta: Record<string, unknown> = {};
+    try {
+      const parsed: unknown = existing.metadata ? JSON.parse(existing.metadata) : {};
+      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) meta = parsed as Record<string, unknown>;
+    } catch {
+      /* not JSON: replaced */
+    }
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === null || v === undefined) delete meta[k];
+      else meta[k] = v;
+    }
+    await this.rooms.updateRoomMetadata(room, JSON.stringify(meta));
+  }
+
   /** Removes a participant and bans them from rejoining this meeting. The host cannot be removed. */
   async removeParticipant(user: AuthedUser, code: string, identity: string) {
     if (!isParticipantIdentity(identity)) throw new MeetingError(404, 'participant not found');
@@ -424,6 +511,15 @@ export class MeetingsService {
         await c.query('DELETE FROM meeting_cohosts WHERE meeting_id = $1 AND user_id = $2', [meeting.id, identity]);
       }
       await this.audit(c, user, grant ? 'meeting.cohost.grant' : 'meeting.cohost.revoke', `${code}:${identity}`);
+      return { meetingId: meeting.id };
+    }).then(async ({ meetingId }) => {
+      // The live role attribute follows at once (clients check it for host-only data-channel messages); best effort when
+      // the person is not connected: the next join token carries the role anyway.
+      try {
+        await this.rooms.updateParticipant(meetingId, identity, { attributes: { role: grant ? 'cohost' : 'member' } });
+      } catch {
+        /* not connected right now */
+      }
       return { cohost: grant };
     });
   }
@@ -487,9 +583,13 @@ export class MeetingsService {
     const limits = await this.trial.effectiveLimits(user.orgId);
     if (limits.trial) await this.assertRoomNotFull(meeting.id, user.userId, limits.maxParticipants);
     await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: limits.maxParticipants });
+    // The meeting role as a participant attribute, set only by this server (no one may update their own attributes), so
+    // clients can trust it for host-only data-channel messages (polls, whiteboard permissions, Q&A moderation).
+    const role = meeting.host_user_id === user.userId || user.role === 'org_admin' ? 'host' : meeting.is_cohost ? 'cohost' : 'member';
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,
+      attributes: { role },
       ttl: limits.maxMinutes ? Math.min(this.cfg.MEETING_TOKEN_TTL_SECONDS, limits.maxMinutes * 60) : this.cfg.MEETING_TOKEN_TTL_SECONDS,
     });
     at.addGrant({
@@ -498,6 +598,7 @@ export class MeetingsService {
       canSubscribe: true,
       canPublish: true,
       canPublishData: true,
+      canUpdateOwnMetadata: false,
       roomAdmin: manages,
     });
     const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);

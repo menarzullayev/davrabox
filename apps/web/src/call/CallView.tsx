@@ -5,7 +5,8 @@ import { Alert, ConnectingRing } from '../ui';
 // ui.css first: call.css overrides some .dx-btn values with equal specificity, so it must come later in the bundle.
 import '../ui/ui.css';
 import './call.css';
-import { ControlBar, type GuestsControl } from './ControlBar';
+import './features.css';
+import { ControlBar, type ActivitiesControl, type GuestsControl } from './ControlBar';
 import { LiveRegion, useCallAnnouncements } from './LiveRegion';
 import { hintKey, pickFeatured, type FallbackReason, type LayoutMode } from './layout';
 import { ChatPanel, PeoplePanel, RequestsTray, type ChatPanelProps } from './Panels';
@@ -70,6 +71,21 @@ export interface CallViewProps {
   guests?: GuestsControl;
   /** End-to-end encrypted meeting: a persistent badge; `on` turns true once the encryption is confirmed active. */
   e2ee?: { on: boolean };
+
+  /** Host spotlight (everyone's stage) and this person's own pin. */
+  spotlightId?: string | null;
+  pinnedId?: string | null;
+  onPin?(id: string): void;
+  /** Camera effects: the background chooser and low-light correction. */
+  onBackground?(): void;
+  lowLightOn?: boolean;
+  onLowLight?(): void;
+  pip?: { active: boolean; onToggle(): void };
+  /** Polls, Q&A, whiteboard: the toggles' badges and the open panel itself (rendered by the caller). */
+  activities?: ActivitiesControl;
+  activityPanel?: ReactNode;
+  /** Extra notices over the stage (a new poll, for example). */
+  notices?: ReactNode;
 }
 
 /** The whole call screen as a pure function of its props: no LiveKit, no network. Call.tsx and the lab feed it. */
@@ -83,7 +99,7 @@ export function CallView(p: CallViewProps) {
   }, []);
 
   const ids = useMemo(() => p.participants.map((x) => x.id), [p.participants]);
-  const featuredId = pickFeatured(ids, { sharerId: p.sharer?.id, speakerId: p.speakerId });
+  const featuredId = pickFeatured(ids, { sharerId: p.sharer?.id, speakerId: p.speakerId, spotlightId: p.spotlightId, pinnedId: p.pinnedId });
   const others = useMemo(() => p.participants.filter((x) => !x.local).map((x) => ({ id: x.id, name: x.name || x.id })), [p.participants]);
   const live = useCallAnnouncements({ lang, participants: p.participants, featuredId, sharer: p.sharer, waiting: p.requests.length, lastLine: p.chat.lines[p.chat.lines.length - 1] });
 
@@ -117,6 +133,7 @@ export function CallView(p: CallViewProps) {
             sharer={p.sharer}
             renderMedia={p.renderMedia}
             manage={p.manage}
+            onPin={p.onPin}
             onResolved={onResolved}
           />
           {!p.connected ? (
@@ -132,12 +149,14 @@ export function CallView(p: CallViewProps) {
             ) : null}
             {p.reconnecting ? <Alert tone="warning" className="dv-notice">{t(lang, 'clReconnecting')}</Alert> : null}
             {p.sharing ? <Alert tone="info" className="dv-notice">{t(lang, 'clYouShare')}</Alert> : null}
+            {p.notices}
           </div>
           {p.manage && p.panel !== 'people' ? <RequestsTray lang={lang} requests={p.requests} onDecide={p.onDecide} /> : null}
           </div>
         </main>
         {p.panel === 'chat' ? <ChatPanel lang={lang} {...p.chat} others={others} onClose={closePanel} /> : null}
-        {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onClose={closePanel} /> : null}
+        {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onPin={p.onPin} onClose={closePanel} /> : null}
+        {p.panel === 'polls' || p.panel === 'qa' || p.panel === 'board' ? p.activityPanel : null}
       </div>
       <ControlBar
         lang={lang}
@@ -167,6 +186,11 @@ export function CallView(p: CallViewProps) {
         onLeave={p.onLeave}
         recording={p.recording}
         guests={p.guests}
+        onBackground={p.onBackground}
+        lowLightOn={p.lowLightOn}
+        onLowLight={p.onLowLight}
+        pip={p.pip}
+        activities={p.activities}
       />
       <LiveRegion text={live} />
       <RecordingLive lang={lang} on={!!p.recording?.on} />

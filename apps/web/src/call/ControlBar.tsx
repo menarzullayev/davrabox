@@ -19,6 +19,12 @@ import {
   IconMicOff,
   IconMore,
   IconNoise,
+  IconImage,
+  IconPip,
+  IconPoll,
+  IconQuestion,
+  IconSun,
+  IconWhiteboard,
   IconPhoneOff,
   IconScreenShare,
   IconShield,
@@ -78,6 +84,21 @@ export interface ControlBarProps {
   recording?: RecordingView;
   /** Host side: who may join without an account; absent for members and guests or when the organization allows no guests. */
   guests?: GuestsControl;
+  /** Opens the virtual background chooser. */
+  onBackground?(): void;
+  /** Low-light correction of the local camera. */
+  lowLightOn?: boolean;
+  onLowLight?(): void;
+  /** Picture-in-picture: present only when the browser supports it. */
+  pip?: { active: boolean; onToggle(): void };
+  /** Polls, Q&A and the whiteboard: panel toggles with an unseen-count badge. */
+  activities?: ActivitiesControl;
+}
+
+export interface ActivitiesControl {
+  polls: number;
+  qa: number;
+  board: boolean;
 }
 
 export interface GuestsControl {
@@ -258,6 +279,7 @@ export function ControlBar(p: ControlBarProps) {
           label={t(lang, 'clMore')}
           extra={`, ${t(lang, 'clMoreTitle')}${compact ? `, ${t(lang, 'clLayout')}: ${layoutName}` : ''}`}
           icon={<IconMore />}
+          badge={p.activities ? p.activities.polls + p.activities.qa : 0}
           corner={compact ? <span className="dv-ctl__mode" data-testid="more-mode" aria-hidden="true"><LayoutIcon size={12} /></span> : undefined}
           showText={wide}
           haspopup expanded={open === 'more'} onClick={() => toggle('more')} buttonRef={moreBtn} testId="more" />
@@ -348,6 +370,36 @@ export function ControlBar(p: ControlBarProps) {
               <AppearanceFields lang={lang} />
             </div>
           </details>
+          {p.activities ? (
+            <div className="dv-more__acts">
+              <Button variant="secondary" icon={<IconPoll size={18} />} fullWidth data-testid="polls-toggle" aria-pressed={p.panel === 'polls'} onClick={() => { p.onPanel(p.panel === 'polls' ? null : 'polls'); close(); }}>
+                {t(lang, 'pollTitle')}
+                {p.activities.polls ? <span className="dv-more__count" data-testid="polls-badge">{p.activities.polls}</span> : null}
+              </Button>
+              <Button variant="secondary" icon={<IconQuestion size={18} />} fullWidth data-testid="qa-toggle" aria-pressed={p.panel === 'qa'} onClick={() => { p.onPanel(p.panel === 'qa' ? null : 'qa'); close(); }}>
+                {t(lang, 'qaTitle')}
+                {p.activities.qa ? <span className="dv-more__count" data-testid="qa-badge">{p.activities.qa}</span> : null}
+              </Button>
+              <Button variant="secondary" icon={<IconWhiteboard size={18} />} fullWidth data-testid="board-toggle" aria-pressed={p.panel === 'board'} onClick={() => { p.onPanel(p.panel === 'board' ? null : 'board'); close(); }}>
+                {t(lang, 'wbTitle')}
+                {p.activities.board ? <span className="dv-more__dot" aria-hidden="true" /> : null}
+              </Button>
+            </div>
+          ) : null}
+          {p.onBackground || p.pip ? (
+            <div className="dv-more__acts">
+              {p.onBackground ? (
+                <Button variant="secondary" icon={<IconImage size={18} />} fullWidth data-testid="bg-open" disabled={!p.cam} onClick={() => { close(); p.onBackground?.(); }}>
+                  {t(lang, 'fxBackground')}
+                </Button>
+              ) : null}
+              {p.pip ? (
+                <Button variant="secondary" icon={<IconPip size={18} />} fullWidth data-testid="pip" aria-pressed={p.pip.active} onClick={() => { close(); p.pip?.onToggle(); }}>
+                  {t(lang, 'pip')}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
           <div className="dv-more__switches">
             <Switch
               label={<span className="dv-more__lbl"><IconNoise size={16} />{t(lang, 'noiseSuppression')}</span>}
@@ -365,6 +417,16 @@ export function ControlBar(p: ControlBarProps) {
               data-testid="blur"
               data-state={String(p.blurOn)}
             />
+            {p.onLowLight ? (
+              <Switch
+                label={<span className="dv-more__lbl"><IconSun size={16} />{t(lang, 'fxLowLight')}</span>}
+                checked={!!p.lowLightOn}
+                disabled={!p.cam}
+                onChange={p.onLowLight}
+                data-testid="lowlight"
+                data-state={String(!!p.lowLightOn)}
+              />
+            ) : null}
           </div>
           <div className="dv-more__info" data-testid="firewall-info">
             <IconShield size={16} />

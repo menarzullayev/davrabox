@@ -1,6 +1,7 @@
 import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
 import { homeEn, homeRu, homeUz } from './home/i18n-home';
 import { callEn, callRu, callUz } from './call/i18n-call';
+import { featEn, featRu, featUz } from './call/i18n-features';
 import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
 import { integrationsEn, integrationsRu, integrationsUz } from './admin/i18n-integrations';
 import { calEn, calRu, calUz } from './calendar/i18n-calendar';
@@ -112,6 +113,7 @@ const uz = {
   uiThemeLight: 'Kunduzgi',
   ...homeUz,
   ...callUz,
+  ...featUz,
   ...landingUz,
   ...helpUz,
   ...admAsUz,
@@ -223,6 +225,7 @@ const ru: Record<Key, string> = {
   uiThemeLight: 'Светлая',
   ...homeRu,
   ...callRu,
+  ...featRu,
   ...landingRu,
   ...helpRu,
   ...admAsRu,
@@ -332,6 +335,7 @@ const en: Record<Key, string> = {
   uiThemeLight: 'Light',
   ...homeEn,
   ...callEn,
+  ...featEn,
   ...landingEn,
   ...helpEn,
   ...admAsEn,
