@@ -41,6 +41,7 @@ async function open(username, password, relay) {
     await page.getByTestId('settings').click();
     await page.getByTestId('relay-mode').check();
     check('the firewall mode choice is remembered in the browser', (await page.evaluate(() => localStorage.getItem('relayMode'))) === '1');
+    await page.keyboard.press('Escape'); // close the settings panel: it covers the new-meeting button on a laptop-sized window
   }
   return { ctx, page };
 }

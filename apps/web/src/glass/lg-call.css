@@ -12,8 +12,11 @@
 }
 :root[data-style='liquid-glass'] .dv-call > :is(.dv-topbar, .dv-main, .dv-controls) { grid-area: 1 / 1; }
 :root[data-style='liquid-glass'] .dv-call > .dv-main { z-index: 1; }
-/* An open sheet (phones) covers the floating bars, like an iOS sheet; the stage under it is dimmed by the scrim. */
-:root[data-style='liquid-glass'] .dv-call:not([data-panel='none']) > .dv-main { z-index: 50; }
+/* An open sheet (phones and tablets) covers the floating bars, like an iOS sheet; the stage under it is dimmed by the scrim.
+   Wider screens keep the bars on top: the panel sits beside the stage there and the controls must stay clickable. */
+@media (max-width: 959px) {
+  :root[data-style='liquid-glass'] .dv-call:not([data-panel='none']) > .dv-main { z-index: 50; }
+}
 
 /* ---- top bar: separate floating capsules --------------------------------------------------------------------- */
 :root[data-style='liquid-glass'] .dv-call > .dv-topbar {
