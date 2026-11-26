@@ -31,9 +31,9 @@ https://{$LAN_IP}:8443, https://localhost:8443 {
 	}
 }
 
-# Public domain through Cloudflare Tunnel: plain HTTP on loopback (TLS ends at Cloudflare). The forwarded
+# Public domain through Cloudflare Tunnel (TUNNEL_HOST, the staging name by default): plain HTTP on loopback (TLS ends at Cloudflare). The forwarded
 # proto/port headers make Keycloak build https://<domain>/auth URLs. Media (UDP) does not travel this path.
-http://davrabox.bugvector.uz:8081 {
+http://{$TUNNEL_HOST}:8081 {
 	bind 0.0.0.0
 
 	# The identity provider's admin console/API and master realm must never be reachable from the internet.
