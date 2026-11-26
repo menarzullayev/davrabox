@@ -18,6 +18,7 @@ describe('platform copies of the design colours', () => {
       'apps/mobile/android/app/src/main/res/values/ic_launcher_background.xml',
       'apps/mobile/android/app/src/main/java/uz/davrabox/app/ThemeBarsPlugin.java',
       'deploy/helm/davrabox/files/keycloak-theme/login/resources/css/davrabox.css',
+      'deploy/helm/davrabox/files/keycloak-theme/login/theme.properties',
       'apps/desktop/src/window.ts',
       'apps/web/src/styleguide/styleguide.css',
     ]);
