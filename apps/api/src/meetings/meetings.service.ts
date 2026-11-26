@@ -301,6 +301,21 @@ export class MeetingsService {
     });
   }
 
+  /**
+   * Ends the meeting for everyone (host side): the media room is closed, which disconnects every participant and guest.
+   * The meeting itself stays, so it can be started again later. Audited.
+   */
+  async end(user: AuthedUser, code: string): Promise<{ ended: true }> {
+    const meeting = await this.managedMeeting(user, code);
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'meeting.end', code));
+    try {
+      await this.rooms.deleteRoom(meeting.id);
+    } catch {
+      /* no active room: nothing to close */
+    }
+    return { ended: true };
+  }
+
   /** Mutes every published microphone track of a participant. The participant can unmute themselves later. */
   async muteParticipant(user: AuthedUser, code: string, identity: string) {
     const meeting = await this.managedMeeting(user, code);

@@ -107,6 +107,20 @@ describe('meetings against real Postgres and LiveKit', () => {
     expect(await status(svc.join(host, m.code))).toBe(200);
   });
 
+  it('the host ends the meeting for everyone: the room closes; a member or another organization cannot', async () => {
+    const m = await svc.create(host, { waitingRoom: false, title: 'End me' });
+    joined(await svc.join(host, m.code));
+    joined(await svc.join(member, m.code));
+    expect(await status(svc.end(member, m.code))).toBe(403);
+    expect(await status(svc.end(outsider, m.code))).toBe(404);
+    expect(await svc.end(host, m.code)).toEqual({ ended: true });
+    const rooms = await (svc as unknown as { rooms: { listRooms: (n: string[]) => Promise<unknown[]> } }).rooms.listRooms([m.id]);
+    expect(rooms.length).toBe(0);
+    const audit = await admin.query("SELECT count(*)::int AS n FROM audit_log WHERE action = 'meeting.end' AND target = $1", [m.code]);
+    expect(audit.rows[0].n).toBe(1);
+    expect(await svc.end(host, m.code)).toEqual({ ended: true }); // ending again (no room) is harmless
+  });
+
   it('another organization cannot find the meeting at all', async () => {
     const m = await svc.create(host, { waitingRoom: false, title: 'Private' });
     expect(await status(svc.join(outsider, m.code))).toBe(404);

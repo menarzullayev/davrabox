@@ -67,6 +67,9 @@ ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { ou
 .pf-v5-c-form-control input { background: transparent; border: 0; box-shadow: none; outline: none; height: 100%; min-height: inherit; }
 .pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
 .pf-v5-c-input-group { gap: 0; }
+.pf-v5-c-button.pf-m-primary { min-height: 2.75rem; }
+.pf-v5-c-check { align-items: center; min-height: 2.75rem; }
+.pf-v5-c-check__input { width: 1.25rem; height: 1.25rem; }
 .pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }

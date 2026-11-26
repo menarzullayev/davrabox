@@ -91,6 +91,13 @@ export class MeetingsController {
     return wrap(this.svc.decide(req.user, code, id, false));
   }
 
+  /** Host side: closes the meeting's room for everyone. */
+  @Post(':code/end')
+  @HttpCode(200)
+  end(@Req() req: Req, @Param('code') code: string) {
+    return wrap(this.svc.end(req.user, code));
+  }
+
   @Post(':code/lock')
   @HttpCode(200)
   lock(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {

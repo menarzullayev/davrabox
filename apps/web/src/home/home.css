@@ -136,6 +136,12 @@
   @media (max-width: 640px) { .hm-timeline { margin-top: var(--space-6); } }
   .hm-section { margin: 0 0 var(--space-5); color: var(--text); font-size: var(--text-xl); line-height: var(--leading-xl); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
   .hm-tabs .dx-tabpanel { padding-top: var(--space-5); }
+  /* Phones: three equal tabs that fit the width (the last count was cut at the edge). */
+  @media (max-width: 479px) {
+    .hm-tabs .dx-tablist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+    .hm-tabs .dx-tab { justify-content: center; padding-inline: var(--space-1); font-size: var(--text-sm); white-space: nowrap; }
+    .hm-tabs .hm-tab__count { margin-inline-start: var(--space-1); }
+  }
   .hm-tab__count { margin-inline-start: var(--space-2); padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--surface-3); color: var(--text-muted); font-size: var(--text-xs); }
   .hm-tab-empty { margin: 0; padding: var(--space-6) 0; color: var(--text-muted); font-size: var(--text-base); line-height: var(--leading-base); text-align: center; }
   .hm-days { display: grid; gap: var(--space-8); }

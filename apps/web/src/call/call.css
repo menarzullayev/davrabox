@@ -95,6 +95,8 @@
   .dv-quality rect.off { fill: var(--border-strong); opacity: 0.45; }
   .dv-role { font-weight: var(--weight-semibold); }
   .dv-lock { min-height: 32px; }
+  /* Touch screens (tablets too, not only phones): a finger-sized lock button. */
+  @media (pointer: coarse) { .dv-topbar .dv-lock.dx-btn[data-size='sm'] { min-width: var(--target-coarse); height: var(--target-coarse); min-height: var(--target-coarse); } }
 
   /* ---- stage and tiles ------------------------------------------------------------------------------------- */
   .dv-stage {
