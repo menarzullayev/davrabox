@@ -3,7 +3,7 @@
 // The stock theme also sets its own dark class from the browser's colour scheme, so the choice is re-applied whenever it changes.
 (function () {
   var theme = 'dark';
-  var style = '';
+  var style = 'liquid-glass'; // the product default when the app has saved no choice in this browser
   try {
     var saved = localStorage.getItem('theme');
     if (saved === 'light' || saved === 'dark') theme = saved;

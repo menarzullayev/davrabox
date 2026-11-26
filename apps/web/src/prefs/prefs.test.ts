@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULTS, LANGS, THEME_COLOR, isDensity, isLang, isStyle, isTheme } from './options';
+import { DEFAULTS, LANGS, THEME_COLOR, isDensity, isLang, isStyle, isTheme, themeColorFor } from './options';
 import { getPrefs, setPref, subscribePrefs } from './store';
 
 function reset() {
@@ -43,7 +43,7 @@ describe('prefs store', () => {
     const root = document.documentElement;
     expect(root.lang).toBe(p.lang);
     expect(root.getAttribute('data-theme')).toBe('dark');
-    expect(root.getAttribute('data-style')).toBe('dashboard');
+    expect(root.getAttribute('data-style')).toBe('liquid-glass'); // the product default (owner decision 12)
     expect(root.getAttribute('data-density')).toBe('comfortable');
   });
 
@@ -66,7 +66,8 @@ describe('prefs store', () => {
     setPref('theme', 'light');
     expect(document.documentElement.lang).toBe('ru');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
-    expect(document.querySelector('meta[name="theme-color"]')!.getAttribute('content')).toBe(THEME_COLOR.light);
+    expect(document.querySelector('meta[name="theme-color"]')!.getAttribute('content')).toBe(themeColorFor('light', DEFAULTS.style)); // the default style has its own chrome colour
+    expect(themeColorFor('light', 'dashboard')).toBe(THEME_COLOR.light);
     expect(localStorage.getItem('lang')).toBe('ru');
     expect(localStorage.getItem('theme')).toBe('light');
     expect(fn).toHaveBeenCalledTimes(2);

@@ -9,8 +9,9 @@ try {
     document.documentElement.setAttribute('data-theme', saved);
   }
   // The style too: a style with its own page colour (liquid-glass) then boots on that colour. Only a short id is accepted.
+  // Nothing saved: the product default (liquid-glass), so the boot screen already has its colour.
   var style = localStorage.getItem('style');
-  if (style && /^[a-z-]{1,32}$/.test(style)) document.documentElement.setAttribute('data-style', style);
+  document.documentElement.setAttribute('data-style', style && /^[a-z-]{1,32}$/.test(style) ? style : 'liquid-glass');
 } catch (e) {
   /* storage unavailable: stay on the default theme */
 }

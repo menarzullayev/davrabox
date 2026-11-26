@@ -1,8 +1,9 @@
 # Liquid Glass style
 
 The 13th style (`liquid-glass`), selectable like the others and allowed/defaulted by org admins the same way. Owner
-decisions: `davrabox-builds/decisions/2026-11-26-liquid-glass-and-features.md` (1-5, 12). It is not the default style; the
-switch is a separate change once the gate in decision 12 is met.
+decisions: `davrabox-builds/decisions/2026-11-26-liquid-glass-and-features.md` (1-5, 12). Since 2026-11-26 it is the product
+default (`DEFAULTS.style`, the API's default policy, migration 016 for organizations still on the old default, the Keycloak
+page and the boot screen when nothing is saved). `dashboard` stays the token base that the other styles override.
 
 ## Where it lives
 

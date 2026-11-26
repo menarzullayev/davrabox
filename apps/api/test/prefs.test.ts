@@ -143,4 +143,19 @@ describe('stored preferences', () => {
     await expect(admin.query("INSERT INTO user_prefs (user_id, org_id, style) VALUES ($1, $2, 'Bad Style!')", [b1.userId, b1.orgId])).rejects.toThrow();
     await expect(admin.query("INSERT INTO user_prefs (user_id, org_id, theme) VALUES ($1, $2, 'sepia')", [b1.userId, b1.orgId])).rejects.toThrow();
   });
+
+  it('a hyphenated style id (liquid-glass) is stored for a person and as an organization default', async () => {
+    await setPolicy(b1, null, 'liquid-glass'); // organization B allows every style
+    expect((await svc.get(b1)).org.defaultStyle).toBe('liquid-glass');
+    expect((await svc.set(b1, { style: 'liquid-glass' })).prefs.style).toBe('liquid-glass');
+    expect((await svc.get(b1)).prefs.style).toBe('liquid-glass');
+    // The shape check still refuses what is not a style id.
+    for (const bad of ['-glass', 'glass-', 'Liquid-Glass', 'a', 'x'.repeat(40)]) {
+      await expect(admin.query('INSERT INTO user_prefs (user_id, org_id, style) VALUES ($1, $2, $3)', [b1.userId, b1.orgId, bad]), bad).rejects.toThrow();
+    }
+  });
+  it('a new organization starts with liquid-glass as its default style', async () => {
+    const c = await admin.query("SELECT column_default FROM information_schema.columns WHERE table_name = 'org_policies' AND column_name = 'default_style'");
+    expect(c.rows[0].column_default).toContain('liquid-glass');
+  });
 });

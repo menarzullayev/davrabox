@@ -49,7 +49,7 @@ export interface OrgPolicy {
   defaultStyle: string;
   defaultDensity: string;
 }
-let policy: OrgPolicy = { allowedStyles: null, defaultStyle: 'dashboard', defaultDensity: 'comfortable' };
+let policy: OrgPolicy = { allowedStyles: null, defaultStyle: DEFAULTS.style, defaultDensity: DEFAULTS.density };
 
 let state: Prefs | null = null;
 const listeners = new Set<() => void>();
