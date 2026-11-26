@@ -25,6 +25,11 @@ export const REFRACT_SELECTORS = [
   '.dx-dialog',
   '.dx-sheet',
   '.lg-glass',
+  '.pj__title',
+  '.pj__meeting',
+  '.pj__toggles > *',
+  '.pj__skip > *',
+  '.pj__actions',
 ] as const;
 const SELECTOR = REFRACT_SELECTORS.join(',');
 const SVG_NS = 'http://www.w3.org/2000/svg';

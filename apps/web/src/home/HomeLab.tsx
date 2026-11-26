@@ -3,13 +3,14 @@
 // import.meta.env.DEV or VITE_HOME_LAB=1 is set, so a normal production build contains neither this file nor its data.
 //   /lab/home                      index of the states
 //   /lab/home?screen=home&state=few|many|long|empty|loading|error|passcode&lang=uz|ru|en&theme=dark|light
-//   /lab/home?screen=signin|waiting|loading
+//   /lab/home?screen=signin|waiting|loading|prejoin
 import { useMemo, useState } from 'react';
 import type { Meeting } from '../api';
 import type { Key, Lang } from '../i18n';
 import { isLang, isTheme, setPref, usePrefs, type ThemeChoice } from '../prefs';
 import { LoadingScreen, SignInScreen, WaitingView } from './AuthScreens';
 import { HomeScreen } from './HomeScreen';
+import { PreJoin } from './PreJoin';
 
 /** Fixed clock: Monday 23 November 2026, 14:20 local time. */
 export const LAB_NOW = new Date(2026, 10, 23, 14, 20);
@@ -80,7 +81,7 @@ function Index() {
     <main className="hm-center">
       <h1>Home lab (fake data)</h1>
       <ul>
-        {['signin', 'waiting', 'loading'].map((s) => (
+        {['signin', 'waiting', 'loading', 'prejoin'].map((s) => (
           <li key={s}>
             <a href={`?screen=${s}`}>{s}</a>
           </li>
@@ -116,6 +117,7 @@ export default function HomeLab() {
 
   if (screen === 'signin') return <SignInScreen lang={lang} onLang={changeLang} theme={theme} onTheme={changeTheme} onSignIn={() => undefined} />;
   if (screen === 'loading') return <LoadingScreen lang={lang} />;
+  if (screen === 'prejoin') return <PreJoin lang={lang} title="Haftalik yig‘ilish" onJoin={() => undefined} onCancel={() => undefined} />;
   if (screen === 'waiting') return <WaitingView lang={lang} code="30812345678" onCancel={() => undefined} />;
   if (screen !== 'home') return <Index />;
 
