@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
-import { Avatar, IconButton, IconHand, IconMicOff, IconShield, IconUser, IconVolume, IconX } from '../ui';
+import { Avatar, IconButton, IconHand, IconMicOff, IconPin, IconShield, IconSpotlight, IconUser, IconVolume, IconX } from '../ui';
 import { fmt } from './announcer';
 import type { Rect, TileShape, TileSlot } from './layout';
 import { GLIDE_EASING, glideDuration, glideKeyframes, sameRect } from './motion';
@@ -65,18 +65,21 @@ export function tileDescription(p: ParticipantView, lang: Lang): string {
   if (!p.camOn) parts.push(t(lang, 'clWordCamOff'));
   if (p.handUp) parts.push(t(lang, 'clWordHand'));
   if (p.isCohost) parts.push(t(lang, 'cohostBadge'));
+  if (p.spotlit) parts.push(t(lang, 'spotTag'));
+  else if (p.pinned) parts.push(t(lang, 'pinnedTag'));
   return parts.join(', ');
 }
 
-export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantView; manage: ManageActions | null }) {
+export function ParticipantTile({ p, manage, onPin, ...c }: Common & { p: ParticipantView; manage: ManageActions | null; onPin?: (id: string) => void }) {
   const { tile, media } = useGlide(c.rect, c.shape, c.animate, c.reduced);
   const size = tileSize(c.rect.w, c.rect.h);
   const avatarPx = Math.round(Math.min(c.rect.w, c.rect.h) * (c.shape === 'circle' ? 0.56 : 0.36));
-  const showActions = manage && !p.local;
+  // Pin is for everyone (their own stage); the host tools only for managers. Never on your own tile.
+  const showActions = !p.local && (!!manage || !!onPin);
   return (
     <div
       ref={tile}
-      className={`tile${p.speaking ? ' speaking' : ''}${c.featured ? ' featured' : ''}${p.handUp ? ' hand' : ''}`}
+      className={`tile${p.speaking ? ' speaking' : ''}${c.featured ? ' featured' : ''}${p.handUp ? ' hand' : ''}${p.spotlit ? ' spotlit' : ''}${p.pinned ? ' pinned' : ''}`}
       data-identity={p.id}
       data-shape={c.shape}
       data-slot={c.slot}
@@ -122,6 +125,15 @@ export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantVi
             <span className="dx-sr-only">★ {t(c.lang, 'cohostBadge')}</span>
           </span>
         ) : null}
+        {p.spotlit ? (
+          <span className="mk mk-spot" data-testid="tile-spotlit">
+            <IconSpotlight size={14} />
+          </span>
+        ) : p.pinned ? (
+          <span className="mk mk-pin" data-testid="tile-pinned">
+            <IconPin size={14} />
+          </span>
+        ) : null}
       </span>
       {p.reaction ? (
         <span className="bloom" aria-hidden="true" key={p.reaction + p.id}>
@@ -133,7 +145,33 @@ export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantVi
       ) : null}
       {showActions && size !== 'xs' ? (
         <span className="tile-actions">
-          {manage.isHost ? (
+          {onPin ? (
+            <IconButton
+              label={`${p.pinned ? t(c.lang, 'pinOff') : t(c.lang, 'pinOn')}: ${p.name || p.id}`}
+              icon={<IconPin size={16} />}
+              size="sm"
+              variant="secondary"
+              tooltip={false}
+              tabIndex={-1}
+              aria-pressed={!!p.pinned}
+              data-testid="pin-toggle"
+              onClick={() => onPin(p.id)}
+            />
+          ) : null}
+          {manage?.onSpotlight ? (
+            <IconButton
+              label={`${p.spotlit ? t(c.lang, 'spotOff') : t(c.lang, 'spotOn')}: ${p.name || p.id}`}
+              icon={<IconSpotlight size={16} />}
+              size="sm"
+              variant="secondary"
+              tooltip={false}
+              tabIndex={-1}
+              aria-pressed={!!p.spotlit}
+              data-testid="spotlight-toggle"
+              onClick={() => manage.onSpotlight?.(p.spotlit ? null : p.id)}
+            />
+          ) : null}
+          {manage?.isHost ? (
             <IconButton
               label={`${p.isCohost ? t(c.lang, 'dismissCohost') : t(c.lang, 'makeCohost')}: ${p.name || p.id}`}
               icon={<IconUser size={16} />}
@@ -145,8 +183,12 @@ export function ParticipantTile({ p, manage, ...c }: Common & { p: ParticipantVi
               onClick={() => manage.onToggleCohost(p.id)}
             />
           ) : null}
-          <IconButton label={`${t(c.lang, 'muteAudio')}: ${p.name || p.id}`} icon={<IconMicOff size={16} />} size="sm" variant="secondary" tooltip={false} tabIndex={-1} onClick={() => manage.onMute(p.id)} />
-          <IconButton label={`${t(c.lang, 'removeFromMeeting')}: ${p.name || p.id}`} icon={<IconX size={16} />} size="sm" variant="danger" tooltip={false} tabIndex={-1} onClick={() => manage.onRemove(p.id)} />
+          {manage ? (
+            <>
+              <IconButton label={`${t(c.lang, 'muteAudio')}: ${p.name || p.id}`} icon={<IconMicOff size={16} />} size="sm" variant="secondary" tooltip={false} tabIndex={-1} onClick={() => manage.onMute(p.id)} />
+              <IconButton label={`${t(c.lang, 'removeFromMeeting')}: ${p.name || p.id}`} icon={<IconX size={16} />} size="sm" variant="danger" tooltip={false} tabIndex={-1} onClick={() => manage.onRemove(p.id)} />
+            </>
+          ) : null}
         </span>
       ) : null}
     </div>

@@ -16,6 +16,7 @@ const createSchema = z.object({
 }).strict(); // strict: a client that ever sent an E2EE meeting key here fails loudly instead of the server silently dropping it
 const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional() });
 const lockSchema = z.object({ locked: z.boolean() });
+const spotlightSchema = z.object({ identity: z.string().max(80).nullable() }).strict();
 
 type Req = { user: AuthedUser; headers: Record<string, string | string[] | undefined> };
 
@@ -110,6 +111,20 @@ export class MeetingsController {
   @HttpCode(200)
   mute(@Req() req: Req, @Param('code') code: string, @Param('identity') identity: string) {
     return wrap(this.svc.muteParticipant(req.user, code, identity));
+  }
+
+  @Post(':code/mute-all')
+  @HttpCode(200)
+  muteAll(@Req() req: Req, @Param('code') code: string) {
+    return wrap(this.svc.muteAll(req.user, code));
+  }
+
+  @Post(':code/spotlight')
+  @HttpCode(200)
+  spotlight(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
+    const parsed = spotlightSchema.safeParse(body);
+    if (!parsed.success) throw new HttpException('invalid input', 400);
+    return wrap(this.svc.setSpotlight(req.user, code, parsed.data.identity));
   }
 
   @Post(':code/participants/:identity/remove')

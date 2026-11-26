@@ -278,3 +278,53 @@ export const IconCheckCircle = /*#__PURE__*/ makeIcon('check-circle', () => (
     <path d="m8.2 12.4 2.6 2.6 5-5.4" />
   </>
 ));
+
+// ---- in-call feature package (2026-11-26) ----------------------------------------------------------------------------
+export const IconSpotlight = /*#__PURE__*/ makeIcon('spotlight', () => (
+  <>
+    <circle cx="12" cy="9" r="3" />
+    <path d="M6.5 19a5.5 5.5 0 0 1 11 0" />
+    <path d="M12 2v1.5M4.9 4.9 6 6M19.1 4.9 18 6M2.5 11H4M20 11h1.5" />
+  </>
+));
+export const IconPip = /*#__PURE__*/ makeIcon('pip', () => (
+  <>
+    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+    <rect x="12" y="11.5" width="6.5" height="5" rx="1.2" />
+  </>
+));
+export const IconImage = /*#__PURE__*/ makeIcon('image', () => (
+  <>
+    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+    <circle cx="9" cy="10" r="1.8" />
+    <path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" />
+  </>
+));
+export const IconMicMuteAll = /*#__PURE__*/ makeIcon('mic-mute-all', () => (
+  <>
+    <rect x="7" y="3" width="6" height="10" rx="3" />
+    <path d="M4 10a6 6 0 0 0 9.5 4.9M10 16v4M7 20h6M3 3l14 14" />
+    <path d="M17 8h4M17 12h4" />
+  </>
+));
+export const IconPoll = /*#__PURE__*/ makeIcon('poll', () => (
+  <>
+    <path d="M4 20h16" />
+    <rect x="5" y="11" width="3.2" height="6.5" rx="1" />
+    <rect x="10.4" y="5" width="3.2" height="12.5" rx="1" />
+    <rect x="15.8" y="8.5" width="3.2" height="9" rx="1" />
+  </>
+));
+export const IconQuestion = /*#__PURE__*/ makeIcon('question', () => (
+  <>
+    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 15.5z" />
+    <path d="M10 8.2a2 2 0 1 1 2.6 1.9c-.4.2-.6.5-.6.9v.5M12 13.7v.1" />
+  </>
+));
+export const IconArrowUp = /*#__PURE__*/ makeIcon('arrow-up', () => <path d="M12 19V5M6 11l6-6 6 6" />);
+export const IconWhiteboard = /*#__PURE__*/ makeIcon('whiteboard', () => (
+  <>
+    <rect x="3" y="4" width="18" height="12.5" rx="2" />
+    <path d="M8 20l2.5-3.5M16 20l-2.5-3.5M7 12.5c1.5-3 3-3 4.5-1s3 2 5.5-2" />
+  </>
+));

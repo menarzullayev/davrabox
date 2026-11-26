@@ -189,4 +189,7 @@ export const api = {
     call<{ muted: number }>(token, `/v1/meetings/${enc(code)}/participants/${enc(identity)}/mute`, { method: 'POST', body: {} }),
   remove: (token: string, code: string, identity: string) =>
     call<{ removed: boolean }>(token, `/v1/meetings/${enc(code)}/participants/${enc(identity)}/remove`, { method: 'POST', body: {} }),
+  muteAll: (token: string, code: string) => call<{ muted: number }>(token, `/v1/meetings/${enc(code)}/mute-all`, { method: 'POST', body: {} }),
+  spotlight: (token: string, code: string, identity: string | null) =>
+    call<{ spotlight: string | null }>(token, `/v1/meetings/${enc(code)}/spotlight`, { method: 'POST', body: { identity } }),
 };

@@ -1,11 +1,16 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { ConnectionQuality, DisconnectReason, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
-import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { ApiError, api, type GuestMode, type JoinedResult } from './api';
-import { MAX_FILE_BYTES, cleanChatText, decode, encode, parseRoomRecording, type Reaction, type Signal } from './signals';
+import { MAX_FILE_BYTES, cleanChatText, decode, encode, parseRoomRecording, parseRoomSpotlight, type Reaction, type Signal } from './signals';
+import { applyCameraFx, cameraFxSupport, type BgMode } from './call/effects/camera-fx';
+import { addCustom, builtInUrl, listCustom, loadFx, removeCustom, saveFx, type BgChoice, type BuiltInBackground, type CamFx } from './call/effects/backgrounds';
+import { BackgroundPicker, pickImageFile } from './call/effects/BackgroundPicker';
+import { PipWindow, openDocumentPip, pipKind, toggleVideoPip } from './call/Pip';
+import { pickFeatured } from './call/layout';
+import { fmt } from './call/announcer';
 import { CallView } from './call/CallView';
-import { Button, Dialog } from './ui';
+import { Alert, Button, Dialog } from './ui';
 import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
@@ -90,7 +95,18 @@ export function Call({
   const [role, setRole] = useState<'host' | 'cohost' | 'member'>(join.isHost ? 'host' : 'member');
   const [cohostIds, setCohostIds] = useState<string[]>([]);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
-  const [blurOn, setBlurOn] = useState(false);
+  // Camera effects (virtual background, blur, low light): the choice is remembered on this device and re-applied to every new camera track.
+  const [fx, setFxState] = useState<CamFx>(loadFx);
+  const [bgOpen, setBgOpen] = useState(false);
+  const [customs, setCustoms] = useState<Array<{ id: string; url: string }>>([]);
+  const fxSupport = useRef(cameraFxSupport()).current;
+  const [pinnedId, setPinnedId] = useState<string | null>(null);
+  const [spotlightId, setSpotlightId] = useState<string | null>(null);
+  const [muteAllAsk, setMuteAllAsk] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [pipWin, setPipWin] = useState<Window | null>(null);
+  const [videoPip, setVideoPip] = useState(false);
+  const pipSupport = useRef(pipKind()).current;
   const [layout, setLayoutState] = useState<LayoutMode>(loadLayout);
   const [speakerId, setSpeakerId] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, Reaction>>({});
@@ -203,7 +219,10 @@ export function Call({
       .on(RoomEvent.ParticipantConnected, sync)
       .on(RoomEvent.ParticipantDisconnected, onGone)
       .on(RoomEvent.DataReceived, onData)
-      .on(RoomEvent.RoomMetadataChanged, (metadata: string) => setRecOn(parseRoomRecording(metadata)))
+      .on(RoomEvent.RoomMetadataChanged, (metadata: string) => {
+        setRecOn(parseRoomRecording(metadata));
+        setSpotlightId(parseRoomSpotlight(metadata));
+      })
       .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
         // Keep the last person who spoke featured instead of flipping back when everyone is silent.
         // Never yourself: the centre stage is for the others (you are always on your own screen).
@@ -235,6 +254,7 @@ export function Call({
         if (cancelled) return;
         setConnected(true);
         setRecOn(parseRoomRecording(room.metadata));
+        setSpotlightId(parseRoomSpotlight(room.metadata));
         sync();
         try {
           await room.localParticipant.setMicrophoneEnabled(initialMedia?.mic ?? true);
@@ -308,6 +328,54 @@ export function Call({
     };
   }, [code, getToken]);
 
+  // The person's own background images: decoded once from this browser's storage into object URLs (never uploaded).
+  useEffect(() => {
+    let stop = false;
+    let urls: string[] = [];
+    void listCustom().then((list) => {
+      if (stop) return;
+      urls = list.map((c) => URL.createObjectURL(c.blob));
+      setCustoms(list.map((c, i) => ({ id: c.id, url: urls[i]! })));
+    });
+    return () => {
+      stop = true;
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, []);
+
+  // Applies the effects to the live camera track whenever the choice, the camera or the connection changes.
+  useEffect(() => {
+    const room = roomRef.current;
+    if (!connected || !cam || !room) return;
+    const track = room.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack as LocalVideoTrack | undefined;
+    if (!track) return;
+    const bg: BgMode =
+      fx.bg === 'blur'
+        ? { kind: 'blur' }
+        : fx.bg.startsWith('img:')
+          ? { kind: 'image', url: builtInUrl(fx.bg.slice(4) as BuiltInBackground) }
+          : fx.bg.startsWith('custom:')
+            ? (() => {
+                const c = customs.find((x) => `custom:${x.id}` === fx.bg);
+                return c ? ({ kind: 'image', url: c.url } as const) : ({ kind: 'none' } as const);
+              })()
+            : { kind: 'none' };
+    const wanted = { bg: fxSupport.background ? bg : ({ kind: 'none' } as const), lowLight: fx.lowLight && fxSupport.lowLight };
+    applyCameraFx(track, wanted).catch(() => {
+      setError(t(lang, 'errBlur'));
+      setFxState((f) => ({ ...f, bg: 'none' }));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, cam, fx, customs]);
+
+  // Picture-in-picture: closes with the call; Chrome may open it by itself when the tab is hidden during a call.
+  useEffect(() => () => pipWin?.close(), [pipWin]);
+  useEffect(() => {
+    const onLeavePip = () => setVideoPip(false);
+    document.addEventListener('leavepictureinpicture', onLeavePip, true);
+    return () => document.removeEventListener('leavepictureinpicture', onLeavePip, true);
+  }, []);
+
   const room = roomRef.current;
   if (join.e2ee && (!e2eeKey || e2eeUnsupported)) {
     return (
@@ -331,8 +399,7 @@ export function Call({
         setMic(!mic);
       } else {
         await room.localParticipant.setCameraEnabled(!cam);
-        setCam(!cam);
-        setBlurOn(false); // a new camera track starts without the processor
+        setCam(!cam); // the effects are re-applied to the new camera track by the effect above
       }
     } catch {
       setError(mediaErrorText(lang));
@@ -384,30 +451,53 @@ export function Call({
       setError(mediaErrorText(lang));
     }
   };
-  // Background blur runs in the browser (MediaPipe segmentation). Model and WASM are served from our own origin.
-  const toggleBlur = async () => {
-    const track = room?.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack as LocalVideoTrack | undefined;
-    if (!track) return;
+  // Background effects run in the browser (MediaPipe segmentation, our own origin); low light is a GPU pass. See call/effects.
+  const setFx = (next: CamFx) => {
+    setFxState(next);
+    saveFx(next);
+  };
+  const chooseBg = (bg: BgChoice) => {
+    if (bg !== 'none' && !fxSupport.background) {
+      setError(t(lang, 'errBlur'));
+      return;
+    }
+    setFx({ ...fx, bg });
+  };
+  const toggleBlur = () => chooseBg(fx.bg === 'blur' ? 'none' : 'blur');
+  const uploadBg = async () => {
+    const file = await pickImageFile();
+    if (!file) return;
     try {
-      if (!blurOn) {
-        if (!supportsBackgroundProcessors()) {
-          setError(t(lang, 'errBlur'));
+      const c = await addCustom(file);
+      const url = URL.createObjectURL(c.blob);
+      const kept = await listCustom();
+      setCustoms((list) => [...list.filter((x) => kept.some((k) => k.id === x.id)), { id: c.id, url }]);
+      chooseBg(`custom:${c.id}`);
+    } catch {
+      setError(t(lang, 'fxErrImage'));
+    }
+  };
+  const dropCustom = async (id: string) => {
+    await removeCustom(id).catch(() => undefined);
+    setCustoms((list) => list.filter((x) => x.id !== id));
+    if (fx.bg === `custom:${id}`) setFx({ ...fx, bg: 'none' });
+  };
+  const togglePip = async () => {
+    try {
+      if (pipSupport === 'document') {
+        if (pipWin) {
+          pipWin.close();
           return;
         }
-        await track.setProcessor(
-          BackgroundProcessor({
-            mode: 'background-blur',
-            blurRadius: 12,
-            assetPaths: { tasksVisionFileSet: '/mediapipe/wasm', modelAssetPath: '/mediapipe/selfie_segmenter.tflite' },
-          }),
-        );
-        setBlurOn(true);
-      } else {
-        await track.stopProcessor();
-        setBlurOn(false);
+        const w = await openDocumentPip();
+        if (!w) return;
+        w.addEventListener('pagehide', () => setPipWin(null), { once: true });
+        setPipWin(w);
+      } else if (pipSupport === 'video') {
+        setVideoPip(await toggleVideoPip());
       }
     } catch {
-      setError(t(lang, 'errBlur'));
+      /* refused by the browser (no user gesture, or nothing to show) */
     }
   };
   const fileError = (e: unknown): string => {
@@ -526,6 +616,8 @@ export function Call({
     handUp: i === 0 ? myHand : !!hands[p.identity],
     reaction: reactions[p.identity] ?? null,
     isCohost: cohostIds.includes(p.identity),
+    pinned: pinnedId === p.identity,
+    spotlit: spotlightId === p.identity,
   }));
   const sharerLk = participants.find((p) => p.getTrackPublication(Track.Source.ScreenShare)?.track);
   const sharer = sharerLk ? (views.find((v) => v.id === sharerLk.identity) ?? null) : null;
@@ -535,8 +627,16 @@ export function Call({
         onMute: (id) => void hostCall((tk) => api.mute(tk, code, id)),
         onRemove: (id) => setRemoveTarget({ id, name: views.find((v) => v.id === id)?.name || id }),
         onToggleCohost: (id) => void hostCall((tk) => api.setCohost(tk, code, id, !cohostIds.includes(id)).then(() => setCohostIds((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id])))),
+        onSpotlight: (id) => void hostCall((tk) => api.spotlight(tk, code, id).then((r) => setSpotlightId(r.spotlight))),
+        onMuteAll: () => setMuteAllAsk(true),
       }
     : null;
+  // The person shown in the picture-in-picture window: the same choice as the centre of the stage.
+  const pipFeaturedId = pickFeatured(
+    participants.map((x) => x.identity),
+    { sharerId: sharerLk?.identity, speakerId, spotlightId, pinnedId },
+  );
+  const pipFeatured = participants.find((x) => x.identity === pipFeaturedId && !x.isLocal) ?? participants.find((x) => !x.isLocal) ?? null;
   let relay = false;
   try {
     relay = localStorage.getItem('relayMode') === '1';
@@ -573,7 +673,7 @@ export function Call({
       canShare={typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function'}
       handUp={myHand}
       noiseOn={noiseOn}
-      blurOn={blurOn}
+      blurOn={fx.bg === 'blur'}
       relay={relay}
       onMic={() => void toggle('mic')}
       onCam={() => void toggle('cam')}
@@ -581,7 +681,15 @@ export function Call({
       onHand={() => void toggleHand()}
       onReact={(e) => void react(e)}
       onNoise={() => void toggleNoise()}
-      onBlur={() => void toggleBlur()}
+      onBlur={toggleBlur}
+      onBackground={() => setBgOpen(true)}
+      lowLightOn={fx.lowLight}
+      onLowLight={fxSupport.lowLight ? () => setFx({ ...fx, lowLight: !fx.lowLight }) : undefined}
+      pip={pipSupport ? { active: !!pipWin || videoPip, onToggle: () => void togglePip() } : undefined}
+      spotlightId={spotlightId}
+      pinnedId={pinnedId}
+      onPin={(id) => setPinnedId((cur) => (cur === id ? null : id))}
+      notices={notice ? <Alert tone="info" className="dv-notice" onDismiss={() => setNotice(null)} dismissLabel={t(lang, 'uiDismiss')}>{notice}</Alert> : null}
       onMoreOpen={() => {
         readNoise();
         void loadRecordings();
@@ -612,6 +720,60 @@ export function Call({
         onDownload: (id) => void saveRecording(id),
       }}
     />
+    <BackgroundPicker
+      lang={lang}
+      open={bgOpen}
+      onClose={() => setBgOpen(false)}
+      value={fx.bg}
+      onChange={chooseBg}
+      customs={customs}
+      onUpload={() => void uploadBg()}
+      onRemoveCustom={(id) => void dropCustom(id)}
+      supported={fxSupport.background}
+      camOn={cam}
+    />
+    {pipWin ? (
+      <PipWindow
+        win={pipWin}
+        lang={lang}
+        featured={pipFeatured}
+        name={pipFeatured ? pipFeatured.name || pipFeatured.identity : ''}
+        mic={mic}
+        cam={cam}
+        onMic={() => void toggle('mic')}
+        onCam={() => void toggle('cam')}
+        onLeave={() => {
+          pipWin.close();
+          if (manages && !guest) {
+            window.focus();
+            setLeaveAsk(true);
+          } else onLeave();
+        }}
+      />
+    ) : null}
+    <Dialog
+      open={muteAllAsk}
+      onClose={() => setMuteAllAsk(false)}
+      title={t(lang, 'muteAllTitle')}
+      closeLabel={t(lang, 'cancel')}
+      footer={
+        <>
+          <Button variant="secondary" data-testid="mute-all-cancel" onClick={() => setMuteAllAsk(false)}>{t(lang, 'cancel')}</Button>
+          <Button
+            variant="danger"
+            data-testid="mute-all-confirm"
+            onClick={() => {
+              setMuteAllAsk(false);
+              void hostCall((tk) => api.muteAll(tk, code).then((r) => setNotice(fmt(t(lang, 'muteAllDone'), { n: r.muted }))));
+            }}
+          >
+            {t(lang, 'muteAll')}
+          </Button>
+        </>
+      }
+    >
+      <p>{t(lang, 'muteAllBody')}</p>
+    </Dialog>
     <Dialog
       open={removeTarget !== null}
       onClose={() => setRemoveTarget(null)}

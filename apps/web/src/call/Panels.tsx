@@ -1,11 +1,11 @@
 import { useEffect, useRef, type FormEvent, type ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
 import { MAX_CHAT_LENGTH } from '../signals';
-import { Avatar, Badge, Button, IconButton, IconHand, IconMicOff, IconPaperclip, IconSend, IconShield, IconUser, IconX, Select } from '../ui';
+import { Avatar, Badge, Button, IconButton, IconHand, IconMicMuteAll, IconMicOff, IconPaperclip, IconPin, IconSend, IconShield, IconSpotlight, IconUser, IconX, Select } from '../ui';
 import { fmt } from './announcer';
 import type { ChatLineView, JoinRequestView, ManageActions, ParticipantView } from './types';
 
-function Drawer({ id, label, title, onClose, lang, testId, children }: { id: string; label: string; title: string; onClose(): void; lang: Lang; testId: string; children: ReactNode }) {
+export function Drawer({ id, label, title, onClose, lang, testId, children }: { id: string; label: string; title: string; onClose(): void; lang: Lang; testId: string; children: ReactNode }) {
   const root = useRef<HTMLElement>(null);
   // Escape closes the drawer when focus is inside it (popovers and menus stop Escape themselves).
   useEffect(() => {
@@ -131,13 +131,22 @@ export interface PeoplePanelProps {
   lang: Lang;
   participants: ParticipantView[];
   manage: ManageActions | null;
+  onPin?(id: string): void;
   onClose(): void;
 }
 
 /** Roster with state and, for managers, the same mute / remove / co-host actions as the tiles (keyboard friendly list). */
-export function PeoplePanel({ lang, participants, manage, onClose }: PeoplePanelProps) {
+export function PeoplePanel({ lang, participants, manage, onPin, onClose }: PeoplePanelProps) {
   return (
     <Drawer id="dv-people" label={t(lang, 'clPeopleTitle')} title={`${t(lang, 'clPeopleTitle')} (${participants.length})`} onClose={onClose} lang={lang} testId="people-panel">
+      <div className="dv-roster-wrap">
+      {manage?.onMuteAll ? (
+        <div className="dv-roster__tools">
+          <Button variant="secondary" size="sm" icon={<IconMicMuteAll size={16} />} onClick={manage.onMuteAll} data-testid="mute-all">
+            {t(lang, 'muteAll')}
+          </Button>
+        </div>
+      ) : null}
       <ul className="dv-roster" aria-label={t(lang, 'clParticipants')}>
         {participants.map((p) => (
           <li key={p.id} className="dv-person" data-testid="roster-person">
@@ -148,20 +157,32 @@ export function PeoplePanel({ lang, participants, manage, onClose }: PeoplePanel
                 {p.isCohost ? <span><IconShield size={14} />{t(lang, 'cohostBadge')}</span> : null}
                 {p.micMuted ? <span><IconMicOff size={14} />{t(lang, 'clWordMuted')}</span> : null}
                 {p.handUp ? <span><IconHand size={14} />{t(lang, 'clWordHand')}</span> : null}
+                {p.spotlit ? <span><IconSpotlight size={14} />{t(lang, 'spotTag')}</span> : p.pinned ? <span><IconPin size={14} />{t(lang, 'pinnedTag')}</span> : null}
               </span>
             </div>
-            {manage && !p.local ? (
+            {!p.local && (manage || onPin) ? (
               <span className="dv-person__actions">
-                {manage.isHost ? (
+                {onPin ? (
+                  <IconButton label={`${p.pinned ? t(lang, 'pinOff') : t(lang, 'pinOn')}: ${p.name}`} icon={<IconPin size={16} />} size="sm" variant="ghost" tooltip={false} aria-pressed={!!p.pinned} onClick={() => onPin(p.id)} data-testid="roster-pin" />
+                ) : null}
+                {manage?.onSpotlight ? (
+                  <IconButton label={`${p.spotlit ? t(lang, 'spotOff') : t(lang, 'spotOn')}: ${p.name}`} icon={<IconSpotlight size={16} />} size="sm" variant="ghost" tooltip={false} aria-pressed={!!p.spotlit} onClick={() => manage.onSpotlight?.(p.spotlit ? null : p.id)} data-testid="roster-spotlight" />
+                ) : null}
+                {manage?.isHost ? (
                   <IconButton label={`${p.isCohost ? t(lang, 'dismissCohost') : t(lang, 'makeCohost')}: ${p.name}`} icon={<IconUser size={16} />} size="sm" variant="ghost" tooltip={false} onClick={() => manage.onToggleCohost(p.id)} data-testid="roster-cohost" />
                 ) : null}
-                <IconButton label={`${t(lang, 'muteAudio')}: ${p.name}`} icon={<IconMicOff size={16} />} size="sm" variant="ghost" tooltip={false} onClick={() => manage.onMute(p.id)} data-testid="roster-mute" />
-                <IconButton label={`${t(lang, 'removeFromMeeting')}: ${p.name}`} icon={<IconX size={16} />} size="sm" variant="ghost" tooltip={false} onClick={() => manage.onRemove(p.id)} data-testid="roster-remove" />
+                {manage ? (
+                  <>
+                    <IconButton label={`${t(lang, 'muteAudio')}: ${p.name}`} icon={<IconMicOff size={16} />} size="sm" variant="ghost" tooltip={false} onClick={() => manage.onMute(p.id)} data-testid="roster-mute" />
+                    <IconButton label={`${t(lang, 'removeFromMeeting')}: ${p.name}`} icon={<IconX size={16} />} size="sm" variant="ghost" tooltip={false} onClick={() => manage.onRemove(p.id)} data-testid="roster-remove" />
+                  </>
+                ) : null}
               </span>
             ) : null}
           </li>
         ))}
       </ul>
+      </div>
     </Drawer>
   );
 }
