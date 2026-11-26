@@ -77,7 +77,8 @@
   .hm-error { margin-bottom: var(--space-5); }
 
   .hm-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: stretch; }
-  @media (min-width: 900px) { .hm-actions { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); } }
+  /* Side by side from tablet width up, so "Start a meeting" stays on the first screen of a small window too. */
+  @media (min-width: 640px) { .hm-actions { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); } }
 
   .hm-card {
     position: relative;
@@ -217,6 +218,8 @@
   @media (min-width: 960px) {
     .si__main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; justify-items: stretch; column-gap: var(--space-12); }
     .si__art { order: 0; opacity: 1; }
+    /* The join step has no picture: one centred column instead of a form on the left and an empty right half. */
+    .si:not([data-view='start']) .si__main { grid-template-columns: minmax(0, 35rem); justify-content: center; }
     .si__art svg { width: min(560px, 42vw); }
   }
   .si__statement { display: grid; gap: 0.04em; margin: 0; color: var(--text); font-size: clamp(2.25rem, 1.2rem + 4.4vw, 4.25rem); line-height: 1.03; font-weight: var(--weight-bold); letter-spacing: -0.035em; overflow-wrap: anywhere; text-wrap: balance; }
@@ -253,6 +256,18 @@
   .si__new { display: inline-flex; align-items: center; justify-content: center; justify-self: center; min-height: 48px; padding: var(--space-2) var(--space-3); color: var(--accent); font-size: var(--text-sm); font-weight: var(--weight-semibold); text-decoration: none; border-radius: var(--radius-md); }
   .si__new:hover { text-decoration: underline; }
   .si__new:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Short windows (a laptop, a small desktop-app window): compact like phones, so sign-in or the guest form is on the first screen. */
+  @media (max-height: 50rem) {
+    .si__bar { padding-block: var(--space-2); }
+    .si__main { align-content: start; gap: var(--space-3); padding-block: var(--space-2) var(--space-6); }
+    .si__art svg { width: min(5.5rem, 24vw); }
+    .si__copy { gap: var(--space-4); }
+    .si__statement { font-size: clamp(1.5rem, 0.75rem + 3.4vh, 2.5rem); line-height: 1.1; }
+    .si__card { gap: var(--space-3); padding: var(--space-5); }
+  }
+  /* Very short (a small desktop-app window): the statement on one line. */
+  @media (max-height: 40rem) { .si__statement { display: block; font-size: var(--text-2xl); line-height: 1.2; } .si__line { display: inline; } }
+  @media (max-height: 50rem) and (min-width: 960px) { .si__main { align-content: center; } .si__art svg { width: min(25rem, 34vw, 62vh); } }
   /* Phones: a compact mark and a two-line statement so sign-in, the code field and the sign-up link fit on the first screen. */
   @media (max-width: 599px) {
     .si__bar { padding-block: var(--space-2); }
