@@ -67,7 +67,7 @@ try {
 
   // A call of one's own: open a meeting from the tab bar and join it.
   const title = `Glass ${Date.now()}`;
-  await a.page.getByTestId('tab-new').click();
+  await a.page.getByTestId('new-meeting').click();
   await a.page.fill('[data-testid=meeting-title]', title);
   await a.page.getByRole('button', { name: /Create|Yaratish|Создать/ }).click();
   await a.page.waitForSelector(`li:has-text("${title}")`);
