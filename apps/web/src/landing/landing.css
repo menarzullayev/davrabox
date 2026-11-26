@@ -33,7 +33,9 @@
     .ln-header { background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(14px); }
   }
   .ln-header__in { min-height: 64px; display: flex; align-items: center; gap: var(--space-2); }
-  .ln-brand { display: inline-flex; border-radius: var(--radius-md); }
+  .ln-brand { display: inline-flex; align-items: center; border-radius: var(--radius-md); }
+  /* Touch screens: the logo link and the footer links get a finger-sized hit area. */
+  @media (pointer: coarse) { .ln-brand { min-height: var(--target-coarse); } .ln-footer a { display: inline-flex; align-items: center; min-height: var(--target-coarse); } }
   .ln-brand:focus-visible,
   .ln-nav a:focus-visible,
   .ln-hero__have a:focus-visible,

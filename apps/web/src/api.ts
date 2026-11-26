@@ -174,6 +174,8 @@ export const api = {
   listRequests: (token: string, code: string) => call<JoinRequest[]>(token, `/v1/meetings/${enc(code)}/requests`),
   decide: (token: string, code: string, id: string, admit: boolean) =>
     call<{ status: string }>(token, `/v1/meetings/${enc(code)}/requests/${enc(id)}/${admit ? 'admit' : 'deny'}`, { method: 'POST', body: {} }),
+  /** Host side: closes the meeting's room for everyone. */
+  endMeeting: (token: string, code: string) => call<{ ended: true }>(token, `/v1/meetings/${enc(code)}/end`, { method: 'POST', body: {} }),
   /** Host side: who may join without an account, within the organization's limit. */
   setGuests: (token: string, code: string, guests: GuestMode) =>
     call<{ guest_mode: GuestMode }>(token, `/v1/meetings/${enc(code)}`, { method: 'PATCH', body: { guests } }),

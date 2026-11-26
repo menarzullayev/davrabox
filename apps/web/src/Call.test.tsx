@@ -70,6 +70,7 @@ vi.mock('./api', () => ({
     remove: vi.fn(async () => ({ removed: true })),
     setCohost: vi.fn(async () => ({ cohost: true })),
     lock: vi.fn(async (_t: string, _c: string, locked: boolean) => ({ locked })),
+    endMeeting: vi.fn(async () => ({ ended: true })),
     uploadFile: vi.fn(),
     downloadFile: vi.fn(),
     recordingStatus: vi.fn(async () => ({ enabled: false, e2ee: false, active: false, canRecord: false })),
@@ -173,6 +174,19 @@ describe('Call and the Android Back button', () => {
     expect(back()).toBe(true);
     fireEvent.click(screen.getByTestId('leave-confirm'));
     expect(onLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('the host Leave button asks: stay, leave (others carry on) or end the meeting for everyone', async () => {
+    const onLeave = mount();
+    await flush();
+    await waitFor(() => expect(document.querySelector('.dv-connecting')).toBeNull());
+    fireEvent.click(screen.getByTestId('leave'));
+    expect(onLeave).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Leave the call?' }).textContent).toContain('end the meeting for everyone');
+    fireEvent.click(screen.getByTestId('end-for-all'));
+    const { api } = await import('./api');
+    await waitFor(() => expect(onLeave).toHaveBeenCalledTimes(1));
+    expect(api.endMeeting).toHaveBeenCalledWith(expect.any(String), expect.any(String));
   });
 
   it('Back closes the open chat panel first, then the next press asks about leaving', async () => {

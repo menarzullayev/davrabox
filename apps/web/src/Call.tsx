@@ -585,7 +585,8 @@ export function Call({
         readNoise();
         void loadRecordings();
       }}
-      onLeave={onLeave}
+      // The host side chooses between leaving (the others carry on) and ending the meeting for everyone.
+      onLeave={manages && !guest ? () => setLeaveAsk(true) : onLeave}
       panel={panel}
       onPanel={(id) => {
         setPanel(id);
@@ -642,11 +643,23 @@ export function Call({
       footer={
         <>
           <Button variant="secondary" data-testid="leave-stay" onClick={() => setLeaveAsk(false)}>{t(lang, 'leaveStay')}</Button>
-          <Button variant="danger" data-testid="leave-confirm" onClick={() => { setLeaveAsk(false); onLeave(); }}>{t(lang, 'leave')}</Button>
+          <Button variant={manages && !guest ? 'secondary' : 'danger'} data-testid="leave-confirm" onClick={() => { setLeaveAsk(false); onLeave(); }}>{t(lang, 'leave')}</Button>
+          {manages && !guest ? (
+            <Button
+              variant="danger"
+              data-testid="end-for-all"
+              onClick={() => {
+                setLeaveAsk(false);
+                void hostCall((tk) => api.endMeeting(tk, code)).finally(onLeave);
+              }}
+            >
+              {t(lang, 'endForAll')}
+            </Button>
+          ) : null}
         </>
       }
     >
-      <p>{t(lang, 'leaveConfirmBody')}</p>
+      <p>{t(lang, manages && !guest ? 'leaveHostBody' : 'leaveConfirmBody')}</p>
     </Dialog>
     </>
   );
