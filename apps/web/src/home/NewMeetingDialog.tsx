@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Alert, Button, Checkbox, Dialog, Select, Switch, TextField } from '../ui';
+import { Alert, Button, Checkbox, Dialog, Switch, TextField } from '../ui';
 import { t, type Lang } from '../i18n';
 import type { GuestMode, Meeting } from '../api';
 import { tx } from './text';
+import { GuestModeSelect, defaultGuestMode } from './GuestModeSelect';
 
 export interface NewMeetingData {
   title: string;
@@ -42,10 +43,11 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
   useEffect(() => {
     if (!open) return;
     setFailed(false);
+    setGuests(defaultGuestMode(guestMax)); // the waiting room when the organization allows guests
     // showModal() focuses the close button first: put the caret in the title field once the dialog is shown.
     const raf = requestAnimationFrame(() => document.getElementById('hm-new-title')?.focus());
     return () => cancelAnimationFrame(raf);
-  }, [open]);
+  }, [open, guestMax]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,7 +60,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
       setPasscode('');
       setWaitingRoom(true);
       setE2ee(false);
-      setGuests('off');
+      setGuests(defaultGuestMode(guestMax));
       onCreated(m, calendar && addCalendar ? { calendar: true } : undefined);
       setAddCalendar(false);
     } catch {
@@ -116,13 +118,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
           onChange={(e) => setWaitingRoom(e.target.checked)}
         />
         <Switch label={t(lang, 'e2eeToggle')} hint={t(lang, 'e2eeToggleHint')} checked={e2ee} data-testid="e2ee-toggle" onChange={(e) => setE2ee(e.target.checked)} />
-        {guestMax !== 'off' ? (
-          <Select label={tx(lang, 'hNewGuests')} hint={tx(lang, 'hNewGuestsHint')} data-testid="guest-mode" value={guests} onChange={(e) => setGuests(e.target.value as GuestMode)}>
-            <option value="off">{tx(lang, 'hNewGuestsOff')}</option>
-            <option value="waiting_room">{tx(lang, 'hNewGuestsWait')}</option>
-            {guestMax === 'open' ? <option value="open">{tx(lang, 'hNewGuestsOpen')}</option> : null}
-          </Select>
-        ) : null}
+        {guestMax !== 'off' ? <GuestModeSelect lang={lang} value={guests} max={guestMax} onChange={setGuests} /> : null}
         {calendar ? <Checkbox label={tx(lang, 'calAfterCreate')} checked={addCalendar} data-testid="cal-after-create" onChange={(e) => setAddCalendar(e.target.checked)} /> : null}
       </form>
     </Dialog>

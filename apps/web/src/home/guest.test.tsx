@@ -156,22 +156,31 @@ describe('new meeting dialog: guests', () => {
     expect(optionValues(screen.getByTestId('guest-mode'))).toEqual(['off', 'waiting_room', 'open']);
   });
 
-  it('sends the chosen mode, and nothing when guests stay off', async () => {
+  it('sends the chosen mode; the waiting room is the default when guests are allowed, nothing when they are not', async () => {
     const onCreate = vi.fn(async (_d: NewMeetingData) => meeting);
     render(<NewMeetingDialog {...baseProps} onCreate={onCreate} guestMax="open" />);
     await userEvent.type(screen.getByTestId('meeting-title'), 'Standup');
-    pickOption('guest-mode', 'waiting_room');
+    pickOption('guest-mode', 'open');
     fireEvent.submit(document.getElementById('hm-new-form')!);
     await waitFor(() => expect(onCreate).toHaveBeenCalled());
-    expect(onCreate.mock.calls[0]![0]).toMatchObject({ title: 'Standup', guests: 'waiting_room' });
+    expect(onCreate.mock.calls[0]![0]).toMatchObject({ title: 'Standup', guests: 'open' });
 
     cleanup();
     const second = vi.fn(async (_d: NewMeetingData) => meeting);
     render(<NewMeetingDialog {...baseProps} onCreate={second} guestMax="open" />);
-    await userEvent.type(screen.getByTestId('meeting-title'), 'Quiet');
+    await userEvent.type(screen.getByTestId('meeting-title'), 'Default');
     fireEvent.submit(document.getElementById('hm-new-form')!);
     await waitFor(() => expect(second).toHaveBeenCalled());
-    expect(second.mock.calls[0]![0].guests ?? 'off').toBe('off');
+    expect(second.mock.calls[0]![0].guests).toBe('waiting_room');
+
+    cleanup();
+    const third = vi.fn(async (_d: NewMeetingData) => meeting);
+    render(<NewMeetingDialog {...baseProps} onCreate={third} guestMax="off" />);
+    await userEvent.type(screen.getByTestId('meeting-title'), 'Quiet');
+    fireEvent.submit(document.getElementById('hm-new-form')!);
+    await waitFor(() => expect(third).toHaveBeenCalled());
+    expect(third.mock.calls[0]![0].guests).toBeUndefined();
+    expect(screen.queryByTestId('guest-mode')).toBeNull();
   });
 });
 

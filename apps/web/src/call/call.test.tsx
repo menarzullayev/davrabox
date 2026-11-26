@@ -229,6 +229,23 @@ describe('ControlBar', () => {
     expect(screen.getByTestId('firewall-info').textContent).toContain('On');
   });
 
+  it('shows the meeting guest setting in More for the host side only, within the organization limit', () => {
+    const onChange = vi.fn();
+    render(<ControlBar {...bar({ guests: { value: 'off', max: 'waiting_room', onChange } })} />);
+    fireEvent.click(screen.getByTestId('more'));
+    const select = screen.getByTestId('more-guests');
+    expect(select.getAttribute('data-value')).toBe('off');
+    fireEvent.click(select);
+    const values = Array.from(document.querySelectorAll('[role=option]')).map((o) => o.getAttribute('data-value'));
+    expect(values).toEqual(['off', 'waiting_room']);
+    fireEvent.click(document.querySelector('[role=option][data-value=waiting_room]')!);
+    expect(onChange).toHaveBeenCalledWith('waiting_room');
+    cleanup();
+    render(<ControlBar {...bar()} />);
+    fireEvent.click(screen.getByTestId('more'));
+    expect(screen.queryByTestId('more-guests')).toBeNull();
+  });
+
   it('disables blur without a camera and noise without a microphone', () => {
     render(<ControlBar {...bar({ mic: false, cam: false })} />);
     fireEvent.click(screen.getByTestId('more'));

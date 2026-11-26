@@ -2,7 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import { ConnectionQuality, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
-import { ApiError, api, type JoinedResult } from './api';
+import { ApiError, api, type GuestMode, type JoinedResult } from './api';
 import { MAX_FILE_BYTES, cleanChatText, decode, encode, parseRoomRecording, type Reaction, type Signal } from './signals';
 import { CallView } from './call/CallView';
 import { Button, Dialog } from './ui';
@@ -51,6 +51,7 @@ export function Call({
   onLeave,
   guest = false,
   initialMedia,
+  guestMax = 'off',
 }: {
   join: JoinedResult;
   code: string;
@@ -61,6 +62,8 @@ export function Call({
   guest?: boolean;
   /** What the person chose on the pre-join screen; absent = microphone and camera on. */
   initialMedia?: { mic: boolean; cam: boolean };
+  /** The most the organization allows for guests (host side shows the meeting's guest setting within it). */
+  guestMax?: GuestMode;
 }) {
   const roomRef = useRef<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -71,6 +74,7 @@ export function Call({
   const [cam, setCam] = useState(initialMedia?.cam ?? true);
   const [sharing, setSharing] = useState(false);
   const [locked, setLocked] = useState(false);
+  const [guestMode, setGuestMode] = useState<GuestMode | undefined>(join.guestMode);
   const [requests, setRequests] = useState<import('./api').JoinRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [panel, setPanel] = useState<PanelId>(null);
@@ -592,6 +596,11 @@ export function Call({
       layout={layout}
       onLayout={setLayout}
       e2ee={join.e2ee ? { on: e2eeOn } : undefined}
+      guests={
+        !guest && guestMode !== undefined && (guestMax !== 'off' || guestMode !== 'off')
+          ? { value: guestMode, max: guestMax, onChange: (m) => void hostCall((tk) => api.setGuests(tk, code, m).then((r) => setGuestMode(r.guest_mode))) }
+          : undefined
+      }
       recording={{
         on: recOn,
         e2ee: recStatus.e2ee,

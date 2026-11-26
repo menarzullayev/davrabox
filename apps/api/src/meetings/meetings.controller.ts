@@ -53,7 +53,7 @@ export class MeetingsController {
     return wrap(this.svc.create(req.user, parsed.data));
   }
 
-  /** Nothing about a meeting is editable after creation; asking to change `e2ee` is an explicit 409. */
+  /** Only the guest setting (`guests`) can change after creation, within the organization's limit; `e2ee` is an explicit 409. */
   @Patch(':code')
   update(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
     if (typeof body !== 'object' || body === null || Array.isArray(body)) throw new HttpException('invalid input', 400);

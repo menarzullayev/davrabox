@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Meeting, TrialStatus } from '../api';
+import type { GuestMode, Meeting, TrialStatus } from '../api';
+import { MeetingGuestsDialog } from './MeetingGuestsDialog';
 import { t, type Key, type Lang } from '../i18n';
 import { Alert, Avatar, Button, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
@@ -40,6 +41,8 @@ export interface HomeScreenProps {
   calendarToken?: string;
   /** The most the organization allows for guests (shown in the new-meeting dialog). */
   guestMax?: 'off' | 'waiting_room' | 'open';
+  /** Host side: change an existing meeting's guest setting (the list reloads afterwards). */
+  onSetGuests?: (code: string, mode: GuestMode) => Promise<void>;
   /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
   now?: Date;
 }
@@ -72,6 +75,7 @@ function HomeBody(props: HomeScreenProps) {
   const [dialog, setDialog] = useState(false);
   const [joiningCode, setJoiningCode] = useState<string | null>(null);
   const [calendarFor, setCalendarFor] = useState<Meeting | null>(null);
+  const [guestsFor, setGuestsFor] = useState<Meeting | null>(null);
   const [e2eeLink, setE2eeLink] = useState<string | null>(null);
   useCalendarReturn(lang, toast);
 
@@ -144,7 +148,7 @@ function HomeBody(props: HomeScreenProps) {
           <h2 className="hm-section" id="hm-meetings-h">
             {t(lang, 'meetings')}
           </h2>
-          <TimelineView lang={lang} timeline={timeline} now={clock} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} />
+          <TimelineView lang={lang} timeline={timeline} now={clock} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} onGuests={props.onSetGuests && props.guestMax && props.guestMax !== 'off' ? setGuestsFor : undefined} />
         </section>
 
         {plan ? <PlanPanel lang={lang} plan={plan} /> : null}
@@ -171,6 +175,7 @@ function HomeBody(props: HomeScreenProps) {
         }}
       />
       <E2eeLinkDialog lang={lang} link={e2eeLink} onClose={() => setE2eeLink(null)} />
+      {props.onSetGuests ? <MeetingGuestsDialog lang={lang} meeting={guestsFor} max={props.guestMax ?? 'off'} onSave={props.onSetGuests} onClose={() => setGuestsFor(null)} /> : null}
       {props.calendarToken ? <AddToCalendarDialog lang={lang} token={props.calendarToken} meeting={calendarFor} onClose={() => setCalendarFor(null)} /> : null}
     </>
   );

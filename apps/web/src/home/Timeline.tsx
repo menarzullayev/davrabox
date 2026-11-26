@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Badge, Button, EmptyState, Tabs, IconButton, IconCalendar, IconCheck, IconLink, IconLock, IconPlus, IconShield, Skeleton } from '../ui';
+import { Badge, Button, EmptyState, Tabs, IconButton, IconCalendar, IconCheck, IconLink, IconLock, IconPlus, IconShield, IconUsers, Skeleton } from '../ui';
 import type { Key, Lang } from '../i18n';
 import { TAB_GROUPS, TAB_ORDER, createdLabel, defaultTab, formatClock, formatCode, joinLink, tabSize, timelineSize, type MeetingTab, type Timeline, type TimelineGroup, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
@@ -30,9 +30,11 @@ export interface MeetingRowProps {
   onCopy: (m: TimelineMeeting) => Promise<boolean>;
   /** Offered to the host of the meeting when set (calendar integration). */
   onCalendar?: (m: TimelineMeeting) => void;
+  /** Host side: change who may join without an account. */
+  onGuests?: (m: TimelineMeeting) => void;
 }
 
-function MeetingRow({ lang, m, group, now, busy, onJoin, onCopy, onCalendar }: MeetingRowProps) {
+function MeetingRow({ lang, m, group, now, busy, onJoin, onCopy, onCalendar, onGuests }: MeetingRowProps) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -93,6 +95,7 @@ function MeetingRow({ lang, m, group, now, busy, onJoin, onCopy, onCalendar }: M
           {onCalendar && m.is_host ? (
             <IconButton label={tx(lang, 'calActionAria', { title: m.title })} icon={<IconCalendar />} data-testid="cal-row" onClick={() => onCalendar(m)} />
           ) : null}
+          {onGuests && m.is_host ? <IconButton label={tx(lang, 'hEditGuestsAria', { title: m.title })} icon={<IconUsers />} data-testid="guests-row" onClick={() => onGuests(m)} /> : null}
           <IconButton label={tx(lang, copied ? 'hLinkCopied' : 'hCopyLink')} icon={copied ? <IconCheck /> : <IconLink />} onClick={() => void copy()} />
           <Button variant={group === 'now' ? 'primary' : 'secondary'} size="sm" loading={busy} aria-label={tx(lang, 'hJoinRowAria', { title: m.title })} onClick={() => onJoin(m)}>
             {tx(lang, 'join')}
@@ -113,10 +116,11 @@ export interface TimelineViewProps {
   onCopy: (m: TimelineMeeting) => Promise<boolean>;
   onNew: () => void;
   onCalendar?: (m: TimelineMeeting) => void;
+  onGuests?: (m: TimelineMeeting) => void;
 }
 
 /** Meetings as a day timeline in three tabs (Ongoing / Upcoming / Ended); inside a tab a rail with a dot per meeting, grouped as before. */
-export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy, onNew, onCalendar }: TimelineViewProps) {
+export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy, onNew, onCalendar, onGuests }: TimelineViewProps) {
   const [open, setOpen] = useState<Partial<Record<TimelineGroup, boolean>>>({});
   const [picked, setPicked] = useState<MeetingTab | null>(null);
   if (!timeline) {
@@ -161,7 +165,7 @@ export function TimelineView({ lang, timeline, now, joiningCode, onJoin, onCopy,
             </h3>
             <ul className="hm-list">
               {(open[g] || timeline[g].length <= GROUP_CAP ? timeline[g] : timeline[g].slice(0, GROUP_CAP)).map((m) => (
-                <MeetingRow key={m.id} lang={lang} m={m} group={g} now={now} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} />
+                <MeetingRow key={m.id} lang={lang} m={m} group={g} now={now} busy={joiningCode === m.code} onJoin={onJoin} onCopy={onCopy} onCalendar={onCalendar} onGuests={onGuests} />
               ))}
             </ul>
             {timeline[g].length > GROUP_CAP ? (

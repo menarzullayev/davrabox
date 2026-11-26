@@ -5,7 +5,7 @@ import { Alert, ConnectingRing } from '../ui';
 // ui.css first: call.css overrides some .dx-btn values with equal specificity, so it must come later in the bundle.
 import '../ui/ui.css';
 import './call.css';
-import { ControlBar } from './ControlBar';
+import { ControlBar, type GuestsControl } from './ControlBar';
 import { LiveRegion, useCallAnnouncements } from './LiveRegion';
 import { hintKey, pickFeatured, type FallbackReason, type LayoutMode } from './layout';
 import { ChatPanel, PeoplePanel, RequestsTray, type ChatPanelProps } from './Panels';
@@ -67,6 +67,7 @@ export interface CallViewProps {
 
   /** Recording consent state (every participant) and the host's controls. Absent in the lab and older tests. */
   recording?: RecordingView;
+  guests?: GuestsControl;
   /** End-to-end encrypted meeting: a persistent badge; `on` turns true once the encryption is confirmed active. */
   e2ee?: { on: boolean };
 }
@@ -165,6 +166,7 @@ export function CallView(p: CallViewProps) {
         onMoreOpen={p.onMoreOpen}
         onLeave={p.onLeave}
         recording={p.recording}
+        guests={p.guests}
       />
       <LiveRegion text={live} />
       <RecordingLive lang={lang} on={!!p.recording?.on} />

@@ -26,6 +26,8 @@ import {
   IconUsers,
 } from '../ui';
 import { AppearanceFields } from '../home/AppearanceFields';
+import { GuestModeSelect } from '../home/GuestModeSelect';
+import type { GuestMode } from '../api';
 import { hintKey, type FallbackReason, type LayoutMode } from './layout';
 import { applyRoving, handleRovingKey } from './roving';
 import { IconRecord, RecordingList } from './RecordingBadge';
@@ -74,6 +76,14 @@ export interface ControlBarProps {
   onLeave(): void;
   /** Recording: the consent state for everyone; `onToggle` is present only for the host or a co-host. */
   recording?: RecordingView;
+  /** Host side: who may join without an account; absent for members and guests or when the organization allows no guests. */
+  guests?: GuestsControl;
+}
+
+export interface GuestsControl {
+  value: GuestMode;
+  max: GuestMode;
+  onChange(m: GuestMode): void;
 }
 
 interface CtlProps {
@@ -328,6 +338,7 @@ export function ControlBar(p: ControlBarProps) {
               <RecordingList lang={lang} items={p.recording.items ?? []} onDownload={p.recording.onDownload} />
             </>
           ) : null}
+          {p.guests ? <GuestModeSelect lang={lang} value={p.guests.value} max={p.guests.max} onChange={(m) => p.guests?.onChange(m)} testId="more-guests" /> : null}
           <details className="dv-more__appearance" data-testid="more-appearance" onToggle={() => window.dispatchEvent(new Event('resize'))}>
             <summary className="dv-more__appearance-title">
               <span>{t(lang, 'clAppearance')}</span>

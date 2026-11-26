@@ -256,6 +256,7 @@ export function App() {
         code={joined.code}
         getToken={freshToken}
         lang={lang}
+        guestMax={guestMax}
         onLeave={() => {
           setJoined(null);
           void refresh();
@@ -301,6 +302,10 @@ export function App() {
       initialCode={pendingCode}
       onJoin={doJoin}
       onCreate={doCreate}
+      onSetGuests={async (code, mode) => {
+        await api.setGuests(token, code, mode);
+        await refresh();
+      }}
       onSignOut={() => void manager.signoutRedirect()}
       calendarToken={token}
       guestMax={guestMax}
