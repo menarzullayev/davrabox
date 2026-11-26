@@ -336,6 +336,9 @@ importers:
       '@davrabox/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
+      '@davrabox/help-content':
+        specifier: workspace:*
+        version: link:../../packages/help-content
       '@livekit/track-processors':
         specifier: ^0.8.3
         version: 0.8.3(@types/dom-mediacapture-transform@0.1.12)(livekit-client@2.25.0(@types/dom-mediacapture-record@1.0.22))

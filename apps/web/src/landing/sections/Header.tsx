@@ -3,6 +3,7 @@ import { AppearanceControls } from '../../home/AppearanceControls';
 import type { Lang } from '../../i18n';
 import { Logo, type ThemeChoice } from '../../ui';
 import { ButtonLink } from '../ButtonLink';
+import { MegaMenu, MenuSheet } from './MegaMenu';
 
 export interface HeaderProps {
   lang: Lang;
@@ -11,6 +12,7 @@ export interface HeaderProps {
   onTheme: (v: ThemeChoice) => void;
 }
 
+/** Shared header of the landing page and /help: mega-menu on wide screens, a menu sheet on narrow ones (decision 6). */
 export function Header({ lang, onLang, theme, onTheme }: HeaderProps) {
   return (
     <header className="ln-header">
@@ -18,13 +20,7 @@ export function Header({ lang, onLang, theme, onTheme }: HeaderProps) {
         <a className="ln-brand" href="/" aria-label="DavraBox">
           <Logo height={30} />
         </a>
-        <nav className="ln-nav" aria-label={tx(lang, 'lnNavLabel')}>
-          <a href="#join">{tx(lang, 'lnNavJoin')}</a>
-          <a href="/app">{tx(lang, 'lnNavHost')}</a>
-          <a href="#capabilities">{tx(lang, 'lnNavCaps')}</a>
-          <a href="#security">{tx(lang, 'lnNavSecurity')}</a>
-          <a href="#organisations">{tx(lang, 'lnNavOrgs')}</a>
-        </nav>
+        <MegaMenu lang={lang} />
         <span className="ln-spacer" />
         <AppearanceControls lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
         <ButtonLink className="ln-signin" href="/app" variant="ghost">
@@ -33,6 +29,7 @@ export function Header({ lang, onLang, theme, onTheme }: HeaderProps) {
         <ButtonLink href="/app/signup" variant="primary">
           {tx(lang, 'lnStartFree')}
         </ButtonLink>
+        <MenuSheet lang={lang} />
       </div>
     </header>
   );

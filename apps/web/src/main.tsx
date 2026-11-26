@@ -1,7 +1,7 @@
 import { BootScreen } from './ui/BootScreen';
 import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import { isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
+import { isHelpPath, isLandingPath, isPrivacyPath, isSignupPath, isTermsPath, legacyJoinRedirect } from './routes';
 import '@davrabox/design-tokens/tokens.css';
 import './fonts.css';
 import './styles.css';
@@ -43,6 +43,9 @@ const Landing = lazy(() => import('./landing/Landing'));
 const Signup = lazy(() => import('./landing/Signup'));
 // /privacy and /terms: static legal pages (a lazy chunk of their own, no sign-in, no backend call).
 const PrivacyPage = lazy(() => import('./privacy/PrivacyPage').then((m) => ({ default: m.PrivacyPage })));
+// /help: the help centre (FAQ, guides, help assistant), a lazy chunk of its own like the legal pages.
+const HelpPage = lazy(() => import('./help/HelpPage'));
+const isHelp = isHelpPath(location.pathname);
 const legalKind = isPrivacyPath(location.pathname) ? 'privacy' : isTermsPath(location.pathname) ? 'terms' : null;
 const isLanding = !legacy && isLandingPath(location.pathname);
 const isSignup = isSignupPath(location.pathname);
@@ -66,6 +69,10 @@ createRoot(document.getElementById('root')!).render(
     ) : isLab && Lab ? (
       <Suspense fallback={null}>
         <Lab />
+      </Suspense>
+    ) : isHelp ? (
+      <Suspense fallback={<BootScreen />}>
+        <HelpPage />
       </Suspense>
     ) : legalKind ? (
       <Suspense fallback={<BootScreen />}>

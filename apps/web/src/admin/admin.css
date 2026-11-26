@@ -194,3 +194,13 @@ fieldset.checks legend { color: var(--text-muted); font-size: var(--text-sm); fo
 .kv dt { color: var(--text-muted); font-size: var(--text-sm); }
 .kv dd { margin: 0; min-width: 0; }
 @media (max-width: 560px) { .kv { grid-template-columns: 1fr; } .kv dd { margin-bottom: var(--space-2); } }
+
+/* Help assistant conversations (platform owner only). */
+.as-first { max-width: 28rem; overflow-wrap: anywhere; }
+.as-thread { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.as-thread__msg { padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-1); border: var(--border-w) solid var(--border); }
+.as-thread__msg--user { background: var(--accent-soft); }
+.as-thread__who { margin: 0 0 var(--space-1); color: var(--text-subtle); font-size: var(--text-xs); }
+.as-thread__text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.as-sr { position: absolute; width: var(--border-w); height: var(--border-w); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.as-actions { display: flex; gap: var(--space-2); }

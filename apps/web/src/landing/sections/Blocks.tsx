@@ -36,10 +36,11 @@ const CAP_ICON: ReadonlyArray<IconComponent> = [
   IconCamera, IconUsers, IconChat, IconShieldCheck, IconEye, IconLock, IconDownload, IconCalendar, IconLink, IconShield, IconUser, IconSettings,
 ];
 
-// Truthful state of each tile, same order. 'soon' = not usable by a visitor today. Flip a value when the capability is verified:
-// recording needs a media server that can reach the storage (the pilot uses LiveKit Cloud), calendar needs registered OAuth
-// apps, the Android app and the signed Windows app need store accounts and certificates (all user-supplied, due 2027).
-const CAP_STATUS: ReadonlyArray<'live' | 'soon'> = ['live', 'live', 'live', 'live', 'live', 'live', 'soon', 'soon', 'live', 'live', 'soon', 'soon'];
+// Truthful state of each tile, same order. 'soon' = not usable by a visitor today; 'beta' = downloadable as an unsigned beta
+// (decision 4, section #download). Flip a value when the capability is verified: recording needs the media-server recorder
+// (not started on the shared production host), calendar needs registered OAuth apps; store listings and code signing for
+// the apps are separate decisions.
+const CAP_STATUS: ReadonlyArray<'live' | 'soon' | 'beta'> = ['live', 'live', 'live', 'live', 'live', 'live', 'soon', 'soon', 'live', 'live', 'beta', 'beta'];
 
 export function Capabilities({ lang }: Props) {
   return (
@@ -56,6 +57,10 @@ export function Capabilities({ lang }: Props) {
               {CAP_STATUS[i] === 'soon' ? (
                 <span className="ln-soon" data-testid="capability-soon">
                   {tx(lang, 'lnSoon')}
+                </span>
+              ) : CAP_STATUS[i] === 'beta' ? (
+                <span className="ln-soon ln-beta" data-testid="capability-beta">
+                  {tx(lang, 'lnBetaTag')}
                 </span>
               ) : null}
             </h3>

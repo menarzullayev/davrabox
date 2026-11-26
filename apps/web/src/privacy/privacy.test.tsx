@@ -61,10 +61,14 @@ describe('legal texts', () => {
       }
     }
   });
-  it('the privacy notice is honest about LiveKit Cloud and the retention periods, in every language', () => {
+  it('the privacy notice is honest about where the servers run, the assistant and the retention periods, in every language', () => {
     for (const l of LANGS) {
       const text = JSON.stringify(PRIVACY_TEXT[l]);
-      expect(text, l).toContain('LiveKit Cloud');
+      // production runs on Oracle Cloud in Frankfurt with its own media server (moved from LiveKit Cloud on 2026-11-26)
+      expect(text, l).toContain('Oracle Cloud Infrastructure');
+      expect(text, l).toMatch(/Frankfurt|Франкфурт/);
+      expect(text, l).toContain('Anthropic');
+      expect(PRIVACY_TEXT[l].sections.some((s) => s.id === 'assistant'), l).toBe(true);
       for (const n of ['90', '365', '30']) expect(text, `${l} ${n}`).toContain(n);
     }
     // the statement must not claim there is no third party

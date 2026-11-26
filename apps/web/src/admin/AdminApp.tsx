@@ -1,8 +1,9 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { User } from 'oidc-client-ts';
 import { freshToken } from '../auth';
 import { t, type Lang } from '../i18n';
-import { Avatar, Button, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLock, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
+import { Avatar, Button, IconChat, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLock, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
+import { AssistantLog } from './AssistantLog';
 import { Audit } from './Audit';
 import { createAdminClient } from './client';
 import { Departments } from './Departments';
@@ -15,7 +16,7 @@ import { Users } from './Users';
 import { AdminCtx, makeReport } from './ui';
 import './admin.css';
 
-const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption', 'privacy'] as const;
+const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption', 'privacy', 'assistant'] as const;
 type Section = (typeof SECTIONS)[number];
 const ICON = {
   overview: IconLayoutGrid,
@@ -26,6 +27,7 @@ const ICON = {
   audit: IconShieldCheck,
   encryption: IconLock,
   privacy: IconShield,
+  assistant: IconChat,
 } as const;
 const LABEL = {
   overview: 'admOverview',
@@ -36,6 +38,7 @@ const LABEL = {
   audit: 'admAudit',
   encryption: 'admEncryption',
   privacy: 'admPrivacy',
+  assistant: 'admAssistant',
 } as const;
 
 export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void }) {
@@ -44,6 +47,19 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
   const client = useMemo(() => createAdminClient(freshToken), []);
   const report = useMemo(() => makeReport(() => setForbidden(true)), []);
   const ctx = useMemo(() => ({ client, lang, report }), [client, lang, report]);
+  // The "Assistant conversations" section exists for the platform owner only (decision 5d); the API enforces it too.
+  const [owner, setOwner] = useState(false);
+  useEffect(() => {
+    let live = true;
+    client.assistantOwner().then(
+      (r) => live && setOwner(r.owner === true),
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [client]);
+  const sections = SECTIONS.filter((s) => s !== 'assistant' || owner);
 
   const who = user.profile.name ?? user.profile.email ?? '';
   const header = (
@@ -86,7 +102,7 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
         <div className="adm-body">
           <nav aria-label={t(lang, 'admNav')} className="adm-nav">
             <ul>
-              {SECTIONS.map((s) => {
+              {sections.map((s) => {
                 const Icon = ICON[s];
                 return (
                   <li key={s}>
@@ -108,6 +124,7 @@ export function AdminApp({ lang, langPicker, user, onSignOut }: { lang: Lang; la
             {section === 'audit' && <Audit />}
             {section === 'encryption' && <Encryption />}
             {section === 'privacy' && <Privacy />}
+            {section === 'assistant' && owner && <AssistantLog />}
           </div>
         </div>
       </main>

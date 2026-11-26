@@ -11,6 +11,8 @@ import { TimelineView, copyJoinLink } from './Timeline';
 import { PlanPanel } from './PlanPanel';
 import { displayName, firstName, formatCode, formatDay, greetingSlot, groupMeetings, planSummary, type ProfileLike, type TimelineMeeting } from './logic';
 import { dayNames, tx } from './text';
+import { AssistantLauncher } from '../help/AssistantLauncher';
+import { freshToken } from '../auth';
 import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
 import { useCalendarReturn } from '../calendar/useCalendarReturn';
 import { E2eeLinkDialog } from '../e2ee/E2eeLinkDialog';
@@ -213,6 +215,9 @@ function HomeBody(props: HomeScreenProps) {
 }
 
 /** The signed-in home screen: greeting, join by code or link, new meeting, and today's meetings as a timeline. */
+/** The help assistant gets the session token when there is one (only a platform owner's token changes its answers). */
+const assistantToken = () => freshToken().catch(() => null);
+
 export function HomeScreen(props: HomeScreenProps) {
   const { lang } = props;
   const who = displayName(props.profile);
@@ -253,6 +258,7 @@ export function HomeScreen(props: HomeScreenProps) {
           </div>
         </header>
         <HomeBody {...props} />
+        <AssistantLauncher lang={lang} page="home" token={assistantToken} />
       </div>
     </ToastProvider>
   );

@@ -245,7 +245,42 @@ export function createAdminClient(getToken: () => Promise<string>, fetchFn: Fetc
     removeKms: () => call<{ removed: true }>('/v1/admin/kms', { method: 'DELETE' }),
     testKms: () => call<{ status: 'ok' | 'denied' | 'unreachable' }>('/v1/admin/kms/test', { method: 'POST' }),
     rewrapKms: (body: { target: 'customer' | 'platform'; limit?: number; after?: string }) => call<RewrapResult>('/v1/admin/kms/rewrap', { method: 'POST', body }),
+    // Help assistant conversations: platform owner only (the server refuses everyone else with 403).
+    assistantOwner: () => call<{ owner: boolean }>('/v1/platform/assistant/owner'),
+    assistantUsage: () => call<AssistantUsage>('/v1/platform/assistant/usage'),
+    assistantList: (p: { before?: string | null; limit?: number }) => call<Page<AssistantConversation>>(`/v1/platform/assistant/conversations${buildQuery({ before: p.before, limit: p.limit })}`),
+    assistantMessages: (id: string) => call<{ items: AssistantMessage[] }>(`/v1/platform/assistant/conversations/${enc(id)}`),
+    assistantDelete: (id: string) => call<void>(`/v1/platform/assistant/conversations/${enc(id)}`, { method: 'DELETE' }),
   };
 }
 
 export type AdminClient = ReturnType<typeof createAdminClient>;
+
+export interface AssistantUsage {
+  day: string;
+  llm: 'none' | 'anthropic' | 'claude-cli';
+  model: string | null;
+  llmRequests: number;
+  inputTokens: number;
+  outputTokens: number;
+  costUsd: number;
+  dailyUsdCap: number;
+  dailyLlmRequests: number;
+  retentionDays: number;
+}
+export interface AssistantConversation {
+  id: string;
+  createdAt: string;
+  lastAt: string;
+  lang: string;
+  page: string;
+  messages: number;
+  firstQuestion: string;
+}
+export interface AssistantMessage {
+  role: 'user' | 'assistant';
+  source: 'faq' | 'llm' | 'fallback' | 'refusal' | null;
+  faqId: string | null;
+  text: string;
+  at: string;
+}

@@ -4,7 +4,7 @@ import { PRIVACY_CONTACT, type LegalTexts } from './legal-types';
 export const PRIVACY_TEXT: LegalTexts = {
   en: {
     title: 'Privacy notice',
-    updated: 'Updated 24 November 2026',
+    updated: 'Updated 26 November 2026',
     sections: [
       {
         id: 'who',
@@ -47,6 +47,17 @@ export const PRIVACY_TEXT: LegalTexts = {
         ],
       },
       {
+        id: 'assistant',
+        heading: 'Help assistant (chat bot)',
+        paragraphs: [
+          'The public pages and the home screen have a help assistant that answers questions about using DavraBox. It is not used inside meetings. It has no access to your account, meetings or organisation.',
+          'What is stored and why: your questions and its answers, the page and language, the time, and a keyed hash of your network address (not the address itself). We keep them to improve the FAQ and to stop abuse. Before anything is stored, phone numbers, e-mail addresses and card-like numbers are replaced by [phone], [email] and [card].',
+          'How long: 30 days after the last message of a conversation, then deleted automatically.',
+          'Who can read them: only the operator of the DavraBox platform. Administrators of organisations cannot.',
+          'Answers come first from the FAQ. If the FAQ has no answer and the operator has switched it on, the masked question is sent to Anthropic (see "Who else processes data"). Do not type passwords or personal data into the assistant.',
+        ],
+      },
+      {
         id: 'rights',
         heading: 'Your rights',
         items: [
@@ -60,8 +71,8 @@ export const PRIVACY_TEXT: LegalTexts = {
         id: 'subprocessors',
         heading: 'Who else processes data',
         paragraphs: [
-          'LiveKit Cloud: during the pilot, audio, video and the in-call data of meetings pass through LiveKit Cloud, a hosted media service run by LiveKit, Inc., in a data centre outside Uzbekistan (region to be confirmed). LiveKit sees your user identifier, your display name and the media while you are in a call. DavraBox stores nothing at LiveKit. This will change when DavraBox runs its own media servers; this notice will then be updated.',
-          'Hosting of the DavraBox servers: provider and country are to be confirmed.',
+          'Hosting: the DavraBox servers, including the media server that carries audio, video and screen sharing, run on rented virtual machines at Oracle Cloud Infrastructure in a data centre in Frankfurt, Germany, that is outside Uzbekistan. Oracle provides the machines; DavraBox runs and controls the software and the data on them.',
+          'Anthropic (only for the help assistant, and only when it is switched on): a question the FAQ could not answer, after phone numbers, e-mail addresses and card-like numbers are masked, together with the last few turns of that conversation, is sent to Anthropic\'s Claude API to write an answer. Anthropic processes it under its commercial terms. No account, meeting or organisation data is sent.',
           'Google or Microsoft: only if you connect your calendar; they receive the calendar event DavraBox creates.',
           'Our sign-in service (Keycloak), the file scanner and the object storage run on DavraBox\'s own servers, not at a third party.',
         ],
@@ -82,7 +93,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   ru: {
     title: 'Уведомление о конфиденциальности',
-    updated: 'Обновлено 24 ноября 2026 г.',
+    updated: 'Обновлено 26 ноября 2026 г.',
     sections: [
       {
         id: 'who',
@@ -125,6 +136,17 @@ export const PRIVACY_TEXT: LegalTexts = {
         ],
       },
       {
+        id: 'assistant',
+        heading: 'Чат-помощник',
+        paragraphs: [
+          'На публичных страницах и на главном экране есть чат-помощник, который отвечает на вопросы о работе с DavraBox. Во время встреч он не используется. У него нет доступа к вашему аккаунту, встречам или организации.',
+          'Что хранится и зачем: ваши вопросы и его ответы, страница и язык, время и ключевой хеш вашего сетевого адреса (не сам адрес). Мы храним их, чтобы улучшать FAQ и пресекать злоупотребления. Перед сохранением номера телефонов, адреса почты и строки, похожие на номер карты, заменяются на [phone], [email] и [card].',
+          'Сколько: 30 дней после последнего сообщения разговора, затем удаляются автоматически.',
+          'Кто может читать: только оператор платформы DavraBox. Администраторы организаций — нет.',
+          'Сначала ответ ищется в FAQ. Если там ответа нет и оператор включил эту возможность, скрытый вопрос отправляется в Anthropic (см. «Кто ещё обрабатывает данные»). Не пишите помощнику пароли и личные данные.',
+        ],
+      },
+      {
         id: 'rights',
         heading: 'Ваши права',
         items: [
@@ -138,8 +160,8 @@ export const PRIVACY_TEXT: LegalTexts = {
         id: 'subprocessors',
         heading: 'Кто ещё обрабатывает данные',
         paragraphs: [
-          'LiveKit Cloud: в период пилота звук, видео и данные внутри звонка проходят через LiveKit Cloud — облачный медиасервис компании LiveKit, Inc. в дата-центре за пределами Узбекистана (регион уточняется). LiveKit видит ваш идентификатор пользователя, отображаемое имя и медиапотоки, пока вы на звонке. DavraBox ничего не хранит у LiveKit. Когда DavraBox запустит собственные медиасерверы, это изменится, и уведомление будет обновлено.',
-          'Хостинг серверов DavraBox: провайдер и страна уточняются.',
+          'Хостинг: серверы DavraBox, включая медиасервер, через который идут звук, видео и демонстрация экрана, работают на арендованных виртуальных машинах Oracle Cloud Infrastructure в дата-центре во Франкфурте, Германия, то есть за пределами Узбекистана. Oracle предоставляет машины; программы и данные на них запускает и контролирует DavraBox.',
+          'Anthropic (только для чат-помощника и только когда он включён): вопрос, на который не нашлось ответа в FAQ, после скрытия номеров телефонов, адресов почты и номеров карт вместе с несколькими последними репликами этого разговора отправляется в Claude API компании Anthropic, чтобы составить ответ. Anthropic обрабатывает его по своим коммерческим условиям. Данные аккаунтов, встреч и организаций не передаются.',
           'Google или Microsoft: только если вы подключили календарь; они получают событие календаря, которое создаёт DavraBox.',
           'Служба входа (Keycloak), сканер файлов и объектное хранилище работают на серверах самого DavraBox, а не у третьей стороны.',
         ],
@@ -160,7 +182,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   uz: {
     title: 'Maxfiylik to‘g‘risida xabarnoma',
-    updated: '2026-yil 24-noyabrda yangilangan',
+    updated: '2026-yil 26-noyabrda yangilangan',
     sections: [
       {
         id: 'who',
@@ -203,6 +225,17 @@ export const PRIVACY_TEXT: LegalTexts = {
         ],
       },
       {
+        id: 'assistant',
+        heading: 'Yordamchi chat bot',
+        paragraphs: [
+          'Ochiq sahifalarda va bosh ekranda DavraBox’dan foydalanish bo‘yicha savollarga javob beradigan yordamchi bot bor. U uchrashuvlar ichida ishlatilmaydi. Uning hisobingiz, uchrashuvlaringiz yoki tashkilotingizga kirish huquqi yo‘q.',
+          'Nima saqlanadi va nima uchun: savollaringiz va uning javoblari, sahifa va til, vaqt hamda tarmoq manzilingizning kalitli xeshi (manzilning o‘zi emas). Ular FAQ’ni yaxshilash va suiiste’molning oldini olish uchun saqlanadi. Saqlashdan oldin telefon raqamlari, pochta manzillari va karta raqamiga o‘xshash qatorlar [phone], [email] va [card] bilan almashtiriladi.',
+          'Qancha: suhbatning oxirgi xabaridan keyin 30 kun, so‘ng avtomatik o‘chiriladi.',
+          'Kim o‘qiy oladi: faqat DavraBox platformasi operatori. Tashkilot administratorlari o‘qiy olmaydi.',
+          'Javob avval FAQ’dan izlanadi. FAQ’da javob bo‘lmasa va operator bu imkoniyatni yoqqan bo‘lsa, yashirilgan savol Anthropic’ka yuboriladi («Ma’lumotlarni yana kim qayta ishlaydi» bo‘limiga qarang). Botga parol yoki shaxsiy ma’lumot yozmang.',
+        ],
+      },
+      {
         id: 'rights',
         heading: 'Huquqlaringiz',
         items: [
@@ -216,8 +249,8 @@ export const PRIVACY_TEXT: LegalTexts = {
         id: 'subprocessors',
         heading: 'Ma’lumotlarni yana kim qayta ishlaydi',
         paragraphs: [
-          'LiveKit Cloud: pilot davrida uchrashuvlarning ovozi, videosi va qo‘ng‘iroq ichidagi ma’lumotlari LiveKit, Inc. kompaniyasining O‘zbekistondan tashqaridagi ma’lumotlar markazida joylashgan bulutli media xizmati — LiveKit Cloud orqali o‘tadi (mintaqa aniqlanadi). Qo‘ng‘iroqda bo‘lganingizda LiveKit foydalanuvchi identifikatoringizni, ko‘rinadigan ismingizni va media oqimlarni ko‘radi. DavraBox LiveKit’da hech narsa saqlamaydi. DavraBox o‘z media-serverlarini ishga tushirganda bu o‘zgaradi va xabarnoma yangilanadi.',
-          'DavraBox serverlarining hostingi: provayder va davlat aniqlanadi.',
+          'Xosting: DavraBox serverlari, jumladan ovoz, video va ekran ulashish o‘tadigan media-server, Oracle Cloud Infrastructure’ning Germaniya, Frankfurt shahridagi, ya’ni O‘zbekistondan tashqaridagi ma’lumotlar markazida ijaraga olingan virtual mashinalarda ishlaydi. Mashinalarni Oracle beradi; ulardagi dasturlar va ma’lumotlarni DavraBox ishga tushiradi va nazorat qiladi.',
+          'Anthropic (faqat yordamchi bot uchun va u yoqilgandagina): FAQ’dan javob topilmagan savol telefon raqamlari, pochta manzillari va karta raqamlari yashirilgandan keyin, shu suhbatning oxirgi bir necha xabari bilan birga javob yozish uchun Anthropic kompaniyasining Claude API’siga yuboriladi. Anthropic uni o‘zining tijorat shartlari asosida qayta ishlaydi. Hisob, uchrashuv va tashkilot ma’lumotlari yuborilmaydi.',
           'Google yoki Microsoft: faqat kalendarni ulasangiz; ular DavraBox yaratgan kalendar tadbirini oladi.',
           'Kirish xizmati (Keycloak), fayl skaneri va obyekt ombori uchinchi tomonda emas, DavraBox’ning o‘z serverlarida ishlaydi.',
         ],

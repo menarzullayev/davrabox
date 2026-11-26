@@ -3,7 +3,10 @@
 // below and by i18n.test.ts. Every key starts with "ln". No statistics, customer names or logos: only what the product does.
 //
 // Copy status: written by the builder, NOT yet reviewed by native speakers (a launch blocker listed in the program spec).
+import { lnMoreEn, lnMoreRu, lnMoreUz } from './i18n-landing-more';
+
 export const landingUz = {
+  ...lnMoreUz,
   lnPageTitle: 'DavraBox: nazoratingizdagi xavfsiz video uchrashuvlar',
   lnPageDesc: 'Yagona kirish, audit jurnali va mahalliy nazoratga ega korporativ video uchrashuvlar. Bepul sinov ikki daqiqada boshlanadi.',
 
@@ -17,9 +20,9 @@ export const landingUz = {
   lnSignIn: 'Kirish',
   lnStartFree: 'Bepul boshlash',
 
-  lnHeroKicker: 'Tashkilotlar uchun video uchrashuvlar',
+  lnHeroKicker: 'Xavfsiz va qulay video uchrashuvlar',
   lnHeroTitle: 'Nazoratingizdagi video uchrashuvlar',
-  lnHeroText: 'DavraBox: yagona kirish, o‘zgartirib bo‘lmaydigan audit jurnali va boshqaruv konsoli bor korporativ video aloqa platformasi. O‘z tashkilotingizni oching va jamoangizni bir necha daqiqada taklif qiling.',
+  lnHeroText: 'Ma’lumotlar va kirish nazorati tashkilotingizda qoladi: yagona kirish, o‘zgartirib bo‘lmaydigan audit jurnali, ixtiyoriy uchidan-uchigacha shifrlash. Ishtirokchilar esa brauzerdan bir bosishda qo‘shiladi: hech narsa o‘rnatmasdan, o‘zbek tilida.',
   lnHeroNote: '7 kun bepul: 10 tagacha ishtirokchi, uchrashuvlar 30 daqiqagacha. To‘lov kartasi ham, elektron pochta tasdig‘i ham kerak emas.',
   lnHeroHave: 'Hisobingiz bormi?',
   lnHeroShotAlt: 'DavraBox uchrashuv oynasi: ishtirokchilar bitta davra bo‘ylab joylashgan',
@@ -104,7 +107,6 @@ export const landingUz = {
 
   lnFootPrivacy: 'Maxfiylik siyosati',
   lnFootTerms: 'Foydalanish shartlari',
-  lnFootSoon: 'e’lon qilinadi',
   lnFootContact: 'Bog‘lanish',
   lnFootRights: '© DavraBox',
 
@@ -143,6 +145,7 @@ export const landingUz = {
 export type LandingKey = keyof typeof landingUz;
 
 export const landingRu: Record<LandingKey, string> = {
+  ...lnMoreRu,
   lnPageTitle: 'DavraBox: безопасные видеовстречи под вашим контролем',
   lnPageDesc: 'Корпоративные видеовстречи с единым входом, журналом аудита и локальным контролем. Бесплатный пробный период начинается за две минуты.',
 
@@ -156,9 +159,9 @@ export const landingRu: Record<LandingKey, string> = {
   lnSignIn: 'Войти',
   lnStartFree: 'Начать бесплатно',
 
-  lnHeroKicker: 'Видеовстречи для организаций',
+  lnHeroKicker: 'Безопасные и удобные видеовстречи',
   lnHeroTitle: 'Видеовстречи под вашим контролем',
-  lnHeroText: 'DavraBox: корпоративная платформа видеосвязи с единым входом, журналом аудита, который нельзя подделать незаметно, и консолью администратора. Создайте свою организацию и пригласите команду за несколько минут.',
+  lnHeroText: 'Данные и контроль доступа остаются в вашей организации: единый вход, журнал аудита, который нельзя подделать незаметно, необязательное сквозное шифрование. А участники подключаются из браузера в один клик: ничего не нужно устанавливать, и всё на узбекском языке.',
   lnHeroNote: '7 дней бесплатно: до 10 участников, встречи до 30 минут. Без платёжной карты и без подтверждения почты.',
   lnHeroHave: 'Уже есть аккаунт?',
   lnHeroShotAlt: 'Окно встречи DavraBox: участники расположены по одному кругу',
@@ -243,7 +246,6 @@ export const landingRu: Record<LandingKey, string> = {
 
   lnFootPrivacy: 'Политика конфиденциальности',
   lnFootTerms: 'Условия использования',
-  lnFootSoon: 'будет опубликовано',
   lnFootContact: 'Связаться с нами',
   lnFootRights: '© DavraBox',
 
@@ -280,6 +282,7 @@ export const landingRu: Record<LandingKey, string> = {
 };
 
 export const landingEn: Record<LandingKey, string> = {
+  ...lnMoreEn,
   lnPageTitle: 'DavraBox: secure video meetings under your control',
   lnPageDesc: 'Corporate video meetings with single sign-on, an audit trail and local control. Start a free trial in two minutes.',
 
@@ -293,9 +296,9 @@ export const landingEn: Record<LandingKey, string> = {
   lnSignIn: 'Sign in',
   lnStartFree: 'Start free',
 
-  lnHeroKicker: 'Video meetings for organisations',
+  lnHeroKicker: 'Secure and simple video meetings',
   lnHeroTitle: 'Video meetings that stay under your control',
-  lnHeroText: 'DavraBox is a corporate video-conferencing platform with single sign-on, a tamper-evident audit trail and an admin console. Open an organisation of your own and invite your team in minutes.',
+  lnHeroText: 'Data and access control stay with your organisation: single sign-on, a tamper-evident audit trail and optional end-to-end encryption. People join from the browser in one click: nothing to install, and all of it in Uzbek.',
   lnHeroNote: 'Free for 7 days: up to 10 participants, meetings up to 30 minutes. No payment card and no email confirmation.',
   lnHeroHave: 'Already have an account?',
   lnHeroShotAlt: 'A DavraBox meeting window with the participants arranged in one circle',
@@ -380,7 +383,6 @@ export const landingEn: Record<LandingKey, string> = {
 
   lnFootPrivacy: 'Privacy policy',
   lnFootTerms: 'Terms of use',
-  lnFootSoon: 'to be published',
   lnFootContact: 'Contact',
   lnFootRights: '© DavraBox',
 

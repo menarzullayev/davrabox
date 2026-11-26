@@ -124,6 +124,10 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
           {tx(lang, 'cancel')}
         </Button>
       </div>
+      {/* Decision 5e: no assistant in the call path, only a small link to the help page for device problems. */}
+      <a className="pj__help" href="/help#guide-devices" target="_blank" rel="noopener" data-testid="prejoin-help">
+        {tx(lang, 'asCameraHelp')}
+      </a>
     </main>
   );
 }
