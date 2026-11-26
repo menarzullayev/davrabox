@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useBackLayer } from '../platform/back';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 
@@ -60,13 +61,18 @@ export interface PopoverProps {
   children: ReactNode;
 }
 
+/** Open panels, oldest first: a tap inside a panel opened later (a dropdown inside the settings panel) is not outside. */
+const openPanels: HTMLElement[] = [];
+
 /**
  * Floating panel anchored to an element. Closes on outside pointer-down, Escape (focus returns to the anchor) and
- * when the page is resized. Placement is `position: fixed`, so no overflow ancestor can clip it.
+ * when the page is resized. Placement is `position: fixed`, and the panel is rendered at the top of the page (or of the
+ * open modal dialog), so no ancestor can clip it or move it: a parent panel with a backdrop filter (the glass styles)
+ * becomes the reference box of fixed children, which pushed a nested dropdown off the screen.
  */
 export function Popover({ open, anchorRef, onClose, align = 'start', role, matchAnchorWidth, children, ...aria }: PopoverProps) {
   const panel = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState<{ left: number; top: number; minWidth?: number } | null>(null);
+  const [pos, setPos] = useState<{ left: number; top: number; maxHeight: number; minWidth?: number } | null>(null);
   const isTop = useEscapeLayer(open);
   useBackLayer(open, onClose);
 
@@ -81,7 +87,8 @@ export function Popover({ open, anchorRef, onClose, align = 'start', role, match
       if (!a || !p) return;
       const r = a.getBoundingClientRect();
       const { left, top } = computePlacement(r, { width: p.offsetWidth, height: p.offsetHeight }, { width: window.innerWidth, height: window.innerHeight }, align);
-      setPos({ left, top, ...(matchAnchorWidth ? { minWidth: r.width } : {}) });
+      // Never taller than the room left under its top edge: a long list in a short window scrolls inside the panel.
+      setPos({ left, top, maxHeight: Math.max(120, window.innerHeight - top - 8), ...(matchAnchorWidth ? { minWidth: r.width } : {}) });
     };
     place();
     window.addEventListener('resize', place);
@@ -94,10 +101,15 @@ export function Popover({ open, anchorRef, onClose, align = 'start', role, match
 
   useEffect(() => {
     if (!open) return;
+    const self = panel.current;
+    if (self) openPanels.push(self);
     const onDown = (e: PointerEvent) => {
       const t = e.target as Node;
       // A bottom sheet opened from inside this panel is portaled elsewhere in the page; tapping it is not an outside tap.
       if (panel.current?.contains(t) || anchorRef.current?.contains(t) || (t as Element).closest?.('.dx-sheet-root')) return;
+      // Nor is a tap inside a panel opened from this one (it is rendered elsewhere in the page too).
+      const at = self ? openPanels.indexOf(self) : -1;
+      if (at >= 0 && openPanels.slice(at + 1).some((p) => p.contains(t))) return;
       onClose();
     };
     const onKey = (e: KeyboardEvent) => {
@@ -113,13 +125,17 @@ export function Popover({ open, anchorRef, onClose, align = 'start', role, match
     return () => {
       document.removeEventListener('pointerdown', onDown, true);
       document.removeEventListener('keydown', onKey, true);
+      const i = self ? openPanels.indexOf(self) : -1;
+      if (i >= 0) openPanels.splice(i, 1);
     };
   }, [open, onClose, anchorRef, isTop]);
 
   if (!open) return null;
-  return (
+  const host = typeof document === 'undefined' ? null : (anchorRef.current?.closest('dialog[open]') ?? document.body);
+  const el = (
     <div ref={panel} className="dx-popover" role={role} data-pending={pos ? undefined : ''} style={pos ?? { left: 0, top: 0 }} {...aria}>
       {children}
     </div>
   );
+  return host ? createPortal(el, host) : el;
 }
