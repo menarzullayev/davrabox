@@ -127,3 +127,28 @@ describe('Gradle project', () => {
     expect(existsSync(join(root, 'android', 'app', 'src', 'main', 'java', 'uz', 'davrabox', 'app', 'MainActivity.java'))).toBe(true);
   });
 });
+
+describe('native plugins the web client uses', () => {
+  const java = (f: string) => read('android', 'app', 'src', 'main', 'java', 'uz', 'davrabox', 'app', f);
+  it('registers ThemeBars and PowerSave before the bridge starts', () => {
+    const main = java('MainActivity.java');
+    const created = main.indexOf('super.onCreate(savedInstanceState)');
+    for (const p of ['ThemeBarsPlugin', 'PowerSavePlugin']) {
+      const at = main.indexOf(`registerPlugin(${p}.class)`);
+      expect(at, p).toBeGreaterThan(-1);
+      expect(at, p).toBeLessThan(created);
+    }
+  });
+  it('PowerSave only reports the battery saver state (one boolean, no input from the page)', () => {
+    const src = java('PowerSavePlugin.java');
+    expect(src).toContain('@CapacitorPlugin(name = "PowerSave")');
+    expect(src).toContain('isPowerSaveMode()');
+    expect(src).toContain('ACTION_POWER_SAVE_MODE_CHANGED');
+    expect(src).not.toMatch(/call\.get(String|Int|Boolean|Object|Array)/);
+  });
+  it('ThemeBars accepts a style only to look it up in the generated table', () => {
+    const src = java('ThemeBarsPlugin.java');
+    expect(src).toContain('// <generated-style-chrome>');
+    expect(src).toMatch(/s\.length\(\) <= 32/);
+  });
+});

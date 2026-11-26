@@ -30,6 +30,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         // Keep the branded launch screen up until the hosted page paints its first frame, so there is no empty window in between.
         registerPlugin(ThemeBarsPlugin.class); // system bars follow the page theme
+        registerPlugin(PowerSavePlugin.class); // battery saver on/off for the page (liquid-glass falls back to CSS glass)
         SplashScreen splash = SplashScreen.installSplashScreen(this);
         splash.setKeepOnScreenCondition(() -> !pageVisible);
         new Handler(Looper.getMainLooper()).postDelayed(() -> pageVisible = true, SPLASH_MAX_MS);
