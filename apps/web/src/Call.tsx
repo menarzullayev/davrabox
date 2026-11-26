@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { ConnectionQuality, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
+import { ConnectionQuality, DisconnectReason, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { BackgroundProcessor, supportsBackgroundProcessors } from '@livekit/track-processors';
 import { ApiError, api, type GuestMode, type JoinedResult } from './api';
@@ -57,7 +57,8 @@ export function Call({
   code: string;
   getToken: () => Promise<string>;
   lang: Lang;
-  onLeave: () => void;
+  /** `ended` is set when the host closed the meeting for everyone (the room was deleted). */
+  onLeave: (info?: { ended?: boolean }) => void;
   /** Joined without an account: no member-only calls (role, requests, files, recording) are made and none of their controls shown. */
   guest?: boolean;
   /** What the person chose on the pre-join screen; absent = microphone and camera on. */
@@ -167,8 +168,8 @@ export function Call({
     // Only a disconnect of the room that is still current may leave the call. React StrictMode mounts,
     // unmounts and remounts this effect in development; the discarded room's disconnect must be ignored.
     let cancelled = false;
-    const onDisconnected = () => {
-      if (!cancelled) onLeave();
+    const onDisconnected = (reason?: DisconnectReason) => {
+      if (!cancelled) onLeave(reason === DisconnectReason.ROOM_DELETED ? { ended: true } : undefined);
     };
     const onGone = (p: RemoteParticipant) => {
       sync();

@@ -35,6 +35,9 @@ export interface HomeScreenProps {
   onSignOut: () => void;
   /** Free-trial notice ("ends in less than N days"); omitted or null for paid organizations. */
   banner?: { key: Key; n?: number } | null;
+  /** A one-off notice, e.g. "the host ended the meeting" after a call closed for everyone. */
+  notice?: string | null;
+  onDismissNotice?: () => void;
   /** The organization's trial status; the "Plan & Limits" card shows for trial organizations only. */
   trial?: TrialStatus | null;
   /** Bearer token for the calendar integration; when set, hosts can add a meeting to Google Calendar or Outlook. */
@@ -118,6 +121,14 @@ function HomeBody(props: HomeScreenProps) {
           <p className="hm-date">{formatDay(clock, dayNames(lang))}</p>
           <h1 className="hm-greeting">{name ? `${greeting}, ${name}` : greeting}</h1>
         </section>
+
+        {props.notice ? (
+          <div data-testid="home-notice">
+            <Alert tone="info" className="hm-error" onDismiss={props.onDismissNotice} dismissLabel={t(lang, 'uiDismiss')}>
+              {props.notice}
+            </Alert>
+          </div>
+        ) : null}
 
         {props.banner ? (
           <Alert tone="info" className="ln-trial">

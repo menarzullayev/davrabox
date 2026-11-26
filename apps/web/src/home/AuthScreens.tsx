@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { t, type Lang } from '../i18n';
-import { Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, TextField, type ThemeChoice } from '../ui';
+import { Alert, Button, ConnectingRing, Davra, IconChevronRight, Logo, LogoMark, TextField, type ThemeChoice } from '../ui';
 import { extractKeyFromText, storeKey } from '../e2ee/keys';
 import { appUrl } from '../routes';
 import { appErrorKey } from '../errors';
@@ -14,6 +14,8 @@ export const brandSentences = (line: string): string[] => line.split(/(?<=\.)\s+
 
 export interface SignInScreenProps {
   lang: Lang;
+  /** A one-off notice above the card (a guest whose meeting the host ended). */
+  notice?: string | null;
   onLang: (l: Lang) => void;
   theme: ThemeChoice;
   onTheme: (v: ThemeChoice) => void;
@@ -31,7 +33,7 @@ export interface SignInScreenProps {
  * the primary "Sign in", "Join with a meeting code" and "Create an organisation"; step two (code, name, passcode) opens in its
  * own view with a Back button. A meeting link (?join=) starts on step two with the code filled in.
  */
-export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInToJoin, onGuestJoin, initialCode = '' }: SignInScreenProps) {
+export function SignInScreen({ lang, notice, onLang, theme, onTheme, onSignIn, onSignInToJoin, onGuestJoin, initialCode = '' }: SignInScreenProps) {
   const lines = brandSentences(tx(lang, 'hBrandLine'));
   const canJoin = Boolean(onSignInToJoin || onGuestJoin);
   const [view, setView] = useState<'start' | 'join'>(() => (initialCode && canJoin ? 'join' : 'start'));
@@ -127,6 +129,11 @@ export function SignInScreen({ lang, onLang, theme, onTheme, onSignIn, onSignInT
       </header>
       <main className="si__main" data-testid="signin">
         <div className="si__copy">
+          {notice ? (
+            <div data-testid="signin-notice">
+              <Alert tone="info">{notice}</Alert>
+            </div>
+          ) : null}
           <h1 className="si__statement">
             {lines.map((l, i) => (
               <span key={i} className="si__line" data-i={i}>

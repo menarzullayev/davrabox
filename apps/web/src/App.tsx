@@ -63,6 +63,8 @@ export function App() {
   const [guestWaiting, setGuestWaiting] = useState<{ code: string; requestId: string; guestToken: string } | null>(null);
   const guestGetToken = useCallback(async () => guestJoined?.result.guestToken ?? '', [guestJoined]);
   const [guestMax, setGuestMax] = useState<GuestMode>('off');
+  // Set when the host ended the call for everyone; shown once on the screen the person lands on.
+  const [ended, setEnded] = useState(false);
 
   const [adminView, setAdminView] = useState(() => isAdminPath(location.pathname));
 
@@ -146,6 +148,7 @@ export function App() {
 
   const doJoin = async (c: string, p?: string) => {
     setErr(null);
+    setEnded(false);
     const clean = c.replace(/\s+/g, '');
     try {
       const res = await api.join(token, clean, p || undefined);
@@ -191,7 +194,7 @@ export function App() {
     return <PreJoin lang={lang} title={guestJoined.result.title} onJoin={(media) => setGuestJoined({ ...guestJoined, media })} onCancel={() => setGuestJoined(null)} />;
   }
   if (guestJoined) {
-    return <Call join={guestJoined.result} code={guestJoined.code} guest initialMedia={guestJoined.media} getToken={guestGetToken} lang={lang} onLeave={() => setGuestJoined(null)} />;
+    return <Call join={guestJoined.result} code={guestJoined.code} guest initialMedia={guestJoined.media} getToken={guestGetToken} lang={lang} onLeave={(info) => { setGuestJoined(null); setEnded(Boolean(info?.ended)); }} />;
   }
   if (guestWaiting) {
     return (
@@ -214,6 +217,7 @@ export function App() {
     return (
       <SignInScreen
         lang={lang}
+        notice={ended ? t(lang, 'meetingEndedByHost') : null}
         onLang={changeLang}
         theme={theme}
         onTheme={changeTheme}
@@ -257,8 +261,9 @@ export function App() {
         getToken={freshToken}
         lang={lang}
         guestMax={guestMax}
-        onLeave={() => {
+        onLeave={(info) => {
           setJoined(null);
+          setEnded(Boolean(info?.ended));
           void refresh();
         }}
       />
@@ -296,6 +301,8 @@ export function App() {
       isAdmin={isOrgAdmin(token)}
       meetings={meetings}
       banner={trialBanner(trialEnds, Date.now())}
+      notice={ended ? t(lang, 'meetingEndedByHost') : null}
+      onDismissNotice={() => setEnded(false)}
       trial={trialStatus}
       error={err}
       onDismissError={() => setErr(null)}
