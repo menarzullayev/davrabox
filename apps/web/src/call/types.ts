@@ -11,6 +11,10 @@ export interface ParticipantView {
   handUp: boolean;
   reaction: Reaction | null;
   isCohost: boolean;
+  /** Pinned by this person (local choice, featured on their own stage only). */
+  pinned?: boolean;
+  /** Featured for everyone by the host (server-set room metadata). */
+  spotlit?: boolean;
 }
 
 export interface ChatLineView {
@@ -25,7 +29,7 @@ export interface ChatLineView {
 }
 
 export type Quality = 'excellent' | 'good' | 'poor' | 'lost' | 'unknown';
-export type PanelId = 'chat' | 'people' | null;
+export type PanelId = 'chat' | 'people' | 'polls' | 'qa' | 'board' | null;
 export type Role = 'host' | 'cohost' | 'member';
 
 export interface RecordingItem {
@@ -59,4 +63,8 @@ export interface ManageActions {
   onMute(id: string): void;
   onRemove(id: string): void;
   onToggleCohost(id: string): void;
+  /** Feature this participant for everyone (null clears it). */
+  onSpotlight?(id: string | null): void;
+  /** Mute everyone except the host side (asks first). */
+  onMuteAll?(): void;
 }

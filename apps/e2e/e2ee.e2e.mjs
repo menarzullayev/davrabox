@@ -42,7 +42,8 @@ async function open(username, password, label, url = BASE + '/app') {
     wire.push({ label, kind: 'websocket', text: ws.url() });
   });
   await page.goto(url);
-  await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)$/ }).click();
+  // A join link opens the guest/sign-in choice ("Sign in and join"); the plain app opens "Sign in".
+  await page.getByRole('button', { name: /^(Sign in|Kirish|Войти)( and join)?$/ }).click();
   await page.waitForSelector('#username', { timeout: 30000 });
   await page.fill('#username', username);
   await page.fill('#password', password);
@@ -142,6 +143,42 @@ try {
   check('the member sees the host video: decrypted, not black or flat, and moving', alive.ok, alive.why);
   check('the member sees the E2EE badge', (await mem.page.getByTestId('e2ee-badge').count()) === 1);
 
+  // 2b. Polls and the whiteboard travel over the data channel, which the meeting key encrypts as well: they must still arrive.
+  const openMore = async (page, id) => {
+    if (!(await page.getByTestId(id).isVisible().catch(() => false))) await page.getByTestId('more').click();
+    await page.getByTestId(id).waitFor({ state: 'visible', timeout: 10000 });
+  };
+  await openMore(host.page, 'polls-toggle');
+  await host.page.getByTestId('polls-toggle').click();
+  await host.page.getByTestId('poll-new').click();
+  await host.page.getByTestId('poll-question').fill('Encrypted poll?');
+  await host.page.getByTestId('poll-option').nth(0).fill('Yes');
+  await host.page.getByTestId('poll-option').nth(1).fill('No');
+  await host.page.getByTestId('poll-launch').click();
+  const pollArrived = await mem.page.waitForSelector('[data-testid=poll-notice]', { timeout: 15000 }).then(() => true).catch(() => false);
+  check('E2EE: a poll reaches the member over the encrypted data channel', pollArrived);
+  if (pollArrived) {
+    await mem.page.getByTestId('poll-notice-open').click();
+    await mem.page.getByTestId('poll-choice').first().click();
+    await mem.page.getByTestId('poll-vote').click();
+    const counted = await host.page.waitForFunction(() => document.querySelector('[data-testid=poll-voters]')?.textContent.includes('1'), null, { timeout: 15000 }).then(() => true).catch(() => false);
+    check('E2EE: the member’s vote reaches the host', counted);
+  }
+  await host.page.keyboard.press('Escape');
+  await openMore(host.page, 'board-toggle');
+  await host.page.getByTestId('board-toggle').click();
+  await host.page.getByTestId('board-canvas').locator('canvas').first().waitFor({ state: 'visible', timeout: 60000 });
+  check('E2EE: the whiteboard says it is end-to-end encrypted', /encrypted|shifrlangan|шифрованием/i.test(await host.page.getByTestId('board-mode').innerText()));
+  const box = await host.page.getByTestId('board-canvas').boundingBox();
+  await host.page.locator('label:has([data-testid=toolbar-ellipse])').click();
+  await host.page.mouse.move(box.x + box.width * 0.45, box.y + box.height * 0.45);
+  await host.page.mouse.down();
+  await host.page.mouse.move(box.x + box.width * 0.45 + 120, box.y + box.height * 0.45 + 80, { steps: 6 });
+  await host.page.mouse.up();
+  const drawn = await mem.page.waitForFunction(() => window.__davraBoard?.count() === 1, null, { timeout: 15000 }).then(() => true).catch(() => false);
+  check('E2EE: the host’s drawing reaches the member (decrypted)', drawn);
+  await host.page.keyboard.press('Escape');
+
   // 3. A context without the key sees the gate, not a call.
   const str = await open(stranger.username, stranger.password, 'stranger');
   await joinByCode(str.page, code); // by code only: no key
@@ -157,7 +194,8 @@ try {
   await str.page.getByTestId('e2ee-gate-submit').click();
   await str.page.waitForSelector('.call', { timeout: 30000 });
   await str.page.waitForFunction(() => Array.from(document.querySelectorAll('.tile[data-identity]')).slice(1).some((t) => (t.querySelector('video')?.videoWidth ?? 0) > 0), null, { timeout: 40000 });
-  check('pasting the full link into the gate lets the person in and shows video', (await remoteVideoAlive(str.page)).ok);
+  const strAlive = await remoteVideoAlive(str.page);
+  check('pasting the full link into the gate lets the person in and shows video', strAlive.ok, strAlive.why);
 
   // 7. Chat over the encrypted data channel; no file attach.
   await host.page.getByTestId('chat-toggle').click();

@@ -361,8 +361,17 @@ export function computeLayout(input: LayoutInput): LayoutResult {
 }
 
 /** Share > last active speaker (while still present) > first remote participant > anyone. `local` is index 0. */
-export function pickFeatured(participants: readonly string[], opts: { sharerId?: string | null; speakerId?: string | null }): string | null {
+/**
+ * Who is in the centre: a shared screen first (it is what everyone needs to read), then the host's spotlight (for everyone),
+ * then this person's own pin, then the last speaker.
+ */
+export function pickFeatured(
+  participants: readonly string[],
+  opts: { sharerId?: string | null; speakerId?: string | null; spotlightId?: string | null; pinnedId?: string | null },
+): string | null {
   if (opts.sharerId && participants.includes(opts.sharerId)) return opts.sharerId;
+  if (opts.spotlightId && participants.includes(opts.spotlightId)) return opts.spotlightId;
+  if (opts.pinnedId && participants.includes(opts.pinnedId)) return opts.pinnedId;
   if (opts.speakerId && participants.includes(opts.speakerId)) return opts.speakerId;
   return participants[1] ?? participants[0] ?? null;
 }
