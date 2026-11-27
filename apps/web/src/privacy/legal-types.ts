@@ -16,5 +16,5 @@ export interface LegalDoc {
 
 export type LegalTexts = Record<Lang, LegalDoc>;
 
-/** Contact address of the privacy section. A placeholder until the operator confirms a real mailbox. */
-export const PRIVACY_CONTACT = 'privacy@davrabox.uz';
+/** Contact address of the privacy and terms pages: the owner's mailbox (decided 2026-11-28). */
+export const PRIVACY_CONTACT = 'kepdotuz@gmail.com';

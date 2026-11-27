@@ -61,7 +61,7 @@ export const TERMS_TEXT: LegalTexts = {
         heading: 'Governing law and contact',
         paragraphs: [
           'Governing law and the way disputes are settled: to be confirmed (the law of the Republic of Uzbekistan is intended).',
-          `Contact: ${PRIVACY_CONTACT} (to be confirmed: the mailbox does not exist yet).`,
+          `Contact: ${PRIVACY_CONTACT}.`,
           'We may change these terms. If a change matters to you we will say so on this page and in the app before it applies.',
         ],
       },
@@ -126,7 +126,7 @@ export const TERMS_TEXT: LegalTexts = {
         heading: 'Применимое право и контакты',
         paragraphs: [
           'Применимое право и порядок разрешения споров: уточняются (предполагается право Республики Узбекистан).',
-          `Контакт: ${PRIVACY_CONTACT} (уточняется: такого ящика пока нет).`,
+          `Контакт: ${PRIVACY_CONTACT}.`,
           'Мы можем изменить эти условия. Если изменение существенно для вас, мы сообщим об этом на этой странице и в приложении до вступления в силу.',
         ],
       },
@@ -191,7 +191,7 @@ export const TERMS_TEXT: LegalTexts = {
         heading: 'Qo‘llaniladigan huquq va aloqa',
         paragraphs: [
           'Qo‘llaniladigan huquq va nizolarni hal etish tartibi: aniqlanadi (O‘zbekiston Respublikasi huquqi nazarda tutilmoqda).',
-          `Aloqa: ${PRIVACY_CONTACT} (aniqlanadi: bunday pochta qutisi hozircha yo‘q).`,
+          `Aloqa: ${PRIVACY_CONTACT}.`,
           'Biz bu shartlarni o‘zgartirishimiz mumkin. O‘zgarish siz uchun muhim bo‘lsa, kuchga kirishidan oldin buni shu sahifada va ilovada ma’lum qilamiz.',
         ],
       },
