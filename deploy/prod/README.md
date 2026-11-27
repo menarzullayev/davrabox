@@ -101,6 +101,13 @@ URL is never on a command line. The server keeps a package only when its SHA-256
 The builds are unsigned betas (the landing page says so and shows the checksums). After the first deploy of this
 change, recreate Caddy once so it mounts the folder: `docker compose ... up -d --force-recreate caddy`.
 
+## Email, password reset, Google / Microsoft sign-in
+
+Keycloak sends the verification and password-reset emails through Brevo (`KC_SMTP_*` in `.env`) and offers Google /
+Microsoft sign-in (`IDP_*`). Both are applied to the realm by `scripts/keycloak-onboarding.mjs` after a Keycloak restart
+(the email theme is a mounted folder). Owner steps, redirect URIs, DNS (`scripts/cloudflare-mail-dns.mjs`) and the exact
+commands: [docs/email-and-social-signin.md](../../docs/email-and-social-signin.md).
+
 ## Help assistant
 
 See `docs/help-assistant.md`. `.env`: `ANTHROPIC_API_KEY` (empty = FAQ mode), `ASSISTANT_DAILY_USD_CAP`,
