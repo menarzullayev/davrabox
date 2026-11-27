@@ -153,6 +153,9 @@ export class PrivacyRetentionJob {
       if (n < BATCH) break;
     }
 
+    // "Where you're signed in": what was seen of a sign-in session is kept 90 days after it was last seen.
+    await withTenant(this.pool, orgId, (c) => c.query("DELETE FROM user_session_devices WHERE last_seen < now() - interval '90 days'"));
+
     // Runs of meetings ("Recent activity") age out like the meetings themselves; personal rooms keep only recent runs.
     for (let round = 0; round < MAX_ROUNDS; round++) {
       const n = await withTenant(this.pool, orgId, async (c) => {

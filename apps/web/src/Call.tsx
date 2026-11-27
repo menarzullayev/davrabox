@@ -54,6 +54,13 @@ function useParticipantEvents(participants: Participant[]): void {
   }, [participants]);
 }
 
+/** The picture URL from a participant's server-set attributes (a random id; anything else is ignored). */
+export function avatarOf(attrs: Record<string, string> | undefined): string | null {
+  const id = attrs?.['avatar'];
+  return id && /^[0-9a-f]{32}$/.test(id) ? `/api/v1/avatars/${id}` : null;
+}
+const MEMBER_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function Call({
   join,
   code,
@@ -96,6 +103,24 @@ export function Call({
   const [target, setTarget] = useState(''); // '' = everyone, otherwise a participant identity
   const [unread, setUnread] = useState(0);
   const [hands, setHands] = useState<Record<string, boolean>>({});
+  // Job title and department of the other members (owner decision 5): asked once per person, never for guests to see.
+  const [cards, setCards] = useState<Record<string, string>>({});
+  const askedCards = useRef(new Set<string>());
+  useEffect(() => {
+    if (guest) return;
+    for (const p of participants) {
+      const id = p.identity;
+      if (!MEMBER_ID.test(id) || askedCards.current.has(id)) continue;
+      askedCards.current.add(id);
+      void getToken()
+        .then((tk) => api.person(tk, id))
+        .then((c) => {
+          const sub = [c.jobTitle, c.department].filter(Boolean).join(' · ');
+          if (sub) setCards((x) => ({ ...x, [id]: sub }));
+        })
+        .catch(() => undefined);
+    }
+  });
   const [myHand, setMyHand] = useState(false);
   const [noiseOn, setNoiseOn] = useState<boolean | null>(null); // as reported by the live microphone track
   const [role, setRole] = useState<'host' | 'cohost' | 'member'>(join.isHost ? 'host' : 'member');
@@ -639,6 +664,8 @@ export function Call({
     isCohost: cohostIds.includes(p.identity),
     pinned: pinnedId === p.identity,
     spotlit: spotlightId === p.identity,
+    ...(avatarOf(p.attributes) ? { avatarUrl: avatarOf(p.attributes)! } : {}),
+    ...(cards[p.identity] ? { subtitle: cards[p.identity] } : {}),
   }));
   const sharerLk = participants.find((p) => p.getTrackPublication(Track.Source.ScreenShare)?.track);
   const sharer = sharerLk ? (views.find((v) => v.id === sharerLk.identity) ?? null) : null;

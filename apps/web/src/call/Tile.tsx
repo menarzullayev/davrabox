@@ -93,7 +93,7 @@ export function ParticipantTile({ p, manage, onPin, ...c }: Common & { p: Partic
       <div ref={media} className="tile-media">
         {p.camOn ? null : (
           <span className="tile-avatar">
-            <Avatar name={p.name || '?'} id={p.id} size={avatarPx} decorative />
+            <Avatar name={p.name || '?'} id={p.id} size={avatarPx} src={p.avatarUrl} decorative />
           </span>
         )}
         {c.media}

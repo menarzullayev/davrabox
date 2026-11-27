@@ -5,7 +5,9 @@ import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
 import { isOrgAdmin, needsOrganization } from './admin/jwt';
-import { currentUser, freshToken, manager, signIn } from './auth';
+import { currentUser, freshToken, manager, signIn, takeReturnTo } from './auth';
+import { profileApiFor } from './profile/profileApi';
+import { setDisplay } from './profile/display';
 import { recoverSession } from './session-recovery';
 import { Call } from './Call';
 import { t, type Key, type Lang } from './i18n';
@@ -81,6 +83,9 @@ export function App() {
       .then((u) => {
         // The Keycloak redirect always lands on "/": go back to the admin console if that is where the user was headed.
         if (u && consumeReturnPath()) navigate('/admin', { replace: true });
+        // Back from an identity-provider page the profile opened (password, 2FA, passkey, account linking).
+        const back = u ? takeReturnTo() : null;
+        if (back) navigate(back, { replace: true });
         setUser(u);
       })
       .catch(() => setUser(null))
@@ -96,6 +101,19 @@ export function App() {
   const token = user && !orgless ? user.access_token : '';
   const [onboarding, setOnboarding] = useState<OnboardingView | null>(null);
   const homeApi = useMemo(() => homeApiFor(freshToken), []);
+  const profileApi = useMemo(() => profileApiFor(freshToken), []);
+  // The profile's picture and display choices (time zone, formats) apply on every screen.
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!token) return;
+    api.profile(token).then(
+      (p) => {
+        setAvatarUrl(p.avatarUrl);
+        setDisplay({ timeZone: p.timeZone, dateFormat: p.dateFormat, timeFormat: p.timeFormat });
+      },
+      () => undefined,
+    );
+  }, [token, loc.path]);
   const loadOnboarding = useCallback(() => {
     if (!token) return;
     api.onboarding(token).then(setOnboarding).catch(() => setOnboarding(null)); // the card is optional: no card on failure
@@ -392,6 +410,13 @@ export function App() {
       onTestDevices={() => markOnboarding({ devicesTested: true })}
       section={section}
       homeApi={homeApi}
+      profileApi={profileApi}
+      sid={typeof user.profile.sid === 'string' ? user.profile.sid : undefined}
+      avatarUrl={avatarUrl}
+      onAvatarChange={setAvatarUrl}
+      onSignedOutEverywhere={() => {
+        void manager.removeUser().finally(() => location.assign('/app'));
+      }}
       onSendVerification={async () => {
         await api.sendVerification(token);
       }}

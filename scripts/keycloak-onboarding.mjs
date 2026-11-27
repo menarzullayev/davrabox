@@ -21,6 +21,10 @@
 //                 account always needs the existing account's password or a link sent to that mailbox (built-in first
 //                 broker login flow, with SMTP now working). New Microsoft people verify their address like form sign-ups.
 //  - the API's service account may read the identity providers (to show only configured buttons on the sign-up page).
+//  - personal second factor (profile package, owner decision 3 of 2026-11-27): flow browser-personal-2fa (a copy of the built-in
+//    browser flow): a person who set up an authenticator app or a passkey on their profile is asked for it after the password.
+//    Nobody else is asked anything; organization-wide 2FA stays off. A realm that runs the enforced flow
+//    (scripts/keycloak-admin-2fa.mjs) is left alone.
 //
 // Environment (the server's .env; nothing is ever typed on the command line):
 //   KEYCLOAK_URL (default http://127.0.0.1:8180/auth), KEYCLOAK_REALM (default davrabox), KEYCLOAK_ADMIN_PASSWORD (required)
@@ -195,7 +199,74 @@ async function main() {
     note('service account role view-identity-providers', missing);
   }
 
-  if (check && changes) process.exit(1);
+  // 4. Personal second factor: a copy of the built-in browser flow (built-in flows cannot be changed), bound as the browser
+  //    flow. Its "Conditional OTP" step asks for the authenticator-app code of people who set one up, and a sibling
+  //    "Conditional passkey" step asks for the passkey of people who added one. Nobody else is asked anything.
+  //    (A single "(app code | passkey)" sub-flow under one condition was tried and refused correct passwords.)
+  const FLOW = 'browser-personal-2fa';
+  if (realm.browserFlow !== 'browser' && realm.browserFlow !== FLOW) {
+    console.log(`SKIP    personal second factor: the realm uses the flow "${realm.browserFlow}" (organization 2FA)`);
+  } else {
+    const fields = [];
+    const enc = encodeURIComponent;
+    const flows = await (await must(await api('/authentication/flows'), 'list flows')).json();
+    const exists = flows.some((f) => f.alias === FLOW);
+    if (!exists) {
+      fields.push(`copy browser -> ${FLOW}`);
+      if (!check) await must(await api('/authentication/flows/browser/copy', { method: 'POST', body: JSON.stringify({ newName: FLOW }) }), 'copy browser flow');
+    }
+    const list = async () => (await must(await api(`/authentication/flows/${FLOW}/executions`), 'list flow')).json();
+    let ex = exists || !check ? await list() : [];
+    const childrenOf = (parent) => {
+      const out = [];
+      for (let k = ex.indexOf(parent) + 1; k < ex.length && ex[k].level > parent.level; k++) if (ex[k].level === parent.level + 1) out.push(ex[k]);
+      return out;
+    };
+    const set = async (e, requirement) => {
+      if (!e || e.requirement === requirement) return;
+      fields.push(`${e.displayName}=${requirement}`);
+      if (!check) await must(await api(`/authentication/flows/${FLOW}/executions`, { method: 'PUT', body: JSON.stringify({ ...e, requirement }) }), `set ${e.displayName}`);
+    };
+    if (ex.length) {
+      const otp = ex.find((e) => e.authenticationFlow && /conditional otp/i.test(e.displayName ?? ''));
+      if (!otp) throw new Error(`the flow ${FLOW} has no Conditional OTP sub-flow`);
+      await set(otp, 'CONDITIONAL');
+      for (const e of childrenOf(otp)) await set(e, 'REQUIRED');
+      const forms = ex.find((e) => e.authenticationFlow && e.displayName === `${FLOW} forms`);
+      const PASSKEY = `${FLOW} Conditional passkey`;
+      if (!ex.some((e) => e.displayName === PASSKEY)) {
+        fields.push('conditional passkey sub-flow');
+        if (!check) {
+          await must(await api(`/authentication/flows/${enc(forms.displayName)}/executions/flow`, { method: 'POST', body: JSON.stringify({ alias: PASSKEY, type: 'basic-flow', description: 'passkey of people who added one', provider: 'registration-page-form' }) }), 'create passkey sub-flow');
+          ex = await list();
+        }
+      }
+      const pk = ex.find((e) => e.displayName === PASSKEY);
+      if (pk) {
+        for (const provider of ['conditional-user-configured', 'webauthn-authenticator-passwordless']) {
+          if (!childrenOf(pk).some((e) => e.providerId === provider)) {
+            fields.push(`add ${provider}`);
+            if (!check) {
+              await must(await api(`/authentication/flows/${enc(PASSKEY)}/executions/execution`, { method: 'POST', body: JSON.stringify({ provider }) }), `add ${provider}`);
+              ex = await list();
+            }
+          }
+        }
+        await set(ex.find((e) => e.displayName === PASSKEY), 'CONDITIONAL');
+        for (const e of childrenOf(ex.find((e) => e.displayName === PASSKEY))) await set(e, 'REQUIRED');
+      }
+    }
+    if (realm.browserFlow !== FLOW) {
+      fields.push(`bind ${FLOW}`);
+      if (!check) {
+        const r0 = await (await must(await api(''), 'read realm')).json();
+        await must(await api('', { method: 'PUT', body: JSON.stringify({ ...r0, browserFlow: FLOW }) }), 'bind browser flow');
+      }
+    }
+    note('personal second factor (app code or passkey, only for people who set one up)', fields);
+  }
+
+  if (check && changes) process.exitCode = 1; // not process.exit(): it can abort on Windows while fetch handles close
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

@@ -82,6 +82,8 @@ export class MeetingsService {
   private readonly testLimiter: RateLimiter;
   /** Set by the application module: the "Recent activity" tracker closes the run when the host ends the meeting. */
   onEnded: ((orgId: string, meetingId: string) => Promise<void>) | null = null;
+  /** Set by the application module: the person's picture id goes into the join token, so everyone in the call sees it. */
+  avatarOf: ((orgId: string, userId: string) => Promise<string | null>) | null = null;
 
   constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
     // The device check page opens a throw-away media room: a handful per person and hour is plenty.
@@ -607,10 +609,11 @@ export class MeetingsService {
     // The meeting role as a participant attribute, set only by this server (no one may update their own attributes), so
     // clients can trust it for host-only data-channel messages (polls, whiteboard permissions, Q&A moderation).
     const role = meeting.host_user_id === user.userId || user.role === 'org_admin' ? 'host' : meeting.is_cohost ? 'cohost' : 'member';
+    const avatar = await this.avatarOf?.(user.orgId, user.userId).catch(() => null);
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,
-      attributes: { role },
+      attributes: { role, ...(avatar ? { avatar } : {}) },
       ttl: limits.maxMinutes ? Math.min(this.cfg.MEETING_TOKEN_TTL_SECONDS, limits.maxMinutes * 60) : this.cfg.MEETING_TOKEN_TTL_SECONDS,
     });
     at.addGrant({

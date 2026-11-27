@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import type { MyRecording } from '../api';
 import type { Lang } from '../i18n';
+import { dateTimeText } from '../profile/display';
 import { Alert, Button, IconDownload, Skeleton, useToast } from '../ui';
 import type { HomeApi } from '../home/homeApi';
 import { formatCode } from '../home/logic';
 import { tx } from '../home/text';
 import { fileBase, saveBlob } from '../call/download';
 
+/** Date and time in the person's chosen zone and formats (profile). */
 function when(lang: Lang, iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+  return dateTimeText(new Date(iso), lang);
 }
 
 /**

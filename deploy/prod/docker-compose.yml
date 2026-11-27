@@ -84,11 +84,13 @@ services:
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       CLAMAV_HOST: clamav
       FILE_MASTER_KEY: ${FILE_MASTER_KEY}
-      # calendar integration (optional; docs/calendar.md): empty values keep the endpoints answering 503
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      MS_CLIENT_ID: ${MS_CLIENT_ID:-}
-      MS_CLIENT_SECRET: ${MS_CLIENT_SECRET:-}
+      # Calendar integration (owner decision 6 of the profile package, docs/calendar.md): ON as soon as an OAuth client exists.
+      # The sign-in apps (IDP_*) are used unless separate calendar clients are set; the calendar scope is asked for only when
+      # a person presses "Connect calendar" (incremental consent). Empty values keep the endpoints answering 503.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-${IDP_GOOGLE_CLIENT_ID:-}}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-${IDP_GOOGLE_CLIENT_SECRET:-}}
+      MS_CLIENT_ID: ${MS_CLIENT_ID:-${IDP_MICROSOFT_CLIENT_ID:-}}
+      MS_CLIENT_SECRET: ${MS_CLIENT_SECRET:-${IDP_MICROSOFT_CLIENT_SECRET:-}}
       CALENDAR_PUBLIC_URL: https://${PUBLIC_HOST}
       CORS_ORIGINS: https://${PUBLIC_HOST}
       METRICS_HOST: 0.0.0.0 # reachable only on the internal network; the port is never published

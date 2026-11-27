@@ -127,6 +127,8 @@ export class PrivacyService {
       const attended = await q(
         `SELECT m.code, s.started_at, s.ended_at, p.first_seen_at FROM meeting_session_participants p JOIN meeting_sessions s ON s.id = p.session_id JOIN meetings m ON m.id = s.meeting_id WHERE p.user_id = $1 ORDER BY s.started_at`,
       );
+      const prof = await q(`SELECT job_title, phone, time_zone, date_format, time_format, (avatar_id IS NOT NULL) AS has_avatar, updated_at FROM user_profiles WHERE user_id = $1`);
+      const devices = await q(`SELECT user_agent, ip_prefix, country, city, first_seen, last_seen FROM user_session_devices WHERE user_id = $1 ORDER BY last_seen DESC`);
       const personal = await q(`SELECT code, waiting_room, (passcode_hash IS NOT NULL) AS has_passcode, guest_mode FROM meetings WHERE personal_owner = $1`);
       const cohost = await q(`SELECT m.code, ch.created_at FROM meeting_cohosts ch JOIN meetings m ON m.id = ch.meeting_id WHERE ch.user_id = $1 ORDER BY ch.created_at`);
       const files = await q(
@@ -160,6 +162,8 @@ export class PrivacyService {
         },
         meetingsHosted: hosted.map((m) => ({ code: m.code, title: m.title, scheduledAt: iso(m.scheduled_at), createdAt: iso(m.created_at), waitingRoom: m.waiting_room, locked: m.locked, e2ee: m.e2ee })),
         meetingsJoined: joined.map((m) => ({ code: m.code, title: m.title, firstJoinedAt: iso(m.first_at) })),
+        profileDetails: prof[0] ? { jobTitle: prof[0].job_title, phone: prof[0].phone, timeZone: prof[0].time_zone, dateFormat: prof[0].date_format, timeFormat: prof[0].time_format, hasPicture: prof[0].has_avatar, updatedAt: iso(prof[0].updated_at) } : null,
+        signInDevices: devices.map((d) => ({ userAgent: d.user_agent, network: d.ip_prefix, country: d.country, city: d.city, firstSeen: iso(d.first_seen), lastSeen: iso(d.last_seen) })),
         meetingRuns: attended.map((r) => ({ meetingCode: r.code, startedAt: iso(r.started_at), endedAt: iso(r.ended_at), firstSeenAt: iso(r.first_seen_at) })),
         personalRoom: personal[0] ? { code: personal[0].code, waitingRoom: personal[0].waiting_room, hasPasscode: personal[0].has_passcode, guests: personal[0].guest_mode } : null,
         joinRequests: requests.map((r) => ({ meetingCode: r.code, status: r.status, requestedAt: iso(r.created_at), decidedAt: iso(r.decided_at) })),
@@ -256,6 +260,8 @@ export class PrivacyService {
       await c.query('DELETE FROM user_prefs WHERE user_id = $1', [userId]); // display choices go with the person
       await c.query('DELETE FROM user_onboarding WHERE user_id = $1', [userId]); // and so does the "Get started" progress
       await c.query('DELETE FROM meeting_session_participants WHERE user_id = $1', [userId]); // attendance in "Recent activity"
+      await c.query('DELETE FROM user_profiles WHERE user_id = $1', [userId]); // title, phone, time zone (the picture went above)
+      await c.query('DELETE FROM user_session_devices WHERE user_id = $1', [userId]); // "Where you're signed in"
       // The personal room stops being the person's: locked (nobody gets in through the old link) and left to retention.
       await c.query('UPDATE meetings SET personal_owner = NULL, locked = true WHERE personal_owner = $1', [userId]);
       const cal = await c.query('DELETE FROM calendar_connections WHERE user_id = $1', [userId]);
@@ -284,11 +290,12 @@ export class PrivacyService {
 
   /** Objects first, rows after: a row is dropped only once its objects are gone, so a failure can always be retried. */
   private async removeStored(orgId: string, userId: string): Promise<{ files: number; recordings: number }> {
-    const { files, recs } = await withTenant(this.pool, orgId, async (c) => ({
+    const { files, recs, avatar } = await withTenant(this.pool, orgId, async (c) => ({
       files: (await c.query<{ id: string; object_key: string }>('SELECT id, object_key FROM meeting_files WHERE uploader_id = $1', [userId])).rows,
       recs: (await c.query<{ id: string; object_key: string; staging_key: string }>('SELECT id, object_key, staging_key FROM recordings WHERE started_by = $1', [userId])).rows,
+      avatar: (await c.query<{ avatar_object: string | null }>('SELECT avatar_object FROM user_profiles WHERE user_id = $1', [userId])).rows[0]?.avatar_object ?? null,
     }));
-    if ((files.length || recs.length) && !this.deps.objects) throw new PrivacyError(503, 'object storage is not configured');
+    if ((files.length || recs.length || avatar) && !this.deps.objects) throw new PrivacyError(503, 'object storage is not configured');
     const objects = this.deps.objects;
     const goneFiles: string[] = [];
     const goneRecs: string[] = [];
@@ -310,7 +317,17 @@ export class PrivacyService {
         failed = true;
       }
     }
+    let avatarGone = false;
+    if (avatar) {
+      try {
+        await objects!.deleteFileObject(avatar); // the profile picture lives in the file bucket
+        avatarGone = true;
+      } catch {
+        failed = true;
+      }
+    }
     await withTenant(this.pool, orgId, async (c) => {
+      if (avatarGone) await c.query('UPDATE user_profiles SET avatar_id = NULL, avatar_object = NULL, avatar_wrapped_key = NULL, avatar_mime = NULL WHERE user_id = $1', [userId]);
       if (goneFiles.length) await c.query('DELETE FROM meeting_files WHERE id = ANY($1::uuid[])', [goneFiles]);
       if (goneRecs.length) await c.query('DELETE FROM recordings WHERE id = ANY($1::uuid[])', [goneRecs]);
     });

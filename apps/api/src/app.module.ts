@@ -13,6 +13,10 @@ import { MeetingsService } from './meetings/meetings.service.js';
 import { ACTIVITY, MeController, PERSONAL_ROOM } from './meetings/me.controller.js';
 import { PersonalRoomService } from './meetings/personal-room.js';
 import { ActivityTracker } from './meetings/activity.js';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AvatarController, DeviceInterceptor, PROFILE, PeopleController, ProfileController, SECURITY } from './profile/profile.controller.js';
+import { ProfileService } from './profile/profile.service.js';
+import { SecurityService } from './profile/security.service.js';
 import { GUESTS, GuestController } from './meetings/guest.controller.js';
 import { GuestService } from './meetings/guest.service.js';
 import { PREFS, PrefsController } from './prefs/prefs.controller.js';
@@ -43,7 +47,7 @@ export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
-  controllers: [MeetingsController, MeController, GuestController, PrefsController, OnboardingController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
+  controllers: [MeetingsController, MeController, ProfileController, PeopleController, AvatarController, GuestController, PrefsController, OnboardingController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
@@ -60,13 +64,27 @@ export const CONFIG = Symbol('CONFIG');
     },
     {
       provide: MEETINGS,
-      useFactory: (pool: Pool, cfg: Config, rate: RateLimitService, activity: ActivityTracker) => {
+      useFactory: (pool: Pool, cfg: Config, rate: RateLimitService, activity: ActivityTracker, profile: ProfileService) => {
         const svc = new MeetingsService(pool, cfg, rate);
         svc.onEnded = (orgId, meetingId) => activity.endedByHost(orgId, meetingId);
+        svc.avatarOf = (orgId, userId) => profile.avatarIdOf(orgId, userId);
         return svc;
       },
-      inject: [POOL, CONFIG, RateLimitService, ACTIVITY],
+      inject: [POOL, CONFIG, RateLimitService, ACTIVITY, PROFILE],
     },
+    { provide: PROFILE, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ProfileService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
+    {
+      provide: SECURITY,
+      useFactory: (pool: Pool, cfg: Config) =>
+        new SecurityService(
+          pool,
+          cfg.KEYCLOAK_ADMIN_URL && cfg.KEYCLOAK_ADMIN_CLIENT_SECRET
+            ? new KeycloakAdmin({ baseUrl: cfg.KEYCLOAK_ADMIN_URL, realm: cfg.KEYCLOAK_ADMIN_REALM, clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID, clientSecret: cfg.KEYCLOAK_ADMIN_CLIENT_SECRET })
+            : null,
+        ),
+      inject: [POOL, CONFIG],
+    },
+    { provide: APP_INTERCEPTOR, useClass: DeviceInterceptor },
     { provide: PERSONAL_ROOM, useFactory: (pool: Pool) => new PersonalRoomService(pool), inject: [POOL] },
     { provide: GUESTS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new GuestService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     { provide: PREFS, useFactory: (pool: Pool) => new PrefsService(pool), inject: [POOL] },

@@ -1,3 +1,4 @@
+import { clock, getDisplay } from '../profile/display';
 // Pure logic of the home screens (no React, no DOM): join-code parsing and validation, grouping meetings on a day
 // timeline with an injected clock, greeting and name extraction, time/date formatting driven by the dictionaries.
 import type { Meeting } from '../api';
@@ -196,9 +197,11 @@ export function displayName(p: ProfileLike | undefined | null): string {
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
-/** 24-hour clock "09:05", the same in every language (tabular, unambiguous, what the product uses everywhere). */
+/** "09:05" by default (24 h, the same in every language); the profile's time zone and 12/24 h choice apply. */
 export function formatClock(d: Date): string {
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  const c = getDisplay();
+  if (!c.timeZone && c.timeFormat !== '12h') return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  return clock(d, c);
 }
 
 export interface DayNames {

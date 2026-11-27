@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ActivityItem } from '../api';
 import type { Lang } from '../i18n';
+import { dateTimeText } from '../profile/display';
 import { Badge, IconClock, IconPaperclip, IconRecord, IconUsers, Skeleton } from '../ui';
 import type { HomeApi } from './homeApi';
 import { formatCode } from './logic';
@@ -14,12 +15,9 @@ export function formatDuration(lang: Lang, seconds: number): string {
   return tx(lang, 'raHours', { h: Math.floor(min / 60), m: min % 60 });
 }
 
+/** Date and time in the person's chosen zone and formats (profile). */
 function when(lang: Lang, iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+  return dateTimeText(new Date(iso), lang);
 }
 
 /**

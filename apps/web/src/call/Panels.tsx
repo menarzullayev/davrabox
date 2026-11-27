@@ -150,9 +150,10 @@ export function PeoplePanel({ lang, participants, manage, onPin, onClose }: Peop
       <ul className="dv-roster" aria-label={t(lang, 'clParticipants')}>
         {participants.map((p) => (
           <li key={p.id} className="dv-person" data-testid="roster-person">
-            <Avatar name={p.name || '?'} id={p.id} size={36} decorative />
+            <Avatar name={p.name || '?'} id={p.id} size={36} src={p.avatarUrl} decorative />
             <div className="dv-person__name">
               <strong>{p.name || p.id}{p.local ? ` (${t(lang, 'you')})` : ''}</strong>
+              {p.subtitle ? <span className="dv-person__sub" data-testid="roster-subtitle">{p.subtitle}</span> : null}
               <span className="dv-person__state">
                 {p.isCohost ? <span><IconShield size={14} />{t(lang, 'cohostBadge')}</span> : null}
                 {p.micMuted ? <span><IconMicOff size={14} />{t(lang, 'clWordMuted')}</span> : null}

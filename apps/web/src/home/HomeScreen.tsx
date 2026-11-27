@@ -26,6 +26,8 @@ import { DevicesPage } from '../pages/DevicesPage';
 import { RecordingsPage } from '../pages/RecordingsPage';
 import { WhiteboardsPage } from '../pages/WhiteboardsPage';
 import { SettingsPage } from '../pages/SettingsPage';
+import { ProfilePage } from '../profile/ProfilePage';
+import type { ProfileApi } from '../profile/profileApi';
 
 export interface HomeScreenProps {
   lang: Lang;
@@ -71,6 +73,15 @@ export interface HomeScreenProps {
   section?: AppSection;
   /** Server calls of the home package (personal room, activity, recordings, device check); the blocks need it. */
   homeApi?: HomeApi;
+  /** Server calls of /app/profile. */
+  profileApi?: ProfileApi;
+  /** The sign-in session id (profile: "this device", account linking). */
+  sid?: string;
+  /** The person's picture, shown in the header. */
+  avatarUrl?: string | null;
+  /** After "sign out of all sessions". */
+  onSignedOutEverywhere?: () => void;
+  onAvatarChange?: (url: string | null) => void;
 }
 
 const GREETING: Record<ReturnType<typeof greetingSlot>, Key> = {
@@ -198,6 +209,8 @@ function HomeBody(props: HomeScreenProps) {
     page = <WhiteboardsPage lang={lang} />;
   } else if (section === 'settings') {
     page = <SettingsPage lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={relay} />;
+  } else if (section === 'profile' && props.profileApi) {
+    page = <ProfilePage lang={lang} api={props.profileApi} sid={props.sid} onSignedOutEverywhere={props.onSignedOutEverywhere ?? props.onSignOut} onAvatarChange={props.onAvatarChange} />;
   } else if (section === 'devices' && props.homeApi) {
     page = (
       <DevicesPage
@@ -310,6 +323,7 @@ function HomeBody(props: HomeScreenProps) {
       isAdmin={props.isAdmin}
       who={displayName(props.profile)}
       whoId={typeof props.profile?.sub === 'string' ? props.profile.sub : undefined}
+      whoAvatar={props.avatarUrl ?? undefined}
       onSignOut={props.onSignOut}
       onNew={() => setDialog('new')}
     >
