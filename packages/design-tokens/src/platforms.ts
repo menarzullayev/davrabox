@@ -53,6 +53,9 @@ ${selector} :focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 
 ${selector} #kc-header-wrapper { font-size: 0; height: 36px; background: url(${mode === 'dark' ? '/brand/logo.svg' : '/brand/logo-light.svg'}) center / contain no-repeat; }
 ${selector} .dx-kc-langs a { border: 1px solid ${c.borderStrong}; color: ${c.text}; }
 ${selector} .dx-kc-langs a[aria-current='true'] { background: ${c.accentSoft}; border-color: ${c.accent}; }
+${selector} #kc-social-providers a.dx-kc-social { color: ${c.text}; border-color: ${c.border}; }
+${selector} #kc-social-providers a.dx-kc-social:hover { border-color: ${c.accent}; background: ${c.accentSoft}; }
+${selector} #kc-social-providers a.dx-kc-social:focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
 ${selector} .pf-v5-c-check__input { accent-color: ${c.accent}; }
 ${selector} .pf-v5-c-check__input:focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
 ${selector} .pf-v5-c-form-control:focus-within { border-color: ${c.focusRing}; outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
@@ -84,6 +87,11 @@ ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { ou
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
 .pf-v5-c-login__main-header-utilities .pf-v5-c-form-control { display: none; }
 .dx-kc-langs { display: flex; gap: 0.5rem; flex-wrap: nowrap; }
+/* Social sign-in providers as full-width buttons with a label (davrabox.js adds the label). */
+#kc-social-providers ul { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; margin: 0; padding-inline: 2rem; }
+#kc-social-providers li { width: 100%; margin: 0; padding: 0; }
+#kc-social-providers a.dx-kc-social { display: flex; align-items: center; justify-content: center; gap: 0.625rem; width: 100%; min-height: 2.75rem; padding-inline: 1rem; border: 1px solid; border-radius: 999px; font-weight: 600; text-decoration: none; }
+#kc-social-providers a.dx-kc-social svg { flex: none; width: 1.25rem; height: 1.25rem; fill: currentColor; }
 .pf-v5-c-login__main-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
 .dx-kc-langs a { display: inline-flex; align-items: center; justify-content: center; min-width: 2.75rem; min-height: 2.75rem; padding-inline: 0.875rem; border-radius: 999px; font-weight: 600; text-decoration: none; }
 `;
