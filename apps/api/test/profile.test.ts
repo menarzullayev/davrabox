@@ -151,7 +151,7 @@ describe('profile fields', () => {
 });
 
 class FakeIdp implements SelfServiceIdentity {
-  creds = [
+  creds: Array<{ id: string; type: string; label: string | null; createdAt: string | null }> = [
     { id: 'c1', type: 'password', label: null, createdAt: '2026-11-01T00:00:00.000Z' },
     { id: 'c2', type: 'otp', label: 'Phone', createdAt: '2026-11-02T00:00:00.000Z' },
     { id: 'c3', type: 'webauthn-passwordless', label: 'Laptop', createdAt: '2026-11-03T00:00:00.000Z' },
