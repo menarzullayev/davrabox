@@ -42,7 +42,7 @@ export function plan(records) {
 
 /** Which existing record a wanted one replaces (same name and type, same kind of TXT); null = create. Pure. */
 export function counterpart(want, existing) {
-  const kind = (c) => (/^v=spf1/i.test(c) ? 'spf' : /^v=dmarc1/i.test(c) ? 'dmarc' : /^brevo-code:/i.test(c) ? 'brevo' : /^v=dkim1|k=rsa/i.test(c) ? 'dkim' : 'other');
+  const kind = (c) => (/^v=spf1/i.test(c) ? 'spf' : /^v=dmarc1/i.test(c) ? 'dmarc' : /^brevo-code:/i.test(c) ? 'brevo' : /^(v=dkim1|k=rsa)/i.test(c) ? 'dkim' : 'other');
   return existing.find((e) => e.type === want.type && e.name === want.name && (want.type === 'CNAME' || kind(e.content.replace(/^"|"$/g, '')) === kind(want.content))) ?? null;
 }
 
