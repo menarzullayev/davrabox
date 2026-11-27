@@ -30,6 +30,9 @@ import { navigate, sectionFromPath, useLocationPath } from './shell/nav';
 import { ToastProvider } from './ui';
 import { displayName } from './home/logic';
 
+// The passcode of a join link, read when the module loads (before the join parameters are dropped from the address bar).
+const LINK_PASSCODE = typeof location === 'undefined' ? null : passcodeFromSearch(location.search);
+
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
 
@@ -66,16 +69,9 @@ export function App() {
       return '';
     }
   });
-  // A passcode in the join link ("put the passcode in the link"): kept for this tab only, offered in the join form.
-  const [pendingPwd] = useState(() => {
-    try {
-      const v = passcodeFromSearch(location.search);
-      if (v) sessionStorage.setItem('pendingPwd', v);
-      return sessionStorage.getItem('pendingPwd') ?? '';
-    } catch {
-      return '';
-    }
-  });
+  // A passcode in the join link ("put the passcode in the link"), offered in the join form.
+  // Read before the join parameter is dropped from the address bar; kept in memory only (never in browser storage).
+  const [pendingPwd] = useState(() => LINK_PASSCODE ?? '');
   const [err, setErr] = useState<Key | null>(null);
   // Organization join rules (settings package): the notice to accept, and waiting while the host has not started.
   const [notice, setNotice] = useState<{ text: string; retry: () => void } | null>(null);
