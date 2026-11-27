@@ -74,15 +74,23 @@ describe('legal texts', () => {
     // the statement must not claim there is no third party
     expect(JSON.stringify(PRIVACY_TEXT.en)).toMatch(/outside Uzbekistan/);
   });
-  it('the contact address is the placeholder and is marked as to be confirmed', () => {
-    expect(PRIVACY_CONTACT).toBe('privacy@davrabox.uz');
+  it('shows the real contact address, without the old "to be confirmed" note', () => {
+    expect(PRIVACY_CONTACT).toBe('kepdotuz@gmail.com');
     for (const l of LANGS) {
       const body = JSON.stringify([PRIVACY_TEXT[l], TERMS_TEXT[l]]);
       expect(body, l).toContain(PRIVACY_CONTACT);
+      expect(body, l).not.toContain('davrabox.uz');
+      expect(body, l).not.toContain(`${PRIVACY_CONTACT} (`);
     }
-    expect(JSON.stringify(PRIVACY_TEXT.en)).toMatch(/privacy@davrabox\.uz \(to be confirmed/);
-    expect(JSON.stringify(PRIVACY_TEXT.ru)).toMatch(/privacy@davrabox\.uz \(уточняется/);
-    expect(JSON.stringify(PRIVACY_TEXT.uz)).toMatch(/privacy@davrabox\.uz \(aniqlanadi/);
+  });
+  it('describes Google user data with the Limited Use statement in every language', () => {
+    for (const l of LANGS) {
+      const section = PRIVACY_TEXT[l].sections.find((s) => s.id === 'google-data');
+      const text = JSON.stringify(section);
+      expect(text, l).toContain('calendar.events.owned');
+      expect(text, l).toContain('https://developers.google.com/terms/api-services-user-data-policy');
+      expect(text, l).toContain('Limited Use');
+    }
   });
 });
 

@@ -11,7 +11,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         heading: 'Who runs DavraBox',
         paragraphs: [
           'DavraBox is a video-conferencing service for organisations. The company that operates it and is responsible for your data: name, legal form, registration number and address are to be confirmed.',
-          `Contact for privacy questions and requests: ${PRIVACY_CONTACT} (to be confirmed: the mailbox does not exist yet).`,
+          `Contact for privacy questions and requests: ${PRIVACY_CONTACT}.`,
           'When your employer or school gives you an account, that organisation decides who may use DavraBox and can see parts of your data described below (its administrators). Ask your organisation about its own rules.',
         ],
       },
@@ -68,6 +68,17 @@ export const PRIVACY_TEXT: LegalTexts = {
         ],
       },
       {
+        id: 'google-data',
+        heading: 'Google user data (calendar)',
+        paragraphs: [
+          'Connecting a Google calendar is optional. It is asked only when you press "Connect calendar", never when you sign in. DavraBox then asks for one permission: to see, create, change and delete events on Google calendars you own (calendar.events.owned).',
+          'How it is used: when you press "Add to calendar", DavraBox creates an event in your calendar with the meeting title, time, join link and code, and the attendees you listed. DavraBox does not read, list or analyse your other events.',
+          'What is stored and shared: only the access token needed to do this, encrypted. Google user data is not sold, not used for advertising, not used to train AI models and not sent to anyone else; people do not read it, except when you ask for help with it, for security, or when the law requires it.',
+          'Removing access: disconnect the calendar on your profile page (the stored token is deleted and DavraBox asks Google to revoke it), or remove DavraBox at myaccount.google.com/permissions.',
+          'DavraBox\'s use and transfer to any other app of information received from Google APIs will adhere to the Google API Services User Data Policy (https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.',
+        ],
+      },
+      {
         id: 'rights',
         heading: 'Your rights',
         items: [
@@ -110,7 +121,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         heading: 'Кто предоставляет DavraBox',
         paragraphs: [
           'DavraBox — сервис видеоконференций для организаций. Компания, которая его предоставляет и отвечает за ваши данные: наименование, организационно-правовая форма, регистрационный номер и адрес уточняются.',
-          `Контакт для вопросов и запросов о конфиденциальности: ${PRIVACY_CONTACT} (уточняется: такого ящика пока нет).`,
+          `Контакт для вопросов и запросов о конфиденциальности: ${PRIVACY_CONTACT}.`,
           'Если аккаунт вам выдал работодатель или учебное заведение, эта организация решает, кто пользуется DavraBox, и её администраторы видят часть описанных ниже данных. Правила организации узнавайте у неё.',
         ],
       },
@@ -167,6 +178,17 @@ export const PRIVACY_TEXT: LegalTexts = {
         ],
       },
       {
+        id: 'google-data',
+        heading: 'Данные пользователя Google (календарь)',
+        paragraphs: [
+          'Подключать календарь Google необязательно. Разрешение запрашивается только после нажатия «Подключить календарь», при входе оно не запрашивается. DavraBox просит одно разрешение: просматривать, создавать, изменять и удалять события в календарях Google, которыми вы владеете (calendar.events.owned).',
+          'Как это используется: когда вы нажимаете «Добавить в календарь», DavraBox создаёт в вашем календаре событие с названием встречи, временем, ссылкой и кодом для входа и указанными вами участниками. Другие ваши события DavraBox не читает, не перечисляет и не анализирует.',
+          'Что хранится и передаётся: только необходимый для этого токен доступа, в зашифрованном виде. Данные пользователя Google не продаются, не используются для рекламы и обучения моделей ИИ и никому не передаются; люди их не читают, кроме случаев, когда вы просите помощи, ради безопасности или по требованию закона.',
+          'Отзыв доступа: отключите календарь на странице профиля (сохранённый токен удаляется, и DavraBox просит Google отозвать его) или удалите DavraBox на странице myaccount.google.com/permissions.',
+          'Использование DavraBox информации, полученной из API Google, и её передача любому другому приложению соответствуют Политике в отношении пользовательских данных служб Google API (https://developers.google.com/terms/api-services-user-data-policy), включая требования об ограниченном использовании (Limited Use).',
+        ],
+      },
+      {
         id: 'rights',
         heading: 'Ваши права',
         items: [
@@ -209,7 +231,7 @@ export const PRIVACY_TEXT: LegalTexts = {
         heading: 'DavraBox’ni kim taqdim etadi',
         paragraphs: [
           'DavraBox — tashkilotlar uchun videokonferensiya xizmati. Uni taqdim etuvchi va ma’lumotlaringiz uchun mas’ul kompaniya: nomi, tashkiliy-huquqiy shakli, ro‘yxatdan o‘tish raqami va manzili aniqlanadi.',
-          `Maxfiylik bo‘yicha savol va so‘rovlar uchun aloqa: ${PRIVACY_CONTACT} (aniqlanadi: bunday pochta qutisi hozircha yo‘q).`,
+          `Maxfiylik bo‘yicha savol va so‘rovlar uchun aloqa: ${PRIVACY_CONTACT}.`,
           'Hisobni sizga ish joyingiz yoki o‘quv muassasangiz bergan bo‘lsa, DavraBox’dan kim foydalanishini o‘sha tashkilot hal qiladi va uning administratorlari quyida tavsiflangan ma’lumotlarning bir qismini ko‘ra oladi. Tashkilotning o‘z qoidalarini undan so‘rang.',
         ],
       },
@@ -263,6 +285,17 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Qancha: suhbatning oxirgi xabaridan keyin 30 kun, so‘ng avtomatik o‘chiriladi.',
           'Kim o‘qiy oladi: faqat DavraBox platformasi operatori. Tashkilot administratorlari o‘qiy olmaydi.',
           'Javob avval FAQ’dan izlanadi. FAQ’da javob bo‘lmasa va operator bu imkoniyatni yoqqan bo‘lsa, yashirilgan savol Anthropic’ka yuboriladi («Ma’lumotlarni yana kim qayta ishlaydi» bo‘limiga qarang). Botga parol yoki shaxsiy ma’lumot yozmang.',
+        ],
+      },
+      {
+        id: 'google-data',
+        heading: 'Google foydalanuvchi ma’lumotlari (kalendar)',
+        paragraphs: [
+          'Google kalendarini ulash ixtiyoriy. Ruxsat faqat «Kalendarni ulash» tugmasini bosganingizda so‘raladi, tizimga kirishda so‘ralmaydi. DavraBox bitta ruxsat so‘raydi: o‘zingizga tegishli Google kalendarlaridagi tadbirlarni ko‘rish, yaratish, o‘zgartirish va o‘chirish (calendar.events.owned).',
+          'Qanday ishlatiladi: «Kalendarga qo‘shish» tugmasini bosganingizda DavraBox kalendaringizda uchrashuv nomi, vaqti, qo‘shilish havolasi va kodi hamda siz ko‘rsatgan ishtirokchilar bilan tadbir yaratadi. Boshqa tadbirlaringizni DavraBox o‘qimaydi, ro‘yxatlamaydi va tahlil qilmaydi.',
+          'Nima saqlanadi va ulashiladi: faqat shu ish uchun kerakli ruxsat tokeni, shifrlangan holda. Google foydalanuvchi ma’lumotlari sotilmaydi, reklama va sun’iy intellekt modellarini o‘qitish uchun ishlatilmaydi va hech kimga berilmaydi; ularni odamlar o‘qimaydi, bundan faqat siz yordam so‘raganingizda, xavfsizlik uchun yoki qonun talab qilganda istisno qilinadi.',
+          'Ruxsatni bekor qilish: profil sahifasida kalendarni uzing (saqlangan token o‘chiriladi va DavraBox Google’dan uni bekor qilishni so‘raydi) yoki myaccount.google.com/permissions sahifasida DavraBox’ni olib tashlang.',
+          'DavraBox Google API’laridan olingan ma’lumotlardan foydalanishda va ularni boshqa ilovaga uzatishda Google API Services User Data Policy (https://developers.google.com/terms/api-services-user-data-policy) talablariga, jumladan Limited Use (cheklangan foydalanish) talablariga amal qiladi.',
         ],
       },
       {
