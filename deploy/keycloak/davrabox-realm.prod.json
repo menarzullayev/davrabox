@@ -9,7 +9,8 @@
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
-  "resetPasswordAllowed": false,
+  "resetPasswordAllowed": true,
+  "verifyEmail": false,
   "bruteForceProtected": true,
   "failureFactor": 5,
   "maxFailureWaitSeconds": 900,
@@ -98,7 +99,8 @@
           "view-users",
           "manage-users",
           "view-realm",
-          "query-users"
+          "query-users",
+          "view-identity-providers"
         ]
       }
     }
@@ -116,6 +118,7 @@
     ]
   },
   "loginTheme": "davrabox",
+  "emailTheme": "davrabox",
   "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 28800,
   "ssoSessionMaxLifespan": 86400,

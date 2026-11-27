@@ -107,6 +107,22 @@ services:
     mem_limit: 4g
     cpus: 4
 
+  # Local mail catcher for the realm's verification / password-reset emails (dev and staging only; nothing leaves the PC).
+  # Keycloak sends to mailpit:1025; the inbox and its API are on http://127.0.0.1:58025 (loopback only), used by onboarding.e2e.mjs.
+  # Staging can send real mail instead: put KC_SMTP_* (Brevo) into dev.env and run scripts/keycloak-onboarding.mjs.
+  mailpit:
+    image: axllent/mailpit:v1.33.0
+    restart: unless-stopped
+    container_name: davra-mailpit
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - "127.0.0.1:58025:8025"
+    mem_limit: 128m
+    cpus: 0.25
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped

@@ -5,12 +5,12 @@ import { RoomServiceClient } from 'livekit-server-sdk';
 import { livekitClientOptions } from '../common/timeouts.js';
 import { KeycloakAdmin } from '../admin/identity-admin.js';
 import { AuthGuard, POOL, VERIFIER } from '../auth/auth.guard.js';
-import { createVerifier } from '../auth/jwt.js';
+import { createPendingVerifier, createVerifier } from '../auth/jwt.js';
 import { loadConfig, type Config } from '../config.js';
 import { loadSignupSettings } from './limits.js';
 import { TrialRetentionJob } from './retention.job.js';
 import { TrialRoomSweeper } from './room-sweeper.js';
-import { SIGNUP, SignupController } from './signup.controller.js';
+import { OrgSetupController, PENDING_VERIFIER, SIGNUP, SignupController } from './signup.controller.js';
 import { SignupService } from './signup.service.js';
 import { TRIAL_LIMITS, TrialController } from './trial.controller.js';
 import { TrialLimits } from './trial.guard.js';
@@ -28,7 +28,7 @@ const SWEEPER = Symbol('TRIAL_SWEEPER');
  * trial room watchdog) run unless SIGNUP_BACKGROUND_JOBS=0.
  */
 @Module({
-  controllers: [SignupController, TrialController],
+  controllers: [SignupController, OrgSetupController, TrialController],
   providers: [
     { provide: SIGNUP_CONFIG, useFactory: () => loadConfig() },
     { provide: SIGNUP_POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 4), inject: [SIGNUP_CONFIG] },
@@ -54,6 +54,7 @@ const SWEEPER = Symbol('TRIAL_SWEEPER');
     // The trial status endpoint is authenticated like every other one.
     { provide: POOL, useExisting: SIGNUP_POOL },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [SIGNUP_CONFIG] },
+    { provide: PENDING_VERIFIER, useFactory: (cfg: Config) => createPendingVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [SIGNUP_CONFIG] },
     AuthGuard,
     { provide: RETENTION, useFactory: (pool: Pool, kc: KeycloakAdmin | null) => new TrialRetentionJob(pool, kc), inject: [SIGNUP_POOL, KEYCLOAK] },
     {

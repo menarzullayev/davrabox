@@ -20,6 +20,8 @@ const envSchema = z.object({
   SIGNUP_BLOCKED_DOMAINS: z.string().default(''),
   SIGNUP_MAX_CONCURRENT: z.coerce.number().int().min(1).max(20).default(3),
   SIGNUP_ALTCHA_MAX_NUMBER: z.coerce.number().int().min(1000).max(5_000_000).default(DEFAULT_MAX_NUMBER),
+  // The application's public origins (the same list the API allows for CORS): links in emails land only on one of them.
+  CORS_ORIGINS: z.string().default(''),
 });
 
 export interface SignupSettings {
@@ -33,6 +35,7 @@ export interface SignupSettings {
   blockedDomains: string[];
   maxConcurrent: number;
   maxNumber: number;
+  appOrigins: string[];
 }
 
 export function loadSignupSettings(env: NodeJS.ProcessEnv, fallbackSecret: string): SignupSettings {
@@ -51,6 +54,7 @@ export function loadSignupSettings(env: NodeJS.ProcessEnv, fallbackSecret: strin
     blockedDomains: c.SIGNUP_BLOCKED_DOMAINS.split(',').map((d) => d.trim().toLowerCase()).filter(Boolean),
     maxConcurrent: c.SIGNUP_MAX_CONCURRENT,
     maxNumber: c.SIGNUP_ALTCHA_MAX_NUMBER,
+    appOrigins: c.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
   };
 }
 

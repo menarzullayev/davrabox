@@ -1,6 +1,7 @@
 import { createHash, createHmac } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import { IdentityAdminError, type NewOrgAdmin, type SignupIdentity } from '../admin/identity-admin.js';
+import { IdentityAdminError, type NewOrgAdmin, type OnboardingIdentity, type SignInProvider, type SignupIdentity } from '../admin/identity-admin.js';
+import type { PendingIdentity } from '../auth/jwt.js';
 import { createChallenge, inspectSolution, type AltchaChallenge } from './altcha.js';
 import { isDisposable } from './disposable-domains.js';
 import { emailDomain, normalizeEmail } from './email-normalize.js';
@@ -25,7 +26,8 @@ export class SignupError extends Error {
 }
 
 export interface SignupInput {
-  orgName: string;
+  /** Optional: without it the organization is named after the person. */
+  orgName?: string;
   name: string;
   email: string;
   password: string;
@@ -37,16 +39,50 @@ export interface SignupResult {
   signInUrl: string;
 }
 
+/** The organization name to use: the one typed, else the person's name (the database needs at least two characters). */
+export function orgNameFor(orgName: string | undefined, name: string): string {
+  const typed = orgName?.trim() ?? '';
+  if (typed.length >= 2) return typed;
+  const fallback = name.trim();
+  return fallback.length >= 2 ? fallback : `${fallback || 'DavraBox'} team`;
+}
+
 export class SignupService {
   private inflight = 0;
+  private providersCache: { at: number; value: SignInProvider[] } | null = null;
 
   /** `settings` is read on every call, so a test (or an operator through a restart) can change limits. */
   constructor(
     private readonly pool: Pool,
     readonly settings: SignupSettings,
-    private readonly identity: SignupIdentity | null,
+    private readonly identity: (SignupIdentity & Partial<OnboardingIdentity>) | null,
     private readonly now: () => number = Date.now,
   ) {}
+
+  /** Full onboarding support (email verification, first sign-in through Google/Microsoft), when the provider offers it. */
+  private get onboarding(): OnboardingIdentity | null {
+    const i = this.identity;
+    return i && i.sendVerifyEmail && i.account && i.attachOrgAdmin && i.detachOrg && i.emailVerified && i.signInProviders ? (i as OnboardingIdentity) : null;
+  }
+
+  /**
+   * The external sign-in buttons the sign-up page may show: only providers really configured in the realm (cached for a
+   * minute; an unreachable provider list means no buttons, never an error on the public page).
+   */
+  async signInOptions(): Promise<{ providers: SignInProvider[] }> {
+    const kc = this.onboarding;
+    if (!this.settings.enabled || !kc) return { providers: [] };
+    const now = this.now();
+    if (this.providersCache && now - this.providersCache.at < 60_000) return { providers: this.providersCache.value };
+    let value: SignInProvider[] = [];
+    try {
+      value = await kc.signInProviders();
+    } catch {
+      value = [];
+    }
+    this.providersCache = { at: now, value };
+    return { providers: value };
+  }
 
   challenge(): AltchaChallenge {
     return createChallenge(this.settings.captchaSecret, this.now(), this.settings.maxNumber);
@@ -57,7 +93,8 @@ export class SignupService {
     return createHmac('sha256', this.settings.ipHashKey).update(ipKey(ip)).digest('hex').slice(0, 32);
   }
 
-  async signup(input: SignupInput, ip: string): Promise<SignupResult> {
+  /** `verifyRedirect`: where the link in the verification email lands (the application on the host the visitor used). */
+  async signup(input: SignupInput, ip: string, verifyRedirect: string | null = null): Promise<SignupResult> {
     const s = this.settings;
     const email = input.email.trim().toLowerCase();
     const domain = emailDomain(email);
@@ -101,8 +138,12 @@ export class SignupService {
     if (this.inflight >= s.maxConcurrent) return refuse(503, 'busy', 'the service is busy, please try again in a moment', 5);
     this.inflight += 1;
     try {
-      const slug = await this.create(input, email, domain, ipHash, refuse);
+      const { slug, sub } = await this.create(input, email, domain, ipHash, refuse);
       await this.event('success', '', ipHash, domain, slug);
+      // Decision 2 (2026-11-27): the organization opens at once; the verification email goes out now and nothing waits for it.
+      // Best effort: a mail failure never undoes the sign-up (the home screen offers "send again").
+      const kc = this.onboarding;
+      if (kc) void kc.sendVerifyEmail(sub, verifyRedirect).catch(() => undefined);
       return { slug, signInUrl: '/app' };
     } finally {
       this.inflight -= 1;
@@ -115,8 +156,9 @@ export class SignupService {
     domain: string,
     ipHash: string,
     refuse: (status: number, code: string, message: string, retryAfter?: number, reason?: string) => Promise<never>,
-  ): Promise<string> {
+  ): Promise<{ slug: string; sub: string }> {
     const emailHash = createHash('sha256').update(normalizeEmail(email)).digest('hex');
+    const orgName = orgNameFor(input.orgName, input.name);
     const client = await this.pool.connect();
     let kcId: string | null = null;
     let slug: string | null = null;
@@ -127,8 +169,8 @@ export class SignupService {
       try {
         org = (
           await client.query('SELECT org_id, slug FROM create_trial_org($1, $2, $3, $4, $5, $6, $7)', [
-            slugify(input.orgName),
-            input.orgName,
+            slugify(orgName),
+            orgName,
             emailHash,
             ipHash,
             TRIAL.days,
@@ -157,7 +199,7 @@ export class SignupService {
 
       await this.finishInTenant(client, org.org_id, kcId, email, input.name.trim(), slug);
       await client.query('COMMIT');
-      return slug;
+      return { slug, sub: kcId };
     } catch (e) {
       await client.query('ROLLBACK').catch(() => undefined);
       // Remove what the identity provider may hold. Both are best effort: a failure here cannot change the answer.
@@ -170,14 +212,95 @@ export class SignupService {
     }
   }
 
+  /**
+   * First sign-in through Google or Microsoft (decision 4): the provider created an account without an organization; this
+   * opens a trial organization with that person as its administrator. The same abuse limits as the form apply (minus the
+   * proof of work: the external account already cost the visitor a sign-in). Only an account that has no organization and is
+   * linked to an external provider qualifies; invited people already carry their organization and never come here.
+   */
+  async setupOrganization(who: PendingIdentity, orgName: string | undefined, ip: string): Promise<SignupResult> {
+    const s = this.settings;
+    const email = who.email.trim().toLowerCase();
+    const domain = emailDomain(email);
+    const ipHash = this.ipHash(ip);
+    const refuse = async (status: number, code: string, message: string, retryAfter?: number, reason?: string): Promise<never> => {
+      await this.event('refusal', reason ?? code, ipHash, domain);
+      throw new SignupError(status, code, message, retryAfter, reason);
+    };
+    const kc = this.onboarding;
+    if (!s.enabled || !kc) throw new SignupError(503, 'signup_unavailable', 'sign-up is not available right now');
+    if (who.orgSlug) throw new SignupError(409, 'already_member', 'this account already belongs to an organization');
+
+    let account: Awaited<ReturnType<OnboardingIdentity['account']>>;
+    try {
+      account = await kc.account(who.sub);
+    } catch {
+      throw new SignupError(503, 'identity_unavailable', 'the sign-in service is not reachable, please try again', 10);
+    }
+    if (!account) throw new SignupError(403, 'no_account', 'the account was not found');
+    if (account.orgSlug) throw new SignupError(409, 'already_member', 'this account already belongs to an organization');
+    if (account.providers.length === 0) return refuse(403, 'not_external', 'only a first sign-in through Google or Microsoft sets up an organization here');
+    if (isDisposable(email, s.blockedDomains)) return refuse(422, 'disposable_email', 'please use a permanent work or personal email address');
+
+    const admit = (
+      await this.pool.query('SELECT allowed, reason, retry_after FROM signup_admit($1, $2, $3, $4, $5)', [ipHash, domain, s.ipPerHour, domainLimit(domain, s.domainPerHour), s.dailyCap])
+    ).rows[0] as { allowed: boolean; reason: string; retry_after: number };
+    if (!admit.allowed) {
+      if (admit.reason === 'daily_cap') return refuse(503, 'daily_cap', 'new trials are paused for today, please try again later', admit.retry_after);
+      return refuse(429, 'rate_limited', 'too many sign-ups, please try again later', admit.retry_after);
+    }
+    if (this.inflight >= s.maxConcurrent) return refuse(503, 'busy', 'the service is busy, please try again in a moment', 5);
+    this.inflight += 1;
+    const name = who.name || email.split('@')[0]!;
+    const finalName = orgNameFor(orgName, name);
+    const emailHash = createHash('sha256').update(normalizeEmail(email)).digest('hex');
+    const providers = account.providers.join('+');
+    const client = await this.pool.connect();
+    let slug: string | null = null;
+    let attached = false;
+    try {
+      await client.query('BEGIN');
+      let org: { org_id: string; slug: string };
+      try {
+        org = (
+          await client.query('SELECT org_id, slug FROM create_trial_org($1, $2, $3, $4, $5, $6, $7)', [slugify(finalName), finalName, emailHash, ipHash, TRIAL.days, TRIAL.participants, TRIAL.minutes])
+        ).rows[0];
+      } catch (e) {
+        if ((e as { code?: string }).code === '23505') throw new SignupError(409, 'email_taken', 'this email already had a trial');
+        throw e;
+      }
+      slug = org.slug;
+      attached = true; // from here the provider may hold the attribute even if the call below fails: the rollback undoes it
+      try {
+        await kc.attachOrgAdmin(who.sub, slug);
+      } catch (e) {
+        if (e instanceof IdentityAdminError && e.status === 409) throw new SignupError(409, 'already_member', 'this account already belongs to an organization');
+        throw new SignupError(503, 'identity_unavailable', 'the sign-in service is not reachable, please try again', 10);
+      }
+      await this.finishInTenant(client, org.org_id, who.sub, email, name, slug, `${slug}:${providers}`);
+      await client.query('COMMIT');
+      attached = false;
+      await this.event('success', '', ipHash, domain, slug);
+      return { slug, signInUrl: '/app' };
+    } catch (e) {
+      await client.query('ROLLBACK').catch(() => undefined);
+      if (attached && slug) await kc.detachOrg(who.sub, slug).catch(() => undefined);
+      if (e instanceof SignupError) return refuse(e.status, e.code, e.message, e.retryAfter, e.reason);
+      return refuse(503, 'signup_failed', 'sign-up could not be completed, please try again', 10);
+    } finally {
+      client.release();
+      this.inflight -= 1;
+    }
+  }
+
   /** Inside the same transaction: the user row (so the first sign-in needs no provisioning) and the audit row. */
-  private async finishInTenant(c: PoolClient, orgId: string, sub: string, email: string, name: string, slug: string): Promise<void> {
+  private async finishInTenant(c: PoolClient, orgId: string, sub: string, email: string, name: string, slug: string, target = slug): Promise<void> {
     await c.query("SELECT set_config('app.current_org', $1, true)", [orgId]);
     const u = await c.query(
       `INSERT INTO users (org_id, external_sub, email, display_name, role) VALUES ($1, $2, $3, $4, 'org_admin') RETURNING id`,
       [orgId, sub, email, name],
     );
-    await c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [orgId, u.rows[0].id, 'signup.trial', slug]);
+    await c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [orgId, u.rows[0].id, 'signup.trial', target]);
   }
 
   private async event(kind: 'refusal' | 'success', reason: string, ipHash: string, domain: string, slug: string | null = null): Promise<void> {

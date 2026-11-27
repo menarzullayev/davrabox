@@ -21,6 +21,44 @@ data:
   messages_uz.properties: |
 {{ .Files.Get "files/keycloak-theme/login/messages/messages_uz.properties" | indent 4 }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-email-theme
+  labels:
+    {{- include "dvr.labels" . | nindent 4 }}
+data:
+  theme.properties: |
+{{ .Files.Get "files/keycloak-theme/email/theme.properties" | indent 4 }}
+  html__template.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/template.ftl" | indent 4 }}
+  html__email-verification.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/email-verification.ftl" | indent 4 }}
+  html__password-reset.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/password-reset.ftl" | indent 4 }}
+  html__executeActions.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/executeActions.ftl" | indent 4 }}
+  html__identity-provider-link.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/identity-provider-link.ftl" | indent 4 }}
+  html__email-update-confirmation.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/html/email-update-confirmation.ftl" | indent 4 }}
+  text__email-verification.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/text/email-verification.ftl" | indent 4 }}
+  text__password-reset.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/text/password-reset.ftl" | indent 4 }}
+  text__executeActions.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/text/executeActions.ftl" | indent 4 }}
+  text__identity-provider-link.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/text/identity-provider-link.ftl" | indent 4 }}
+  text__email-update-confirmation.ftl: |
+{{ .Files.Get "files/keycloak-theme/email/text/email-update-confirmation.ftl" | indent 4 }}
+  messages__messages_uz.properties: |
+{{ .Files.Get "files/keycloak-theme/email/messages/messages_uz.properties" | indent 4 }}
+  messages__messages_ru.properties: |
+{{ .Files.Get "files/keycloak-theme/email/messages/messages_ru.properties" | indent 4 }}
+  messages__messages_en.properties: |
+{{ .Files.Get "files/keycloak-theme/email/messages/messages_en.properties" | indent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,6 +98,8 @@ spec:
           volumeMounts:
             - { name: realm, mountPath: /opt/keycloak/data/import, readOnly: true }
             - { name: theme, mountPath: /opt/keycloak/themes/davrabox/login, readOnly: true }
+            # Branded verification / reset / account-link emails (realm emailTheme=davrabox).
+            - { name: email-theme, mountPath: /opt/keycloak/themes/davrabox/email, readOnly: true }
       volumes:
         - { name: realm, configMap: { name: keycloak-realm } }
         - name: theme
@@ -68,6 +108,25 @@ spec:
             items:
               - { key: theme.properties, path: theme.properties }
               - { key: messages_uz.properties, path: messages/messages_uz.properties }
+        - name: email-theme
+          configMap:
+            name: keycloak-email-theme
+            items:
+              - { key: theme.properties, path: theme.properties }
+              - { key: html__template.ftl, path: html/template.ftl }
+              - { key: html__email-verification.ftl, path: html/email-verification.ftl }
+              - { key: html__password-reset.ftl, path: html/password-reset.ftl }
+              - { key: html__executeActions.ftl, path: html/executeActions.ftl }
+              - { key: html__identity-provider-link.ftl, path: html/identity-provider-link.ftl }
+              - { key: html__email-update-confirmation.ftl, path: html/email-update-confirmation.ftl }
+              - { key: text__email-verification.ftl, path: text/email-verification.ftl }
+              - { key: text__password-reset.ftl, path: text/password-reset.ftl }
+              - { key: text__executeActions.ftl, path: text/executeActions.ftl }
+              - { key: text__identity-provider-link.ftl, path: text/identity-provider-link.ftl }
+              - { key: text__email-update-confirmation.ftl, path: text/email-update-confirmation.ftl }
+              - { key: messages__messages_uz.properties, path: messages/messages_uz.properties }
+              - { key: messages__messages_ru.properties, path: messages/messages_ru.properties }
+              - { key: messages__messages_en.properties, path: messages/messages_en.properties }
 ---
 apiVersion: v1
 kind: Service

@@ -12,6 +12,8 @@ import { GUESTS, GuestController } from './meetings/guest.controller.js';
 import { GuestService } from './meetings/guest.service.js';
 import { PREFS, PrefsController } from './prefs/prefs.controller.js';
 import { PrefsService } from './prefs/prefs.service.js';
+import { APP_ORIGINS, ONBOARDING, OnboardingController } from './onboarding/onboarding.controller.js';
+import { OnboardingService } from './onboarding/onboarding.service.js';
 import { HealthController } from './health.controller.js';
 import { READINESS, ReadinessService } from './readiness.js';
 import { FILES, FilesController } from './files/files.controller.js';
@@ -36,7 +38,7 @@ export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
-  controllers: [MeetingsController, GuestController, PrefsController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
+  controllers: [MeetingsController, GuestController, PrefsController, OnboardingController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
@@ -49,6 +51,18 @@ export const CONFIG = Symbol('CONFIG');
     { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new MeetingsService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     { provide: GUESTS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new GuestService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     { provide: PREFS, useFactory: (pool: Pool) => new PrefsService(pool), inject: [POOL] },
+    {
+      provide: ONBOARDING,
+      useFactory: (pool: Pool, cfg: Config) =>
+        new OnboardingService(
+          pool,
+          cfg.KEYCLOAK_ADMIN_URL && cfg.KEYCLOAK_ADMIN_CLIENT_SECRET
+            ? new KeycloakAdmin({ baseUrl: cfg.KEYCLOAK_ADMIN_URL, realm: cfg.KEYCLOAK_ADMIN_REALM, clientId: cfg.KEYCLOAK_ADMIN_REALM_CLIENT_ID, clientSecret: cfg.KEYCLOAK_ADMIN_CLIENT_SECRET })
+            : null,
+        ),
+      inject: [POOL, CONFIG],
+    },
+    { provide: APP_ORIGINS, useFactory: (cfg: Config) => cfg.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean), inject: [CONFIG] },
     { provide: FILES, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new FilesService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     {
       provide: ADMIN,
