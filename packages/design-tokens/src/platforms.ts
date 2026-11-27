@@ -53,6 +53,8 @@ ${selector} :focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 
 ${selector} #kc-header-wrapper { font-size: 0; height: 36px; background: url(${mode === 'dark' ? '/brand/logo.svg' : '/brand/logo-light.svg'}) center / contain no-repeat; }
 ${selector} .dx-kc-langs a { border: 1px solid ${c.borderStrong}; color: ${c.text}; }
 ${selector} .dx-kc-langs a[aria-current='true'] { background: ${c.accentSoft}; border-color: ${c.accent}; }
+${selector} .pf-v5-c-check__input { accent-color: ${c.accent}; }
+${selector} .pf-v5-c-check__input:focus-visible { outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
 ${selector} .pf-v5-c-form-control:focus-within { border-color: ${c.focusRing}; outline: 2px solid ${c.focusRing}; outline-offset: 2px; }
 ${selector} .pf-v5-c-form-control input:focus-visible { outline: none; }
 ${selector} .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
@@ -71,8 +73,12 @@ ${selector} .pf-v5-c-input-group .pf-v5-c-button.pf-m-control:focus-visible { ou
 .pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
 .pf-v5-c-input-group { gap: 0; }
 .pf-v5-c-button.pf-m-primary { min-height: 2.75rem; }
-.pf-v5-c-check { align-items: center; min-height: 2.75rem; }
-.pf-v5-c-check__input { width: 1.25rem; height: 1.25rem; }
+.pf-v5-c-check { display: flex; align-items: center; gap: 0.625rem; min-height: 2.75rem; }
+/* Keycloak nests a .pf-v5-c-check label inside a .pf-v5-c-check div: only the outer one keeps the touch height. */
+.pf-v5-c-check .pf-v5-c-check { min-height: 0; }
+/* PatternFly shifts the box with translateY for its own size; our 1.25rem box is centred on the label instead. */
+.pf-v5-c-check__input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; transform: none; align-self: center; cursor: pointer; }
+.pf-v5-c-check__label { line-height: 1.25rem; align-self: center; cursor: pointer; }
 .pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }

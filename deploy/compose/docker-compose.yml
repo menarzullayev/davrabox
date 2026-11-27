@@ -54,6 +54,8 @@ services:
       - ../helm/davrabox/files/keycloak-theme:/opt/keycloak/themes/davrabox:ro
     ports:
       - "${LAN_IP}:8180:8080"
+      # Loopback too: the host API reaches Keycloak here even when the LAN address changes (DHCP, another network).
+      - "127.0.0.1:8180:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,6 +73,7 @@ services:
       - ./livekit.yaml:/etc/livekit.yaml:ro
     ports:
       - "${LAN_IP}:7880:7880"
+      - "127.0.0.1:7880:7880"
       - "${LAN_IP}:7881:7881"
       - "${LAN_IP}:7882:7882/udp"
       - "${LAN_IP}:3478:3478/udp"

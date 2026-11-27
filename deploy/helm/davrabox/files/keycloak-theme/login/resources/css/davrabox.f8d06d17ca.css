@@ -8,8 +8,12 @@
 .pf-v5-c-button.pf-m-control::before, .pf-v5-c-button.pf-m-control::after { display: none; }
 .pf-v5-c-input-group { gap: 0; }
 .pf-v5-c-button.pf-m-primary { min-height: 2.75rem; }
-.pf-v5-c-check { align-items: center; min-height: 2.75rem; }
-.pf-v5-c-check__input { width: 1.25rem; height: 1.25rem; }
+.pf-v5-c-check { display: flex; align-items: center; gap: 0.625rem; min-height: 2.75rem; }
+/* Keycloak nests a .pf-v5-c-check label inside a .pf-v5-c-check div: only the outer one keeps the touch height. */
+.pf-v5-c-check .pf-v5-c-check { min-height: 0; }
+/* PatternFly shifts the box with translateY for its own size; our 1.25rem box is centred on the label instead. */
+.pf-v5-c-check__input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; transform: none; align-self: center; cursor: pointer; }
+.pf-v5-c-check__label { line-height: 1.25rem; align-self: center; cursor: pointer; }
 .pf-v5-c-input-group .pf-v5-c-form-control { border-start-end-radius: 0; border-end-end-radius: 0; }
 .pf-v5-c-input-group .pf-v5-c-button.pf-m-control { min-width: 2.75rem; min-height: 2.75rem; border-start-start-radius: 0; border-end-start-radius: 0; border-inline-start: 0; border-radius: 0 10px 10px 0; }
 .pf-v5-c-form__group.pf-m-action { margin-block-start: 0.5rem; }
@@ -42,6 +46,8 @@
 :root #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo-light.svg) center / contain no-repeat; }
 :root .dx-kc-langs a { border: 1px solid #767ea9; color: #12163a; }
 :root .dx-kc-langs a[aria-current='true'] { background: #d6f2ee; border-color: #087069; }
+:root .pf-v5-c-check__input { accent-color: #087069; }
+:root .pf-v5-c-check__input:focus-visible { outline: 2px solid #4e59d6; outline-offset: 2px; }
 :root .pf-v5-c-form-control:focus-within { border-color: #4e59d6; outline: 2px solid #4e59d6; outline-offset: 2px; }
 :root .pf-v5-c-form-control input:focus-visible { outline: none; }
 :root .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
@@ -74,6 +80,8 @@
 :root.pf-v5-theme-dark #kc-header-wrapper { font-size: 0; height: 36px; background: url(/brand/logo.svg) center / contain no-repeat; }
 :root.pf-v5-theme-dark .dx-kc-langs a { border: 1px solid #6f78b9; color: #eef0fc; }
 :root.pf-v5-theme-dark .dx-kc-langs a[aria-current='true'] { background: #0e3a43; border-color: #3dd6c8; }
+:root.pf-v5-theme-dark .pf-v5-c-check__input { accent-color: #3dd6c8; }
+:root.pf-v5-theme-dark .pf-v5-c-check__input:focus-visible { outline: 2px solid #7ee9df; outline-offset: 2px; }
 :root.pf-v5-theme-dark .pf-v5-c-form-control:focus-within { border-color: #7ee9df; outline: 2px solid #7ee9df; outline-offset: 2px; }
 :root.pf-v5-theme-dark .pf-v5-c-form-control input:focus-visible { outline: none; }
 :root.pf-v5-theme-dark .pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 10px 0 0 10px; border-inline-end-width: 0; }
