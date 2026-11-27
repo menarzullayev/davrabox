@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { GuestMode, Meeting, OnboardingView, TrialStatus } from '../api';
 import { GetStarted, VerifyReminder } from './GetStarted';
 import { MeetingGuestsDialog } from './MeetingGuestsDialog';
 import { t, type Key, type Lang } from '../i18n';
-import { Alert, Avatar, Button, IconCalendar, IconLink, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
-import { SettingsMenu } from './SettingsMenu';
+import { Alert, Button, IconCalendar, IconClock, IconPlus, ToastProvider, useToast, type ThemeChoice } from '../ui';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
-import { AppearanceControls } from './AppearanceControls';
 import { TimelineView, copyJoinLink } from './Timeline';
 import { PlanPanel } from './PlanPanel';
 import { displayName, firstName, formatCode, formatDay, greetingSlot, groupMeetings, planSummary, type ProfileLike, type TimelineMeeting } from './logic';
@@ -18,6 +16,16 @@ import { AddToCalendarDialog } from '../calendar/AddToCalendarDialog';
 import { useCalendarReturn } from '../calendar/useCalendarReturn';
 import { E2eeLinkDialog } from '../e2ee/E2eeLinkDialog';
 import { buildShareLink, loadStoredKey } from '../e2ee/keys';
+import { AppShell } from '../shell/AppShell';
+import { navigate, pathFor, type AppSection } from '../shell/nav';
+import type { HomeApi } from './homeApi';
+import { PersonalRoomCard } from './PersonalRoomCard';
+import { RecentActivity } from './RecentActivity';
+import { PRICING_HREF } from './PlanPanel';
+import { DevicesPage } from '../pages/DevicesPage';
+import { RecordingsPage } from '../pages/RecordingsPage';
+import { WhiteboardsPage } from '../pages/WhiteboardsPage';
+import { SettingsPage } from '../pages/SettingsPage';
 
 export interface HomeScreenProps {
   lang: Lang;
@@ -59,6 +67,10 @@ export interface HomeScreenProps {
   onTestDevices?: () => void;
   onSendVerification?: () => Promise<void>;
   onDismissOnboarding?: () => void;
+  /** The section of the signed-in app shown (left panel / tab bar); the home screen when omitted. */
+  section?: AppSection;
+  /** Server calls of the home package (personal room, activity, recordings, device check); the blocks need it. */
+  homeApi?: HomeApi;
 }
 
 const GREETING: Record<ReturnType<typeof greetingSlot>, Key> = {
@@ -86,13 +98,21 @@ function HomeBody(props: HomeScreenProps) {
   const toast = useToast();
   const clock = useClock(props.now);
   const joinCard = useRef<JoinCardHandle>(null);
-  const [dialog, setDialog] = useState(false);
+  const [dialog, setDialog] = useState<'new' | 'schedule' | null>(null);
   const [joiningCode, setJoiningCode] = useState<string | null>(null);
   const [calendarFor, setCalendarFor] = useState<Meeting | null>(null);
   const [guestsFor, setGuestsFor] = useState<Meeting | null>(null);
   const [e2eeLink, setE2eeLink] = useState<string | null>(null);
   const [reminderClosed, setReminderClosed] = useState(false);
   useCalendarReturn(lang, toast);
+  // "New" from the tab bar of another screen (the admin console) lands here as /app#new.
+  useEffect(() => {
+    if (location.hash === '#new') {
+      setDialog('new');
+      history.replaceState({}, document.title, location.pathname);
+    }
+  }, []);
+  const section = props.section ?? 'home';
   const ob = props.onboarding;
   // The card shows until it is closed or every step is done; the email reminder takes over when the card is gone.
   const showCard = Boolean(ob && !ob.dismissed && ob.steps.some((s) => !s.done));
@@ -102,11 +122,6 @@ function HomeBody(props: HomeScreenProps) {
   const plan = planSummary(props.trial, clock);
   const name = firstName(props.profile);
   const greeting = tx(lang, GREETING[greetingSlot(clock)]);
-
-  const focusJoin = useCallback(() => {
-    window.scrollTo?.({ top: 0, behavior: 'smooth' });
-    document.querySelector<HTMLInputElement>('.hm-join input')?.focus({ preventScroll: true });
-  }, []);
 
   const joinRow = useCallback(
     async (m: TimelineMeeting) => {
@@ -135,8 +150,67 @@ function HomeBody(props: HomeScreenProps) {
     [lang, toast],
   );
 
-  return (
-    <>
+  const timelineView = (
+    <TimelineView
+      lang={lang}
+      timeline={timeline}
+      now={clock}
+      joiningCode={joiningCode}
+      onJoin={(m) => void joinRow(m)}
+      onCopy={copyRow}
+      onNew={() => setDialog('new')}
+      onCalendar={props.calendarToken ? setCalendarFor : undefined}
+      onGuests={props.onSetGuests && props.guestMax && props.guestMax !== 'off' ? setGuestsFor : undefined}
+    />
+  );
+  const relay = { value: props.relayMode, onChange: props.onRelayMode };
+
+  let page: ReactNode;
+  if (section === 'meetings') {
+    page = (
+      <main id="hm-main" className="home hm-main" tabIndex={-1} data-testid="meetings-page">
+        <header className="pg-head">
+          <h1 className="pg-title" id="hm-meetings-h">
+            {t(lang, 'meetings')}
+          </h1>
+          <div className="pg-actions">
+            <Button variant="primary" icon={<IconPlus size={18} />} data-testid="meetings-new" onClick={() => setDialog('new')}>
+              {tx(lang, 'qkNew')}
+            </Button>
+            <Button variant="secondary" icon={<IconClock size={18} />} data-testid="meetings-schedule" onClick={() => setDialog('schedule')}>
+              {tx(lang, 'qkSchedule')}
+            </Button>
+          </div>
+        </header>
+        {props.error ? (
+          <Alert tone="danger" onDismiss={props.onDismissError} dismissLabel={t(lang, 'uiDismiss')} className="hm-error">
+            {t(lang, props.error)}
+          </Alert>
+        ) : null}
+        <section className="hm-timeline hm-timeline--page" aria-labelledby="hm-meetings-h">
+          {timelineView}
+        </section>
+      </main>
+    );
+  } else if (section === 'recordings' && props.homeApi) {
+    page = <RecordingsPage lang={lang} api={props.homeApi} />;
+  } else if (section === 'whiteboards') {
+    page = <WhiteboardsPage lang={lang} />;
+  } else if (section === 'settings') {
+    page = <SettingsPage lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={relay} />;
+  } else if (section === 'devices' && props.homeApi) {
+    page = (
+      <DevicesPage
+        lang={lang}
+        api={props.homeApi}
+        onDone={() => {
+          props.onTestDevices?.();
+          navigate(pathFor('home'));
+        }}
+      />
+    );
+  } else {
+    page = (
       <main id="hm-main" className="home hm-main" tabIndex={-1}>
         <section className="hm-hero">
           <p className="hm-date">{formatDay(clock, dayNames(lang))}</p>
@@ -152,9 +226,16 @@ function HomeBody(props: HomeScreenProps) {
         ) : null}
 
         {props.banner ? (
-          <Alert tone="info" className="ln-trial">
-            {tx(lang, props.banner.key, props.banner.n === undefined ? undefined : { n: props.banner.n })}
-          </Alert>
+          <div data-testid="trial-reminder">
+            <Alert tone="info" className="ln-trial">
+              <span className="hm-verify">
+                <span>{tx(lang, props.banner.key, props.banner.n === undefined ? undefined : { n: props.banner.n })}</span>
+                <a className="dx-btn" data-variant="ghost" data-size="sm" href={PRICING_HREF} data-testid="trial-upgrade">
+                  <span className="dx-btn__label">{tx(lang, 'plUpgrade')}</span>
+                </a>
+              </span>
+            </Alert>
+          </div>
         ) : null}
 
         {props.error ? (
@@ -167,6 +248,7 @@ function HomeBody(props: HomeScreenProps) {
           <VerifyReminder lang={lang} email={props.email ?? ''} canSend={ob.canSendVerification && Boolean(props.onSendVerification)} onSend={props.onSendVerification ?? (async () => undefined)} onDismiss={() => setReminderClosed(true)} />
         ) : null}
 
+        {/* Quick actions (owner decision 2): New meeting, Join with the inline code field, Schedule. */}
         <div className="hm-actions">
           <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} passcodeNeeded={props.error === 'errWrongPasscode'} />
           <section className="hm-card hm-new" aria-labelledby="hm-new-h">
@@ -174,9 +256,14 @@ function HomeBody(props: HomeScreenProps) {
               {tx(lang, 'hNewTitle')}
             </h2>
             <p className="hm-card__lead">{tx(lang, 'hNewLead')}</p>
-            <Button variant="highlight" size="lg" fullWidth icon={<IconPlus />} data-testid="new-meeting" onClick={() => setDialog(true)}>
-              {tx(lang, 'hNewAction')}
-            </Button>
+            <div className="hm-new__buttons">
+              <Button variant="highlight" size="lg" fullWidth icon={<IconPlus />} data-testid="new-meeting" onClick={() => setDialog('new')}>
+                {tx(lang, 'hNewAction')}
+              </Button>
+              <Button variant="secondary" size="lg" fullWidth icon={<IconCalendar />} data-testid="schedule-meeting" onClick={() => setDialog('schedule')}>
+                {tx(lang, 'qkSchedule')}
+              </Button>
+            </div>
           </section>
         </div>
 
@@ -184,61 +271,73 @@ function HomeBody(props: HomeScreenProps) {
           <GetStarted
             lang={lang}
             view={ob}
-            onTestDevices={props.onTestDevices ?? (() => undefined)}
-            onNewMeeting={() => setDialog(true)}
+            onTestDevices={() => navigate(pathFor('devices'))}
+            onNewMeeting={() => setDialog('new')}
             onSendVerification={props.onSendVerification ?? (async () => undefined)}
             onDismiss={props.onDismissOnboarding ?? (() => undefined)}
           />
+        ) : null}
+
+        {props.homeApi || plan ? (
+          <div className="hm-duo">
+            {props.homeApi ? <PersonalRoomCard lang={lang} api={props.homeApi} name={displayName(props.profile)} onJoin={(c) => onJoin(c)} /> : null}
+            {plan ? <PlanPanel lang={lang} plan={plan} /> : null}
+          </div>
         ) : null}
 
         <section className="hm-timeline" aria-labelledby="hm-meetings-h">
           <h2 className="hm-section" id="hm-meetings-h">
             {t(lang, 'meetings')}
           </h2>
-          <TimelineView lang={lang} timeline={timeline} now={clock} joiningCode={joiningCode} onJoin={(m) => void joinRow(m)} onCopy={copyRow} onNew={() => setDialog(true)} onCalendar={props.calendarToken ? setCalendarFor : undefined} onGuests={props.onSetGuests && props.guestMax && props.guestMax !== 'off' ? setGuestsFor : undefined} />
+          {timelineView}
         </section>
 
-        {plan ? <PlanPanel lang={lang} plan={plan} /> : null}
+        {props.homeApi ? <RecentActivity lang={lang} api={props.homeApi} /> : null}
 
         <footer className="hm-footer">{tx(lang, 'hBrandLine')}</footer>
       </main>
+    );
+  }
 
-      {/* Phone tab bar of the liquid-glass style (hidden in every other style and on wider screens: see home.css). */}
-      <nav className="hm-tabbar" aria-label={tx(lang, 'hTabs')}>
-        <Button variant="ghost" className="hm-tabbar__item" icon={<IconLink />} data-testid="tab-join" onClick={() => focusJoin()}>
-          {tx(lang, 'hTabJoin')}
-        </Button>
-        <Button variant="ghost" className="hm-tabbar__item" icon={<IconPlus />} data-testid="tab-new" onClick={() => setDialog(true)}>
-          {tx(lang, 'hTabNew')}
-        </Button>
-        <Button variant="ghost" className="hm-tabbar__item" icon={<IconCalendar />} data-testid="tab-meetings" onClick={() => document.getElementById('hm-meetings-h')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' })}>
-          {tx(lang, 'hTabMeetings')}
-        </Button>
-        <SettingsMenu lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={{ value: props.relayMode, onChange: props.onRelayMode }} tab={{ testId: 'tab-settings', className: 'hm-tabbar__item' }} />
-      </nav>
-
+  return (
+    <AppShell
+      lang={lang}
+      onLang={props.onLang}
+      theme={props.theme}
+      onTheme={props.onTheme}
+      relay={relay}
+      current={section}
+      isAdmin={props.isAdmin}
+      who={displayName(props.profile)}
+      whoId={typeof props.profile?.sub === 'string' ? props.profile.sub : undefined}
+      onSignOut={props.onSignOut}
+      onNew={() => setDialog('new')}
+    >
+      {page}
       <NewMeetingDialog
         lang={lang}
-        open={dialog}
-        onClose={() => setDialog(false)}
+        open={dialog !== null}
+        schedule={dialog === 'schedule'}
+        onClose={() => setDialog(null)}
         onCreate={onCreate}
         calendar={Boolean(props.calendarToken)}
         guestMax={props.guestMax}
         onCreated={(m, opts) => {
-          setDialog(false);
+          const scheduled = dialog === 'schedule';
+          setDialog(null);
           if (m.e2ee) {
             // The host's tab holds the key (made at creation): show the full link once so it can be shared.
             const key = loadStoredKey(m.code);
             if (key) setE2eeLink(buildShareLink(location.origin, m.code, key));
           }
           if (opts?.calendar) setCalendarFor(m);
-          toast({ tone: 'success', title: tx(lang, 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: formatCode(m.code) }) });
+          toast({ tone: 'success', title: tx(lang, scheduled ? 'schedDone' : 'hCreated'), description: tx(lang, 'hCreatedDesc', { title: m.title, code: formatCode(m.code) }) });
         }}
       />
       <E2eeLinkDialog lang={lang} link={e2eeLink} onClose={() => setE2eeLink(null)} />
       {props.onSetGuests ? <MeetingGuestsDialog lang={lang} meeting={guestsFor} max={props.guestMax ?? 'off'} onSave={props.onSetGuests} onClose={() => setGuestsFor(null)} /> : null}
       {props.calendarToken ? <AddToCalendarDialog lang={lang} token={props.calendarToken} meeting={calendarFor} onClose={() => setCalendarFor(null)} /> : null}
-    </>
+    </AppShell>
   );
 }
 
@@ -248,46 +347,10 @@ const assistantToken = () => freshToken().catch(() => null);
 
 export function HomeScreen(props: HomeScreenProps) {
   const { lang } = props;
-  const who = displayName(props.profile);
   return (
     <ToastProvider dismissLabel={t(lang, 'uiDismiss')} regionLabel={tx(lang, 'hToasts')}>
-      <div className="hm-page">
-        <a className="hm-skip" href="#hm-main">
-          {tx(lang, 'hSkip')}
-        </a>
-        <header className="hm-header">
-          <div className="hm-header__in">
-            <Logo height={30} title={t(lang, 'appName')} />
-            <span className="hm-spacer" />
-            {props.isAdmin ? (
-              <a href="/admin" className="dx-btn hm-admin" data-variant="ghost" data-size="sm" title={t(lang, 'admLink')} data-testid="admin-link">
-                <span className="dx-btn__label">
-                  <IconShieldCheck size={18} />
-                  <span className="hm-admin__label">{t(lang, 'admLink')}</span>
-                </span>
-              </a>
-            ) : null}
-            {who ? (
-              <span className="hm-who" title={who}>
-                <Avatar name={who} size={32} decorative />
-                <span className="hm-who__name">{who}</span>
-              </span>
-            ) : null}
-            <AppearanceControls
-              lang={lang}
-              onLang={props.onLang}
-              theme={props.theme}
-              onTheme={props.onTheme}
-              relay={{ value: props.relayMode, onChange: props.onRelayMode }}
-            />
-            <Button variant="ghost" size="sm" icon={<IconLogout size={18} />} className="hm-signout" onClick={props.onSignOut}>
-              <span className="hm-signout__label">{t(lang, 'signOut')}</span>
-            </Button>
-          </div>
-        </header>
-        <HomeBody {...props} />
-        <AssistantLauncher lang={lang} page="home" token={assistantToken} />
-      </div>
+      <HomeBody {...props} />
+      <AssistantLauncher lang={lang} page="home" token={assistantToken} />
     </ToastProvider>
   );
 }

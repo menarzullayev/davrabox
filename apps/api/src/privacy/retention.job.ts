@@ -140,6 +140,8 @@ export class PrivacyRetentionJob {
           `DELETE FROM meetings WHERE id IN (
              SELECT m.id FROM meetings m
               WHERE greatest(m.created_at, coalesce(m.scheduled_at, m.created_at)) < $1::timestamptz
+                AND m.personal_owner IS NULL
+                AND NOT EXISTS (SELECT 1 FROM meeting_sessions s WHERE s.meeting_id = m.id AND coalesce(s.ended_at, now()) >= $1::timestamptz)
                 AND NOT EXISTS (SELECT 1 FROM meeting_files f WHERE f.meeting_id = m.id)
                 AND NOT EXISTS (SELECT 1 FROM recordings x WHERE x.meeting_id = m.id)
               ORDER BY m.created_at LIMIT $2)`,
@@ -148,6 +150,18 @@ export class PrivacyRetentionJob {
         return r.rowCount ?? 0;
       });
       meetings += n;
+      if (n < BATCH) break;
+    }
+
+    // Runs of meetings ("Recent activity") age out like the meetings themselves; personal rooms keep only recent runs.
+    for (let round = 0; round < MAX_ROUNDS; round++) {
+      const n = await withTenant(this.pool, orgId, async (c) => {
+        const r = await c.query(
+          `DELETE FROM meeting_sessions WHERE id IN (SELECT id FROM meeting_sessions WHERE ended_at < $1::timestamptz ORDER BY ended_at LIMIT $2)`,
+          [meetingsCut, BATCH],
+        );
+        return r.rowCount ?? 0;
+      });
       if (n < BATCH) break;
     }
 

@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { RoomServiceClient } from 'livekit-server-sdk';
+import { livekitClientOptions } from '../common/timeouts.js';
+import { ActivityTracker } from '../meetings/activity.js';
 import type { Pool } from 'pg';
 import { createPool } from '../db/pool.js';
 import { RateLimitService } from '../rate-limit/service.js';
@@ -18,7 +21,7 @@ import { KeysController } from './keys.controller.js';
 import { LivekitWebhookController } from './livekit-webhook.controller.js';
 import { MeetingsExtController } from './meetings.ext.controller.js';
 import { OpenApiController } from './openapi.js';
-import { EXT_CONFIG, EXT_CORE_CONFIG, EXT_KEYS, EXT_MEETINGS, EXT_USERS, EXT_WEBHOOKS, WEBHOOK_JOB } from './tokens.js';
+import { EXT_ACTIVITY, EXT_CONFIG, EXT_CORE_CONFIG, EXT_KEYS, EXT_MEETINGS, EXT_USERS, EXT_WEBHOOKS, WEBHOOK_JOB } from './tokens.js';
 import { UsersExtController } from './users.ext.controller.js';
 import { WebhookDeliveryJob } from './webhook-delivery.job.js';
 import { WebhooksController } from './webhooks.controller.js';
@@ -48,6 +51,12 @@ import { WebhooksService } from './webhooks.service.js';
       inject: [POOL, EXT_CORE_CONFIG, RateLimitService],
     },
     { provide: EXT_USERS, useFactory: (pool: Pool) => new ExtUsersService(pool), inject: [POOL] },
+    // Signed media-server events also give "Recent activity" exact join and end times (the poll in AppModule fills gaps).
+    {
+      provide: EXT_ACTIVITY,
+      useFactory: (pool: Pool, cfg: Config) => new ActivityTracker(pool, new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions())),
+      inject: [POOL, EXT_CORE_CONFIG],
+    },
     {
       provide: EXT_WEBHOOKS,
       useFactory: (pool: Pool, cfg: Config) => new WebhooksService(pool, { master: cfg.FILE_MASTER_KEY ? masterKeyFrom(cfg.FILE_MASTER_KEY) : null }),

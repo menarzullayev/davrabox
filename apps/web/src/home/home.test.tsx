@@ -111,10 +111,12 @@ describe('Plan & Limits panel', () => {
     expect(within(screen.getByTestId('plan-participants')).getByText('10')).toBeTruthy();
     expect(within(screen.getByTestId('plan-minutes')).getByText('30 min')).toBeTruthy();
   });
-  it('comes after the meeting list', () => {
+  it('sits above the meeting list and offers Upgrade and Contact us (no promo carousel)', () => {
     render(<HomeScreen {...props({ trial: trial() })} />);
     const list = screen.getByRole('region', { name: 'Meetings' });
-    expect(list.compareDocumentPosition(screen.getByTestId('plan-panel')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(list.compareDocumentPosition(screen.getByTestId('plan-panel')) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(screen.getByTestId('plan-upgrade').getAttribute('href')).toBe('/#pricing');
+    expect(screen.getByTestId('plan-contact').getAttribute('href')).toMatch(/^mailto:/);
   });
   it('says the trial ended and omits limits the API did not send', () => {
     render(<HomeScreen {...props({ trial: trial({ endsAt: new Date(LAB_NOW.getTime() - 1000).toISOString(), expired: true, maxMinutes: null }) })} />);
@@ -175,8 +177,8 @@ describe('HomeScreen content', () => {
     expect(screen.queryByTestId('admin-link')).toBeNull();
     rerender(<HomeScreen {...props({ isAdmin: true })} />);
     expect(screen.getByTestId('admin-link').getAttribute('href')).toBe('/admin');
-    // The label is its own element: the phone layout hides it and leaves the icon.
-    expect(screen.getByRole('link', { name: 'Admin' }).querySelector('.hm-admin__label')).toBeTruthy();
+    // The label is its own element: the icon rail of mid widths hides it and leaves the icon.
+    expect(screen.getByTestId('admin-link').querySelector('.sh-link__label')?.textContent).toBe('Admin');
   });
 
   it('survives 40% longer text: a very long title stays in its row and keeps its full text for assistive technology', () => {
@@ -292,16 +294,20 @@ describe('new meeting dialog', () => {
   });
 });
 
-describe('liquid-glass phone tab bar (present in every style, shown only by that style)', () => {
-  it('New opens the new-meeting dialog, Settings opens the settings panel, Join focuses the code field', async () => {
+describe('phone tab bar of the shell (every style; liquid-glass makes it a floating capsule)', () => {
+  it('New opens the new-meeting dialog, Settings goes to the settings page, More lists the other sections', async () => {
+    history.replaceState({}, '', '/app');
     render(<HomeScreen {...props()} />);
     const bar = screen.getByRole('navigation', { name: 'Sections' });
     fireEvent.click(within(bar).getByTestId('tab-new'));
     expect(await screen.findByRole('dialog', { name: 'New meeting' })).toBeTruthy();
     fireEvent.click(within(bar).getByTestId('tab-settings'));
-    expect(within(bar).getByTestId('tab-settings').getAttribute('aria-expanded')).toBe('true');
-    fireEvent.click(within(bar).getByTestId('tab-join'));
-    expect(document.activeElement?.closest('.hm-join')).toBeTruthy();
+    expect(location.pathname).toBe('/app/settings');
+    fireEvent.click(within(bar).getByTestId('tab-more'));
+    const sheet = await screen.findByTestId('more-sheet');
+    expect(within(sheet).getByTestId('more-recordings').getAttribute('href')).toBe('/app/recordings');
+    expect(within(sheet).getByTestId('more-devices').getAttribute('href')).toBe('/app/devices');
+    history.replaceState({}, '', '/app');
   });
   it('keeps the shared test ids unique (the header settings button is still the only "settings")', () => {
     render(<HomeScreen {...props()} />);

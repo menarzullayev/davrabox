@@ -207,6 +207,26 @@ export class RecordingService {
     return { id: rec.id, status: 'stopping' };
   }
 
+  /**
+   * The "Recordings" section of the app: finished recordings of the meetings this person manages (host or co-host; an
+   * organization admin sees the organization's). Works while recording is switched off too (enabled=false), so the page
+   * can say so instead of showing an empty list that looks broken. Downloads go through download(), which checks again.
+   */
+  async mine(user: AuthedUser): Promise<{ enabled: boolean; items: Array<{ id: string; meetingCode: string; title: string; startedAt: Date; endedAt: Date | null; sizeBytes: number | null }> }> {
+    const items = await withTenant(this.pool, user.orgId, async (c) => {
+      const r = await c.query(
+        `SELECT r.id, m.code, m.title, r.started_at, r.ended_at, r.size_bytes::float8 AS size_bytes
+           FROM recordings r JOIN meetings m ON m.id = r.meeting_id
+          WHERE r.status = 'ready'
+            AND ($2 OR m.host_user_id = $1 OR EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $1))
+          ORDER BY r.started_at DESC LIMIT 100`,
+        [user.userId, user.role === 'org_admin'],
+      );
+      return r.rows.map((x) => ({ id: x.id as string, meetingCode: x.code as string, title: x.title as string, startedAt: x.started_at as Date, endedAt: x.ended_at as Date | null, sizeBytes: x.size_bytes as number | null }));
+    });
+    return { enabled: this.enabled, items };
+  }
+
   async list(user: AuthedUser, code: string): Promise<RecordingSummary[]> {
     this.require();
     const m = await this.meeting(user, code);

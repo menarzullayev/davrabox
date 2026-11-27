@@ -70,7 +70,7 @@ function isParticipantIdentity(identity: string): boolean {
   return UUID_RE.test(identity) || (identity.startsWith(GUEST_IDENTITY_PREFIX) && UUID_RE.test(identity.slice(GUEST_IDENTITY_PREFIX.length)));
 }
 
-function newCode(): string {
+export function newCode(): string {
   // 11 digits, first digit non-zero, from a CSPRNG.
   return String(randomInt(1, 10)) + String(randomInt(0, 10 ** 10)).padStart(10, '0');
 }
@@ -79,8 +79,13 @@ export class MeetingsService {
   private readonly limiter: RateLimiter;
   private readonly rooms: RoomServiceClient;
   private readonly trial: TrialLimits;
+  private readonly testLimiter: RateLimiter;
+  /** Set by the application module: the "Recent activity" tracker closes the run when the host ends the meeting. */
+  onEnded: ((orgId: string, meetingId: string) => Promise<void>) | null = null;
 
   constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
+    // The device check page opens a throw-away media room: a handful per person and hour is plenty.
+    this.testLimiter = rate.limiter({ name: 'connection-test', max: 20, windowMs: 60 * 60 * 1000 });
     // Join/passcode failures: 5 per user and meeting code in 15 minutes, shared between API instances when Redis is configured.
     this.limiter = rate.limiter({ name: 'join', max: 5, windowMs: 15 * 60 * 1000 });
     this.rooms = new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions());
@@ -128,7 +133,7 @@ export class MeetingsService {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
         `SELECT id, code, title, waiting_room, locked, scheduled_at, created_at, e2ee, guest_mode, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
-         FROM meetings ORDER BY created_at DESC LIMIT 100`,
+         FROM meetings WHERE personal_owner IS NULL ORDER BY created_at DESC LIMIT 100`,
         [user.userId],
       );
       return r.rows;
@@ -311,6 +316,7 @@ export class MeetingsService {
   async end(user: AuthedUser, code: string): Promise<{ ended: true }> {
     const meeting = await this.managedMeeting(user, code);
     await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'meeting.end', code));
+    await this.onEnded?.(user.orgId, meeting.id);
     try {
       await this.rooms.deleteRoom(meeting.id);
     } catch {
@@ -522,6 +528,21 @@ export class MeetingsService {
       }
       return { cohost: grant };
     });
+  }
+
+  /**
+   * "Test your devices" (owner decision 6): a short-lived token for a throw-away room of this person alone, so the page can
+   * check the signalling connection, WebRTC over UDP and TCP, TURN and publishing against the real media server. The room
+   * name is not a meeting id, so it never shows up in meetings, activity or trial limits.
+   */
+  async connectionTest(user: AuthedUser, requestHost?: string): Promise<{ url: string; token: string; room: string }> {
+    if (!(await this.testLimiter.hit(user.userId)).allowed) throw new MeetingError(429, 'too many attempts, try again later');
+    const room = `conntest-${user.userId}-${String(randomInt(0, 2 ** 31)).padStart(10, '0')}`;
+    await this.rooms.createRoom({ name: room, emptyTimeout: 30, maxParticipants: 2 }); // 2: one check may still be leaving while the next connects
+    const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, { identity: `conntest:${user.userId}`, name: user.name, ttl: 300 });
+    at.addGrant({ roomJoin: true, room, canSubscribe: true, canPublish: true, canPublishData: false, canUpdateOwnMetadata: false });
+    const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
+    return { url, token: await at.toJwt(), room };
   }
 
   // --- helpers -----------------------------------------------------------------------------------------------

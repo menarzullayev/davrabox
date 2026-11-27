@@ -367,3 +367,29 @@ export const IconWhiteboard = /*#__PURE__*/ makeIcon('whiteboard', () => (
     <path d="M8 20l2.5-3.5M16 20l-2.5-3.5M7 12.5c1.5-3 3-3 4.5-1s3 2 5.5-2" />
   </>
 ));
+
+export const IconHome = /*#__PURE__*/ makeIcon('home', () => (
+  <>
+    <path d="M3.5 10.5L12 4l8.5 6.5" />
+    <path d="M5.5 9v10a1 1 0 0 0 1 1H10v-5.5h4V20h3.5a1 1 0 0 0 1-1V9" />
+  </>
+));
+
+export const IconRecord = /*#__PURE__*/ makeIcon('record', () => (
+  <>
+    <rect x="3" y="6" width="13" height="12" rx="2" />
+    <path d="M16 10.5l5-3v9l-5-3" />
+    <circle cx="9.5" cy="12" r="2" />
+  </>
+));
+
+export const IconRefresh = /*#__PURE__*/ makeIcon('refresh', () => (
+  <>
+    <path d="M20 11a8 8 0 0 0-14.3-4.9L4 8" />
+    <path d="M4 4v4h4" />
+    <path d="M4 13a8 8 0 0 0 14.3 4.9L20 16" />
+    <path d="M20 20v-4h-4" />
+  </>
+));
+
+export const IconActivity = /*#__PURE__*/ makeIcon('activity', () => <path d="M3 12h4l3-7 4 14 3-7h4" />);

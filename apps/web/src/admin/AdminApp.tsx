@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { useShellSlot } from '../shell/AppShell';
 import type { User } from 'oidc-client-ts';
 import { freshToken } from '../auth';
 import { t, type Lang } from '../i18n';
@@ -50,6 +52,17 @@ export function sectionFromHash(hash: string): Section {
 export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void; client?: AdminClient }) {
   const [section, setSection] = useState<Section>(() => sectionFromHash(typeof location === 'undefined' ? '' : location.hash));
   const [forbidden, setForbidden] = useState(false);
+  // Inside the signed-in shell the section list lives in the left panel (owner decision 1) and the shell has the header.
+  const shell = useShellSlot();
+  useEffect(() => {
+    const on = () => setSection(sectionFromHash(location.hash));
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  }, []);
+  const pick = (s: Section) => {
+    setSection(s);
+    if (shell.inShell) history.replaceState({}, document.title, `/admin#${s}`);
+  };
   // `client` is injected only by the admin lab (fake data for the demo clips); the product always talks to the API.
   const client = useMemo(() => injected ?? createAdminClient(freshToken), [injected]);
   const report = useMemo(() => makeReport(() => setForbidden(true)), []);
@@ -92,8 +105,8 @@ export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }
 
   if (forbidden) {
     return (
-      <main className="adm">
-        {header}
+      <main className={shell.inShell ? 'adm adm--embedded' : 'adm'}>
+        {shell.inShell ? null : header}
         <section className="noaccess" data-testid="admin-no-access">
           <h2 className="sec-title" role="alert">{t(lang, 'admNoAccessTitle')}</h2>
           <p>{t(lang, 'admNoAccessBody')}</p>
@@ -102,18 +115,14 @@ export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }
     );
   }
 
-  return (
-    <AdminCtx.Provider value={ctx}>
-      <main className="adm">
-        {header}
-        <div className="adm-body">
+  const nav = (
           <nav aria-label={t(lang, 'admNav')} className="adm-nav">
             <ul>
               {sections.map((s) => {
                 const Icon = ICON[s];
                 return (
                   <li key={s}>
-                    <Button type="button" aria-current={section === s ? 'page' : undefined} data-active={section === s ? '' : undefined} onClick={() => setSection(s)}>
+                    <Button type="button" aria-current={section === s ? 'page' : undefined} data-active={section === s ? '' : undefined} onClick={() => pick(s)}>
                       <Icon size={18} />
                       <span>{t(lang, LABEL[s])}</span>
                     </Button>
@@ -122,6 +131,8 @@ export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }
               })}
             </ul>
           </nav>
+  );
+  const content = (
           <div className="adm-content">
             {section === 'overview' && <Overview />}
             {section === 'users' && <Users />}
@@ -133,6 +144,25 @@ export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }
             {section === 'privacy' && <Privacy />}
             {section === 'assistant' && owner && <AssistantLog />}
           </div>
+  );
+
+  if (shell.inShell) {
+    return (
+      <AdminCtx.Provider value={ctx}>
+        <main id="hm-main" className="adm adm--embedded" tabIndex={-1}>
+          {shell.adminNav ? createPortal(nav, shell.adminNav) : null}
+          {content}
+        </main>
+      </AdminCtx.Provider>
+    );
+  }
+  return (
+    <AdminCtx.Provider value={ctx}>
+      <main className="adm">
+        {header}
+        <div className="adm-body">
+          {nav}
+          {content}
         </div>
       </main>
     </AdminCtx.Provider>

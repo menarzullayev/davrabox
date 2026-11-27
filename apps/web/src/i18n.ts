@@ -1,5 +1,6 @@
 import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
 import { homeEn, homeRu, homeUz } from './home/i18n-home';
+import { shellEn, shellRu, shellUz } from './shell/i18n-shell';
 import { callEn, callRu, callUz } from './call/i18n-call';
 import { featEn, featRu, featUz } from './call/i18n-features';
 import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
@@ -112,6 +113,7 @@ const uz = {
   uiThemeDark: 'Tungi',
   uiThemeLight: 'Kunduzgi',
   ...homeUz,
+  ...shellUz,
   ...callUz,
   ...featUz,
   ...landingUz,
@@ -224,6 +226,7 @@ const ru: Record<Key, string> = {
   uiThemeDark: 'Тёмная',
   uiThemeLight: 'Светлая',
   ...homeRu,
+  ...shellRu,
   ...callRu,
   ...featRu,
   ...landingRu,
@@ -334,6 +337,7 @@ const en: Record<Key, string> = {
   uiThemeDark: 'Dark',
   uiThemeLight: 'Light',
   ...homeEn,
+  ...shellEn,
   ...callEn,
   ...featEn,
   ...landingEn,

@@ -13,12 +13,12 @@ const at = (days: number) => new Date(NOW + days * DAY).toISOString();
 describe('trialBanner', () => {
   it('shows nothing for a paid organization, a far-off end or an already expired trial', () => {
     expect(trialBanner(null, NOW)).toBeNull();
-    expect(trialBanner(at(3), NOW)).toBeNull(); // exactly three days left: not yet "fewer than 3"
+    expect(trialBanner(at(3), NOW)).toBeNull();
+    expect(trialBanner(at(2.5), NOW)).toBeNull(); // the reminder starts 2 days before the end (owner decision 5)
     expect(trialBanner(at(6), NOW)).toBeNull();
     expect(trialBanner(at(-0.01), NOW)).toBeNull(); // over: the server answers 402 instead
   });
-  it('warns when fewer than 3 days remain', () => {
-    expect(trialBanner(at(2.5), NOW)).toEqual({ key: 'lnTrialEnds', n: 3 });
+  it('reminds in the last 2 days', () => {
     expect(trialBanner(at(2), NOW)).toEqual({ key: 'lnTrialEnds', n: 2 });
     expect(trialBanner(at(1.2), NOW)).toEqual({ key: 'lnTrialEnds', n: 2 });
   });

@@ -7,3 +7,4 @@ export const WEBHOOK_RESOLVER = Symbol('WEBHOOK_RESOLVER');
 export const WEBHOOK_JOB = Symbol('WEBHOOK_JOB');
 export const EXT_USERS = Symbol('EXT_USERS');
 export const EXT_CORE_CONFIG = Symbol('EXT_CORE_CONFIG');
+export const EXT_ACTIVITY = Symbol('EXT_ACTIVITY');

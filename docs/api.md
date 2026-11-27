@@ -163,3 +163,22 @@ GET  /v1/guest/requests/:id          Authorization: Bearer <guestToken>         
 ## 7. Display preferences
 
 `GET /v1/me/prefs` returns the signed-in person's saved `prefs` (`lang`, `theme`, `style`, `density`; `null` = never chose) and the organization's `org` rules (`defaultStyle`, `defaultDensity`, `allowedStyles`, `null` = every style). `PUT /v1/me/prefs` stores any of the four (strict body, `null` clears one); a style outside `allowedStyles` is `403` and nothing is stored. A stored style the organization no longer allows is not returned. Admins set `defaultStyle`, `defaultDensity` and `allowedStyles` with `PUT /v1/admin/policies` (the default must be among the allowed styles). The style ids are the design tokens' list.
+
+## 8. Personal room, recent activity, device check (signed-in home)
+
+Session-token endpoints of the signed-in app (owner decisions of 2026-11-27); they are not part of the API-key surface.
+
+```
+GET   /v1/me/personal-room                 -> { room: {code,title,waitingRoom,hasPasscode,guests} | null, policy: {requirePasscode, guestPolicy} }
+POST  /v1/me/personal-room                 { "title": "…", "passcode"?: "…" }  -> room (created once; idempotent)
+PATCH /v1/me/personal-room                 { "passcode"?: "…" | null, "waitingRoom"?: bool, "guests"?: "off"|"waiting_room"|"open" } -> room
+POST  /v1/me/personal-room/regenerate      -> room with a new code; the old code is 404 at once
+GET   /v1/me/activity?limit=1..50          -> { items: [{ meetingCode, title, personal, isHost, startedAt, endedAt, durationSeconds, participants, guests, peak, files, recordings }] }
+POST  /v1/me/connection-test               -> { url, token, room }   (20 per hour per person)
+GET   /v1/recordings                       -> { enabled, items: [{ id, meetingCode, title, startedAt, endedAt, sizeBytes }] }
+```
+
+- **Personal room**: an ordinary meeting row with `personal_owner` set, so join, waiting room (on by default), passcode, bans and guest joins behave exactly like any meeting. The organization's `requirePasscode` is enforced on create and on removing the passcode (`400`); `guests` above the policy is `400`, and the effective guest mode is re-capped by the policy at every join. Regenerating also voids the waiting requests made through the old link. Audit: `meeting.personal.create`, `meeting.personal.update`, `meeting.personal.regenerate` (old->new code). Personal rooms are not listed in `GET /v1/meetings` and are never removed by the meeting retention while their owner exists.
+- **Recent activity**: real runs of meetings the person hosted or was connected in, newest first. The API records them itself from the media server (a 15-second poll of live rooms and participants; the signed webhook of section 4, when configured, adds exact join and end times). A room that nobody connected to leaves nothing. A run ends at the last moment somebody was seen connected (or when the host ends the meeting). `files` and `recordings` count files shared and finished recordings during the run; chat is never stored, so it is not reported. Guests are counted, never named. Retention: `RETENTION_MEETINGS_DAYS` after the run ended.
+- **Connection test**: a token for a throw-away room `conntest-<user>-<n>` (not a meeting id, so it never appears in meetings, activity or trial limits; empty timeout 30 s) used by the "Test your devices" page for LiveKit's connection checks (signalling, WebRTC, TURN, UDP/TCP, publishing).
+- **Recordings**: finished recordings of the meetings the caller manages (host, co-host; organization admins see all). `enabled` is false while recording is switched off on the server; downloads use `GET /v1/recordings/:id/download`, which checks the rights again.

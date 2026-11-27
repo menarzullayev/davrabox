@@ -1,7 +1,7 @@
 /*
  * Liquid Glass, home layout (owner-approved iOS layout, 2026-11-26).
  *  - Large title; the glass header appears only once the page scrolls (scroll-driven, where supported).
- *  - Phones: a floating glass tab bar at the bottom (Join, New, Meetings, Settings) within thumb reach. The header buttons
+ *  - Phones: the shell's tab bar (Home, Meetings, New, Settings, More) floats as a glass capsule within thumb reach. The header buttons
  *    and the new-meeting button stay too (round glass / a compact card), so every shared test id works at every width.
  * Markup and test ids are the shared ones (HomeScreen.tsx); the tab bar has its own test ids (tab-*).
  */
@@ -25,9 +25,10 @@
     inset: auto var(--space-3) calc(env(safe-area-inset-bottom, 0rem) + var(--space-3));
     z-index: var(--z-sticky);
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--space-1);
     padding: var(--space-1);
+    border: 0;
     border-radius: var(--radius-pill);
   }
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item {
@@ -43,6 +44,7 @@
   }
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item .dx-btn__label { flex-direction: column; gap: calc(var(--space-1) / 2); }
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item[aria-expanded='true'],
+  :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item[aria-current='page'],
   :root[data-style='liquid-glass'] .hm-tabbar .hm-tabbar__item:hover { background: var(--glass-pressed); color: var(--accent); }
   /* Header buttons become round glass buttons. They all stay (the shared test ids must work in every style and width);
      the tab bar repeats the common ones within thumb reach. */
@@ -64,3 +66,16 @@
   :root[data-style='liquid-glass'] .hm-tabs .hm-tab__count { padding: 0 var(--space-1); }
   :root[data-style='liquid-glass'] .dx-toasts { bottom: calc(env(safe-area-inset-bottom, 0rem) + 5.5rem); }
 }
+
+/* The left panel of the signed-in shell is a glass sidebar (desktop and mid widths). */
+:root[data-style='liquid-glass'] .sh-panel {
+  border-color: transparent;
+  background: var(--glass-sheen), var(--glass-clear);
+  box-shadow: var(--glass-rim), var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+:root[data-style='liquid-glass'][data-glass='refract'] .sh-panel {
+  backdrop-filter: var(--lg-refract, ) blur(var(--glass-refract-blur)) saturate(var(--glass-sat));
+}
+:root[data-style='liquid-glass'] .sh-link:is([aria-current='page'], [aria-current='true']) { background: var(--glass-pressed); }
