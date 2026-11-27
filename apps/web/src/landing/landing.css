@@ -123,7 +123,23 @@
 
   /* ---- sign-up page ----------------------------------------------------------------------------------------- */
   .ln-su { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr; }
-  .ln-su__main { box-sizing: border-box; width: min(100% - 2 * var(--ln-gutter), 560px); margin: 0 auto; padding-block: var(--space-10) var(--space-12); outline: none; }
+  .ln-su__main { box-sizing: border-box; width: min(100% - 2 * var(--ln-gutter), 35rem); margin: 0 auto; padding-block: var(--space-10) var(--space-12); outline: none; }
+  /* Form first; the value panel sits under it on phones and beside it from the large breakpoint (decision 6). */
+  .ln-su__grid { display: grid; gap: var(--space-6); align-items: start; }
+  @media (min-width: 960px) {
+    .ln-su__main { width: min(100% - 2 * var(--ln-gutter), 58rem); }
+    .ln-su__grid { grid-template-columns: minmax(0, 35rem) minmax(0, 1fr); }
+    .ln-su__value { position: sticky; top: var(--space-8); }
+  }
+  .ln-su__social { display: grid; gap: var(--space-3); }
+  .ln-su__social img { display: block; flex: none; }
+  .ln-su__or { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-1) 0 0; color: var(--text-muted); font-size: var(--text-sm); }
+  .ln-su__or::before, .ln-su__or::after { content: ''; flex: 1; border-top: var(--border-w) solid var(--border); }
+  .ln-su__value { gap: var(--space-4); }
+  .ln-su__value-title { margin: 0; color: var(--text); font-size: var(--text-lg); line-height: var(--leading-lg); font-weight: var(--weight-semibold); }
+  .ln-su__value-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+  .ln-su__value-list li { display: flex; align-items: flex-start; gap: var(--space-3); color: var(--text); font-size: var(--text-base); line-height: var(--leading-base); }
+  .ln-su__value-icon { display: inline-flex; flex: none; color: var(--accent); padding-top: var(--space-1); }
   .ln-su__card { display: grid; gap: var(--space-5); padding: var(--space-8); border: var(--border-w) solid var(--border); border-radius: var(--radius-xl); background: var(--surface-2); box-shadow: var(--shadow-2); }
   .ln-su__title { margin: 0; color: var(--text); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem); line-height: 1.15; font-weight: var(--weight-bold); letter-spacing: -0.02em; }
   .ln-su__lead { margin: 0; color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }

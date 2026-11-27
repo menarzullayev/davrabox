@@ -205,7 +205,7 @@ describe('downloads', () => {
     Object.assign(navigator, { clipboard: { writeText } });
     render(<Downloads lang="en" fetchManifest={() => Promise.resolve(good)} />);
     const card = await screen.findByTestId('download-windows');
-    fireEvent.click(within(card).getByRole('button', { name: 'Copy' }));
+    fireEvent.click(await within(card).findByRole('button', { name: 'Copy' })); // the card exists while the manifest still loads
     expect(writeText).toHaveBeenCalledWith('b'.repeat(64));
     await within(card).findByRole('button', { name: 'Copied' });
   });

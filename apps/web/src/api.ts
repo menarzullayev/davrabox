@@ -61,7 +61,12 @@ export interface RecordingSummary {
 }
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, public readonly detail: string = '') {
+  constructor(
+    public readonly status: number,
+    public readonly detail: string = '',
+    /** The API's stable machine-readable code, when it sent one (e.g. "email_taken"). */
+    public readonly code?: string,
+  ) {
     super(`api ${status} ${detail}`);
   }
 }
@@ -80,14 +85,41 @@ async function call<T>(token: string, path: string, init?: { method?: string; bo
   if (!res.ok) {
     if (res.status === 401) sessionLost?.(token);
     let detail = '';
+    let code: string | undefined;
     try {
-      detail = String(((await res.json()) as { message?: unknown }).message ?? '');
+      const b = (await res.json()) as { message?: unknown; code?: unknown };
+      detail = String(b.message ?? '');
+      code = typeof b.code === 'string' ? b.code : undefined;
     } catch {
       /* body was not JSON */
     }
-    throw new ApiError(res.status, detail);
+    throw new ApiError(res.status, detail, code);
   }
   return (await res.json()) as T;
+}
+
+/** The "Get started" checklist (GET/PUT /v1/me/onboarding). */
+export type OnboardingStepId = 'devices' | 'invite' | 'meeting' | 'guests' | 'email';
+export interface OnboardingView {
+  steps: Array<{ id: OnboardingStepId; done: boolean }>;
+  dismissed: boolean;
+  emailVerified: boolean;
+  canSendVerification: boolean;
+}
+
+/**
+ * Organization set-up after a first sign-in through Google or Microsoft. The token has no organization yet, so a 401 here
+ * must not end the session (unlike call()): the caller shows the message instead.
+ */
+async function setupOrganization(token: string, orgName?: string, lang?: 'uz' | 'ru' | 'en'): Promise<{ slug: string }> {
+  const res = await fetch('/api/v1/onboarding/organization', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...(orgName ? { orgName } : {}), ...(lang ? { lang } : {}) }),
+  });
+  const b = (await res.json().catch(() => ({}))) as { slug?: string; code?: unknown; message?: unknown };
+  if (res.status !== 201) throw new ApiError(res.status, String(b.message ?? ''), typeof b.code === 'string' ? b.code : undefined);
+  return { slug: String(b.slug) };
 }
 
 const enc = encodeURIComponent;
@@ -158,6 +190,10 @@ export const api = {
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
+  onboarding: (token: string) => call<OnboardingView>(token, '/v1/me/onboarding'),
+  setOnboarding: (token: string, patch: { devicesTested?: true; meetingJoined?: true; dismissed?: true }) => call<OnboardingView>(token, '/v1/me/onboarding', { method: 'PUT', body: patch }),
+  sendVerification: (token: string) => call<{ sent: boolean }>(token, '/v1/me/verify-email', { method: 'POST', body: {} }),
+  setupOrganization,
   getPrefs: (token: string) =>
     call<{ prefs: { lang: string | null; theme: string | null; style: string | null; density: string | null }; org: { defaultStyle: string; defaultDensity: string; allowedStyles: string[] | null } }>(token, '/v1/me/prefs'),
   putPrefs: (token: string, patch: Partial<Record<'lang' | 'theme' | 'style' | 'density', string | null>>) => call<unknown>(token, '/v1/me/prefs', { method: 'PUT', body: patch }),

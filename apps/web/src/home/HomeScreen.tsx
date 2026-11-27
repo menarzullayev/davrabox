@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { GuestMode, Meeting, TrialStatus } from '../api';
+import type { GuestMode, Meeting, OnboardingView, TrialStatus } from '../api';
+import { GetStarted, VerifyReminder } from './GetStarted';
 import { MeetingGuestsDialog } from './MeetingGuestsDialog';
 import { t, type Key, type Lang } from '../i18n';
 import { Alert, Avatar, Button, IconCalendar, IconLink, IconLogout, IconPlus, IconShieldCheck, Logo, ToastProvider, useToast, type ThemeChoice } from '../ui';
@@ -51,6 +52,13 @@ export interface HomeScreenProps {
   onSetGuests?: (code: string, mode: GuestMode) => Promise<void>;
   /** Injected clock (tests, lab); the real clock ticks every 30 s when omitted. */
   now?: Date;
+  /** The "Get started" checklist (decision 5); null/undefined hides the card and the reminder. */
+  onboarding?: OnboardingView | null;
+  /** The signed-in address (shown in the unverified-email reminder). */
+  email?: string;
+  onTestDevices?: () => void;
+  onSendVerification?: () => Promise<void>;
+  onDismissOnboarding?: () => void;
 }
 
 const GREETING: Record<ReturnType<typeof greetingSlot>, Key> = {
@@ -83,7 +91,12 @@ function HomeBody(props: HomeScreenProps) {
   const [calendarFor, setCalendarFor] = useState<Meeting | null>(null);
   const [guestsFor, setGuestsFor] = useState<Meeting | null>(null);
   const [e2eeLink, setE2eeLink] = useState<string | null>(null);
+  const [reminderClosed, setReminderClosed] = useState(false);
   useCalendarReturn(lang, toast);
+  const ob = props.onboarding;
+  // The card shows until it is closed or every step is done; the email reminder takes over when the card is gone.
+  const showCard = Boolean(ob && !ob.dismissed && ob.steps.some((s) => !s.done));
+  const showReminder = Boolean(ob && !ob.emailVerified && !showCard && !reminderClosed && props.email);
 
   const timeline = useMemo(() => (meetings ? groupMeetings(meetings, clock) : null), [meetings, clock]);
   const plan = planSummary(props.trial, clock);
@@ -150,6 +163,10 @@ function HomeBody(props: HomeScreenProps) {
           </Alert>
         ) : null}
 
+        {showReminder && ob ? (
+          <VerifyReminder lang={lang} email={props.email ?? ''} canSend={ob.canSendVerification && Boolean(props.onSendVerification)} onSend={props.onSendVerification ?? (async () => undefined)} onDismiss={() => setReminderClosed(true)} />
+        ) : null}
+
         <div className="hm-actions">
           <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} passcodeNeeded={props.error === 'errWrongPasscode'} />
           <section className="hm-card hm-new" aria-labelledby="hm-new-h">
@@ -162,6 +179,17 @@ function HomeBody(props: HomeScreenProps) {
             </Button>
           </section>
         </div>
+
+        {showCard && ob ? (
+          <GetStarted
+            lang={lang}
+            view={ob}
+            onTestDevices={props.onTestDevices ?? (() => undefined)}
+            onNewMeeting={() => setDialog(true)}
+            onSendVerification={props.onSendVerification ?? (async () => undefined)}
+            onDismiss={props.onDismissOnboarding ?? (() => undefined)}
+          />
+        ) : null}
 
         <section className="hm-timeline" aria-labelledby="hm-meetings-h">
           <h2 className="hm-section" id="hm-meetings-h">

@@ -26,3 +26,18 @@ export function isOrgAdmin(token: string | null | undefined): boolean {
   const roles = (access as { roles?: unknown }).roles;
   return Array.isArray(roles) && roles.includes('org_admin');
 }
+
+/**
+ * True for a signed-in account that has no organization yet (first sign-in through Google or Microsoft): no valid org_slug
+ * claim or no DavraBox role. UI only; the API decides for real.
+ */
+export function needsOrganization(token: string | null | undefined): boolean {
+  if (!token) return false;
+  const payload = decodeJwtPayload(token);
+  if (!payload) return false;
+  const slug = payload['org_slug'];
+  const access = payload['realm_access'];
+  const roles = access !== null && typeof access === 'object' ? (access as { roles?: unknown }).roles : undefined;
+  const hasRole = Array.isArray(roles) && (roles.includes('member') || roles.includes('org_admin'));
+  return !(typeof slug === 'string' && /^[a-z0-9][a-z0-9-]{1,62}$/.test(slug) && hasRole);
+}

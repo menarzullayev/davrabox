@@ -248,6 +248,7 @@ export class PrivacyService {
       const keys = await c.query('UPDATE api_keys SET revoked_at = now() WHERE created_by = $1 AND revoked_at IS NULL', [userId]);
       const hooks = await c.query('DELETE FROM webhook_endpoints WHERE created_by = $1', [userId]);
       await c.query('DELETE FROM user_prefs WHERE user_id = $1', [userId]); // display choices go with the person
+      await c.query('DELETE FROM user_onboarding WHERE user_id = $1', [userId]); // and so does the "Get started" progress
       const cal = await c.query('DELETE FROM calendar_connections WHERE user_id = $1', [userId]);
       await c.query('SELECT privacy_purge_user_oauth_states($1, $2)', [orgId, userId]);
       await c.query(

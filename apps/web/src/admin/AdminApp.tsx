@@ -41,8 +41,14 @@ const LABEL = {
   assistant: 'admAssistant',
 } as const;
 
+/** A section named in the address (#users, #policies: links from the home "Get started" card), else the overview. */
+export function sectionFromHash(hash: string): Section {
+  const h = hash.replace(/^#/, '');
+  return (SECTIONS as readonly string[]).includes(h) && h !== 'assistant' ? (h as Section) : 'overview';
+}
+
 export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }: { lang: Lang; langPicker: ReactNode; user: User; onSignOut: () => void; client?: AdminClient }) {
-  const [section, setSection] = useState<Section>('overview');
+  const [section, setSection] = useState<Section>(() => sectionFromHash(typeof location === 'undefined' ? '' : location.hash));
   const [forbidden, setForbidden] = useState(false);
   // `client` is injected only by the admin lab (fake data for the demo clips); the product always talks to the API.
   const client = useMemo(() => injected ?? createAdminClient(freshToken), [injected]);

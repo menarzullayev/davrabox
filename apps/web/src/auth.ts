@@ -28,10 +28,11 @@ export const manager = new UserManager({
  * Starts the sign-in redirect in the language the user already sees in the app (saved choice, else the device language), so the
  * identity provider's page does not fall back to its own default. `ui_locales` is the standard OIDC parameter Keycloak reads.
  */
-export function signIn(opts: { lang?: Lang; loginHint?: string } = {}): Promise<void> {
+export function signIn(opts: { lang?: Lang; loginHint?: string; idpHint?: 'google' | 'microsoft' } = {}): Promise<void> {
   return manager.signinRedirect({
     ...(opts.loginHint ? { login_hint: opts.loginHint } : {}),
-    extraQueryParams: { ui_locales: opts.lang ?? detectLang() },
+    // kc_idp_hint skips Keycloak's own form and goes straight to Google / Microsoft (sign-up page buttons, decision 4).
+    extraQueryParams: { ui_locales: opts.lang ?? detectLang(), ...(opts.idpHint ? { kc_idp_hint: opts.idpHint } : {}) },
   });
 }
 

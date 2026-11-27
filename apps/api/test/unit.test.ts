@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { identityFromClaims } from '../src/auth/jwt.js';
+import { identityFromClaims, pendingIdentityFromClaims } from '../src/auth/jwt.js';
 import { loadConfig } from '../src/config.js';
 
 describe('identityFromClaims', () => {
   const ok = { sub: 's1', email: 'a@b.c', name: 'A', org_slug: 'acme', realm_access: { roles: ['member'] } };
   it('maps valid claims', () => {
-    expect(identityFromClaims(ok)).toEqual({ sub: 's1', email: 'a@b.c', name: 'A', orgSlug: 'acme', role: 'member' });
+    expect(identityFromClaims(ok)).toEqual({ sub: 's1', email: 'a@b.c', name: 'A', orgSlug: 'acme', role: 'member', emailVerified: false });
+  });
+  it('carries email_verified only when the claim is exactly true', () => {
+    expect(identityFromClaims({ ...ok, email_verified: true }).emailVerified).toBe(true);
+    expect(identityFromClaims({ ...ok, email_verified: 'true' }).emailVerified).toBe(false);
   });
   it('org_admin wins over member', () => {
     expect(identityFromClaims({ ...ok, realm_access: { roles: ['member', 'org_admin'] } }).role).toBe('org_admin');
@@ -21,6 +25,19 @@ describe('identityFromClaims', () => {
     ['roles not an array', { ...ok, realm_access: { roles: 'org_admin' } }],
   ])('rejects %s', (_n, claims) => {
     expect(() => identityFromClaims(claims as never)).toThrow();
+  });
+});
+
+describe('pendingIdentityFromClaims', () => {
+  it('accepts an account without organization or role', () => {
+    expect(pendingIdentityFromClaims({ sub: 's1', email: 'a@b.c', email_verified: true, name: ' Ali Valiyev ' })).toEqual({ sub: 's1', email: 'a@b.c', emailVerified: true, name: 'Ali Valiyev', orgSlug: '' });
+  });
+  it('drops a malformed organization slug instead of trusting it', () => {
+    expect(pendingIdentityFromClaims({ sub: 's1', email: 'a@b.c', org_slug: "x'; DROP--" }).orgSlug).toBe('');
+    expect(pendingIdentityFromClaims({ sub: 's1', email: 'a@b.c', org_slug: 'acme' }).orgSlug).toBe('acme');
+  });
+  it.each([['missing sub', { email: 'a@b.c' }], ['missing email', { sub: 's1' }]])('rejects %s', (_n, claims) => {
+    expect(() => pendingIdentityFromClaims(claims as never)).toThrow();
   });
 });
 

@@ -26,6 +26,8 @@ export interface NewOrgAdmin {
   name: string;
   orgSlug: string;
   password: string;
+  /** The language the person signed up in: Keycloak writes its emails (verification, reset) in the account's locale. */
+  locale?: 'uz' | 'ru' | 'en';
 }
 
 /** Removes the identity-provider users of a purged organization (personal data must not outlive the trial). */
@@ -41,6 +43,35 @@ export interface SignupIdentity {
   /** Best-effort cleanup after an ambiguous failure: deletes the user with this email ONLY if it carries this org_slug. */
   deleteOrgAdminByEmail(email: string, orgSlug: string): Promise<void>;
 }
+
+/** What the provider knows about a signed-in account that has no organization yet (first sign-in through Google/Microsoft). */
+export interface BrokeredAccount {
+  email: string;
+  emailVerified: boolean;
+  orgSlug: string | null;
+  /** Linked identity providers (google, microsoft, ...); empty for a password-only account. */
+  providers: string[];
+}
+
+/** Email verification and first-sign-in organization set-up. Keycloak implements it; tests use a fake. */
+export interface OnboardingIdentity {
+  /** Sends the "verify your email" message; `redirectUri` is where the link lands afterwards. Throws IdentityAdminError (503 = mail not sent). */
+  sendVerifyEmail(sub: string, redirectUri: string | null): Promise<void>;
+  /** The provider's current answer (the token may be older than the click on the link). */
+  emailVerified(sub: string): Promise<boolean>;
+  account(sub: string): Promise<BrokeredAccount | null>;
+  /** Puts an organization-less account into an organization as its administrator (attribute + org_admin and member roles). */
+  attachOrgAdmin(sub: string, orgSlug: string, locale?: 'uz' | 'ru' | 'en'): Promise<void>;
+  /** Undoes attachOrgAdmin after a failed transaction (best effort by the caller). */
+  detachOrg(sub: string, orgSlug: string): Promise<void>;
+  /** The external sign-in providers that are configured, enabled and shown (only the ones the product supports). */
+  signInProviders(): Promise<SignInProvider[]>;
+  /** Whether the realm has a mail server (otherwise "send the verification link" cannot work). */
+  canSendEmail(): Promise<boolean>;
+}
+
+export const SIGN_IN_PROVIDERS = ['google', 'microsoft'] as const;
+export type SignInProvider = (typeof SIGN_IN_PROVIDERS)[number];
 
 /**
  * The part of the identity provider the admin console needs. Keycloak implements it; unit tests use a fake.
@@ -92,7 +123,7 @@ interface KcUser {
 const TIMEOUT_MS = 10_000;
 
 /** Keycloak admin REST API client, authenticated as a confidential service account (client_credentials). */
-export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner, PrivacyIdentity {
+export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner, PrivacyIdentity, OnboardingIdentity {
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
@@ -193,8 +224,8 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
       firstName,
       lastName: rest.join(' '),
       enabled: true,
-      emailVerified: false, // no email is ever sent by the product, so nothing verifies it
-      attributes: { org_slug: [u.orgSlug] },
+      emailVerified: false, // verified later through the link the product sends (nothing is blocked meanwhile)
+      attributes: { org_slug: [u.orgSlug], ...(u.locale ? { locale: [u.locale] } : {}) },
       credentials: [{ type: 'password', value: u.password, temporary: false }],
     });
     if (res.status === 409) throw new IdentityAdminError(409, 'a user with this email already exists');
@@ -262,6 +293,74 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
     const out = await this.call('POST', `/users/${sub}/logout`);
     if (!out.ok && out.status !== 404) throw new IdentityAdminError(502, 'identity provider could not end the sessions');
     await this.deleteUser(sub);
+  }
+
+  async sendVerifyEmail(sub: string, redirectUri: string | null): Promise<void> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) throw new IdentityAdminError(400, 'not a provider account');
+    const q = new URLSearchParams({ client_id: 'davrabox-web', ...(redirectUri ? { redirect_uri: redirectUri } : {}) });
+    const res = await this.call('PUT', `/users/${sub}/send-verify-email?${q}`);
+    // Keycloak answers 500 when its mail server refused or is not configured: the message did not leave.
+    if (res.status === 404) throw new IdentityAdminError(400, 'no such account');
+    if (!res.ok) throw new IdentityAdminError(503, 'the verification email could not be sent');
+  }
+
+  async emailVerified(sub: string): Promise<boolean> {
+    return (await this.account(sub))?.emailVerified ?? false;
+  }
+
+  async account(sub: string): Promise<BrokeredAccount | null> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return null;
+    const get = await this.call('GET', `/users/${sub}`);
+    if (get.status === 404) return null;
+    if (!get.ok) throw new IdentityAdminError(502, 'identity provider could not read the user');
+    const user = (await get.json()) as KcUser & { email?: string; emailVerified?: boolean };
+    const fed = await this.call('GET', `/users/${sub}/federated-identity`);
+    if (!fed.ok) throw new IdentityAdminError(502, 'identity provider could not read the linked accounts');
+    const links = (await fed.json()) as Array<{ identityProvider?: string }>;
+    return {
+      email: user.email ?? '',
+      emailVerified: user.emailVerified === true,
+      orgSlug: user.attributes?.['org_slug']?.[0] ?? null,
+      providers: links.map((l) => l.identityProvider ?? '').filter(Boolean),
+    };
+  }
+
+  async attachOrgAdmin(sub: string, orgSlug: string, locale?: 'uz' | 'ru' | 'en'): Promise<void> {
+    const get = await this.call('GET', `/users/${sub}`);
+    if (!get.ok) throw new IdentityAdminError(502, 'identity provider could not read the user');
+    const user = (await get.json()) as KcUser;
+    const current = user.attributes?.['org_slug']?.[0];
+    if (current && current !== orgSlug) throw new IdentityAdminError(409, 'the account already belongs to an organization');
+    // Full representation round-trip: a partial PUT could drop attributes under the declarative user profile.
+    const attributes = { ...(user.attributes ?? {}), org_slug: [orgSlug], ...(locale && !user.attributes?.['locale'] ? { locale: [locale] } : {}) };
+    const put = await this.call('PUT', `/users/${sub}`, { ...user, attributes });
+    if (!put.ok) throw new IdentityAdminError(502, 'identity provider refused the update');
+    await this.setRole(sub, 'org_admin');
+  }
+
+  async canSendEmail(): Promise<boolean> {
+    const res = await this.call('GET', '');
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not read the realm');
+    const realm = (await res.json()) as { smtpServer?: { host?: string } };
+    return Boolean(realm.smtpServer?.host);
+  }
+
+  async signInProviders(): Promise<SignInProvider[]> {
+    const res = await this.call('GET', '/identity-provider/instances');
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not list the sign-in providers');
+    const list = (await res.json()) as Array<{ alias?: string; enabled?: boolean; config?: Record<string, string> }>;
+    return SIGN_IN_PROVIDERS.filter((a) => list.some((p) => p.alias === a && p.enabled !== false && p.config?.['hideOnLogin'] !== 'true'));
+  }
+
+  async detachOrg(sub: string, orgSlug: string): Promise<void> {
+    const get = await this.call('GET', `/users/${sub}`);
+    if (!get.ok) return;
+    const user = (await get.json()) as KcUser;
+    if (user.attributes?.['org_slug']?.[0] !== orgSlug) return; // never touch an account another organization holds
+    const { org_slug: _drop, ...rest } = user.attributes ?? {};
+    await this.call('PUT', `/users/${sub}`, { ...user, attributes: rest });
+    const roles = await Promise.all([this.realmRole('org_admin'), this.realmRole('member')]);
+    await this.call('DELETE', `/users/${sub}/role-mappings/realm`, roles);
   }
 
   async deleteUser(sub: string): Promise<void> {

@@ -343,7 +343,7 @@ describe('sign-in and waiting screens', () => {
     render(<SignInScreen lang="uz" onLang={vi.fn()} theme="dark" onTheme={vi.fn()} onSignIn={onSignIn} />);
     fireEvent.click(screen.getByRole('button', { name: 'Kirish' }));
     expect(onSignIn).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Xavfsiz. Mahalliy. Sizning nazoratingizda.');
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Xavfsiz. Oddiy. Sizning nazoratingizda.');
   });
 
   it('splits the brand line into sentences in every language', () => {
@@ -409,8 +409,10 @@ describe.each(['uz', 'ru', 'en'] as Lang[])('e2e selector compatibility (%s)', (
     expect((relay as HTMLInputElement).type).toBe('checkbox');
     cleanup();
     // new meeting dialog: [data-testid=meeting-title], input[type=password][minlength], [data-testid=waiting-room],
-    // and exactly one button named /Create|Yaratish|Создать/ in the whole page
-    render(<HomeScreen {...props({ lang })} />);
+    // and exactly one button named /Create|Yaratish|Создать/ in the whole page, also while the "Get started" card shows
+    const allOpen = { steps: (['devices', 'invite', 'meeting', 'guests', 'email'] as const).map((id) => ({ id, done: false })), dismissed: false, emailVerified: false, canSendVerification: true };
+    render(<HomeScreen {...props({ lang, isAdmin: true, onboarding: allOpen, email: 'e2e@example.org' })} />);
+    expect(screen.getByTestId('get-started')).toBeTruthy();
     fireEvent.click(screen.getByTestId('new-meeting'));
     await screen.findByTestId('meeting-title');
     expect(document.querySelectorAll('input[type=password][minlength]')).toHaveLength(1);

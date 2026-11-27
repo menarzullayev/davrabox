@@ -32,11 +32,12 @@ try {
   await page.getByRole('link', { name: 'Start free' }).first().click();
   await page.waitForURL(/\/app\/signup$/);
 
-  await page.getByLabel('Organisation name').fill(orgName);
-  await page.getByLabel('Your name').fill('E2E Person');
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: false }).first().fill(password);
-  await page.getByTestId('su-saved').check();
+  check('the slimmed form has no "saved my password" checkbox (decision 3)', (await page.getByRole('checkbox').count()) === 0);
+  check('the value panel lists the trial features (decision 6)', /7 days free/.test(await page.getByTestId('su-value').innerText()));
+  await page.getByTestId('su-org').fill(orgName);
+  await page.getByTestId('su-name').fill('E2E Person');
+  await page.getByTestId('su-email').fill(email);
+  await page.getByTestId('su-password').fill(password);
   await page.getByRole('button', { name: 'Create organisation' }).click();
   await page.waitForSelector('#username', { timeout: 60000 });
   check('after the proof of work the visitor is sent to the sign-in page with the email prefilled', (await page.inputValue('#username')) === email);
@@ -61,11 +62,10 @@ try {
 
   const again = await (await browser.newContext({ ignoreHTTPSErrors: true, locale: 'en-US' })).newPage();
   await again.goto(BASE + '/app/signup');
-  await again.getByLabel('Organisation name').fill(`${orgName} again`);
-  await again.getByLabel('Your name').fill('E2E Person');
-  await again.getByLabel('Email').fill(email.toUpperCase().replace('@SIGNUP-E2E.EXAMPLE.ORG', '@signup-e2e.example.org'));
-  await again.getByLabel('Password', { exact: false }).first().fill(password);
-  await again.getByTestId('su-saved').check();
+  await again.getByTestId('su-org').fill(`${orgName} again`);
+  await again.getByTestId('su-name').fill('E2E Person');
+  await again.getByTestId('su-email').fill(email.toUpperCase().replace('@SIGNUP-E2E.EXAMPLE.ORG', '@signup-e2e.example.org'));
+  await again.getByTestId('su-password').fill(password);
   await again.getByRole('button', { name: 'Create organisation' }).click();
   await again.getByRole('alert').waitFor({ timeout: 60000 });
   check('a second sign-up with the same email shows the "already registered" message', /already registered/i.test(await again.getByRole('alert').innerText()));

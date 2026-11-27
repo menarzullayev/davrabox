@@ -7,7 +7,7 @@ agent's call, stated in its report.
 ## 1. Character
 "Local trust + modern". Calm, premium, corporate-grade, with restrained Uzbek craft references (suzani/ikat geometry,
 the word *davra* = circle). Must feel credible to a bank and welcoming to a training centre. Brand line (from the plan):
-"Xavfsiz. Mahalliy. Sizning nazoratingizda." Not a festival card: ornament is an accent, never decoration everywhere.
+"Xavfsiz. Oddiy. Sizning nazoratingizda." (until 2026-11-27: "Mahalliy"; it returns only if hosting moves to Uzbekistan) Not a festival card: ornament is an accent, never decoration everywhere.
 
 ## 2. Signature idea: Davra mode (call screen)
 - Participants sit on a circle (up to 12), the centre shows the active speaker or the shared screen; when the speaker

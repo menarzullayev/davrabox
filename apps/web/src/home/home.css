@@ -321,3 +321,34 @@
   .pj__help:hover { color: var(--accent); }
   .pj__help:focus-visible { outline: 0.125rem solid var(--focus-ring); outline-offset: 0.125rem; border-radius: var(--radius-sm); }
 }
+
+/* "Get started" card and the unverified-email reminder (owner decisions 2 and 5 of 2026-11-27). The card is an .hm-card, so
+   every style (liquid-glass included) dresses it like the other home cards. */
+@layer dx {
+  .hm-gs { margin-top: var(--space-8); display: grid; gap: var(--space-4); }
+  .hm-gs__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3); }
+  .hm-gs__progress { font-size: var(--text-sm); line-height: var(--leading-sm); }
+  .hm-gs__bar { block-size: var(--space-1); border-radius: var(--radius-pill); background: var(--surface-3); overflow: hidden; }
+  .hm-gs__bar > span { display: block; block-size: 100%; border-radius: inherit; background: var(--accent); transition: inline-size var(--dur-2) var(--ease-standard); }
+  .hm-gs__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .hm-gs__step { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-lg); background: var(--surface-2); }
+  .hm-gs__mark { display: inline-grid; place-items: center; inline-size: var(--space-8); block-size: var(--space-8); border-radius: var(--radius-pill); background: var(--accent-soft); color: var(--accent); }
+  .hm-gs__step[data-done] .hm-gs__mark { background: var(--accent); color: var(--text-on-accent); }
+  .hm-gs__body { display: grid; gap: var(--space-1); min-inline-size: 0; }
+  .hm-gs__title { color: var(--text); font-size: var(--text-base); line-height: var(--leading-base); font-weight: var(--weight-semibold); }
+  .hm-gs__step[data-done] .hm-gs__title { color: var(--text-muted); font-weight: var(--weight-medium); text-decoration: line-through; text-decoration-color: var(--border-strong); }
+  .hm-gs__text { color: var(--text-muted); font-size: var(--text-sm); line-height: var(--leading-sm); }
+  .hm-gs__btn { justify-self: end; white-space: nowrap; }
+  /* Phones: the action goes under the text, full width, so nothing is squeezed. */
+  @media (max-width: 479px) {
+    .hm-gs__step { grid-template-columns: auto minmax(0, 1fr); }
+    .hm-gs__btn { grid-column: 2; justify-self: stretch; }
+  }
+  .hm-verify { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-4); }
+  @media (prefers-reduced-motion: reduce) { .hm-gs__bar > span { transition: none; } }
+  @media (forced-colors: active) {
+    .hm-gs__bar { border: var(--border-w) solid CanvasText; }
+    .hm-gs__bar > span { forced-color-adjust: none; background: Highlight; }
+    .hm-gs__mark { border: var(--border-w) solid CanvasText; }
+  }
+}
