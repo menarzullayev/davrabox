@@ -98,6 +98,17 @@ describe.skipIf(!enabled)('onboarding identity calls (real Keycloak + Mailpit)',
     expect(rolesAfter.map((r) => r.name)).not.toContain('org_admin');
   });
 
+  it('createOrgAdmin and attachOrgAdmin store the account language (emails follow it); an existing choice is kept', async () => {
+    const { id } = await kc.createOrgAdmin({ email: `ob4-${sfx}@onboarding-test.example.org`, name: 'Lang Test', orgSlug: `ob4-${sfx}`, password: `Pw-${sfx}-correct-horse`, locale: 'ru' });
+    created.push(id);
+    const u = (await (await fetch(`${realm()}/users/${id}`, { headers: admin })).json()) as { attributes?: Record<string, string[]> };
+    expect(u.attributes?.['locale']).toEqual(['ru']);
+    const b = await brokeredUser(`ob5-${sfx}@onboarding-test.example.org`);
+    await kc.attachOrgAdmin(b, `ob5-${sfx}`, 'en');
+    const ub = (await (await fetch(`${realm()}/users/${b}`, { headers: admin })).json()) as { attributes?: Record<string, string[]> };
+    expect(ub.attributes?.['locale']).toEqual(['en']);
+  });
+
   it('signInProviders lists only google/microsoft that are enabled and shown', async () => {
     const list = await kc.signInProviders();
     expect(list.every((p) => p === 'google' || p === 'microsoft')).toBe(true);

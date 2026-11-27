@@ -153,7 +153,7 @@ describe('sign-up page', () => {
     await waitFor(() => expect(signIn).toHaveBeenCalledWith('aziza@acme.example'));
     expect(solve).toHaveBeenCalledWith(CH, expect.anything());
     expect(post).toHaveBeenNthCalledWith(1, '/v1/public/challenge');
-    expect(post).toHaveBeenNthCalledWith(2, '/v1/public/signup', { orgName: 'Acme Corp', name: 'Aziza Karimova', email: 'aziza@acme.example', password: 'correct-horse-battery', altcha: 'payload' });
+    expect(post).toHaveBeenNthCalledWith(2, '/v1/public/signup', { orgName: 'Acme Corp', name: 'Aziza Karimova', email: 'aziza@acme.example', password: 'correct-horse-battery', altcha: 'payload', lang: 'en' });
     expect(screen.getByText(en.lnSuDone)).toBeTruthy();
   });
 

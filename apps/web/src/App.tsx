@@ -279,7 +279,7 @@ export function App() {
         email={profile.email ?? ''}
         onSignOut={() => void manager.signoutRedirect()}
         onCreate={async (orgName) => {
-          await api.setupOrganization(user.access_token, orgName);
+          await api.setupOrganization(user.access_token, orgName, lang);
           // The new organisation and roles are in the account now: a refreshed token carries them.
           try {
             setUser(await manager.signinSilent());

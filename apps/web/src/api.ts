@@ -111,11 +111,11 @@ export interface OnboardingView {
  * Organization set-up after a first sign-in through Google or Microsoft. The token has no organization yet, so a 401 here
  * must not end the session (unlike call()): the caller shows the message instead.
  */
-async function setupOrganization(token: string, orgName?: string): Promise<{ slug: string }> {
+async function setupOrganization(token: string, orgName?: string, lang?: 'uz' | 'ru' | 'en'): Promise<{ slug: string }> {
   const res = await fetch('/api/v1/onboarding/organization', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(orgName ? { orgName } : {}),
+    body: JSON.stringify({ ...(orgName ? { orgName } : {}), ...(lang ? { lang } : {}) }),
   });
   const b = (await res.json().catch(() => ({}))) as { slug?: string; code?: unknown; message?: unknown };
   if (res.status !== 201) throw new ApiError(res.status, String(b.message ?? ''), typeof b.code === 'string' ? b.code : undefined);

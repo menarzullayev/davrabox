@@ -143,7 +143,7 @@ export default function Signup({ deps = defaultDeps }: { deps?: SignupDeps }) {
       const altcha = await solveWithTimeout(challenge.body as AltchaChallenge, deps.solve);
       setPhase('sending');
       const orgName = v.org || suggestOrgName(lang, v.name);
-      const res = await deps.post('/v1/public/signup', { orgName, name: v.name, email: v.email, password: v.password, altcha });
+      const res = await deps.post('/v1/public/signup', { orgName, name: v.name, email: v.email, password: v.password, altcha, lang });
       if (res.status !== 201) throw new HttpFailure(res.status, codeOf(res.body));
       setPhase('done');
       deps.signIn(v.email);

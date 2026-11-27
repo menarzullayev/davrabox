@@ -32,6 +32,8 @@ export interface SignupInput {
   email: string;
   password: string;
   altcha: string;
+  /** The page language; the account's emails use it. */
+  lang?: 'uz' | 'ru' | 'en';
 }
 
 export interface SignupResult {
@@ -185,7 +187,7 @@ export class SignupService {
       slug = org.slug;
 
       try {
-        kcId = (await this.identity!.createOrgAdmin({ email, name: input.name.trim(), orgSlug: slug, password: input.password })).id;
+        kcId = (await this.identity!.createOrgAdmin({ email, name: input.name.trim(), orgSlug: slug, password: input.password, ...(input.lang ? { locale: input.lang } : {}) })).id;
       } catch (e) {
         if (e instanceof IdentityAdminError && e.status === 409) {
           throw new SignupError(409, 'email_taken', 'this email is already registered, sign in instead', undefined, 'identity_email_taken');
@@ -218,7 +220,7 @@ export class SignupService {
    * proof of work: the external account already cost the visitor a sign-in). Only an account that has no organization and is
    * linked to an external provider qualifies; invited people already carry their organization and never come here.
    */
-  async setupOrganization(who: PendingIdentity, orgName: string | undefined, ip: string): Promise<SignupResult> {
+  async setupOrganization(who: PendingIdentity, orgName: string | undefined, ip: string, lang?: 'uz' | 'ru' | 'en'): Promise<SignupResult> {
     const s = this.settings;
     const email = who.email.trim().toLowerCase();
     const domain = emailDomain(email);
@@ -272,7 +274,7 @@ export class SignupService {
       slug = org.slug;
       attached = true; // from here the provider may hold the attribute even if the call below fails: the rollback undoes it
       try {
-        await kc.attachOrgAdmin(who.sub, slug);
+        await kc.attachOrgAdmin(who.sub, slug, lang);
       } catch (e) {
         if (e instanceof IdentityAdminError && e.status === 409) throw new SignupError(409, 'already_member', 'this account already belongs to an organization');
         throw new SignupError(503, 'identity_unavailable', 'the sign-in service is not reachable, please try again', 10);

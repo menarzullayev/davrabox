@@ -43,7 +43,8 @@ describe('e2e selectors on the home screens', () => {
   it('every test that creates a meeting opens the dialog first', () => {
     for (const { f, text } of e2e) {
       const fills = text.match(/fill\('\[data-testid=meeting-title\]'/g)?.length ?? 0;
-      const opens = text.match(/getByTestId\('new-meeting'\)\.click\(\)/g)?.length ?? 0;
+      // The "Get started" card's "New meeting" step opens the same dialog (onboarding.e2e.mjs).
+      const opens = text.match(/getByTestId\('(new-meeting|gs-action-meeting)'\)\.click\(\)/g)?.length ?? 0;
       expect(opens, `${f}: opens the new-meeting dialog before each title fill`).toBe(fills);
     }
   });

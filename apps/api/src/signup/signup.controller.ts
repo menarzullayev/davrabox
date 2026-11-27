@@ -22,6 +22,7 @@ const signupSchema = z
     email: z.string().trim().max(254).pipe(z.email()),
     password: z.string().min(12).max(128),
     altcha: z.string().min(1).max(2000),
+    lang: z.enum(['uz', 'ru', 'en']).optional(),
   })
   .strict()
   // Keycloak's realm policy refuses a password equal to the username (the email); refuse it before a captcha is spent.
@@ -91,7 +92,7 @@ export class SignupController {
   }
 }
 
-const setupSchema = z.object({ orgName: z.string().trim().max(80).refine(noControl).optional() }).strict();
+const setupSchema = z.object({ orgName: z.string().trim().max(80).refine(noControl).optional(), lang: z.enum(['uz', 'ru', 'en']).optional() }).strict();
 
 /**
  * Organization set-up after a first sign-in through Google or Microsoft. Authenticated with the person's own token, which
@@ -128,7 +129,7 @@ export class OrgSetupController {
     const parsed = setupSchema.safeParse(body ?? {});
     if (!parsed.success) fail(res, 400, 'invalid_input', 'the form data is not valid');
     try {
-      return await this.svc.setupOrganization(who, parsed.data.orgName, ip);
+      return await this.svc.setupOrganization(who, parsed.data.orgName, ip, parsed.data.lang);
     } catch (e) {
       if (e instanceof SignupError) fail(res, e.status, e.code, e.message, e.retryAfter);
       throw e;

@@ -38,9 +38,11 @@ class FakeIdp implements SignupIdentity, OnboardingIdentity {
   async account(sub: string) {
     return this.accounts.get(sub) ?? null;
   }
-  async attachOrgAdmin(sub: string, orgSlug: string) {
+  attachedLocale: Array<string | undefined> = [];
+  async attachOrgAdmin(sub: string, orgSlug: string, locale?: 'uz' | 'ru' | 'en') {
     if (this.attachFail) throw this.attachFail;
     this.attached.push({ sub, orgSlug });
+    this.attachedLocale.push(locale);
     const a = this.accounts.get(sub);
     if (a) a.orgSlug = orgSlug;
   }
@@ -403,6 +405,12 @@ describe('POST /v1/public/signup', () => {
     expect(r2.status).toBe(201);
   });
 
+  it('passes the page language to the provider account and refuses an unknown one', async () => {
+    expect((await signup({ email: `lang@${domain}`, extra: { lang: 'en' } })).status).toBe(201);
+    expect(idp.created.at(-1)).toMatchObject({ email: `lang@${domain}`, locale: 'en' });
+    expect((await signup({ extra: { lang: 'fr' } })).status).toBe(400);
+  });
+
   it('orgNameFor: typed name wins, else the person, never shorter than two characters', () => {
     expect(orgNameFor('  Acme  ', 'Ali')).toBe('Acme');
     expect(orgNameFor('', 'Ali Valiyev')).toBe('Ali Valiyev');
@@ -483,6 +491,13 @@ describe('POST /v1/onboarding/organization (first sign-in through Google or Micr
     expect(lic.max_participants).toBe(TRIAL.participants);
     const audit = (await owner.query('SELECT action, target FROM audit_log WHERE org_id = $1', [org.id])).rows;
     expect(audit).toEqual([{ action: 'signup.trial', target: `${slug}:google` }]);
+  });
+
+  it('the page language becomes the account language (Keycloak writes its emails in it)', async () => {
+    const who = person('sociallang');
+    expect((await setup(who, { lang: 'ru' })).status).toBe(201);
+    expect(idp.attachedLocale.at(-1)).toBe('ru');
+    expect((await setup(person('sociallang2'), { lang: 'de' })).status).toBe(400);
   });
 
   it('without a name the organization is named after the person', async () => {

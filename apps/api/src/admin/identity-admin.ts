@@ -26,6 +26,8 @@ export interface NewOrgAdmin {
   name: string;
   orgSlug: string;
   password: string;
+  /** The language the person signed up in: Keycloak writes its emails (verification, reset) in the account's locale. */
+  locale?: 'uz' | 'ru' | 'en';
 }
 
 /** Removes the identity-provider users of a purged organization (personal data must not outlive the trial). */
@@ -59,7 +61,7 @@ export interface OnboardingIdentity {
   emailVerified(sub: string): Promise<boolean>;
   account(sub: string): Promise<BrokeredAccount | null>;
   /** Puts an organization-less account into an organization as its administrator (attribute + org_admin and member roles). */
-  attachOrgAdmin(sub: string, orgSlug: string): Promise<void>;
+  attachOrgAdmin(sub: string, orgSlug: string, locale?: 'uz' | 'ru' | 'en'): Promise<void>;
   /** Undoes attachOrgAdmin after a failed transaction (best effort by the caller). */
   detachOrg(sub: string, orgSlug: string): Promise<void>;
   /** The external sign-in providers that are configured, enabled and shown (only the ones the product supports). */
@@ -221,7 +223,7 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
       lastName: rest.join(' '),
       enabled: true,
       emailVerified: false, // verified later through the link the product sends (nothing is blocked meanwhile)
-      attributes: { org_slug: [u.orgSlug] },
+      attributes: { org_slug: [u.orgSlug], ...(u.locale ? { locale: [u.locale] } : {}) },
       credentials: [{ type: 'password', value: u.password, temporary: false }],
     });
     if (res.status === 409) throw new IdentityAdminError(409, 'a user with this email already exists');
@@ -321,14 +323,15 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
     };
   }
 
-  async attachOrgAdmin(sub: string, orgSlug: string): Promise<void> {
+  async attachOrgAdmin(sub: string, orgSlug: string, locale?: 'uz' | 'ru' | 'en'): Promise<void> {
     const get = await this.call('GET', `/users/${sub}`);
     if (!get.ok) throw new IdentityAdminError(502, 'identity provider could not read the user');
     const user = (await get.json()) as KcUser;
     const current = user.attributes?.['org_slug']?.[0];
     if (current && current !== orgSlug) throw new IdentityAdminError(409, 'the account already belongs to an organization');
     // Full representation round-trip: a partial PUT could drop attributes under the declarative user profile.
-    const put = await this.call('PUT', `/users/${sub}`, { ...user, attributes: { ...(user.attributes ?? {}), org_slug: [orgSlug] } });
+    const attributes = { ...(user.attributes ?? {}), org_slug: [orgSlug], ...(locale && !user.attributes?.['locale'] ? { locale: [locale] } : {}) };
+    const put = await this.call('PUT', `/users/${sub}`, { ...user, attributes });
     if (!put.ok) throw new IdentityAdminError(502, 'identity provider refused the update');
     await this.setRole(sub, 'org_admin');
   }
