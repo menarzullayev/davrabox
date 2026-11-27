@@ -85,12 +85,13 @@ script reads `.env`; it never prints a secret):
 ```
 cd /opt/davrabox/repo/deploy/prod
 docker compose --env-file .env -f docker-compose.yml -f docker-compose.shared-host.yml restart keycloak   # loads the email theme (login down ~20-60 s)
-set -a; . ./.env; set +a
-KEYCLOAK_URL=http://127.0.0.1:8180/auth node ../../scripts/keycloak-onboarding.mjs --check
-KEYCLOAK_URL=http://127.0.0.1:8180/auth node ../../scripts/keycloak-onboarding.mjs
+cd /opt/davrabox/repo && git pull --ff-only && cd deploy/prod      # the sparse checkout includes scripts/
+KEYCLOAK_URL=http://127.0.0.1:8180/auth node ../../scripts/keycloak-onboarding.mjs --env-file .env --check
+KEYCLOAK_URL=http://127.0.0.1:8180/auth node ../../scripts/keycloak-onboarding.mjs --env-file .env
 ```
 
-The script is idempotent. After a key rotation run it with `--force-secrets` (Keycloak never shows a stored secret, so a
+`--env-file` reads only the variables the script needs (the production `.env` has CRLF line ends, which a shell `source`
+would turn into wrong passwords). The script is idempotent. After a key rotation run it with `--force-secrets` (Keycloak never shows a stored secret, so a
 change cannot be detected). Without `KC_SMTP_HOST` it leaves mail alone; without both `IDP_*` values of a provider it does
 not create that provider (no half-configured button).
 
