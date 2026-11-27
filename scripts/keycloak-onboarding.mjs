@@ -4,6 +4,8 @@
 //
 //   node scripts/keycloak-onboarding.mjs            apply
 //   node scripts/keycloak-onboarding.mjs --check    report what would change (exit 1 when something differs)
+//   node scripts/keycloak-onboarding.mjs --env-file .env   read the variables below from that file (CRLF, quotes and
+//                                                          trailing comments are handled; the process environment wins)
 //   node scripts/keycloak-onboarding.mjs --force-secrets   also send the SMTP password / client secrets again (after a rotation:
 //                                                          Keycloak never shows a stored secret, so a change cannot be detected)
 //
@@ -25,9 +27,32 @@
 //   KC_SMTP_HOST, KC_SMTP_PORT (587), KC_SMTP_USER, KC_SMTP_PASSWORD, KC_SMTP_FROM, KC_SMTP_FROM_NAME (DavraBox),
 //   KC_SMTP_STARTTLS (true unless port 465 or 1025), KC_SMTP_SSL (true for port 465), KC_SMTP_REPLY_TO (optional)
 //   IDP_GOOGLE_CLIENT_ID, IDP_GOOGLE_CLIENT_SECRET, IDP_MICROSOFT_CLIENT_ID, IDP_MICROSOFT_CLIENT_SECRET
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export const MASK = '**********'; // what Keycloak returns instead of a stored secret
+
+/** The variables this script reads; nothing else is taken from an env file. */
+export const KEYS = ['KEYCLOAK_URL', 'KEYCLOAK_REALM', 'KEYCLOAK_ADMIN_PASSWORD', 'KC_SMTP_HOST', 'KC_SMTP_PORT', 'KC_SMTP_USER', 'KC_SMTP_PASSWORD', 'KC_SMTP_FROM', 'KC_SMTP_FROM_NAME', 'KC_SMTP_STARTTLS', 'KC_SMTP_SSL', 'KC_SMTP_REPLY_TO', 'IDP_GOOGLE_CLIENT_ID', 'IDP_GOOGLE_CLIENT_SECRET', 'IDP_MICROSOFT_CLIENT_ID', 'IDP_MICROSOFT_CLIENT_SECRET'];
+
+/**
+ * Parses a docker-compose style .env (the production one was saved with CRLF line ends): KEY=VALUE, optional quotes, a
+ * trailing " # comment" after an unquoted value, blank and comment lines. Returns only KEYS. Pure.
+ */
+export function parseEnvFile(text) {
+  const out = {};
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.replace(/\r$/, '');
+    const m = /^\s*(?:export\s+)?([A-Z0-9_]+)\s*=\s*(.*)$/.exec(line);
+    if (!m || !KEYS.includes(m[1])) continue;
+    let v = m[2];
+    const q = /^(['"])(.*)\1\s*(?:#.*)?$/.exec(v);
+    if (q) v = q[2];
+    else v = v.replace(/\s+#.*$/, '').trim();
+    out[m[1]] = v;
+  }
+  return out;
+}
 
 /**
  * Realm attributes this script owns, given the environment and the mail server the realm already has. Pure (unit-tested in
@@ -99,6 +124,11 @@ export function diff(have, want, prefix = '', forceSecrets = false) {
 }
 
 async function main() {
+  const fi = process.argv.indexOf('--env-file');
+  if (fi > 0) {
+    const fromFile = parseEnvFile(readFileSync(process.argv[fi + 1], 'utf8'));
+    for (const [k, v] of Object.entries(fromFile)) if (process.env[k] === undefined && v !== '') process.env[k] = v;
+  }
   const BASE = (process.env.KEYCLOAK_URL ?? 'http://127.0.0.1:8180/auth').replace(/\/+$/, '');
   const REALM = process.env.KEYCLOAK_REALM ?? 'davrabox';
   const check = process.argv.includes('--check');

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { MASK, desiredProviders, desiredRealm, diff } from './keycloak-onboarding.mjs';
+import { MASK, desiredProviders, desiredRealm, diff, parseEnvFile } from './keycloak-onboarding.mjs';
+
+describe('parseEnvFile', () => {
+  it('reads CRLF files, quotes and trailing comments, and only the keys this script uses', () => {
+    const text = 'PUBLIC_HOST=x  # not ours\r\nKEYCLOAK_ADMIN_PASSWORD=abc#def\r\nKC_SMTP_HOST=smtp-relay.brevo.com   # Brevo\r\nKC_SMTP_PASSWORD="p w#1"\r\n# comment\r\n\r\nIDP_GOOGLE_CLIENT_ID=\r\n';
+    expect(parseEnvFile(text)).toEqual({ KEYCLOAK_ADMIN_PASSWORD: 'abc#def', KC_SMTP_HOST: 'smtp-relay.brevo.com', KC_SMTP_PASSWORD: 'p w#1', IDP_GOOGLE_CLIENT_ID: '' });
+  });
+});
 
 describe('desiredRealm', () => {
   it('keeps verify-email non-blocking, sets the branded email theme, and offers reset only when mail can leave', () => {
