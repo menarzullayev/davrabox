@@ -52,3 +52,28 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// Social sign-in: the stock template shows each provider as a bare icon. Give it a visible, translated button label
+// ("Continue with Google"); without script the stock icon stays.
+(function () {
+  var TEXT = { en: 'Continue with ', ru: 'Продолжить с ', uz: '' };
+  var SUFFIX = { en: '', ru: '', uz: ' bilan davom etish' };
+  function init() {
+    var links = document.querySelectorAll('#kc-social-providers a[id^="social-"]');
+    var lang = (document.documentElement.lang || 'en').slice(0, 2);
+    if (!(lang in TEXT)) lang = 'en';
+    Array.prototype.forEach.call(links, function (a) {
+      if (a.querySelector('.dx-kc-social__label')) return;
+      var name = a.getAttribute('aria-label') || a.id.slice('social-'.length);
+      var label = TEXT[lang] + name + SUFFIX[lang];
+      var span = document.createElement('span');
+      span.className = 'dx-kc-social__label';
+      span.textContent = label;
+      a.appendChild(span);
+      a.setAttribute('aria-label', label);
+      a.classList.add('dx-kc-social');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
