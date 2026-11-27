@@ -4,6 +4,7 @@ import { IconCamera, IconChevronRight, IconUser, Switch, type ThemeChoice } from
 import { AppearanceFields } from '../home/AppearanceFields';
 import { tx } from '../home/text';
 import { onLinkClick, pathFor } from '../shell/nav';
+import { MySettings, type SettingsApi } from '../settings/MySettings';
 
 export interface SettingsPageProps {
   lang: Lang;
@@ -13,10 +14,12 @@ export interface SettingsPageProps {
   relay: { value: boolean; onChange: (v: boolean) => void };
   /** More groups (profile, my settings) are added by later packages. */
   children?: ReactNode;
+  /** "My settings" (server-side settings with organization locks). */
+  settingsApi?: SettingsApi;
 }
 
 /** The "Settings" section: appearance, the firewall (relay-only) mode and the device check. */
-export function SettingsPage({ lang, onLang, theme, onTheme, relay, children }: SettingsPageProps) {
+export function SettingsPage({ lang, onLang, theme, onTheme, relay, children, settingsApi }: SettingsPageProps) {
   return (
     <main id="hm-main" className="home hm-main" tabIndex={-1} data-testid="settings-page">
       <header className="pg-head">
@@ -32,14 +35,18 @@ export function SettingsPage({ lang, onLang, theme, onTheme, relay, children }: 
           </span>
           <IconChevronRight size={18} />
         </a>
-        <section className="hm-card st-card" aria-labelledby="st-look-h">
-          <h2 className="hm-card__title" id="st-look-h">
-            {tx(lang, 'stAppearance')}
-          </h2>
-          <div className="st-fields">
-            <AppearanceFields lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
-          </div>
-        </section>
+        {settingsApi ? (
+          <MySettings lang={lang} api={settingsApi} theme={theme} onTheme={onTheme} onLang={onLang} />
+        ) : (
+          <section className="hm-card st-card" aria-labelledby="st-look-h">
+            <h2 className="hm-card__title" id="st-look-h">
+              {tx(lang, 'stAppearance')}
+            </h2>
+            <div className="st-fields">
+              <AppearanceFields lang={lang} onLang={onLang} theme={theme} onTheme={onTheme} />
+            </div>
+          </section>
+        )}
         <section className="hm-card st-card" aria-labelledby="st-conn-h">
           <h2 className="hm-card__title" id="st-conn-h">
             {tx(lang, 'stConnection')}

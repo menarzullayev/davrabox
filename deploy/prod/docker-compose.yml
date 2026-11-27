@@ -84,6 +84,13 @@ services:
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       CLAMAV_HOST: clamav
       FILE_MASTER_KEY: ${FILE_MASTER_KEY}
+      # Email notifications of "My settings" use the same relay as Keycloak's mail (KC_SMTP_*); empty = no email is sent.
+      SMTP_HOST: ${KC_SMTP_HOST:-}
+      SMTP_PORT: ${KC_SMTP_PORT:-587}
+      SMTP_USER: ${KC_SMTP_USER:-}
+      SMTP_PASSWORD: ${KC_SMTP_PASSWORD:-}
+      SMTP_FROM: ${KC_SMTP_FROM:-no-reply@mail.davrabox.bugvector.uz}
+      SMTP_FROM_NAME: ${KC_SMTP_FROM_NAME:-DavraBox}
       # Calendar integration (owner decision 6 of the profile package, docs/calendar.md): ON as soon as an OAuth client exists.
       # The sign-in apps (IDP_*) are used unless separate calendar clients are set; the calendar scope is asked for only when
       # a person presses "Connect calendar" (incremental consent). Empty values keep the endpoints answering 503.

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { OPEN_POLICY, accepts, maySend, parseRoomPolicy, startMedia, type RoomPolicy } from './call/policy';
+import { chime } from './call/chime';
 import { ConnectionQuality, DisconnectReason, Room, RoomEvent, Track, type LocalVideoTrack, type Participant, type RemoteParticipant } from 'livekit-client';
 import { t, type Lang } from './i18n';
 import { ApiError, api, type GuestMode, type JoinedResult } from './api';
@@ -16,7 +18,7 @@ import { useBoard } from './call/board/useBoard';
 import { BoardPanel } from './call/board/BoardPanel';
 import { fileBase, saveBlob, stamp } from './call/download';
 import { CallView } from './call/CallView';
-import { Alert, Button, Dialog } from './ui';
+import { Alert, Button, Dialog, TextField } from './ui';
 import { LiveMedia } from './call/LiveMedia';
 import { loadLayout, saveLayout } from './call/prefs';
 import type { LayoutMode } from './call/layout';
@@ -154,6 +156,15 @@ export function Call({
   const [e2eeUnsupported, setE2eeUnsupported] = useState(false);
   const lineId = useRef(0);
   const manages = role !== 'member';
+  // The host's "My settings" for this meeting (server-written room metadata); applied to what this client sends and receives.
+  const [policy, setPolicy] = useState<RoomPolicy>(OPEN_POLICY);
+  const policyRef = useRef(policy);
+  policyRef.current = policy;
+  const managesRef = useRef(manages);
+  managesRef.current = manages;
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameText, setRenameText] = useState('');
+  const [recConfirm, setRecConfirm] = useState(false);
   const chatOpenRef = useRef(false);
   chatOpenRef.current = panel === 'chat';
   const setLayout = (m: LayoutMode) => {
@@ -232,6 +243,14 @@ export function Call({
       const sig: Signal | null = decode(payload);
       if (!sig) return;
       const id = participant.identity;
+      // Receiver-side rules of the meeting: what the sender's client sent does not matter, only the server-written policy.
+      const from = { manager: ['host', 'cohost'].includes(participant.attributes?.['role'] ?? '') };
+      const me = { manager: managesRef.current };
+      const pol = policyRef.current;
+      const priv = topic === 'chat-private';
+      if (sig.t === 'chat' && !accepts(pol, priv ? 'private' : 'chat', from, me)) return;
+      if (sig.t === 'file' && !accepts(pol, priv ? 'private' : 'chat', from, me, true)) return;
+      if (sig.t !== 'chat' && sig.t !== 'file' && sig.t !== 'hand' && !accepts(pol, 'reaction', from, me)) return;
       if (sig.t === 'chat') {
         const line: ChatLine = { id: ++lineId.current, from: participant.name || id, text: sig.text, mine: false, priv: topic === 'chat-private' };
         setLines((l) => [...l.slice(-199), line]);
@@ -248,12 +267,19 @@ export function Call({
       }
     };
     room
-      .on(RoomEvent.ParticipantConnected, sync)
-      .on(RoomEvent.ParticipantDisconnected, onGone)
+      .on(RoomEvent.ParticipantConnected, () => {
+        sync();
+        if (policyRef.current.joinLeaveSound) chime(true);
+      })
+      .on(RoomEvent.ParticipantDisconnected, (p: RemoteParticipant) => {
+        onGone(p);
+        if (policyRef.current.joinLeaveSound) chime(false);
+      })
       .on(RoomEvent.DataReceived, onData)
       .on(RoomEvent.RoomMetadataChanged, (metadata: string) => {
         setRecOn(parseRoomRecording(metadata));
         setSpotlightId(parseRoomSpotlight(metadata));
+        setPolicy(parseRoomPolicy(metadata));
       })
       .on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
         // Keep the last person who spoke featured instead of flipping back when everyone is silent.
@@ -287,10 +313,16 @@ export function Call({
         setConnected(true);
         setRecOn(parseRoomRecording(room.metadata));
         setSpotlightId(parseRoomSpotlight(room.metadata));
+        const pol = parseRoomPolicy(room.metadata);
+        setPolicy(pol);
         sync();
+        // Start state from the host's settings (mute on entry, video off); the server mutes the same at its first sight.
+        const start = startMedia(pol, { mic: initialMedia?.mic ?? true, cam: initialMedia?.cam ?? true }, { host: join.isHost, manager: join.isHost });
+        setMic(start.mic);
+        setCam(start.cam);
         try {
-          await room.localParticipant.setMicrophoneEnabled(initialMedia?.mic ?? true);
-          await room.localParticipant.setCameraEnabled(initialMedia?.cam ?? true);
+          await room.localParticipant.setMicrophoneEnabled(start.mic);
+          await room.localParticipant.setCameraEnabled(start.cam);
           const v = room.localParticipant.getTrackPublication(Track.Source.Microphone)?.audioTrack?.mediaStreamTrack.getSettings().noiseSuppression;
           setNoiseOn(typeof v === 'boolean' ? v : null);
         } catch {
@@ -419,8 +451,8 @@ export function Call({
     [guest, getToken, code],
   );
   const liveRoom = connected ? roomRef.current : null;
-  const activity = useActivity(liveRoom, connected, panel, recordActivity);
-  const board = useBoard(liveRoom, connected, panel === 'board', (grant) => recordActivity(grant ? 'board.draw.grant' : 'board.draw.revoke'));
+  const activity = useActivity(liveRoom, connected && policy.activities, panel, recordActivity);
+  const board = useBoard(liveRoom, connected && policy.activities, panel === 'board', (grant) => recordActivity(grant ? 'board.draw.grant' : 'board.draw.revoke'));
 
   const room = roomRef.current;
   if (join.e2ee && (!e2eeKey || e2eeUnsupported)) {
@@ -476,6 +508,11 @@ export function Call({
     e.preventDefault();
     const text = cleanChatText(draft);
     if (!text || !room) return;
+    const toManager = target ? ['host', 'cohost'].includes(room.remoteParticipants.get(target)?.attributes?.['role'] ?? '') : false;
+    if (!maySend(policy, 'chat', { manager: manages }, target ? { manager: toManager } : undefined)) {
+      setError(t(lang, policy.chat === 'off' ? 'clChatOff' : target ? 'clPrivateOff' : 'clChatHostOnly'));
+      return;
+    }
     const toName = target ? participants.find((p) => p.identity === target)?.name || target : undefined;
     await send({ t: 'chat', text }, target ? { to: target, topic: 'chat-private' } : { topic: 'chat' });
     setLines((l) => [...l.slice(-199), { id: ++lineId.current, from: t(lang, 'you'), text, mine: true, to: toName, priv: Boolean(target) }]);
@@ -590,6 +627,10 @@ export function Call({
     await send({ t: 'hand', up });
   };
   const react = async (e: Reaction) => {
+    if (!maySend(policy, 'reaction', { manager: manages })) {
+      setError(t(lang, 'clReactionsOff'));
+      return;
+    }
     const id = room?.localParticipant.identity;
     if (id) {
       setReactions((r) => ({ ...r, [id]: e }));
@@ -620,7 +661,9 @@ export function Call({
       else await api.startRecording(tk, code);
       await loadRecordings();
     } catch (e) {
-      setError(recError(e));
+      // "Confirm before recording" (host setting): the server asks for an explicit yes first.
+      if (e instanceof ApiError && e.code === 'confirm_recording') setRecConfirm(true);
+      else setError(recError(e));
     } finally {
       setRecBusy(false);
     }
@@ -722,7 +765,7 @@ export function Call({
       mic={mic}
       cam={cam}
       sharing={sharing}
-      canShare={typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function'}
+      canShare={typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function' && (manages || policy.screenShare !== 'host')}
       handUp={myHand}
       noiseOn={noiseOn}
       blurOn={fx.bg === 'blur'}
@@ -780,7 +823,8 @@ export function Call({
         if (id === 'qa') activity.markSeen('qa');
         if (id === 'board') board.clearActivity();
       }}
-      activities={{ polls: activity.unseen.polls, qa: activity.unseen.qa, board: board.activity }}
+      activities={policy.activities ? { polls: activity.unseen.polls, qa: activity.unseen.qa, board: board.activity } : undefined}
+      onRenameSelf={!guest && (manages || policy.rename) ? () => { setRenameText(room?.localParticipant.name ?? ''); setRenameOpen(true); } : undefined}
       activityPanel={
         panel === 'polls' ? (
           <PollsPanel
@@ -917,6 +961,65 @@ export function Call({
       }
     >
       <p>{t(lang, 'removeConfirmBody')} <strong>{removeTarget?.name}</strong></p>
+    </Dialog>
+    <Dialog
+      open={recConfirm}
+      onClose={() => setRecConfirm(false)}
+      title={t(lang, 'clRecConfirmTitle')}
+      closeLabel={t(lang, 'cancel')}
+      footer={
+        <>
+          <Button variant="secondary" onClick={() => setRecConfirm(false)}>{t(lang, 'cancel')}</Button>
+          <Button
+            variant="danger"
+            data-testid="rec-confirm"
+            onClick={() => {
+              setRecConfirm(false);
+              void (async () => {
+                try {
+                  await api.startRecording(await getToken(), code, true);
+                  await loadRecordings();
+                } catch (e) {
+                  setError(recError(e));
+                }
+              })();
+            }}
+          >
+            {t(lang, 'clRecConfirm')}
+          </Button>
+        </>
+      }
+    >
+      <p>{t(lang, 'clRecConfirmBody')}</p>
+    </Dialog>
+    <Dialog
+      open={renameOpen}
+      onClose={() => setRenameOpen(false)}
+      title={t(lang, 'clRename')}
+      closeLabel={t(lang, 'cancel')}
+      footer={
+        <>
+          <Button variant="secondary" onClick={() => setRenameOpen(false)}>{t(lang, 'cancel')}</Button>
+          <Button
+            variant="primary"
+            data-testid="rename-save"
+            onClick={() => {
+              setRenameOpen(false);
+              void (async () => {
+                try {
+                  await api.rename(await getToken(), code, renameText);
+                } catch (e) {
+                  setError(e instanceof ApiError && e.code === 'rename_off' ? t(lang, 'clRename') : t(lang, 'errGeneric'));
+                }
+              })();
+            }}
+          >
+            {t(lang, 'admSave')}
+          </Button>
+        </>
+      }
+    >
+      <TextField label={t(lang, 'clRenameLabel')} maxLength={60} value={renameText} onChange={(e) => setRenameText(e.target.value)} data-testid="rename-input" />
     </Dialog>
     <Dialog
       open={leaveAsk}

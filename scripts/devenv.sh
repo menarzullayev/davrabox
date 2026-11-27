@@ -36,6 +36,9 @@ if [ -n "${DAVRA_LOCAL_LIVEKIT:-}" ] || [ -z "${LIVEKIT_CLOUD_URL:-}" ]; then
   export RECORDING_ENABLED=1
   export RECORDING_S3_ENDPOINT="http://minio:9000"
 fi
+# "My settings" emails go to the dev stack's Mailpit (inbox http://127.0.0.1:58025) unless dev.env names another relay.
+export SMTP_HOST="${SMTP_HOST:-127.0.0.1}"
+export SMTP_PORT="${SMTP_PORT:-51025}"
 export CLAMAV_HOST="127.0.0.1"
 export CLAMAV_PORT="53310"
 unset _root

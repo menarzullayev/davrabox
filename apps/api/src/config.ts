@@ -25,6 +25,14 @@ const schema = z.object({
   CLAMAV_HOST: z.string().min(1).optional(),
   CLAMAV_PORT: z.coerce.number().int().default(3310),
   FILE_MASTER_KEY: z.string().min(1).optional(),
+  // Email notifications of "My settings" (lobby, cancelled meeting, new sign-in) go through the same relay as Keycloak's mail
+  // (Brevo in production, Mailpit in the dev stack). Without SMTP_HOST no email is sent and the settings page says so.
+  SMTP_HOST: z.string().min(1).optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().email().default('no-reply@mail.davrabox.bugvector.uz'),
+  SMTP_FROM_NAME: z.string().default('DavraBox'),
   // Meeting recording is optional: it needs LiveKit Egress, the S3 settings above and FILE_MASTER_KEY; otherwise the endpoints answer 503.
   RECORDING_ENABLED: z.enum(['0', '1', 'true', 'false']).default('0').transform((v) => v === '1' || v === 'true'),
   RECORDING_BUCKET: z.string().min(3).default('davra-recordings'),

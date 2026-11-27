@@ -60,6 +60,7 @@ interface MeetingInfo {
   id: string;
   title: string;
   e2ee: boolean;
+  host_user_id: string;
   manages: boolean;
   entered: boolean;
 }
@@ -108,6 +109,9 @@ export class RecordingService {
     this.settleMax = deps?.settleMaxMs ?? 15 * 60_000;
   }
 
+  /** Set by the application module: the host's "My settings" (recording group). */
+  hostSettings: ((orgId: string, hostUserId: string) => Promise<Record<string, unknown>>) | null = null;
+
   get enabled(): boolean {
     return this.deps !== null;
   }
@@ -130,10 +134,14 @@ export class RecordingService {
     return { enabled: this.enabled, e2ee: m.e2ee, active, canRecord: this.enabled && m.manages && !m.e2ee };
   }
 
-  async start(user: AuthedUser, code: string): Promise<{ id: string; status: string }> {
+  async start(user: AuthedUser, code: string, opts: { confirmed?: boolean } = {}): Promise<{ id: string; status: string }> {
     const { media, store } = this.require();
     const m = await this.meeting(user, code);
     if (!m.manages) await this.refuse(user, 'recording.start.denied', code, 'forbidden', 403, 'only the host can do this');
+    // Host settings (recording group): who may record, and an explicit confirmation before recording starts.
+    const hs = this.hostSettings ? await this.hostSettings(user.orgId, m.host_user_id) : null;
+    if (hs?.['whoMayRecord'] === 'host' && m.host_user_id !== user.userId && user.role !== 'org_admin') await this.refuse(user, 'recording.start.denied', code, 'host_only', 403, 'only the host may record this meeting');
+    if (hs?.['confirmRecording'] === true && !opts.confirmed) throw new MeetingError(428, 'confirm that the meeting will be recorded', { code: 'confirm_recording' });
     if (m.e2ee) await this.refuse(user, 'recording.start.denied', code, 'e2ee', 409, 'end-to-end encrypted meetings cannot be recorded');
 
     // Never record into a customer key that cannot wrap the result: refuse before anything starts.
@@ -431,7 +439,7 @@ export class RecordingService {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
-        `SELECT m.id, m.title, m.e2ee,
+        `SELECT m.id, m.title, m.e2ee, m.host_user_id,
                 (m.host_user_id = $2 OR EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2)) AS manages,
                 EXISTS (SELECT 1 FROM meeting_access a WHERE a.meeting_id = m.id AND a.user_id = $2) AS entered
          FROM meetings m WHERE m.code = $1`,

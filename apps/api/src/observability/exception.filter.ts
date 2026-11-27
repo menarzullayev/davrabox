@@ -26,7 +26,7 @@ const GENERIC: Record<number, string> = {
 // Wording that would echo the request path or the parser's view of the body back to the caller.
 const LEAKY = /^Cannot (GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) |\bJSON\b|position \d+|^Unexpected |^Expected /;
 
-function describe(exception: unknown): { status: number; message: string; code?: string } {
+function describe(exception: unknown): { status: number; message: string; code?: string; disclaimer?: string } {
   if (exception instanceof HttpException) {
     const status = exception.getStatus();
     const r = exception.getResponse();
@@ -40,7 +40,10 @@ function describe(exception: unknown): { status: number; message: string; code?:
       if (typeof o.code === 'string') code = o.code;
     }
     if (LEAKY.test(message)) message = GENERIC[status] ?? 'Error';
-    return { status, message: redactText(message), code };
+    // The one detail a refusal may carry besides the code: the organization's join notice the person must accept (428).
+    const d = (r as { disclaimer?: unknown } | null)?.disclaimer;
+    const disclaimer = status === 428 && code === 'disclaimer' && typeof d === 'string' ? d.slice(0, 2000) : undefined;
+    return { status, message: redactText(message), code, ...(disclaimer !== undefined ? { disclaimer } : {}) };
   }
   // Errors raised outside a controller (body parser): expose only the status, with fixed wording.
   const e = exception as { status?: unknown; statusCode?: unknown; expose?: unknown } | null;
@@ -65,7 +68,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const req = http.getRequest<ObsRequest>();
     const res = http.getResponse<Response>();
     const requestId = req.requestId ?? acceptRequestId(undefined);
-    const { status, message, code } = describe(exception);
+    const { status, message, code, disclaimer } = describe(exception);
     const route = routeOf(req);
 
     if (status >= 500) {
@@ -92,6 +95,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (res.headersSent) return;
     const body: Record<string, unknown> = { statusCode: status, message };
+    if (disclaimer !== undefined) body['disclaimer'] = disclaimer;
     if (code) body.code = code;
     body.requestId = requestId;
     res.status(status).json(body);

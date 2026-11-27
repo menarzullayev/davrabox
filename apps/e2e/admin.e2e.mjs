@@ -35,7 +35,7 @@ try {
   const a = await openAdmin('admin.demo', PASSWORD);
   await a.page.waitForSelector('.adm-nav', { timeout: 20000 });
   const items = await a.page.locator('.adm-nav button').count();
-  check('an organization admin sees the eight sections', items === 8, `sections=${items}`);
+  check('an organization admin sees the nine sections (incl. "Meeting settings")', items === 9, `sections=${items}`);
 
   await a.page.waitForSelector('.stat', { timeout: 15000 });
   check('the overview shows the organization numbers', (await a.page.locator('.stat').count()) >= 4);

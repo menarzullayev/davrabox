@@ -3,7 +3,7 @@ import type { GuestMode, Meeting, OnboardingView, TrialStatus } from '../api';
 import { GetStarted, VerifyReminder } from './GetStarted';
 import { MeetingGuestsDialog } from './MeetingGuestsDialog';
 import { t, type Key, type Lang } from '../i18n';
-import { Alert, Button, IconCalendar, IconClock, IconPlus, ToastProvider, useToast, type ThemeChoice } from '../ui';
+import { Alert, Button, Dialog, IconCalendar, IconClock, IconPlus, ToastProvider, useToast, type ThemeChoice } from '../ui';
 import { JoinCard, type JoinCardHandle } from './JoinCard';
 import { NewMeetingDialog, type NewMeetingData } from './NewMeetingDialog';
 import { TimelineView, copyJoinLink } from './Timeline';
@@ -28,6 +28,7 @@ import { WhiteboardsPage } from '../pages/WhiteboardsPage';
 import { SettingsPage } from '../pages/SettingsPage';
 import { ProfilePage } from '../profile/ProfilePage';
 import type { ProfileApi } from '../profile/profileApi';
+import type { SettingsApi } from '../settings/MySettings';
 
 export interface HomeScreenProps {
   lang: Lang;
@@ -82,6 +83,12 @@ export interface HomeScreenProps {
   /** After "sign out of all sessions". */
   onSignedOutEverywhere?: () => void;
   onAvatarChange?: (url: string | null) => void;
+  /** "My settings". */
+  settingsApi?: SettingsApi;
+  /** Host: cancel a meeting (the list reloads afterwards). */
+  onCancelMeeting?: (code: string) => Promise<void>;
+  /** A passcode carried by the join link. */
+  initialPasscode?: string;
 }
 
 const GREETING: Record<ReturnType<typeof greetingSlot>, Key> = {
@@ -124,6 +131,28 @@ function HomeBody(props: HomeScreenProps) {
     }
   }, []);
   const section = props.section ?? 'home';
+  // "My settings" that shape this screen: new-meeting defaults, the passcode requirement, instant meetings in the personal room.
+  const [my, setMy] = useState<Record<string, unknown>>({});
+  useEffect(() => {
+    if (!props.settingsApi) return;
+    props.settingsApi.load().then((v) => setMy(Object.fromEntries(v.items.map((i) => [i.key, i.value]))), () => undefined);
+  }, [props.settingsApi, dialog]);
+  const [cancelFor, setCancelFor] = useState<TimelineMeeting | null>(null);
+  const [cancelBusy, setCancelBusy] = useState(false);
+  const newMeeting = useCallback(async () => {
+    if (my['personalRoomInstant'] === true && props.homeApi) {
+      try {
+        const v = await props.homeApi.personalRoom();
+        if (v.room) {
+          await onJoin(v.room.code);
+          return;
+        }
+      } catch {
+        /* fall back to the form */
+      }
+    }
+    setDialog('new');
+  }, [my, props.homeApi, onJoin]);
   const ob = props.onboarding;
   // The card shows until it is closed or every step is done; the email reminder takes over when the card is gone.
   const showCard = Boolean(ob && !ob.dismissed && ob.steps.some((s) => !s.done));
@@ -172,6 +201,7 @@ function HomeBody(props: HomeScreenProps) {
       onNew={() => setDialog('new')}
       onCalendar={props.calendarToken ? setCalendarFor : undefined}
       onGuests={props.onSetGuests && props.guestMax && props.guestMax !== 'off' ? setGuestsFor : undefined}
+      onCancel={props.onCancelMeeting ? setCancelFor : undefined}
     />
   );
   const relay = { value: props.relayMode, onChange: props.onRelayMode };
@@ -208,7 +238,7 @@ function HomeBody(props: HomeScreenProps) {
   } else if (section === 'whiteboards') {
     page = <WhiteboardsPage lang={lang} />;
   } else if (section === 'settings') {
-    page = <SettingsPage lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={relay} />;
+    page = <SettingsPage lang={lang} onLang={props.onLang} theme={props.theme} onTheme={props.onTheme} relay={relay} settingsApi={props.settingsApi} />;
   } else if (section === 'profile' && props.profileApi) {
     page = <ProfilePage lang={lang} api={props.profileApi} sid={props.sid} onSignedOutEverywhere={props.onSignedOutEverywhere ?? props.onSignOut} onAvatarChange={props.onAvatarChange} />;
   } else if (section === 'devices' && props.homeApi) {
@@ -263,14 +293,14 @@ function HomeBody(props: HomeScreenProps) {
 
         {/* Quick actions (owner decision 2): New meeting, Join with the inline code field, Schedule. */}
         <div className="hm-actions">
-          <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} onJoin={onJoin} passcodeNeeded={props.error === 'errWrongPasscode'} />
+          <JoinCard ref={joinCard} lang={lang} initialCode={props.initialCode} initialPasscode={props.initialPasscode} onJoin={onJoin} passcodeNeeded={props.error === 'errWrongPasscode'} />
           <section className="hm-card hm-new" aria-labelledby="hm-new-h">
             <h2 className="hm-card__title" id="hm-new-h">
               {tx(lang, 'hNewTitle')}
             </h2>
             <p className="hm-card__lead">{tx(lang, 'hNewLead')}</p>
             <div className="hm-new__buttons">
-              <Button variant="highlight" size="lg" fullWidth icon={<IconPlus />} data-testid="new-meeting" onClick={() => setDialog('new')}>
+              <Button variant="highlight" size="lg" fullWidth icon={<IconPlus />} data-testid="new-meeting" onClick={() => void newMeeting()}>
                 {tx(lang, 'hNewAction')}
               </Button>
               <Button variant="secondary" size="lg" fullWidth icon={<IconCalendar />} data-testid="schedule-meeting" onClick={() => setDialog('schedule')}>
@@ -325,13 +355,20 @@ function HomeBody(props: HomeScreenProps) {
       whoId={typeof props.profile?.sub === 'string' ? props.profile.sub : undefined}
       whoAvatar={props.avatarUrl ?? undefined}
       onSignOut={props.onSignOut}
-      onNew={() => setDialog('new')}
+      onNew={() => void newMeeting()}
     >
       {page}
       <NewMeetingDialog
         lang={lang}
         open={dialog !== null}
         schedule={dialog === 'schedule'}
+        defaults={{
+          waitingRoom: typeof my['waitingRoom'] === 'boolean' ? (my['waitingRoom'] as boolean) : undefined,
+          e2ee: my['e2ee'] === true,
+          guests: typeof my['guestMode'] === 'string' ? (my['guestMode'] as GuestMode) : undefined,
+          requirePasscode: my['requirePasscode'] === true,
+          embedPasscode: my['embedPasscode'] === true,
+        }}
         onClose={() => setDialog(null)}
         onCreate={onCreate}
         calendar={Boolean(props.calendarToken)}
@@ -349,6 +386,43 @@ function HomeBody(props: HomeScreenProps) {
         }}
       />
       <E2eeLinkDialog lang={lang} link={e2eeLink} onClose={() => setE2eeLink(null)} />
+      <Dialog
+        open={cancelFor !== null}
+        onClose={() => setCancelFor(null)}
+        closeLabel={t(lang, 'uiClose')}
+        title={tx(lang, 'tlCancelTitle')}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setCancelFor(null)}>
+              {t(lang, 'cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              loading={cancelBusy}
+              data-testid="cancel-confirm"
+              onClick={() => {
+                const m = cancelFor;
+                if (!m || !props.onCancelMeeting) return;
+                setCancelBusy(true);
+                props
+                  .onCancelMeeting(m.code)
+                  .then(
+                    () => toast({ tone: 'success', title: tx(lang, 'tlCancelDone') }),
+                    () => toast({ tone: 'danger', title: t(lang, 'errGeneric') }),
+                  )
+                  .finally(() => {
+                    setCancelBusy(false);
+                    setCancelFor(null);
+                  });
+              }}
+            >
+              {tx(lang, 'tlCancel')}
+            </Button>
+          </>
+        }
+      >
+        <p className="hm-new__lead">{tx(lang, 'tlCancelBody', { title: cancelFor?.title ?? '' })}</p>
+      </Dialog>
       {props.onSetGuests ? <MeetingGuestsDialog lang={lang} meeting={guestsFor} max={props.guestMax ?? 'off'} onSave={props.onSetGuests} onClose={() => setGuestsFor(null)} /> : null}
       {props.calendarToken ? <AddToCalendarDialog lang={lang} token={props.calendarToken} meeting={calendarFor} onClose={() => setCalendarFor(null)} /> : null}
     </AppShell>

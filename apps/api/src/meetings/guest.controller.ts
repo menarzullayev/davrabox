@@ -4,6 +4,7 @@ import { noControl } from '../common/text.js';
 import { RateLimitService } from '../rate-limit/service.js';
 import { GuestService } from './guest.service.js';
 import { MeetingError } from './meetings.service.js';
+import { countryOf } from './meetings.controller.js';
 
 export const GUESTS = Symbol('GUESTS');
 
@@ -11,6 +12,7 @@ const joinSchema = z
   .object({
     name: z.string().max(120),
     passcode: z.string().max(64).refine(noControl).optional(),
+    acceptDisclaimer: z.literal(true).optional(),
   })
   .strict();
 
@@ -18,7 +20,7 @@ type Req = { headers: Record<string, string | string[] | undefined>; socket?: { 
 
 function wrap<T>(p: Promise<T>): Promise<T> {
   return p.catch((e) => {
-    if (e instanceof MeetingError) throw new HttpException(e.message, e.status);
+    if (e instanceof MeetingError) throw new HttpException(e.extra ? { statusCode: e.status, message: e.message, ...e.extra } : e.message, e.status);
     throw e;
   });
 }
@@ -44,7 +46,12 @@ export class GuestController {
   join(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
     const parsed = joinSchema.safeParse(body);
     if (!parsed.success) throw new HttpException('invalid input', 400);
-    return wrap(this.svc.join({ code, name: parsed.data.name, passcode: parsed.data.passcode }, { ipKey: this.rate.clientKey(req), requestHost: hostOf(req) }));
+    return wrap(
+      this.svc.join(
+        { code, name: parsed.data.name, passcode: parsed.data.passcode, acceptDisclaimer: parsed.data.acceptDisclaimer === true },
+        { ipKey: this.rate.clientKey(req), requestHost: hostOf(req), country: countryOf(req) },
+      ),
+    );
   }
 
   /** The waiting guest polls this with the guest session token it was given; an admission answers with the join token. */

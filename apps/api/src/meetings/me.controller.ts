@@ -23,7 +23,7 @@ type Req = { user: AuthedUser; headers: Record<string, string | string[] | undef
 
 function wrap<T>(p: Promise<T>): Promise<T> {
   return p.catch((e) => {
-    if (e instanceof MeetingError) throw new HttpException(e.message, e.status);
+    if (e instanceof MeetingError) throw new HttpException(e.extra ? { statusCode: e.status, message: e.message, ...e.extra } : e.message, e.status);
     throw e;
   });
 }

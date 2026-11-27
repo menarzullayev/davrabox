@@ -11,6 +11,8 @@ export interface StoredPrefs {
 }
 export interface PrefsView {
   prefs: StoredPrefs;
+  /** Fields the organization locked (the person cannot change them). */
+  locked?: string[];
   org: { defaultStyle: string; defaultDensity: string; allowedStyles: string[] | null };
 }
 export type PrefsPatch = Partial<StoredPrefs>;
@@ -33,7 +35,9 @@ export class PrefsService {
       const row = (r.rows[0] ?? { lang: null, theme: null, style: null, density: null }) as StoredPrefs;
       // A style the organization no longer allows is never handed out: the person gets the organization's default instead.
       const style = row.style && (pol.allowedStyles === null || pol.allowedStyles.includes(row.style)) ? row.style : null;
-      return { prefs: { ...row, style }, org: { defaultStyle: pol.defaultStyle, defaultDensity: pol.defaultDensity, allowedStyles: pol.allowedStyles } };
+      // A theme or density the organization locked ("My settings" admin locks) is what the person gets.
+      const locks = await lockedAppearance(c);
+      return { prefs: { ...row, style, ...locks }, locked: Object.keys(locks), org: { defaultStyle: pol.defaultStyle, defaultDensity: pol.defaultDensity, allowedStyles: pol.allowedStyles } };
     });
   }
 
@@ -42,6 +46,8 @@ export class PrefsService {
     const cols = COLUMNS.filter((k) => k in patch);
     if (cols.length) {
       await withTenant(this.pool, user.orgId, async (c) => {
+        const locks = await lockedAppearance(c);
+        for (const k of cols) if (k in locks && patch[k] !== null && patch[k] !== (locks as Record<string, string>)[k]) throw new PrefsError(403, `${k} is locked by your organization`);
         if (patch.style) {
           const pol = await loadPolicies(c);
           if (pol.allowedStyles !== null && !pol.allowedStyles.includes(patch.style)) throw new PrefsError(403, 'this style is not allowed by your organization');
@@ -59,4 +65,12 @@ export class PrefsService {
     }
     return this.get(user);
   }
+}
+
+/** theme and density values an organization admin locked (org_setting_defaults). */
+async function lockedAppearance(c: import('pg').PoolClient): Promise<Partial<Record<'theme' | 'density', string>>> {
+  const r = await c.query("SELECT key, value FROM org_setting_defaults WHERE locked AND key IN ('theme', 'density')");
+  const out: Partial<Record<'theme' | 'density', string>> = {};
+  for (const row of r.rows as Array<{ key: 'theme' | 'density'; value: unknown }>) if (typeof row.value === 'string') out[row.key] = row.value;
+  return out;
 }

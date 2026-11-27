@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { z } from 'zod';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
 import { noControl } from '../common/text.js';
@@ -14,7 +14,8 @@ const createSchema = z.object({
   e2ee: z.boolean().optional(),
   guests: z.enum(['off', 'waiting_room', 'open']).optional(),
 }).strict(); // strict: a client that ever sent an E2EE meeting key here fails loudly instead of the server silently dropping it
-const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional() });
+const joinSchema = z.object({ passcode: z.string().max(64).refine(noControl).optional(), acceptDisclaimer: z.literal(true).optional() });
+const renameSchema = z.object({ name: z.string().trim().min(1).max(60).refine(noControl) }).strict();
 const lockSchema = z.object({ locked: z.boolean() });
 const spotlightSchema = z.object({ identity: z.string().max(80).nullable() }).strict();
 const activitySchema = z.object({ event: z.enum(ACTIVITY_EVENTS) }).strict();
@@ -23,9 +24,16 @@ type Req = { user: AuthedUser; headers: Record<string, string | string[] | undef
 
 function wrap<T>(p: Promise<T>): Promise<T> {
   return p.catch((e) => {
-    if (e instanceof MeetingError) throw new HttpException(e.message, e.status);
+    if (e instanceof MeetingError) throw new HttpException(e.extra ? { statusCode: e.status, message: e.message, ...e.extra } : e.message, e.status);
     throw e;
   });
+}
+
+/** Cloudflare's country of the client (CF-IPCountry), for the organization's country rule. */
+export function countryOf(req: { headers: Record<string, string | string[] | undefined> }): string | undefined {
+  const v = req.headers['cf-ipcountry'];
+  const c = (Array.isArray(v) ? v[0] : v)?.toUpperCase();
+  return c && /^[A-Z0-9]{2}$/.test(c) ? c : undefined;
 }
 
 function hostOf(req: Req): string | undefined {
@@ -62,12 +70,27 @@ export class MeetingsController {
     return wrap(this.svc.update(req.user, code, body as Record<string, unknown>));
   }
 
+  /** Cancels a meeting (host or organization admin): it can no longer be joined. */
+  @Delete(':code')
+  cancel(@Req() req: Req, @Param('code') code: string) {
+    return wrap(this.svc.cancel(req.user, code));
+  }
+
+  /** Renames oneself in the call when the host allows it ("My settings"). */
+  @Post(':code/rename')
+  @HttpCode(200)
+  rename(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
+    const parsed = renameSchema.safeParse(body);
+    if (!parsed.success) throw new HttpException('invalid input', 400);
+    return wrap(this.svc.rename(req.user, code, parsed.data.name));
+  }
+
   @Post(':code/join')
   @HttpCode(200)
   join(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
     const parsed = joinSchema.safeParse(body ?? {});
     if (!parsed.success) throw new HttpException('invalid input', 400);
-    return wrap(this.svc.join(req.user, code, parsed.data.passcode, hostOf(req)));
+    return wrap(this.svc.join(req.user, code, parsed.data.passcode, hostOf(req), { country: countryOf(req), acceptDisclaimer: parsed.data.acceptDisclaimer === true }));
   }
 
   /** Waiting participants poll this; an admission answers with the join token. */

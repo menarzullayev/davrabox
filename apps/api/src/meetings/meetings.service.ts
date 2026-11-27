@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import argon2 from 'argon2';
 import type { Pool, PoolClient } from 'pg';
-import { AccessToken, RoomServiceClient, TrackType } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient, TrackSource, TrackType } from 'livekit-server-sdk';
 import { withTenant } from '../db/tenant.js';
 import { livekitClientOptions } from '../common/timeouts.js';
 import type { RateLimiter } from '../rate-limit/limiter.js';
@@ -13,9 +13,12 @@ import { livekitUrlFor } from './public-url.js';
 import { loadPolicies } from '../admin/policies.js';
 import { TrialLimits } from '../signup/trial.guard.js';
 import { GUEST_IDENTITY_PREFIX, type GuestMode } from './guest-types.js';
+import { checkJoinRules, publishSources, roomPolicy, type MeetingPolicyHooks } from './meeting-policy.js';
+import type { Effective } from '../settings/catalog.js';
 
 export class MeetingError extends Error {
-  constructor(public readonly status: number, message: string) {
+  /** `extra`: machine-readable details for the client (a code, the organization's join notice). */
+  constructor(public readonly status: number, message: string, public readonly extra?: Record<string, unknown>) {
     super(message);
   }
 }
@@ -49,6 +52,7 @@ export type JoinResult = JoinedResult | WaitingResult;
 
 interface MeetingRow {
   id: string;
+  code: string;
   title: string;
   host_user_id: string;
   passcode_hash: string | null;
@@ -57,6 +61,7 @@ interface MeetingRow {
   e2ee: boolean;
   guest_mode: GuestMode;
   is_cohost: boolean;
+  cancelled_at: Date | null;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -84,6 +89,16 @@ export class MeetingsService {
   onEnded: ((orgId: string, meetingId: string) => Promise<void>) | null = null;
   /** Set by the application module: the person's picture id goes into the join token, so everyone in the call sees it. */
   avatarOf: ((orgId: string, userId: string) => Promise<string | null>) | null = null;
+  /** Set by the application module: "My settings" (host settings, organization join rules, lobby emails). */
+  hooks: MeetingPolicyHooks | null = null;
+  /** Set by the application module: auto-record when the host joins (host setting, recording group). */
+  onHostJoined: ((user: AuthedUser, code: string) => Promise<void>) | null = null;
+  /** Set by the application module: email about a cancelled meeting. */
+  onCancelled: ((orgId: string, meetingId: string, actorId: string, actorName: string) => Promise<unknown>) | null = null;
+
+  private hostSettings(orgId: string, hostUserId: string): Promise<Effective | null> {
+    return this.hooks ? this.hooks.hostSettings(orgId, hostUserId) : Promise.resolve(null);
+  }
 
   constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
     // The device check page opens a throw-away media room: a handful per person and hour is plenty.
@@ -99,8 +114,15 @@ export class MeetingsService {
     // Organization policies (admin console): a required passcode is enforced, the waiting-room default applies when the client is silent.
     const policy = await withTenant(this.pool, user.orgId, (c) => loadPolicies(c));
     if (policy.requirePasscode && !input.passcode) throw new MeetingError(400, 'this organization requires a meeting passcode');
+    // The creator's "My settings" fill what the client left out; "require a passcode" is enforced like the policy.
+    const mine = await this.hostSettings(user.orgId, user.userId);
+    if (mine?.['requirePasscode'] === true && !input.passcode) throw new MeetingError(400, 'your settings require a meeting passcode', { code: 'passcode_required' });
     const rank = { off: 0, waiting_room: 1, open: 2 };
-    const guests: GuestMode = input.guests ?? 'off';
+    const wantedGuests = (input.guests ?? (mine?.['guestMode'] as GuestMode | undefined) ?? 'off') as GuestMode;
+    // A default above the organization's limit is lowered to the limit (an explicit choice above it is refused below).
+    const guests: GuestMode = input.guests === undefined && rank[wantedGuests] > rank[policy.guestPolicy] ? policy.guestPolicy : wantedGuests;
+    const waitingRoom = input.waitingRoom ?? (typeof mine?.['waitingRoom'] === 'boolean' ? (mine['waitingRoom'] as boolean) : policy.waitingRoomDefault);
+    const e2ee = input.e2ee ?? mine?.['e2ee'] === true;
     if (rank[guests] > rank[policy.guestPolicy]) throw new MeetingError(400, 'this organization does not allow that guest setting');
     const passcodeHash = input.passcode ? await argon2.hash(input.passcode, { type: argon2.argon2id }) : null;
     for (let attempt = 0; attempt < 5; attempt++) {
@@ -111,7 +133,7 @@ export class MeetingsService {
             `INSERT INTO meetings (org_id, code, title, host_user_id, passcode_hash, scheduled_at, waiting_room, e2ee, guest_mode)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING id, code, title, waiting_room, locked, scheduled_at, created_at, e2ee, guest_mode, (passcode_hash IS NOT NULL) AS has_passcode`,
-            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, input.waitingRoom ?? policy.waitingRoomDefault, input.e2ee === true, guests],
+            [user.orgId, code, input.title, user.userId, passcodeHash, input.scheduledAt ?? null, waitingRoom, e2ee, guests],
           );
           await this.audit(c, user, 'meeting.create', code);
           meetingsCreated.inc();
@@ -135,7 +157,7 @@ export class MeetingsService {
     return withTenant(this.pool, user.orgId, async (c) => {
       const r = await c.query(
         `SELECT id, code, title, waiting_room, locked, scheduled_at, created_at, e2ee, guest_mode, host_user_id = $1 AS is_host, (passcode_hash IS NOT NULL) AS has_passcode
-         FROM meetings WHERE personal_owner IS NULL ORDER BY created_at DESC LIMIT 100`,
+         FROM meetings WHERE personal_owner IS NULL AND cancelled_at IS NULL ORDER BY created_at DESC LIMIT 100`,
         [user.userId],
       );
       return r.rows;
@@ -146,9 +168,9 @@ export class MeetingsService {
    * Joins a meeting. Same-organization members only; guests come in a later phase. Hosts and organization admins
    * manage the meeting; everybody else is subject to ban, lock, passcode and waiting room, in that order.
    */
-  async join(user: AuthedUser, code: string, passcode?: string, requestHost?: string): Promise<JoinResult> {
+  async join(user: AuthedUser, code: string, passcode?: string, requestHost?: string, ctx: { country?: string; acceptDisclaimer?: boolean } = {}): Promise<JoinResult> {
     try {
-      const result = await this.joinInner(user, code, passcode, requestHost);
+      const result = await this.joinInner(user, code, passcode, requestHost, ctx);
       joinResults.inc({ outcome: result.status === 'joined' ? 'ok' : 'waiting' });
       return result;
     } catch (e) {
@@ -157,9 +179,16 @@ export class MeetingsService {
     }
   }
 
-  private async joinInner(user: AuthedUser, code: string, passcode?: string, requestHost?: string): Promise<JoinResult> {
+  private async joinInner(user: AuthedUser, code: string, passcode?: string, requestHost?: string, ctx: { country?: string; acceptDisclaimer?: boolean } = {}): Promise<JoinResult> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     await this.trial.assertTrialActive(user.orgId);
+    // Organization rules first (decision 2: country allow/block from CF-IPCountry, the join notice). Admins skip the country rule.
+    if (this.hooks) {
+      const rules = await this.hooks.orgRules(user.orgId);
+      await checkJoinRules(rules, { ...ctx, admin: user.role === 'org_admin' }, () =>
+        withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'join.country.blocked', `${code}:${ctx.country ?? 'XX'}`)).then(() => undefined),
+      );
+    }
     const key = `${user.userId}:${code}`;
     if (await this.limiter.isBlocked(key)) throw new MeetingError(429, 'too many attempts, try again later');
 
@@ -169,6 +198,7 @@ export class MeetingsService {
       return { meeting, banned: (banned.rowCount ?? 0) > 0 };
     });
     const { meeting } = decision;
+    if (meeting.cancelled_at) throw new MeetingError(410, 'this meeting was cancelled', { code: 'cancelled' });
     const manages = this.canManage(user, meeting);
 
     if (decision.banned && !manages) throw new MeetingError(403, 'removed from this meeting');
@@ -182,16 +212,25 @@ export class MeetingsService {
     }
     await this.limiter.reset(key);
 
+    // "Join before host" off: nobody but the host side gets in while no host or co-host is connected.
+    if (!manages) {
+      const hs = await this.hostSettings(user.orgId, meeting.host_user_id);
+      if (hs?.['joinBeforeHost'] === false && !(await this.hostPresent(user.orgId, meeting))) {
+        throw new MeetingError(409, 'the host has not started this meeting yet', { code: 'host_absent' });
+      }
+    }
+
     if (meeting.waiting_room && !manages) {
       const state = await withTenant(this.pool, user.orgId, async (c) => {
         const r = await c.query(
           `INSERT INTO join_requests (org_id, meeting_id, user_id) VALUES ($1, $2, $3)
            ON CONFLICT (meeting_id, user_id) DO UPDATE SET meeting_id = EXCLUDED.meeting_id
-           RETURNING id, status`,
+           RETURNING id, status, (xmax = 0) AS created`,
           [user.orgId, meeting.id, user.userId],
         );
-        return r.rows[0] as { id: string; status: string };
+        return r.rows[0] as { id: string; status: string; created: boolean };
       });
+      if (state.created) void this.hooks?.lobby(user.orgId, meeting.id, user.name).catch(() => undefined);
       if (state.status === 'denied') throw new MeetingError(403, 'the host declined your request');
       if (state.status === 'pending') return { status: 'waiting', requestId: state.id };
       // admitted earlier: fall through and issue a token
@@ -439,10 +478,14 @@ export class MeetingsService {
       const targetIsCohost = await c.query('SELECT 1 FROM meeting_cohosts WHERE meeting_id = $1 AND user_id = $2', [meeting.id, identity]);
       const callerIsHostOrAdmin = meeting.host_user_id === user.userId || user.role === 'org_admin';
       if (targetIsCohost.rowCount && !callerIsHostOrAdmin) throw new MeetingError(403, 'only the host can remove a co-host');
-      await c.query(
-        'INSERT INTO meeting_bans (meeting_id, user_id, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
-        [meeting.id, identity, user.orgId, user.userId],
-      );
+      // "Removed participant may rejoin" (host setting): removed from the call now, but not banned from the meeting.
+      const hs = await this.hostSettings(user.orgId, meeting.host_user_id);
+      if (hs?.['rejoinAfterRemoval'] !== true) {
+        await c.query(
+          'INSERT INTO meeting_bans (meeting_id, user_id, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
+          [meeting.id, identity, user.orgId, user.userId],
+        );
+      }
       await this.audit(c, user, 'meeting.remove', `${code}:${identity}`);
     });
     try {
@@ -465,12 +508,15 @@ export class MeetingsService {
         meeting.id,
       ]);
       if (!g.rowCount) throw new MeetingError(404, 'participant not found');
-      await c.query('INSERT INTO meeting_guest_bans (meeting_id, ip_hash, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING', [
-        meeting.id,
-        (g.rows[0] as { ip_hash: string }).ip_hash,
-        user.orgId,
-        user.userId,
-      ]);
+      const hs = await this.hostSettings(user.orgId, meeting.host_user_id);
+      if (hs?.['rejoinAfterRemoval'] !== true) {
+        await c.query('INSERT INTO meeting_guest_bans (meeting_id, ip_hash, org_id, banned_by) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING', [
+          meeting.id,
+          (g.rows[0] as { ip_hash: string }).ip_hash,
+          user.orgId,
+          user.userId,
+        ]);
+      }
       await this.audit(c, user, 'guest.remove', `${code}:${sessionId}`);
     });
     try {
@@ -532,6 +578,94 @@ export class MeetingsService {
     });
   }
 
+  /** True when the host or a co-host is connected to the meeting's room now. */
+  private async hostPresent(orgId: string, meeting: MeetingRow): Promise<boolean> {
+    let present: Array<{ identity: string }> = [];
+    try {
+      present = await this.rooms.listParticipants(meeting.id);
+    } catch {
+      return false; // no room yet: nobody is there
+    }
+    if (present.some((p) => p.identity === meeting.host_user_id)) return true;
+    const co = await withTenant(this.pool, orgId, (c) => c.query('SELECT user_id FROM meeting_cohosts WHERE meeting_id = $1', [meeting.id]));
+    const ids = new Set(co.rows.map((x: { user_id: string }) => x.user_id));
+    return present.some((p) => ids.has(p.identity));
+  }
+
+  /**
+   * Cancels a meeting (host or organization admin): it can no longer be joined, it leaves the list, the room is closed, and the
+   * host side is told by email when they asked for that ("My settings"). Audited.
+   */
+  async cancel(user: AuthedUser, code: string): Promise<{ cancelled: true }> {
+    const meeting = await this.managedMeeting(user, code);
+    if (!(meeting.host_user_id === user.userId || user.role === 'org_admin')) throw new MeetingError(403, 'only the host can cancel a meeting');
+    const refused = await withTenant(this.pool, user.orgId, async (c) => {
+      const r = await c.query('UPDATE meetings SET cancelled_at = now() WHERE id = $1 AND personal_owner IS NULL AND cancelled_at IS NULL RETURNING id', [meeting.id]);
+      if (r.rowCount) await this.audit(c, user, 'meeting.cancel', code);
+      return !r.rowCount;
+    });
+    if (refused) throw new MeetingError(409, 'this meeting cannot be cancelled');
+    try {
+      await this.rooms.deleteRoom(meeting.id);
+    } catch {
+      /* not running */
+    }
+    if (this.onCancelled) void this.onCancelled(user.orgId, meeting.id, user.userId, user.name).catch(() => undefined);
+    return { cancelled: true };
+  }
+
+  /** "Participants may rename themselves" (host setting): the server changes the name; nobody may change their own attributes. */
+  async rename(user: AuthedUser, code: string, name: string): Promise<{ name: string }> {
+    const clean = name.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 60);
+    if (!clean) throw new MeetingError(400, 'enter a name');
+    const m = await withTenant(this.pool, user.orgId, (c) => this.meetingByCode(c, code, user.userId));
+    const hs = await this.hostSettings(user.orgId, m.host_user_id);
+    if (!this.canManage(user, m) && hs?.['rename'] !== true) throw new MeetingError(403, 'renaming is turned off in this meeting', { code: 'rename_off' });
+    try {
+      await this.rooms.updateParticipant(m.id, user.userId, { name: clean });
+    } catch {
+      throw new MeetingError(409, 'you are not in this meeting');
+    }
+    await withTenant(this.pool, user.orgId, (c) => this.audit(c, user, 'meeting.rename', code));
+    return { name: clean };
+  }
+
+  /**
+   * Start state of a newcomer (host settings "mute on join", host/participant video): the media server mutes what the person
+   * published when the API first sees them in the room. The client starts the same way; this makes it hold for any client.
+   */
+  async enforceStartState(orgId: string, meetingId: string, identity: string): Promise<number> {
+    const m = await withTenant(this.pool, orgId, async (c) => {
+      const r = await c.query(
+        `SELECT m.host_user_id, EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id::text = $2) AS cohost FROM meetings m WHERE m.id = $1`,
+        [meetingId, identity],
+      );
+      return r.rows[0] as { host_user_id: string; cohost: boolean } | undefined;
+    });
+    if (!m) return 0;
+    const hs = await this.hostSettings(orgId, m.host_user_id);
+    if (!hs) return 0;
+    const isHost = identity === m.host_user_id;
+    const muteAudio = !isHost && !m.cohost && hs['muteOnJoin'] === true;
+    const muteVideo = isHost ? hs['hostVideo'] === false : hs['participantVideo'] === false;
+    if (!muteAudio && !muteVideo) return 0;
+    let p;
+    try {
+      p = await this.rooms.getParticipant(meetingId, identity);
+    } catch {
+      return 0;
+    }
+    let n = 0;
+    for (const t of p.tracks) {
+      if (t.muted) continue;
+      if ((muteAudio && t.type === TrackType.AUDIO) || (muteVideo && t.type === TrackType.VIDEO && t.source !== TrackSource.SCREEN_SHARE)) {
+        await this.rooms.mutePublishedTrack(meetingId, identity, t.sid, true).catch(() => undefined);
+        n++;
+      }
+    }
+    return n;
+  }
+
   /**
    * "Test your devices" (owner decision 6): a short-lived token for a throw-away room of this person alone, so the page can
    * check the signalling connection, WebRTC over UDP and TCP, TURN and publishing against the real media server. The room
@@ -567,7 +701,7 @@ export class MeetingsService {
   private async meetingByCode(c: PoolClient, code: string, userId: string): Promise<MeetingRow> {
     if (!CODE_RE.test(code)) throw new MeetingError(404, 'meeting not found');
     const r = await c.query(
-      `SELECT m.id, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room, m.e2ee, m.guest_mode,
+      `SELECT m.id, m.code, m.title, m.host_user_id, m.passcode_hash, m.locked, m.waiting_room, m.e2ee, m.guest_mode, m.cancelled_at,
               EXISTS (SELECT 1 FROM meeting_cohosts ch WHERE ch.meeting_id = m.id AND ch.user_id = $2) AS is_cohost
        FROM meetings m WHERE m.code = $1`,
       [code, userId],
@@ -610,6 +744,13 @@ export class MeetingsService {
     // clients can trust it for host-only data-channel messages (polls, whiteboard permissions, Q&A moderation).
     const role = meeting.host_user_id === user.userId || user.role === 'org_admin' ? 'host' : meeting.is_cohost ? 'cohost' : 'member';
     const avatar = await this.avatarOf?.(user.orgId, user.userId).catch(() => null);
+    // The host's settings become the meeting's rules: LiveKit grants where LiveKit can enforce them, the server-written room
+    // policy for the rest (every client applies it to what it receives).
+    const hs = await this.hostSettings(user.orgId, meeting.host_user_id);
+    const policy = hs ? roomPolicy(hs) : null;
+    if (policy) await this.mergeRoomMetadata(meeting.id, { policy }).catch(() => undefined);
+    const sources = policy ? publishSources(policy, manages, meeting.guest_mode) : undefined;
+    if (hs?.['autoRecord'] === true && meeting.host_user_id === user.userId && !meeting.e2ee) void this.onHostJoined?.(user, meeting.code).catch(() => undefined);
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity: user.userId,
       name: user.name,
@@ -624,6 +765,7 @@ export class MeetingsService {
       canPublishData: true,
       canUpdateOwnMetadata: false,
       roomAdmin: manages,
+      ...(sources ? { canPublishSources: sources } : {}),
     });
     const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
     // The host side also gets the meeting's guest setting, so the call screen can show and change it.

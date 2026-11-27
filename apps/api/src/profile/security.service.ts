@@ -72,6 +72,8 @@ export function describeAgent(ua: string | null): { device: string | null; brows
  */
 export class SecurityService {
   private readonly recent = new Map<string, number>();
+  /** Set by the application module: email about a sign-in from a device not seen before ("My settings"). */
+  onNewDevice: ((orgId: string, userId: string, device: string, place: string) => Promise<unknown>) | null = null;
 
   constructor(
     private readonly pool: Pool,
@@ -95,14 +97,24 @@ export class SecurityService {
     const country = seen.country && /^[A-Z]{2}$/.test(seen.country) && seen.country !== 'XX' && seen.country !== 'T1' ? seen.country : null;
     const city = seen.city ? seen.city.slice(0, 80) : null;
     try {
-      await withTenant(this.pool, user.orgId, (c) =>
-        c.query(
+      const isNew = await withTenant(this.pool, user.orgId, async (c) => {
+        const r = await c.query(
           `INSERT INTO user_session_devices (user_id, org_id, sid, user_agent, ip_prefix, country, city) VALUES ($1, $2, $3, $4, $5, $6, $7)
            ON CONFLICT (user_id, sid) DO UPDATE SET last_seen = now(), user_agent = EXCLUDED.user_agent, ip_prefix = EXCLUDED.ip_prefix,
-             country = coalesce(EXCLUDED.country, user_session_devices.country), city = coalesce(EXCLUDED.city, user_session_devices.city)`,
+             country = coalesce(EXCLUDED.country, user_session_devices.country), city = coalesce(EXCLUDED.city, user_session_devices.city)
+           RETURNING (xmax = 0) AS inserted`,
           [user.userId, user.orgId, user.sid, seen.userAgent?.slice(0, 300) ?? null, ipPrefix(seen.ip), country, city],
-        ),
-      );
+        );
+        if ((r.rows[0] as { inserted: boolean }).inserted !== true) return false;
+        // "New device": a browser/device this person has not used in any other remembered session.
+        const same = await c.query('SELECT 1 FROM user_session_devices WHERE user_id = $1 AND sid <> $2 AND user_agent IS NOT DISTINCT FROM $3 LIMIT 1', [user.userId, user.sid, seen.userAgent?.slice(0, 300) ?? null]);
+        const any = await c.query('SELECT 1 FROM user_session_devices WHERE user_id = $1 AND sid <> $2 LIMIT 1', [user.userId, user.sid]);
+        return (any.rowCount ?? 0) > 0 && (same.rowCount ?? 0) === 0; // the very first sign-in is not "new"
+      });
+      if (isNew) {
+        const a = describeAgent(seen.userAgent ?? null);
+        void this.onNewDevice?.(user.orgId, user.userId, [a.device, a.browser].filter(Boolean).join(' · ') || 'unknown device', [city, country].filter(Boolean).join(', ')).catch(() => undefined);
+      }
     } catch {
       /* best effort: never fails a request */
     }
