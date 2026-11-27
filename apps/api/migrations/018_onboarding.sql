@@ -19,4 +19,4 @@ ALTER TABLE user_onboarding FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant_user_onboarding ON user_onboarding
   USING      (org_id = nullif(current_setting('app.current_org', true), '')::uuid)
   WITH CHECK (org_id = nullif(current_setting('app.current_org', true), '')::uuid);
-GRANT SELECT, INSERT, UPDATE ON user_onboarding TO davra_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON user_onboarding TO davra_app; -- DELETE: the erasure removes the person's row

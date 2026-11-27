@@ -53,7 +53,7 @@ export class OnboardingService {
            (SELECT devices_tested_at IS NOT NULL FROM user_onboarding WHERE user_id = $1) AS devices,
            (SELECT meeting_joined_at IS NOT NULL FROM user_onboarding WHERE user_id = $1) AS joined,
            (SELECT dismissed_at IS NOT NULL FROM user_onboarding WHERE user_id = $1) AS dismissed,
-           EXISTS (SELECT 1 FROM meetings WHERE host_user_id = $1) AS hosted,
+           EXISTS (SELECT 1 FROM meetings WHERE host_user_id = $1) OR EXISTS (SELECT 1 FROM meeting_access WHERE user_id = $1) AS hosted,
            (SELECT count(*) FROM users) > 1 AS invited,
            EXISTS (SELECT 1 FROM audit_log WHERE action = 'admin.policy.update') AS guests`,
         [user.userId],
