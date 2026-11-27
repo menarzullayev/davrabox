@@ -343,7 +343,7 @@ describe('sign-in and waiting screens', () => {
     render(<SignInScreen lang="uz" onLang={vi.fn()} theme="dark" onTheme={vi.fn()} onSignIn={onSignIn} />);
     fireEvent.click(screen.getByRole('button', { name: 'Kirish' }));
     expect(onSignIn).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Xavfsiz. Mahalliy. Sizning nazoratingizda.');
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Xavfsiz. Oddiy. Sizning nazoratingizda.');
   });
 
   it('splits the brand line into sentences in every language', () => {

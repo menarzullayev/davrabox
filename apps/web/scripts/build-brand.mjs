@@ -75,7 +75,7 @@ body{background:radial-gradient(900px 600px at 80% 45%,#1b2150 0%,#0a0d21 70%);p
 h1{margin:0;font-size:46px;line-height:1.18;font-weight:600;letter-spacing:-.01em;max-width:640px}
 h1 span{color:#f4c24f}
 p{margin:0;font-size:24px;color:#b4b9de}
-</style><div class="orn">${ornament}</div><div class="copy">${logo}<h1>Xavfsiz. Mahalliy. <span>Sizning nazoratingizda.</span></h1><p>Korporativ videokonferensiya platformasi</p></div>`;
+</style><div class="orn">${ornament}</div><div class="copy">${logo}<h1>Xavfsiz. Oddiy. <span>Sizning nazoratingizda.</span></h1><p>Korporativ videokonferensiya platformasi</p></div>`;
 const dirTmp = mkdtempSync(join(tmpdir(), 'davra-brand-'));
 const htmlPath = join(dirTmp, 'social.html');
 writeFileSync(htmlPath, html);

@@ -237,6 +237,12 @@ export const IconPaperclip = /*#__PURE__*/ makeIcon('paperclip', () => (
 ));
 export const IconPin = /*#__PURE__*/ makeIcon('pin', () => <path d="M9 3.5h6l-1 5.5 3 3.5V14H7v-1.5L10 9 9 3.5zM12 14v6.5" />);
 export const IconSend = /*#__PURE__*/ makeIcon('send', () => <path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5 21 3z" />);
+export const IconMail = /*#__PURE__*/ makeIcon('mail', () => (
+  <>
+    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+    <path d="m3.5 7 8.5 6 8.5-6" />
+  </>
+));
 export const IconTrash = /*#__PURE__*/ makeIcon('trash', () => <path d="M4.5 6.5h15M9.5 6.5V4h5v2.5M6.5 6.5l1 13.5h9l1-13.5M10 10.5v6M14 10.5v6" />);
 export const IconEdit = /*#__PURE__*/ makeIcon('edit', () => <path d="M4 20h4l11-11-4-4L4 16v4zM13 7l4 4" />);
 export const IconGlobe = /*#__PURE__*/ makeIcon('globe', () => (

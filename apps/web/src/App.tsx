@@ -1,16 +1,17 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import type { User } from 'oidc-client-ts';
-import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting, type TrialStatus } from './api';
+import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting, type OnboardingView, type TrialStatus } from './api';
 import { appErrorKey as errorKey } from './errors';
 import { trialBanner } from './landing/trial';
 import { consumeReturnPath, isAdminPath, rememberReturnPath } from './admin/helpers';
-import { isOrgAdmin } from './admin/jwt';
+import { isOrgAdmin, needsOrganization } from './admin/jwt';
 import { currentUser, freshToken, manager, signIn } from './auth';
 import { recoverSession } from './session-recovery';
 import { Call } from './Call';
 import { t, type Key, type Lang } from './i18n';
 import { LoadingScreen, SignInScreen } from './home/AuthScreens';
 import { HomeScreen } from './home/HomeScreen';
+import { OrgSetupScreen } from './home/OrgSetup';
 import type { NewMeetingData } from './home/NewMeetingDialog';
 import { Waiting } from './home/Waiting';
 import { PreJoin, readSkipPreJoin, type MediaChoice } from './home/PreJoin';
@@ -85,7 +86,24 @@ export function App() {
     return () => manager.events.removeUserLoaded(onRenew);
   }, []);
 
-  const token = user?.access_token ?? '';
+  // A first sign-in through Google or Microsoft has no organisation yet (decision 4): it gets the set-up screen and none of
+  // the organisation's API calls (they would answer 401 and end the session).
+  const orgless = needsOrganization(user?.access_token);
+  const token = user && !orgless ? user.access_token : '';
+  const [onboarding, setOnboarding] = useState<OnboardingView | null>(null);
+  const [deviceTest, setDeviceTest] = useState(false);
+  const loadOnboarding = useCallback(() => {
+    if (!token) return;
+    api.onboarding(token).then(setOnboarding).catch(() => setOnboarding(null)); // the card is optional: no card on failure
+  }, [token]);
+  useEffect(loadOnboarding, [loadOnboarding]);
+  const markOnboarding = useCallback(
+    (patch: { devicesTested?: true; meetingJoined?: true; dismissed?: true }) => {
+      if (!token) return;
+      api.setOnboarding(token, patch).then(setOnboarding).catch(() => undefined);
+    },
+    [token],
+  );
   // The identity provider lost the session (API answers 401 to our own token): back to the sign-in screen.
   useEffect(() => {
     onSessionLost((sent) => {
@@ -131,11 +149,19 @@ export function App() {
   // The timeline goes stale while the tab is in the background: reload when the user comes back.
   useEffect(() => {
     const onVisible = () => {
-      if (document.visibilityState === 'visible') void refresh();
+      if (document.visibilityState === 'visible') {
+        void refresh();
+        loadOnboarding(); // the verification link was probably clicked in another tab
+      }
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [refresh]);
+  }, [refresh, loadOnboarding]);
+  // Being in a call (one's own or a colleague's) completes "first meeting" (decision 5).
+  const inCall = Boolean(joined?.media);
+  useEffect(() => {
+    if (inCall && onboarding && onboarding.steps.some((s) => s.id === 'meeting' && !s.done)) markOnboarding({ meetingJoined: true });
+  }, [inCall, onboarding, markOnboarding]);
 
   const changeRelay = (v: boolean) => {
     setRelayMode(v);
@@ -182,6 +208,7 @@ export function App() {
     setErr(null);
     const m = await createMeetingWithKey((body) => api.create(token, body), d); // E2EE: the key is made here and never sent
     await refresh();
+    loadOnboarding();
     return m;
   };
 
@@ -236,6 +263,45 @@ export function App() {
           rememberReturnPath(location.pathname);
           void signIn({ lang });
         }}
+      />
+    );
+  }
+
+  if (orgless) {
+    const profile = user.profile as { name?: string; email?: string };
+    return (
+      <OrgSetupScreen
+        lang={lang}
+        onLang={changeLang}
+        theme={theme}
+        onTheme={changeTheme}
+        name={profile.name ?? ''}
+        email={profile.email ?? ''}
+        onSignOut={() => void manager.signoutRedirect()}
+        onCreate={async (orgName) => {
+          await api.setupOrganization(user.access_token, orgName);
+          // The new organisation and roles are in the account now: a refreshed token carries them.
+          try {
+            setUser(await manager.signinSilent());
+          } catch {
+            await signIn({ lang });
+          }
+        }}
+      />
+    );
+  }
+
+  if (deviceTest) {
+    return (
+      <PreJoin
+        lang={lang}
+        mode="test"
+        title={t(lang, 'obDeviceTestLead')}
+        onJoin={() => {
+          markOnboarding({ devicesTested: true });
+          setDeviceTest(false);
+        }}
+        onCancel={() => setDeviceTest(false)}
       />
     );
   }
@@ -316,6 +382,13 @@ export function App() {
       onSignOut={() => void manager.signoutRedirect()}
       calendarToken={token}
       guestMax={guestMax}
+      onboarding={onboarding}
+      email={typeof user.profile.email === 'string' ? user.profile.email : ''}
+      onTestDevices={() => setDeviceTest(true)}
+      onSendVerification={async () => {
+        await api.sendVerification(token);
+      }}
+      onDismissOnboarding={() => markOnboarding({ dismissed: true })}
     />
   );
 }

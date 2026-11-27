@@ -51,7 +51,8 @@ async function openPreview(): Promise<{ stream: MediaStream | null; failed: bool
  * Shown between "admitted" and the call itself, for members and guests alike: the person sees their own camera, chooses
  * whether the microphone and camera start on, and joins. The preview tracks are released before the call opens its own.
  */
-export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: string; onJoin: (m: MediaChoice) => void; onCancel: () => void }) {
+export function PreJoin({ lang, title, onJoin, onCancel, mode = 'join' }: { lang: Lang; title: string; onJoin: (m: MediaChoice) => void; onCancel: () => void; mode?: 'join' | 'test' }) {
+  const test = mode === 'test'; // the home "Get started" device check: same preview, no meeting behind it
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [mic, setMic] = useState(true);
@@ -93,15 +94,15 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
   }, [cam, mic, hasCam, hasMic]);
 
   const join = () => {
-    writeSkipPreJoin(skip);
+    if (!test) writeSkipPreJoin(skip);
     streamRef.current?.getTracks().forEach((t) => t.stop()); // release the devices before the call asks for them
     streamRef.current = null;
     onJoin({ mic: mic && hasMic, cam: cam && hasCam });
   };
 
   return (
-    <main className="hm-center pj" data-testid="prejoin">
-      <h1 className="pj__title">{tx(lang, 'hPreTitle')}</h1>
+    <main className="hm-center pj" data-testid="prejoin" data-mode={mode}>
+      <h1 className="pj__title">{tx(lang, test ? 'obDeviceTestTitle' : 'hPreTitle')}</h1>
       <p className="pj__meeting">{title}</p>
       <div className="pj__preview">
         <video ref={videoRef} autoPlay muted playsInline className={cam && hasCam ? 'pj__video' : 'pj__video pj__video--off'} data-testid="prejoin-video" />
@@ -113,12 +114,14 @@ export function PreJoin({ lang, title, onJoin, onCancel }: { lang: Lang; title: 
         <Switch label={tx(lang, 'hPreCam')} checked={cam && hasCam} disabled={!hasCam} data-testid="prejoin-cam" onChange={(e) => setCam(e.target.checked)} />
       </div>
       {/* Checkbox puts className on the input itself, so the layout class sits on a wrapper. */}
-      <div className="pj__skip">
-        <Checkbox label={tx(lang, 'hPreSkip')} checked={skip} data-testid="prejoin-skip" onChange={(e) => setSkip(e.target.checked)} />
-      </div>
+      {!test ? (
+        <div className="pj__skip">
+          <Checkbox label={tx(lang, 'hPreSkip')} checked={skip} data-testid="prejoin-skip" onChange={(e) => setSkip(e.target.checked)} />
+        </div>
+      ) : null}
       <div className="pj__actions">
         <Button variant="primary" size="lg" fullWidth onClick={join} data-testid="prejoin-join">
-          {tx(lang, 'hPreJoin')}
+          {tx(lang, test ? 'obDeviceTestDone' : 'hPreJoin')}
         </Button>
         <Button variant="ghost" size="md" fullWidth onClick={onCancel} data-testid="prejoin-cancel">
           {tx(lang, 'cancel')}
