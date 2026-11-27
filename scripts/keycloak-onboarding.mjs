@@ -29,9 +29,13 @@ import { pathToFileURL } from 'node:url';
 
 export const MASK = '**********'; // what Keycloak returns instead of a stored secret
 
-/** Realm attributes this script owns, given the environment. Pure (unit-tested in keycloak-onboarding.test.mjs). */
-export function desiredRealm(env) {
-  const r = { resetPasswordAllowed: true, verifyEmail: false, emailTheme: 'davrabox' };
+/**
+ * Realm attributes this script owns, given the environment and the mail server the realm already has. Pure (unit-tested in
+ * keycloak-onboarding.test.mjs). "Forgot password?" is switched on only when mail can actually leave (a link that cannot
+ * send anything would only frustrate people).
+ */
+export function desiredRealm(env, currentSmtpHost = '') {
+  const r = { resetPasswordAllowed: Boolean(env.KC_SMTP_HOST || currentSmtpHost), verifyEmail: false, emailTheme: 'davrabox' };
   if (env.KC_SMTP_HOST) {
     const port = String(env.KC_SMTP_PORT || '587');
     const smtp = {
@@ -120,7 +124,7 @@ async function main() {
 
   // 1. Realm: reset password, no blocking verify-email, email theme, SMTP.
   const realm = await (await must(await api(''), 'read realm')).json();
-  const want = desiredRealm(process.env);
+  const want = desiredRealm(process.env, realm.smtpServer?.host ?? '');
   const realmDiff = diff(realm, want, '', force);
   if (!process.env.KC_SMTP_HOST) console.log(`SKIP    smtp: KC_SMTP_HOST not set (current host: ${realm.smtpServer?.host || 'none'})`);
   if (realmDiff.length && !check) {

@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { MASK, desiredProviders, desiredRealm, diff } from './keycloak-onboarding.mjs';
 
 describe('desiredRealm', () => {
-  it('always turns reset password on, keeps verify-email non-blocking and sets the branded email theme', () => {
-    expect(desiredRealm({})).toEqual({ resetPasswordAllowed: true, verifyEmail: false, emailTheme: 'davrabox' });
+  it('keeps verify-email non-blocking, sets the branded email theme, and offers reset only when mail can leave', () => {
+    expect(desiredRealm({})).toEqual({ resetPasswordAllowed: false, verifyEmail: false, emailTheme: 'davrabox' });
+    expect(desiredRealm({}, 'smtp-relay.brevo.com').resetPasswordAllowed).toBe(true);
+    expect(desiredRealm({ KC_SMTP_HOST: 'h', KC_SMTP_FROM: 'a@b.c' }).resetPasswordAllowed).toBe(true);
   });
   it('builds an authenticated STARTTLS server from the environment (Brevo style)', () => {
     const r = desiredRealm({ KC_SMTP_HOST: 'smtp-relay.brevo.com', KC_SMTP_PORT: '587', KC_SMTP_USER: 'u', KC_SMTP_PASSWORD: 'p', KC_SMTP_FROM: 'no-reply@mail.davrabox.bugvector.uz' });

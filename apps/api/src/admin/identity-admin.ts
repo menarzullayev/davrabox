@@ -66,6 +66,8 @@ export interface OnboardingIdentity {
   detachOrg(sub: string, orgSlug: string): Promise<void>;
   /** The external sign-in providers that are configured, enabled and shown (only the ones the product supports). */
   signInProviders(): Promise<SignInProvider[]>;
+  /** Whether the realm has a mail server (otherwise "send the verification link" cannot work). */
+  canSendEmail(): Promise<boolean>;
 }
 
 export const SIGN_IN_PROVIDERS = ['google', 'microsoft'] as const;
@@ -334,6 +336,13 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
     const put = await this.call('PUT', `/users/${sub}`, { ...user, attributes });
     if (!put.ok) throw new IdentityAdminError(502, 'identity provider refused the update');
     await this.setRole(sub, 'org_admin');
+  }
+
+  async canSendEmail(): Promise<boolean> {
+    const res = await this.call('GET', '');
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not read the realm');
+    const realm = (await res.json()) as { smtpServer?: { host?: string } };
+    return Boolean(realm.smtpServer?.host);
   }
 
   async signInProviders(): Promise<SignInProvider[]> {

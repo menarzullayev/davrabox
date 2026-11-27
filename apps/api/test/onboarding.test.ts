@@ -37,6 +37,10 @@ class FakeIdp implements OnboardingIdentity {
   async signInProviders() {
     return [] as Array<'google' | 'microsoft'>;
   }
+  mail = true;
+  async canSendEmail() {
+    return this.mail;
+  }
 }
 const idp = new FakeIdp();
 const svc = new OnboardingService(pool, idp);
@@ -119,6 +123,12 @@ describe('the checklist', () => {
     idp.verified.add(other.sub);
     expect(done(await svc.get(other), 'email')).toBe(true);
     idp.verified.delete(other.sub);
+  });
+
+  it('a realm without a mail server: the card says the link cannot be sent', async () => {
+    const noMail = new FakeIdp();
+    noMail.mail = false;
+    expect((await new OnboardingService(pool, noMail).get(other)).canSendVerification).toBe(false);
   });
 
   it('without an identity provider the card still works and says the link cannot be sent', async () => {

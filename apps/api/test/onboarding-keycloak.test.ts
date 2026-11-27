@@ -109,6 +109,11 @@ describe.skipIf(!enabled)('onboarding identity calls (real Keycloak + Mailpit)',
     expect(ub.attributes?.['locale']).toEqual(['en']);
   });
 
+  it('canSendEmail reads the realm mail server', async () => {
+    const realmRep = (await (await fetch(realm(), { headers: admin })).json()) as { smtpServer?: { host?: string } };
+    expect(await kc.canSendEmail()).toBe(Boolean(realmRep.smtpServer?.host));
+  });
+
   it('signInProviders lists only google/microsoft that are enabled and shown', async () => {
     const list = await kc.signInProviders();
     expect(list.every((p) => p === 'google' || p === 'microsoft')).toBe(true);

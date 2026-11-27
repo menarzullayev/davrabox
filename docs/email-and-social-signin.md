@@ -9,7 +9,7 @@ Owner decisions of 2026-11-27 (`davrabox-builds/decisions/2026-11-27-signup-onbo
   (uz / ru / en, branded theme in `deploy/helm/davrabox/files/keycloak-theme/email`).
 - **Verification never blocks** (decision 2): the organisation opens at once; the email is sent right after sign-up, the
   home screen shows a "Verify your email" step and, once the "Get started" card is closed, a reminder with "Send the link".
-- **Forgot password?** is on the sign-in page.
+- **Forgot password?** is on the sign-in page once the realm has a mail server (the script switches it on only then).
 - **Google and Microsoft** are Keycloak identity providers. A first sign-in creates the account; the app then asks for the
   organisation name once (`POST /api/v1/onboarding/organization`) and opens a 7-day trial with the person as administrator.
   Someone who was invited (an account with that email already exists) is linked to that account instead and joins their

@@ -49,6 +49,9 @@ class FakeIdp implements SignupIdentity, OnboardingIdentity {
   async detachOrg(sub: string, orgSlug: string) {
     this.detached.push({ sub, orgSlug });
   }
+  async canSendEmail() {
+    return true;
+  }
   providers: Array<'google' | 'microsoft'> = ['google'];
   providerCalls = 0;
   async signInProviders() {

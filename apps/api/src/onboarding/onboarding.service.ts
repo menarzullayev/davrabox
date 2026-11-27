@@ -39,6 +39,8 @@ export class OnboardingError extends Error {
  * check the person finished. Nothing here blocks anything: the card is optional and can be closed.
  */
 export class OnboardingService {
+  private mailCache: { at: number; value: boolean } | null = null;
+
   constructor(
     private readonly pool: Pool,
     private readonly identity: OnboardingIdentity | null,
@@ -71,7 +73,7 @@ export class OnboardingService {
       steps: all.filter((s) => admin || !s.admin).map(({ id, done }) => ({ id, done })),
       dismissed: row.dismissed === true,
       emailVerified,
-      canSendVerification: this.identity !== null,
+      canSendVerification: await this.canSend(),
     };
   }
 
@@ -107,6 +109,21 @@ export class OnboardingService {
     await withTenant(this.pool, user.orgId, (c) =>
       c.query('INSERT INTO audit_log (org_id, actor_id, action, target) VALUES ($1, $2, $3, $4)', [user.orgId, user.userId, 'user.email.verify_sent', user.userId]),
     );
+  }
+
+  /** The realm's mail server, asked at most once a minute; unknown = assume it works (the send itself reports a failure). */
+  private async canSend(): Promise<boolean> {
+    if (!this.identity) return false;
+    const now = Date.now();
+    if (this.mailCache && now - this.mailCache.at < 60_000) return this.mailCache.value;
+    let value = true;
+    try {
+      value = await this.identity.canSendEmail();
+    } catch {
+      value = true;
+    }
+    this.mailCache = { at: now, value };
+    return value;
   }
 
   private async emailVerified(user: AuthedUser): Promise<boolean> {
