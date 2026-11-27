@@ -120,6 +120,7 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
     ports:
       - "127.0.0.1:58025:8025"
+      - "127.0.0.1:51025:1025" # SMTP for the API's "My settings" emails (scripts/devenv.sh sets SMTP_HOST/SMTP_PORT)
     mem_limit: 128m
     cpus: 0.25
 

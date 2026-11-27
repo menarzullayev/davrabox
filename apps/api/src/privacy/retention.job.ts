@@ -80,7 +80,11 @@ export class PrivacyRetentionJob {
       for (const orgId of orgs) {
         if (this.deps.onlyOrgs && !this.deps.onlyOrgs.includes(orgId)) continue;
         try {
-          await this.sweepOrg(orgId, cut(this.settings.filesDays), cut(this.settings.recordingsDays), cut(this.settings.meetingsDays), rep);
+          // An organization may keep recordings for a shorter time than the server's limit ("My settings", recording group).
+          const own = await withTenant(this.pool, orgId, (c) => c.query("SELECT value FROM org_setting_defaults WHERE key = 'recordingRetentionDays'"));
+          const ownDays = Number((own.rows[0] as { value?: unknown } | undefined)?.value);
+          const recDays = Number.isInteger(ownDays) && ownDays >= 1 ? Math.min(ownDays, this.settings.recordingsDays) : this.settings.recordingsDays;
+          await this.sweepOrg(orgId, cut(this.settings.filesDays), cut(recDays), cut(this.settings.meetingsDays), rep);
         } catch (e) {
           rep.failures++;
           console.error('privacy retention failed for one organization:', e instanceof Error ? e.message : 'error');

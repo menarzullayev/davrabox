@@ -132,11 +132,12 @@ export interface PeoplePanelProps {
   participants: ParticipantView[];
   manage: ManageActions | null;
   onPin?(id: string): void;
+  onRenameSelf?(): void;
   onClose(): void;
 }
 
 /** Roster with state and, for managers, the same mute / remove / co-host actions as the tiles (keyboard friendly list). */
-export function PeoplePanel({ lang, participants, manage, onPin, onClose }: PeoplePanelProps) {
+export function PeoplePanel({ lang, participants, manage, onPin, onRenameSelf, onClose }: PeoplePanelProps) {
   return (
     <Drawer id="dv-people" label={t(lang, 'clPeopleTitle')} title={`${t(lang, 'clPeopleTitle')} (${participants.length})`} onClose={onClose} lang={lang} testId="people-panel">
       <div className="dv-roster-wrap">
@@ -161,6 +162,13 @@ export function PeoplePanel({ lang, participants, manage, onPin, onClose }: Peop
                 {p.spotlit ? <span><IconSpotlight size={14} />{t(lang, 'spotTag')}</span> : p.pinned ? <span><IconPin size={14} />{t(lang, 'pinnedTag')}</span> : null}
               </span>
             </div>
+            {p.local && onRenameSelf ? (
+              <span className="dv-person__actions">
+                <Button size="sm" variant="ghost" onClick={onRenameSelf} data-testid="roster-rename">
+                  {t(lang, 'clRename')}
+                </Button>
+              </span>
+            ) : null}
             {!p.local && (manage || onPin) ? (
               <span className="dv-person__actions">
                 {onPin ? (

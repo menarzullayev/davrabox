@@ -60,6 +60,8 @@ const toDate = (v: bigint | number | string | undefined, fallback: Date): Date =
 export class ActivityTracker {
   private timer: NodeJS.Timeout | null = null;
   private running = false;
+  /** Set by the application module: a person seen in a run for the first time (start state of "My settings"). */
+  onFirstSeen: ((orgId: string, meetingId: string, identity: string) => Promise<unknown>) | null = null;
 
   constructor(
     private readonly pool: Pool,
@@ -98,8 +100,12 @@ export class ActivityTracker {
         const created = await withTenant(this.pool, orgId, async (c) => {
           const s = await this.ensureSession(c, orgId, room.name, room.sid, new Date(first));
           await c.query('UPDATE meeting_sessions SET last_active_at = $2, peak_participants = greatest(peak_participants, $3) WHERE id = $1', [s.id, now, people.length]);
-          for (const p of people) await this.addParticipant(c, orgId, s.id, p.identity, toDate(p.joinedAt, now));
-          return s.created;
+          const fresh: string[] = [];
+          for (const p of people) if (await this.addParticipant(c, orgId, s.id, p.identity, toDate(p.joinedAt, now))) fresh.push(p.identity);
+          return { created: s.created, fresh };
+        }).then((r) => {
+          for (const id of r.fresh) void this.onFirstSeen?.(orgId, room.name, id).catch(() => undefined);
+          return r.created;
         });
         if (created) opened++;
       }
@@ -128,7 +134,7 @@ export class ActivityTracker {
       await withTenant(this.pool, orgId, async (c) => {
         if (ev.name === 'participant_joined' && ev.identity && countedIdentity(ev.identity)) {
           const s = await this.ensureSession(c, orgId, ev.room, ev.roomSid!, at);
-          await this.addParticipant(c, orgId, s.id, ev.identity, at);
+          if (await this.addParticipant(c, orgId, s.id, ev.identity, at)) void this.onFirstSeen?.(orgId, ev.room, ev.identity).catch(() => undefined);
           await c.query('UPDATE meeting_sessions SET last_active_at = greatest(coalesce(last_active_at, $2), $2), peak_participants = greatest(peak_participants, 1) WHERE id = $1', [s.id, at]);
         } else if (ev.name === 'participant_left' && ev.identity && countedIdentity(ev.identity)) {
           await c.query('UPDATE meeting_sessions SET last_active_at = greatest(coalesce(last_active_at, $2), $2) WHERE room_sid = $1 AND ended_at IS NULL', [ev.roomSid, at]);
@@ -224,16 +230,19 @@ export class ActivityTracker {
     return { id: (r.rows[0] as { id: string }).id, created: false };
   }
 
-  private async addParticipant(c: PoolClient, orgId: string, sessionId: string, identity: string, at: Date): Promise<void> {
+  /** Records a person in a run; true the first time they are seen in it. */
+  private async addParticipant(c: PoolClient, orgId: string, sessionId: string, identity: string, at: Date): Promise<boolean> {
     const kind = countedIdentity(identity);
-    if (!kind) return;
+    if (!kind) return false;
     // A member's identity is their user id; the row links to it only when that user belongs to this organization (RLS).
-    await c.query(
+    const r = await c.query(
       `INSERT INTO meeting_session_participants (session_id, org_id, identity, user_id, guest, first_seen_at)
        VALUES ($1, $2, $3, (SELECT id FROM users WHERE id::text = $3 AND $4 = false), $4, $5)
-       ON CONFLICT (session_id, identity) DO UPDATE SET first_seen_at = least(meeting_session_participants.first_seen_at, EXCLUDED.first_seen_at)`,
+       ON CONFLICT (session_id, identity) DO UPDATE SET first_seen_at = least(meeting_session_participants.first_seen_at, EXCLUDED.first_seen_at)
+       RETURNING (xmax = 0) AS inserted`,
       [sessionId, orgId, identity, kind === 'guest', at],
     );
+    return (r.rows[0] as { inserted: boolean } | undefined)?.inserted === true;
   }
 
   /** Ends a run: at `at`, else at the last moment somebody was seen. A run nobody was ever seen in is dropped. */

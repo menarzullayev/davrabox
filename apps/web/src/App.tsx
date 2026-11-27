@@ -8,6 +8,9 @@ import { isOrgAdmin, needsOrganization } from './admin/jwt';
 import { currentUser, freshToken, manager, signIn, takeReturnTo } from './auth';
 import { profileApiFor } from './profile/profileApi';
 import { setDisplay } from './profile/display';
+import { HostWait, JoinNotice } from './settings/JoinRules';
+import { passcodeFromSearch } from './home/link-passcode';
+import { ApiError } from './api';
 import { recoverSession } from './session-recovery';
 import { Call } from './Call';
 import { t, type Key, type Lang } from './i18n';
@@ -26,6 +29,9 @@ import { AppShell } from './shell/AppShell';
 import { navigate, sectionFromPath, useLocationPath } from './shell/nav';
 import { ToastProvider } from './ui';
 import { displayName } from './home/logic';
+
+// The passcode of a join link, read when the module loads (before the join parameters are dropped from the address bar).
+const LINK_PASSCODE = typeof location === 'undefined' ? null : passcodeFromSearch(location.search);
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
@@ -63,7 +69,13 @@ export function App() {
       return '';
     }
   });
+  // A passcode in the join link ("put the passcode in the link"), offered in the join form.
+  // Read before the join parameter is dropped from the address bar; kept in memory only (never in browser storage).
+  const [pendingPwd] = useState(() => LINK_PASSCODE ?? '');
   const [err, setErr] = useState<Key | null>(null);
+  // Organization join rules (settings package): the notice to accept, and waiting while the host has not started.
+  const [notice, setNotice] = useState<{ text: string; retry: () => void } | null>(null);
+  const [hostWait, setHostWait] = useState<{ retry: () => void } | null>(null);
   const [joined, setJoined] = useState<{ result: JoinedResult; code: string; media?: MediaChoice } | null>(null);
   const [waiting, setWaiting] = useState<{ code: string; requestId: string } | null>(null);
   // Guest (no account) state: a joined call or a waiting request with its own session token.
@@ -102,6 +114,7 @@ export function App() {
   const [onboarding, setOnboarding] = useState<OnboardingView | null>(null);
   const homeApi = useMemo(() => homeApiFor(freshToken), []);
   const profileApi = useMemo(() => profileApiFor(freshToken), []);
+  const settingsApi = useMemo(() => ({ load: async () => api.mySettings(await freshToken()), save: async (p: Record<string, unknown>) => api.saveMySettings(await freshToken(), p) }), []);
   // The profile's picture and display choices (time zone, formats) apply on every screen.
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   useEffect(() => {
@@ -194,12 +207,13 @@ export function App() {
     }
   };
 
-  const doJoin = async (c: string, p?: string) => {
+  const doJoin = async (c: string, p?: string, accepted = false) => {
     setErr(null);
     setEnded(false);
     const clean = c.replace(/\s+/g, '');
     try {
-      const res = await api.join(token, clean, p || undefined);
+      const res = await api.join(token, clean, p || undefined, accepted);
+      setHostWait(null);
       try {
         sessionStorage.removeItem('pendingJoin');
       } catch {
@@ -209,13 +223,37 @@ export function App() {
       if (res.status === 'joined') setJoined(withMedia({ result: res, code: clean }));
       else setWaiting({ code: clean, requestId: res.requestId });
     } catch (e) {
+      if (e instanceof ApiError && e.code === 'disclaimer') {
+        setNotice({ text: String(e.extra?.['disclaimer'] ?? ''), retry: () => void doJoin(clean, p, true) });
+        return;
+      }
+      if (e instanceof ApiError && e.code === 'host_absent') {
+        setHostWait({ retry: () => void doJoin(clean, p, accepted) });
+        return;
+      }
+      setHostWait(null);
       setErr(errorKey(e));
     }
   };
 
-  const doGuestJoin = async (rawCode: string, name: string, passcode?: string): Promise<void> => {
+  const doGuestJoin = async (rawCode: string, name: string, passcode?: string, accepted = false): Promise<void> => {
     const clean = rawCode.replace(/\s+/g, '');
-    const res = await api.guestJoin(clean, name, passcode || undefined);
+    let res;
+    try {
+      res = await api.guestJoin(clean, name, passcode || undefined, accepted);
+      setHostWait(null);
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'disclaimer') {
+        setNotice({ text: String(e.extra?.['disclaimer'] ?? ''), retry: () => void doGuestJoin(clean, name, passcode, true).catch(() => undefined) });
+        return;
+      }
+      if (e instanceof ApiError && e.code === 'host_absent') {
+        setHostWait({ retry: () => void doGuestJoin(clean, name, passcode, accepted).catch(() => undefined) });
+        return;
+      }
+      setHostWait(null);
+      throw e;
+    }
     try {
       sessionStorage.removeItem('pendingJoin');
     } catch {
@@ -238,6 +276,20 @@ export function App() {
   const langPicker = <AppearanceControls lang={lang} onLang={changeLang} theme={theme} onTheme={changeTheme} />;
 
   if (loading) return <LoadingScreen lang={lang} />;
+
+  if (hostWait && !joined && !guestJoined) return <HostWait lang={lang} onRetry={hostWait.retry} onCancel={() => setHostWait(null)} />;
+  const noticeDialog = (
+    <JoinNotice
+      lang={lang}
+      text={notice?.text ?? null}
+      onCancel={() => setNotice(null)}
+      onAccept={() => {
+        const n = notice;
+        setNotice(null);
+        n?.retry();
+      }}
+    />
+  );
 
   if (guestJoined && !guestJoined.media) {
     return <PreJoin lang={lang} title={guestJoined.result.title} onJoin={(media) => setGuestJoined({ ...guestJoined, media })} onCancel={() => setGuestJoined(null)} />;
@@ -264,6 +316,8 @@ export function App() {
 
   if (!user) {
     return (
+      <>
+      {noticeDialog}
       <SignInScreen
         lang={lang}
         notice={ended ? t(lang, 'meetingEndedByHost') : null}
@@ -286,6 +340,7 @@ export function App() {
           void signIn({ lang });
         }}
       />
+      </>
     );
   }
 
@@ -379,6 +434,8 @@ export function App() {
   }
 
   return (
+    <>
+    {noticeDialog}
     <HomeScreen
       lang={lang}
       onLang={changeLang}
@@ -411,6 +468,12 @@ export function App() {
       section={section}
       homeApi={homeApi}
       profileApi={profileApi}
+      settingsApi={settingsApi}
+      initialPasscode={pendingPwd}
+      onCancelMeeting={async (code) => {
+        await api.cancelMeeting(token, code);
+        await refresh();
+      }}
       sid={typeof user.profile.sid === 'string' ? user.profile.sid : undefined}
       avatarUrl={avatarUrl}
       onAvatarChange={setAvatarUrl}
@@ -422,5 +485,6 @@ export function App() {
       }}
       onDismissOnboarding={() => markOnboarding({ dismissed: true })}
     />
+    </>
   );
 }

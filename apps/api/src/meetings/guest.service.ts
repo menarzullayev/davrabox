@@ -12,6 +12,7 @@ import { livekitUrlFor } from './public-url.js';
 import { TrialLimits } from '../signup/trial.guard.js';
 import { MeetingError } from './meetings.service.js';
 import { effectiveGuestMode, GUEST_IDENTITY_PREFIX, type GuestMode } from './guest-types.js';
+import { checkJoinRules, publishSources, roomPolicy, type MeetingPolicyHooks } from './meeting-policy.js';
 import argon2 from 'argon2';
 
 export { effectiveGuestMode, GUEST_IDENTITY_PREFIX, type GuestMode } from './guest-types.js';
@@ -24,11 +25,15 @@ export interface GuestJoinInput {
   code: string;
   name: string;
   passcode?: string;
+  /** The guest accepted the organization's join notice. */
+  acceptDisclaimer?: boolean;
 }
 export interface GuestRequestContext {
   /** Rate-limit key of the caller's address. */
   ipKey: string;
   requestHost?: string;
+  /** Cloudflare's country of the client (CF-IPCountry). */
+  country?: string;
 }
 export interface GuestJoined {
   status: 'joined';
@@ -56,11 +61,15 @@ interface GuestMeetingRow {
   e2ee: boolean;
   guest_mode: GuestMode;
   policy: GuestMode;
+  host_user_id: string;
+  cancelled_at: Date | null;
 }
 
 const NOT_FOUND = 'meeting not found';
 
 export class GuestService {
+  /** Set by the application module: "My settings" (host settings, organization join rules, lobby emails). */
+  hooks: MeetingPolicyHooks | null = null;
   private readonly rooms: RoomServiceClient;
   private readonly trial: TrialLimits;
   private readonly attempts: RateLimiter;
@@ -114,6 +123,13 @@ export class GuestService {
     if (!loc) return miss();
 
     await this.trial.assertTrialActive(loc.org_id);
+    // Organization rules (country allow/block, join notice) apply to guests too; a blocked attempt is audited.
+    if (this.hooks) {
+      const rules = await this.hooks.orgRules(loc.org_id);
+      await checkJoinRules(rules, { country: ctx.country, acceptDisclaimer: input.acceptDisclaimer }, () =>
+        withTenant(this.pool, loc.org_id, (c) => this.audit(c, loc.org_id, null, 'join.country.blocked', `${input.code}:${ctx.country ?? 'XX'}:guest`)).then(() => undefined),
+      );
+    }
     const ipHash = this.ipHash(ctx.ipKey);
     const state = await withTenant(this.pool, loc.org_id, async (c) => {
       const meeting = await this.meetingRow(c, loc.meeting_id);
@@ -126,7 +142,13 @@ export class GuestService {
     // Guests off looks exactly like an unknown code: nobody learns which codes exist from here.
     if (mode === 'off') return miss();
     if (state.banned) throw new MeetingError(403, 'removed from this meeting');
+    if (meeting.cancelled_at) throw new MeetingError(410, 'this meeting was cancelled', { code: 'cancelled' });
     if (meeting.locked) throw new MeetingError(403, 'meeting is locked');
+    // "Join before host" off: guests wait outside until the host side is connected.
+    const hs = this.hooks ? await this.hooks.hostSettings(loc.org_id, meeting.host_user_id) : null;
+    if (hs?.['joinBeforeHost'] === false && !(await this.hostPresent(loc.org_id, meeting))) {
+      throw new MeetingError(409, 'the host has not started this meeting yet', { code: 'host_absent' });
+    }
 
     if (meeting.passcode_hash) {
       const key = `${ctx.ipKey}:${input.code}`;
@@ -149,7 +171,10 @@ export class GuestService {
       return id;
     });
     const guestToken = await this.signSession(session, loc.meeting_id, loc.org_id);
-    if (mode === 'waiting_room') return { status: 'waiting', requestId: session, guestToken };
+    if (mode === 'waiting_room') {
+      void this.hooks?.lobby(loc.org_id, loc.meeting_id, name).catch(() => undefined);
+      return { status: 'waiting', requestId: session, guestToken };
+    }
     return this.issue(session, name, loc.org_id, meeting, guestToken, ctx.requestHost);
   }
 
@@ -171,14 +196,28 @@ export class GuestService {
     if (res.row.status === 'pending') return { status: 'waiting' };
     if (effectiveGuestMode(res.meeting.guest_mode, res.meeting.policy) === 'off') throw new MeetingError(403, 'guests are no longer allowed in this meeting');
     if (res.meeting.locked) throw new MeetingError(403, 'meeting is locked');
+    if (res.meeting.cancelled_at) throw new MeetingError(410, 'this meeting was cancelled', { code: 'cancelled' });
     return this.issue(requestId, res.row.display_name, claims.org, res.meeting, guestToken, ctx.requestHost);
   }
 
   // --- helpers -----------------------------------------------------------------------------------------------
 
+  private async hostPresent(orgId: string, meeting: GuestMeetingRow): Promise<boolean> {
+    let present: Array<{ identity: string }> = [];
+    try {
+      present = await this.rooms.listParticipants(meeting.id);
+    } catch {
+      return false;
+    }
+    if (present.some((p) => p.identity === meeting.host_user_id)) return true;
+    const co = await withTenant(this.pool, orgId, (c) => c.query('SELECT user_id FROM meeting_cohosts WHERE meeting_id = $1', [meeting.id]));
+    const ids = new Set(co.rows.map((x: { user_id: string }) => x.user_id));
+    return present.some((p) => ids.has(p.identity));
+  }
+
   private async meetingRow(c: PoolClient, meetingId: string): Promise<GuestMeetingRow> {
     const r = await c.query(
-      `SELECT m.id, m.title, m.passcode_hash, m.locked, m.e2ee, m.guest_mode,
+      `SELECT m.id, m.title, m.passcode_hash, m.locked, m.e2ee, m.guest_mode, m.host_user_id, m.cancelled_at,
               coalesce((SELECT p.guest_policy FROM org_policies p WHERE p.org_id = m.org_id), 'off') AS policy
        FROM meetings m WHERE m.id = $1`,
       [meetingId],
@@ -200,6 +239,9 @@ export class GuestService {
       if (present.length >= limits.maxParticipants && !present.some((p) => p.identity === identity)) throw new MeetingError(403, 'meeting is full');
     }
     await this.rooms.createRoom({ name: meeting.id, emptyTimeout: 300, maxParticipants: limits.maxParticipants });
+    // The host's settings decide what a guest may publish (screen share) like for members.
+    const hs = this.hooks ? await this.hooks.hostSettings(orgId, meeting.host_user_id) : null;
+    const sources = hs ? publishSources(roomPolicy(hs), false, meeting.guest_mode) : undefined;
     const at = new AccessToken(this.cfg.LIVEKIT_API_KEY, this.cfg.LIVEKIT_API_SECRET, {
       identity,
       name,
@@ -208,7 +250,7 @@ export class GuestService {
       ttl: limits.maxMinutes ? Math.min(this.cfg.MEETING_TOKEN_TTL_SECONDS, limits.maxMinutes * 60) : this.cfg.MEETING_TOKEN_TTL_SECONDS,
     });
     // Guests talk and show themselves; they never administer the room (no roomAdmin, no recorder rights).
-    at.addGrant({ roomJoin: true, room: meeting.id, canSubscribe: true, canPublish: true, canPublishData: true, roomAdmin: false, canUpdateOwnMetadata: false });
+    at.addGrant({ roomJoin: true, room: meeting.id, canSubscribe: true, canPublish: true, canPublishData: true, roomAdmin: false, canUpdateOwnMetadata: false, ...(sources ? { canPublishSources: sources } : {}) });
     const url = this.cfg.LIVEKIT_URL_FIXED ? this.cfg.LIVEKIT_URL : livekitUrlFor(requestHost, this.cfg.CORS_ORIGINS.split(',').map((o) => o.trim()), this.cfg.LIVEKIT_URL);
     return { status: 'joined', token: await at.toJwt(), url, meetingId: meeting.id, title: meeting.title, isHost: false, e2ee: meeting.e2ee, guest: true, guestToken };
   }

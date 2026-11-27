@@ -16,6 +16,8 @@ export interface JoinCardProps {
   onJoin: (code: string, passcode?: string) => Promise<void>;
   /** The server answered that a passcode is required or wrong: the field is shown (and focused) without being asked for. */
   passcodeNeeded?: boolean;
+  /** A passcode carried by the link (host setting "put the passcode in the link"). */
+  initialPasscode?: string;
 }
 
 const REASON_KEY = { notCode: 'hJoinErrNotCode', tooLong: 'hJoinErrTooLong', noCodeInLink: 'hJoinErrNoCode' } as const satisfies Record<JoinInvalidReason, string>;
@@ -24,16 +26,16 @@ const REASON_KEY = { notCode: 'hJoinErrNotCode', tooLong: 'hJoinErrTooLong', noC
  * The primary area of the home screen: join by code or by pasted link, with instant validation.
  * The form keeps exactly one button and one numeric input (apps/e2e drives it by `form[data-testid=join-form]`).
  */
-export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinCard({ lang, initialCode = '', onJoin, passcodeNeeded = false }, ref) {
+export const JoinCard = forwardRef<JoinCardHandle, JoinCardProps>(function JoinCard({ lang, initialCode = '', initialPasscode = '', onJoin, passcodeNeeded = false }, ref) {
   const [value, setValue] = useState(() => (initialCode ? formatCode(initialCode) : ''));
-  const [pass, setPass] = useState('');
+  const [pass, setPass] = useState(initialPasscode);
   const [touched, setTouched] = useState(false);
   const [attempted, setAttempted] = useState(false);
   const [fromLink, setFromLink] = useState(false);
   const [passNote, setPassNote] = useState(false);
   const [busy, setBusy] = useState(false);
   // The passcode field is rare (only protected meetings), so it stays hidden until asked for or required (critic D-13).
-  const [passOpen, setPassOpen] = useState(false);
+  const [passOpen, setPassOpen] = useState(Boolean(initialPasscode));
   const [focusPass, setFocusPass] = useState(0);
   const showPass = passOpen;
   const passRef = useRef<HTMLInputElement>(null);

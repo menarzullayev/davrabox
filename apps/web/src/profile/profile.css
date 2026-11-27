@@ -20,3 +20,15 @@
   .st-link--card { background: var(--surface-1); box-shadow: var(--shadow-1); }
   @media (forced-colors: active) { .pf-crop__canvas { border: var(--border-w) solid CanvasText; } }
 }
+
+/* "My settings" and the admin "Meeting settings" (settings package). */
+@layer dx {
+  .ms { display: grid; gap: var(--space-4); }
+  .ms-group { display: grid; gap: var(--space-3); margin: 0; padding: 0; border: 0; min-width: 0; }
+  .ms-item { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-lg); background: var(--surface-2); }
+  .ms-item[data-locked] { opacity: 0.85; }
+  .ms-item--admin { grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 960px) { .ms-item--admin { grid-template-columns: minmax(0, 1fr) auto; align-items: start; } }
+  .ms-badge { justify-self: start; }
+  .ms-lock { display: flex; align-items: center; gap: var(--space-1); margin: 0; color: var(--text-muted); font-size: var(--text-sm); }
+}

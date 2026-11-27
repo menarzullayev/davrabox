@@ -76,6 +76,8 @@ export interface CallViewProps {
   spotlightId?: string | null;
   pinnedId?: string | null;
   onPin?(id: string): void;
+  /** Rename oneself (host setting "participants may rename"; always for the host side). */
+  onRenameSelf?(): void;
   /** Camera effects: the background chooser and low-light correction. */
   onBackground?(): void;
   lowLightOn?: boolean;
@@ -155,7 +157,7 @@ export function CallView(p: CallViewProps) {
           </div>
         </main>
         {p.panel === 'chat' ? <ChatPanel lang={lang} {...p.chat} others={others} onClose={closePanel} /> : null}
-        {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onPin={p.onPin} onClose={closePanel} /> : null}
+        {p.panel === 'people' ? <PeoplePanel lang={lang} participants={p.participants} manage={p.manage} onPin={p.onPin} onRenameSelf={p.onRenameSelf} onClose={closePanel} /> : null}
         {p.panel === 'polls' || p.panel === 'qa' || p.panel === 'board' ? p.activityPanel : null}
       </div>
       <ControlBar

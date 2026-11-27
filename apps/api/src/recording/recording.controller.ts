@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpException, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { pipeline } from 'node:stream';
 import type { Response } from 'express';
 import { AuthGuard, type AuthedUser } from '../auth/auth.guard.js';
@@ -11,7 +11,7 @@ type Req = { user: AuthedUser };
 
 function wrap<T>(p: Promise<T>): Promise<T> {
   return p.catch((e) => {
-    if (e instanceof MeetingError) throw new HttpException(e.message, e.status);
+    if (e instanceof MeetingError) throw new HttpException(e.extra ? { statusCode: e.status, message: e.message, ...e.extra } : e.message, e.status);
     throw e;
   });
 }
@@ -30,8 +30,9 @@ export class RecordingController {
 
   @Post('meetings/:code/recording/start')
   @HttpCode(200)
-  start(@Req() req: Req, @Param('code') code: string) {
-    return wrap(this.svc.start(req.user, code));
+  start(@Req() req: Req, @Param('code') code: string, @Body() body: unknown) {
+    const confirmed = typeof body === 'object' && body !== null && (body as { confirmed?: unknown }).confirmed === true;
+    return wrap(this.svc.start(req.user, code, { confirmed }));
   }
 
   @Post('meetings/:code/recording/stop')

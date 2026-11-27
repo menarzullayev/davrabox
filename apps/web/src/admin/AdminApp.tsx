@@ -4,7 +4,7 @@ import { useShellSlot } from '../shell/AppShell';
 import type { User } from 'oidc-client-ts';
 import { freshToken } from '../auth';
 import { t, type Lang } from '../i18n';
-import { Avatar, Button, IconChat, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLock, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
+import { Avatar, Button, IconSettings, IconChat, IconChevronLeft, IconLayoutGrid, IconLayoutRing, IconLink, IconLock, IconLogout, IconShield, IconShieldCheck, IconUsers, Logo } from '../ui';
 import { AssistantLog } from './AssistantLog';
 import { Audit } from './Audit';
 import { createAdminClient, type AdminClient } from './client';
@@ -17,8 +17,16 @@ import { Privacy } from './Privacy';
 import { Users } from './Users';
 import { AdminCtx, makeReport } from './ui';
 import './admin.css';
+import { OrgSettings } from '../settings/OrgSettings';
+import { api } from '../api';
 
-const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption', 'privacy', 'assistant'] as const;
+/** The organization's "My settings" defaults and locks (admin section "Meeting settings"). */
+const orgSettingsApi = {
+  load: async () => api.orgSettings(await freshToken()),
+  save: async (patch: Record<string, unknown>) => api.saveOrgSettings(await freshToken(), patch),
+};
+
+const SECTIONS = ['overview', 'users', 'departments', 'policies', 'audit', 'integrations', 'encryption', 'privacy', 'settings', 'assistant'] as const;
 type Section = (typeof SECTIONS)[number];
 const ICON = {
   overview: IconLayoutGrid,
@@ -29,6 +37,7 @@ const ICON = {
   audit: IconShieldCheck,
   encryption: IconLock,
   privacy: IconShield,
+  settings: IconSettings,
   assistant: IconChat,
 } as const;
 const LABEL = {
@@ -40,6 +49,7 @@ const LABEL = {
   audit: 'admAudit',
   encryption: 'admEncryption',
   privacy: 'admPrivacy',
+  settings: 'msAdminTitle',
   assistant: 'admAssistant',
 } as const;
 
@@ -142,6 +152,7 @@ export function AdminApp({ lang, langPicker, user, onSignOut, client: injected }
             {section === 'audit' && <Audit />}
             {section === 'encryption' && <Encryption />}
             {section === 'privacy' && <Privacy />}
+            {section === 'settings' && <OrgSettings lang={lang} api={orgSettingsApi} />}
             {section === 'assistant' && owner && <AssistantLog />}
           </div>
   );

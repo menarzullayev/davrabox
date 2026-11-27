@@ -129,6 +129,7 @@ export class PrivacyService {
       );
       const prof = await q(`SELECT job_title, phone, time_zone, date_format, time_format, (avatar_id IS NOT NULL) AS has_avatar, updated_at FROM user_profiles WHERE user_id = $1`);
       const devices = await q(`SELECT user_agent, ip_prefix, country, city, first_seen, last_seen FROM user_session_devices WHERE user_id = $1 ORDER BY last_seen DESC`);
+      const mySettings = await q(`SELECT key, value, updated_at FROM user_settings WHERE user_id = $1 ORDER BY key`);
       const personal = await q(`SELECT code, waiting_room, (passcode_hash IS NOT NULL) AS has_passcode, guest_mode FROM meetings WHERE personal_owner = $1`);
       const cohost = await q(`SELECT m.code, ch.created_at FROM meeting_cohosts ch JOIN meetings m ON m.id = ch.meeting_id WHERE ch.user_id = $1 ORDER BY ch.created_at`);
       const files = await q(
@@ -164,6 +165,7 @@ export class PrivacyService {
         meetingsJoined: joined.map((m) => ({ code: m.code, title: m.title, firstJoinedAt: iso(m.first_at) })),
         profileDetails: prof[0] ? { jobTitle: prof[0].job_title, phone: prof[0].phone, timeZone: prof[0].time_zone, dateFormat: prof[0].date_format, timeFormat: prof[0].time_format, hasPicture: prof[0].has_avatar, updatedAt: iso(prof[0].updated_at) } : null,
         signInDevices: devices.map((d) => ({ userAgent: d.user_agent, network: d.ip_prefix, country: d.country, city: d.city, firstSeen: iso(d.first_seen), lastSeen: iso(d.last_seen) })),
+        settings: Object.fromEntries(mySettings.map((r) => [r.key, r.value])),
         meetingRuns: attended.map((r) => ({ meetingCode: r.code, startedAt: iso(r.started_at), endedAt: iso(r.ended_at), firstSeenAt: iso(r.first_seen_at) })),
         personalRoom: personal[0] ? { code: personal[0].code, waitingRoom: personal[0].waiting_room, hasPasscode: personal[0].has_passcode, guests: personal[0].guest_mode } : null,
         joinRequests: requests.map((r) => ({ meetingCode: r.code, status: r.status, requestedAt: iso(r.created_at), decidedAt: iso(r.decided_at) })),
@@ -261,6 +263,7 @@ export class PrivacyService {
       await c.query('DELETE FROM user_onboarding WHERE user_id = $1', [userId]); // and so does the "Get started" progress
       await c.query('DELETE FROM meeting_session_participants WHERE user_id = $1', [userId]); // attendance in "Recent activity"
       await c.query('DELETE FROM user_profiles WHERE user_id = $1', [userId]); // title, phone, time zone (the picture went above)
+      await c.query('DELETE FROM user_settings WHERE user_id = $1', [userId]); // "My settings"
       await c.query('DELETE FROM user_session_devices WHERE user_id = $1', [userId]); // "Where you're signed in"
       // The personal room stops being the person's: locked (nobody gets in through the old link) and left to retention.
       await c.query('UPDATE meetings SET personal_owner = NULL, locked = true WHERE personal_owner = $1', [userId]);

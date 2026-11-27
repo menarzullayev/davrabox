@@ -130,12 +130,34 @@ export interface PersonCard {
   phone?: string | null;
 }
 
+/** One setting of "My settings" as the API lists it (src/settings/catalog.ts on the server). */
+export interface SettingItem {
+  key: string;
+  group: 'security' | 'scheduling' | 'meeting' | 'notifications' | 'appearance' | 'recording' | 'organization';
+  type: 'bool' | 'choice' | 'text' | 'countries' | 'int';
+  options?: string[];
+  max?: number;
+  min?: number;
+  value: boolean | string | string[] | number;
+  orgValue: boolean | string | string[] | number;
+  locked: boolean;
+  orgOnly?: boolean;
+  fromPolicy?: boolean;
+}
+export interface SettingsView {
+  items: SettingItem[];
+  recordingEnabled: boolean;
+  mailEnabled: boolean;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
     public readonly detail: string = '',
     /** The API's stable machine-readable code, when it sent one (e.g. "email_taken"). */
     public readonly code?: string,
+    /** Further details the API sent with the refusal (e.g. the organization's join notice). */
+    public readonly extra?: Record<string, unknown>,
   ) {
     super(`api ${status} ${detail}`);
   }
@@ -156,14 +178,16 @@ async function call<T>(token: string, path: string, init?: { method?: string; bo
     if (res.status === 401) sessionLost?.(token);
     let detail = '';
     let code: string | undefined;
+    let extra: Record<string, unknown> | undefined;
     try {
       const b = (await res.json()) as { message?: unknown; code?: unknown };
       detail = String(b.message ?? '');
       code = typeof b.code === 'string' ? b.code : undefined;
+      extra = b as Record<string, unknown>;
     } catch {
       /* body was not JSON */
     }
-    throw new ApiError(res.status, detail, code);
+    throw new ApiError(res.status, detail, code, extra);
   }
   return (await res.json()) as T;
 }
@@ -202,12 +226,17 @@ async function guestCall<T>(path: string, init: { method?: string; body?: unknow
   const res = await fetch(`/api${path}`, { method: init.method ?? 'GET', headers, body });
   if (!res.ok) {
     let detail = '';
+    let code: string | undefined;
+    let extra: Record<string, unknown> | undefined;
     try {
-      detail = String(((await res.json()) as { message?: unknown }).message ?? '');
+      const b = (await res.json()) as { message?: unknown; code?: unknown };
+      detail = String(b.message ?? '');
+      code = typeof b.code === 'string' ? b.code : undefined;
+      extra = b as Record<string, unknown>;
     } catch {
       /* body was not JSON */
     }
-    throw new ApiError(res.status, detail);
+    throw new ApiError(res.status, detail, code, extra);
   }
   return (await res.json()) as T;
 }
@@ -255,7 +284,8 @@ export const api = {
   downloadFile,
   downloadRecording,
   recordingStatus: (token: string, code: string) => call<RecordingStatus>(token, `/v1/meetings/${enc(code)}/recording`),
-  startRecording: (token: string, code: string) => call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/start`, { method: 'POST', body: {} }),
+  startRecording: (token: string, code: string, confirmed?: boolean) =>
+    call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/start`, { method: 'POST', body: confirmed ? { confirmed: true } : {} }),
   stopRecording: (token: string, code: string) => call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/stop`, { method: 'POST', body: {} }),
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
@@ -317,13 +347,19 @@ export const api = {
     call<{ prefs: { lang: string | null; theme: string | null; style: string | null; density: string | null }; org: { defaultStyle: string; defaultDensity: string; allowedStyles: string[] | null } }>(token, '/v1/me/prefs'),
   putPrefs: (token: string, patch: Partial<Record<'lang' | 'theme' | 'style' | 'density', string | null>>) => call<unknown>(token, '/v1/me/prefs', { method: 'PUT', body: patch }),
   settings: (token: string) => call<{ guestPolicy: GuestMode }>(token, '/v1/meetings/settings'),
-  guestJoin: (code: string, name: string, passcode?: string) =>
-    guestCall<GuestJoinResult>(`/v1/guest/meetings/${enc(code)}/join`, { method: 'POST', body: { name, ...(passcode ? { passcode } : {}) } }),
+  guestJoin: (code: string, name: string, passcode?: string, acceptDisclaimer?: boolean) =>
+    guestCall<GuestJoinResult>(`/v1/guest/meetings/${enc(code)}/join`, { method: 'POST', body: { name, ...(passcode ? { passcode } : {}), ...(acceptDisclaimer ? { acceptDisclaimer: true } : {}) } }),
   guestStatus: (guestToken: string, id: string) => guestCall<JoinedResult | { status: 'waiting' }>(`/v1/guest/requests/${enc(id)}`, { bearer: guestToken }),
   create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean; guests?: GuestMode; scheduledAt?: string }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),
-  join: (token: string, code: string, passcode?: string) =>
-    call<JoinResult>(token, `/v1/meetings/${enc(code)}/join`, { method: 'POST', body: { passcode } }),
+  join: (token: string, code: string, passcode?: string, acceptDisclaimer?: boolean) =>
+    call<JoinResult>(token, `/v1/meetings/${enc(code)}/join`, { method: 'POST', body: { passcode, ...(acceptDisclaimer ? { acceptDisclaimer: true } : {}) } }),
+  mySettings: (token: string) => call<SettingsView>(token, '/v1/me/settings'),
+  saveMySettings: (token: string, patch: Record<string, unknown>) => call<SettingsView>(token, '/v1/me/settings', { method: 'PUT', body: patch }),
+  orgSettings: (token: string) => call<SettingsView>(token, '/v1/admin/settings'),
+  saveOrgSettings: (token: string, patch: Record<string, unknown>) => call<SettingsView>(token, '/v1/admin/settings', { method: 'PUT', body: patch }),
+  cancelMeeting: (token: string, code: string) => call<{ cancelled: true }>(token, `/v1/meetings/${enc(code)}`, { method: 'DELETE' }),
+  rename: (token: string, code: string, name: string) => call<{ name: string }>(token, `/v1/meetings/${enc(code)}/rename`, { method: 'POST', body: { name } }),
   requestStatus: (token: string, code: string, id: string) =>
     call<JoinedResult | { status: 'waiting' }>(token, `/v1/meetings/${enc(code)}/requests/${enc(id)}`),
   listRequests: (token: string, code: string) => call<JoinRequest[]>(token, `/v1/meetings/${enc(code)}/requests`),

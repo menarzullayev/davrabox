@@ -32,6 +32,8 @@ export class FilesService {
   private readonly master?: Buffer;
   private readonly keys?: KeyResolver;
   private bucketReady = false;
+  /** Set by the application module: the host's "file sending" setting for this person in this meeting. */
+  fileSendingAllowed: ((user: AuthedUser, meetingId: string) => Promise<boolean>) | null = null;
   private readonly limiter: RateLimiter; // 20 uploads per minute per user
 
   constructor(private readonly pool: Pool, private readonly cfg: Config, rate: RateLimitService = RateLimitService.memory()) {
@@ -97,6 +99,8 @@ export class FilesService {
     const meeting = await this.authorize(user, code);
     // Files are stored by the server (envelope-encrypted with a server key), which contradicts the promise of an E2EE meeting.
     if (meeting.e2ee) throw new MeetingError(409, 'file sharing is turned off in end-to-end encrypted meetings');
+    // "File sending" off in the host's settings: only the host side may share files.
+    if (this.fileSendingAllowed && !(await this.fileSendingAllowed(user, meeting.id))) throw new MeetingError(403, 'file sending is turned off in this meeting', { code: 'files_off' });
     if (!(await this.limiter.hit(user.userId)).allowed) throw new MeetingError(429, 'too many uploads, try again in a minute'); // counts every attempt
     const name = sanitizeName(rawName);
     if (!name) throw new MeetingError(400, 'invalid file name');

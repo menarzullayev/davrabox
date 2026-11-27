@@ -2,6 +2,7 @@ import { adminEn, adminRu, adminUz } from './admin/i18n-admin';
 import { homeEn, homeRu, homeUz } from './home/i18n-home';
 import { shellEn, shellRu, shellUz } from './shell/i18n-shell';
 import { profileEn, profileRu, profileUz } from './profile/i18n-profile';
+import { settingsEn, settingsRu, settingsUz } from './settings/i18n-settings';
 import { callEn, callRu, callUz } from './call/i18n-call';
 import { featEn, featRu, featUz } from './call/i18n-features';
 import { landingEn, landingRu, landingUz } from './landing/i18n-landing';
@@ -116,6 +117,7 @@ const uz = {
   ...homeUz,
   ...shellUz,
   ...profileUz,
+  ...settingsUz,
   ...callUz,
   ...featUz,
   ...landingUz,
@@ -230,6 +232,7 @@ const ru: Record<Key, string> = {
   ...homeRu,
   ...shellRu,
   ...profileRu,
+  ...settingsRu,
   ...callRu,
   ...featRu,
   ...landingRu,
@@ -342,6 +345,7 @@ const en: Record<Key, string> = {
   ...homeEn,
   ...shellEn,
   ...profileEn,
+  ...settingsEn,
   ...callEn,
   ...featEn,
   ...landingEn,

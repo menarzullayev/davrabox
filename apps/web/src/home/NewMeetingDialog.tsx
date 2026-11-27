@@ -4,6 +4,7 @@ import { t, type Lang } from '../i18n';
 import type { GuestMode, Meeting } from '../api';
 import { tx } from './text';
 import { GuestModeSelect, defaultGuestMode } from './GuestModeSelect';
+import { rememberPasscode } from './link-passcode';
 
 export interface NewMeetingData {
   title: string;
@@ -30,6 +31,8 @@ export interface NewMeetingDialogProps {
   guestMax?: GuestMode;
   /** The Schedule quick action (owner decision 2): the same form with the date and time first and required. */
   schedule?: boolean;
+  /** The creator's "My settings": starting values of the form, and whether a passcode is required / goes into the link. */
+  defaults?: { waitingRoom?: boolean; e2ee?: boolean; guests?: GuestMode; requirePasscode?: boolean; embedPasscode?: boolean };
 }
 
 const FORM_ID = 'hm-new-form';
@@ -51,7 +54,14 @@ export function scheduledIso(value: string, now: Date): string | null {
   return at.getTime() > now.getTime() ? at.toISOString() : null;
 }
 
-export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, calendar, guestMax = 'off', schedule = false }: NewMeetingDialogProps) {
+/** A readable random passcode (the "require a passcode" setting fills one in; the person may change it). */
+export function randomPasscode(): string {
+  const a = new Uint8Array(6);
+  crypto.getRandomValues(a);
+  return Array.from(a, (x) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[x % 32]).join('');
+}
+
+export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, calendar, guestMax = 'off', schedule = false, defaults }: NewMeetingDialogProps) {
   const [title, setTitle] = useState('');
   const [passcode, setPasscode] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(true);
@@ -66,13 +76,16 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
   useEffect(() => {
     if (!open) return;
     setFailed(false);
-    setGuests(defaultGuestMode(guestMax)); // the waiting room when the organization allows guests
+    setGuests(defaults?.guests && guestMax !== 'off' ? (defaults.guests === 'open' && guestMax !== 'open' ? guestMax : defaults.guests) : defaultGuestMode(guestMax)); // the waiting room when the organization allows guests
+    setWaitingRoom(defaults?.waitingRoom ?? true);
+    setE2ee(defaults?.e2ee ?? false);
+    if (defaults?.requirePasscode) setPasscode((p) => p || randomPasscode());
     setWhen(schedule ? nextSlot(new Date()) : '');
     setWhenBad(false);
     // showModal() focuses the close button first: put the caret in the title field once the dialog is shown.
     const raf = requestAnimationFrame(() => document.getElementById('hm-new-title')?.focus());
     return () => cancelAnimationFrame(raf);
-  }, [open, guestMax, schedule]);
+  }, [open, guestMax, schedule, defaults]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,6 +106,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
         ...(guestMax !== 'off' ? { guests: guests === 'open' && guestMax !== 'open' ? guestMax : guests } : {}),
         ...(at ? { scheduledAt: at } : {}),
       });
+      if (passcode && defaults?.embedPasscode) rememberPasscode(m.code, passcode);
       setTitle('');
       setPasscode('');
       setWaitingRoom(true);
@@ -157,6 +171,7 @@ export function NewMeetingDialog({ lang, open, onClose, onCreate, onCreated, cal
           type="password"
           minLength={6}
           maxLength={64}
+          required={defaults?.requirePasscode === true}
           autoComplete="new-password"
           hint={tx(lang, 'hNewPasscodeHint')}
           value={passcode}
