@@ -4,7 +4,7 @@ import { PRIVACY_CONTACT, type LegalTexts } from './legal-types';
 export const PRIVACY_TEXT: LegalTexts = {
   en: {
     title: 'Privacy notice',
-    updated: 'Updated 26 November 2026',
+    updated: 'Updated 28 November 2026',
     sections: [
       {
         id: 'who',
@@ -30,6 +30,16 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Security log: a record of important actions (who created a meeting, uploaded or downloaded a file, changed a setting). It exists for security and accountability and is visible to your organisation\'s administrators.',
           'Sign-up protection: when a free trial is requested, we keep a keyed hash of the e-mail address and of the network address and the e-mail domain, to limit abuse.',
           'We do not use advertising or analytics cookies and we load no third-party scripts. The browser stores your language and theme choice, and your sign-in session for the open tab.',
+        ],
+      },
+      {
+        id: 'profile',
+        heading: 'Your profile and who sees it',
+        paragraphs: [
+          'You may add a picture, a job title, a department, a phone number, your time zone and how dates and times are shown. Your name and e-mail come from your sign-in account. Pictures are checked, scanned for viruses and stored encrypted; a new picture replaces the old one, which is deleted.',
+          'Who sees what: everybody in a meeting with you, guests included, sees your name and picture. Members of your organisation also see your job title and department. Only your organisation’s administrators also see your e-mail address and phone number. Your phone number is never shown to other participants.',
+          'Where you are signed in: for each sign-in we keep the browser and device name, a shortened network address (never the full one) and the city and country our network provider reports, so you can see your sessions and end them. This is kept 90 days after the session was last used.',
+          'Meeting history: when a meeting really ran, how long, and who was connected (guests only as a number), so you see your recent meetings. It is kept as long as meeting records.',
         ],
       },
       {
@@ -93,7 +103,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   ru: {
     title: 'Уведомление о конфиденциальности',
-    updated: 'Обновлено 26 ноября 2026 г.',
+    updated: 'Обновлено 28 ноября 2026 г.',
     sections: [
       {
         id: 'who',
@@ -119,6 +129,16 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Журнал безопасности: запись важных действий (кто создал встречу, загрузил или скачал файл, изменил настройку). Нужен для безопасности и подотчётности, виден администраторам вашей организации.',
           'Защита регистрации: при запросе бесплатного пробного периода мы храним ключевую свёртку адреса электронной почты и сетевого адреса, а также домен почты, чтобы ограничить злоупотребления.',
           'Мы не используем рекламные и аналитические cookie и не подключаем сторонние скрипты. Браузер хранит выбранный язык и тему, а также сессию входа в открытой вкладке.',
+        ],
+      },
+      {
+        id: 'profile',
+        heading: 'Ваш профиль и кто его видит',
+        paragraphs: [
+          'Вы можете добавить фото, должность, отдел, номер телефона, часовой пояс и формат даты и времени. Имя и e-mail берутся из вашей учётной записи. Фото проверяются, проходят антивирус и хранятся в зашифрованном виде; новое фото заменяет старое, старое удаляется.',
+          'Кто что видит: все участники встречи с вами, включая гостей, видят ваше имя и фото. Сотрудники вашей организации видят также должность и отдел. E-mail и телефон видят только администраторы вашей организации. Телефон никогда не показывается другим участникам.',
+          'Где выполнен вход: для каждого входа мы храним название браузера и устройства, сокращённый сетевой адрес (никогда не полный) и город и страну, которые сообщает наш сетевой провайдер, чтобы вы видели свои сеансы и могли их завершить. Хранится 90 дней после последнего использования сеанса.',
+          'История встреч: когда встреча действительно проходила, сколько длилась и кто был подключён (гости только числом), чтобы вы видели свои недавние встречи. Хранится столько же, сколько записи о встречах.',
         ],
       },
       {
@@ -182,7 +202,7 @@ export const PRIVACY_TEXT: LegalTexts = {
   },
   uz: {
     title: 'Maxfiylik to‘g‘risida xabarnoma',
-    updated: '2026-yil 26-noyabrda yangilangan',
+    updated: '2026-yil 28-noyabrda yangilangan',
     sections: [
       {
         id: 'who',
@@ -208,6 +228,16 @@ export const PRIVACY_TEXT: LegalTexts = {
           'Xavfsizlik jurnali: muhim amallar yozuvi (kim uchrashuv yaratdi, fayl yukladi yoki yuklab oldi, sozlamani o‘zgartirdi). U xavfsizlik va hisobdorlik uchun mavjud va tashkilotingiz administratorlariga ko‘rinadi.',
           'Ro‘yxatdan o‘tishni himoya qilish: bepul sinov so‘ralganda suiiste’molni cheklash uchun elektron pochta va tarmoq manzilining kalitli xeshi hamda pochta domenini saqlaymiz.',
           'Biz reklama va analitika cookie fayllaridan foydalanmaymiz va uchinchi tomon skriptlarini yuklamaymiz. Brauzer til va mavzu tanlovingizni hamda ochiq varaqdagi kirish seansini saqlaydi.',
+        ],
+      },
+      {
+        id: 'profile',
+        heading: 'Profilingiz va uni kim ko‘radi',
+        paragraphs: [
+          'Rasm, lavozim, bo‘lim, telefon raqami, vaqt mintaqasi va sana-vaqt formatini qo‘shishingiz mumkin. Ism va email kirish hisobingizdan olinadi. Rasmlar tekshiriladi, antivirusdan o‘tadi va shifrlangan holda saqlanadi; yangi rasm eskisini almashtiradi, eskisi o‘chiriladi.',
+          'Kim nimani ko‘radi: siz bilan uchrashuvdagi hamma, mehmonlar ham, ismingiz va rasmingizni ko‘radi. Tashkilotingiz a’zolari lavozim va bo‘limni ham ko‘radi. Email va telefonni faqat tashkilotingiz administratorlari ko‘radi. Telefon raqamingiz boshqa qatnashchilarga hech qachon ko‘rsatilmaydi.',
+          'Qayerda kirgansiz: har bir kirish uchun brauzer va qurilma nomi, qisqartirilgan tarmoq manzili (hech qachon to‘liq emas) hamda tarmoq provayderimiz bildirgan shahar va mamlakat saqlanadi, shunda sessiyalaringizni ko‘rib, ularni tugata olasiz. Sessiya oxirgi marta ishlatilganidan keyin 90 kun saqlanadi.',
+          'Uchrashuvlar tarixi: uchrashuv haqiqatda qachon bo‘lgani, qancha davom etgani va kim ulangani (mehmonlar faqat soni), shunda so‘nggi uchrashuvlaringizni ko‘rasiz. Uchrashuv yozuvlari qancha saqlansa, shuncha saqlanadi.',
         ],
       },
       {

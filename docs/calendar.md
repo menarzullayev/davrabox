@@ -8,6 +8,25 @@ Status: implemented and tested against mocked provider HTTP. The real end-to-end
 event in a real calendar) is BLOCKED until the OAuth apps below are registered and their client ids and secrets are
 configured. Nothing in this repository contains credentials.
 
+**Enabled (owner decision 6 of the profile package, 2026-11-27).** Production uses the sign-in OAuth clients
+(`IDP_GOOGLE_*`, `IDP_MICROSOFT_*`) for the calendar too unless `GOOGLE_CLIENT_*` / `MS_CLIENT_*` are set, so one app per
+provider is enough: it gets a second redirect URI and the calendar scope. Consent is incremental: signing in asks for
+`openid email profile` only; the calendar scope is asked for only when a person presses "Connect calendar" (profile page
+or a meeting row). Until Google verifies the app, people who connect see Google's "unverified app" warning and at most
+100 users can connect (Google's cap for unverified apps with a sensitive scope).
+
+### Owner checklist (production `https://davrabox.bugvector.uz`)
+- Google (the same OAuth client as sign-in): add the authorised redirect URI
+  `https://davrabox.bugvector.uz/api/v1/calendar/google/callback`; enable the "Google Calendar API" in the project; on the
+  consent screen ("Data access") add the scope `https://www.googleapis.com/auth/calendar.events.owned`; then "Verification
+  centre" -> submit for verification (needs the privacy policy URL `https://davrabox.bugvector.uz/privacy`, the home page
+  `https://davrabox.bugvector.uz/`, the authorised domain `bugvector.uz` verified in Google Search Console, a short video of
+  the "Connect calendar" flow and a justification: "creates events for meetings the user hosts in the user's own calendar").
+- Microsoft (the same app registration as sign-in): add the Web redirect URI
+  `https://davrabox.bugvector.uz/api/v1/calendar/microsoft/callback`; API permissions -> Microsoft Graph, Delegated:
+  `Calendars.ReadWrite` (and `offline_access`, `User.Read` which are present by default). No admin consent is needed for
+  personal accounts; some work tenants require their admin to approve.
+
 ## What the user must do once
 
 The redirect URI is the same host the web app is served from, plus `/api/v1/calendar/<provider>/callback`

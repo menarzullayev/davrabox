@@ -81,10 +81,10 @@ describe('left panel', () => {
     const { rerender } = render(<HomeScreen {...homeProps({ section: 'meetings' })} />);
     const nav = screen.getByRole('navigation', { name: 'Main menu' });
     const names = within(nav).getAllByRole('link').map((a) => a.textContent);
-    expect(names).toEqual(['Home', 'Meetings', 'Recordings', 'Whiteboards', 'Settings', 'Help']);
+    expect(names).toEqual(['Home', 'Meetings', 'Recordings', 'Whiteboards', 'Settings', 'Profile', 'Help']);
     expect(within(nav).getByTestId('nav-meetings').getAttribute('aria-current')).toBe('page');
     rerender(<HomeScreen {...homeProps({ section: 'meetings', isAdmin: true })} />);
-    expect(within(screen.getByRole('navigation', { name: 'Main menu' })).getAllByRole('link').map((a) => a.textContent)).toEqual(['Home', 'Meetings', 'Recordings', 'Whiteboards', 'Settings', 'Admin', 'Help']);
+    expect(within(screen.getByRole('navigation', { name: 'Main menu' })).getAllByRole('link').map((a) => a.textContent)).toEqual(['Home', 'Meetings', 'Recordings', 'Whiteboards', 'Settings', 'Profile', 'Admin', 'Help']);
   });
   it('each section renders its page', async () => {
     const { rerender } = render(<HomeScreen {...homeProps({ section: 'meetings' })} />);

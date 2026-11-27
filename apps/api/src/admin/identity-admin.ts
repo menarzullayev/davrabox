@@ -54,6 +54,17 @@ export interface BrokeredAccount {
 }
 
 /** Email verification and first-sign-in organization set-up. Keycloak implements it; tests use a fake. */
+/** Self-service security of the profile page (owner decision 3): what the identity provider knows about one account. */
+export interface SelfServiceIdentity {
+  credentials(sub: string): Promise<Array<{ id: string; type: string; label: string | null; createdAt: string | null }>>;
+  sessions(sub: string): Promise<Array<{ id: string; ip: string | null; start: string | null; lastAccess: string | null }>>;
+  endSession(sub: string, sid: string): Promise<boolean>;
+  endAllSessions(sub: string): Promise<void>;
+  links(sub: string): Promise<Array<{ provider: string; userName: string | null }>>;
+  unlink(sub: string, provider: string): Promise<void>;
+  signInProviders(): Promise<SignInProvider[]>;
+}
+
 export interface OnboardingIdentity {
   /** Sends the "verify your email" message; `redirectUri` is where the link lands afterwards. Throws IdentityAdminError (503 = mail not sent). */
   sendVerifyEmail(sub: string, redirectUri: string | null): Promise<void>;
@@ -123,7 +134,7 @@ interface KcUser {
 const TIMEOUT_MS = 10_000;
 
 /** Keycloak admin REST API client, authenticated as a confidential service account (client_credentials). */
-export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner, PrivacyIdentity, OnboardingIdentity {
+export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserCleaner, PrivacyIdentity, OnboardingIdentity, SelfServiceIdentity {
   private token: { value: string; expiresAt: number } | null = null;
   private readonly base: string;
 
@@ -366,5 +377,56 @@ export class KeycloakAdmin implements IdentityAdmin, SignupIdentity, OrgUserClea
   async deleteUser(sub: string): Promise<void> {
     const res = await this.call('DELETE', `/users/${sub}`);
     if (!res.ok && res.status !== 404) throw new IdentityAdminError(502, 'identity provider could not delete the user');
+  }
+  // --- self-service security (profile page) ------------------------------------------------------------------
+
+  async credentials(sub: string): Promise<Array<{ id: string; type: string; label: string | null; createdAt: string | null }>> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return [];
+    const res = await this.call('GET', `/users/${sub}/credentials`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not list the sign-in methods');
+    const list = (await res.json()) as Array<{ id?: string; type?: string; userLabel?: string; createdDate?: number }>;
+    return list
+      .filter((c) => c.id && c.type)
+      .map((c) => ({ id: c.id!, type: c.type!, label: c.userLabel ?? null, createdAt: c.createdDate ? new Date(c.createdDate).toISOString() : null }));
+  }
+
+  async sessions(sub: string): Promise<Array<{ id: string; ip: string | null; start: string | null; lastAccess: string | null }>> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return [];
+    const res = await this.call('GET', `/users/${sub}/sessions`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not list the sessions');
+    const list = (await res.json()) as Array<{ id?: string; ipAddress?: string; start?: number; lastAccess?: number }>;
+    return list
+      .filter((x) => x.id)
+      .map((x) => ({ id: x.id!, ip: x.ipAddress ?? null, start: x.start ? new Date(x.start).toISOString() : null, lastAccess: x.lastAccess ? new Date(x.lastAccess).toISOString() : null }));
+  }
+
+  /** Ends one session of this account only (a session id of somebody else is refused). */
+  async endSession(sub: string, sid: string): Promise<boolean> {
+    if (!/^[A-Za-z0-9._-]{1,100}$/.test(sid)) return false;
+    const own = await this.sessions(sub);
+    if (!own.some((x) => x.id === sid)) return false;
+    const res = await this.call('DELETE', `/sessions/${encodeURIComponent(sid)}`);
+    if (!res.ok && res.status !== 404) throw new IdentityAdminError(502, 'identity provider could not end the session');
+    return true;
+  }
+
+  async endAllSessions(sub: string): Promise<void> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return;
+    const res = await this.call('POST', `/users/${sub}/logout`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not end the sessions');
+  }
+
+  async links(sub: string): Promise<Array<{ provider: string; userName: string | null }>> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub)) return [];
+    const res = await this.call('GET', `/users/${sub}/federated-identity`);
+    if (!res.ok) throw new IdentityAdminError(502, 'identity provider could not read the linked accounts');
+    const list = (await res.json()) as Array<{ identityProvider?: string; userName?: string }>;
+    return list.filter((l) => l.identityProvider).map((l) => ({ provider: l.identityProvider!, userName: l.userName ?? null }));
+  }
+
+  async unlink(sub: string, provider: string): Promise<void> {
+    if (!/^[0-9a-f-]{36}$/i.test(sub) || !/^[a-z0-9-]{1,40}$/.test(provider)) throw new IdentityAdminError(400, 'invalid provider');
+    const res = await this.call('DELETE', `/users/${sub}/federated-identity/${provider}`);
+    if (!res.ok && res.status !== 404) throw new IdentityAdminError(502, 'identity provider could not remove the link');
   }
 }

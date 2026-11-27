@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
-import { IconCamera, IconChevronRight, Switch, type ThemeChoice } from '../ui';
+import { IconCamera, IconChevronRight, IconUser, Switch, type ThemeChoice } from '../ui';
 import { AppearanceFields } from '../home/AppearanceFields';
 import { tx } from '../home/text';
 import { onLinkClick, pathFor } from '../shell/nav';
@@ -24,6 +24,14 @@ export function SettingsPage({ lang, onLang, theme, onTheme, relay, children }: 
       </header>
       <div className="pg-stack">
         {children}
+        <a className="st-link st-link--card" href={pathFor('profile')} data-testid="st-profile" onClick={(e) => onLinkClick(e, pathFor('profile'))}>
+          <IconUser size={20} />
+          <span className="st-link__body">
+            <span className="st-link__title">{tx(lang, 'pfOpenProfile')}</span>
+            <span className="st-link__text">{tx(lang, 'pfOpenProfileLead')}</span>
+          </span>
+          <IconChevronRight size={18} />
+        </a>
         <section className="hm-card st-card" aria-labelledby="st-look-h">
           <h2 className="hm-card__title" id="st-look-h">
             {tx(lang, 'stAppearance')}

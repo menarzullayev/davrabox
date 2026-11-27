@@ -3,7 +3,7 @@
 // and one event. Pure path helpers are exported for tests.
 import { useEffect, useState } from 'react';
 
-export const SECTIONS = ['home', 'meetings', 'recordings', 'whiteboards', 'settings', 'devices'] as const;
+export const SECTIONS = ['home', 'meetings', 'recordings', 'whiteboards', 'settings', 'devices', 'profile'] as const;
 export type AppSection = (typeof SECTIONS)[number];
 
 const PATH: Record<AppSection, string> = {
@@ -13,6 +13,7 @@ const PATH: Record<AppSection, string> = {
   whiteboards: '/app/whiteboards',
   settings: '/app/settings',
   devices: '/app/devices',
+  profile: '/app/profile',
 };
 
 export function pathFor(section: AppSection): string {

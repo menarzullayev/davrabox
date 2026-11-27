@@ -13,6 +13,7 @@ import {
   IconRecord,
   IconSettings,
   IconShieldCheck,
+  IconUser,
   IconCalendar,
   IconWhiteboard,
   Logo,
@@ -37,6 +38,8 @@ export interface AppShellProps {
   isAdmin: boolean;
   who: string;
   whoId?: string;
+  /** The person's picture (profile), else initials. */
+  whoAvatar?: string;
   onSignOut: () => void;
   /** "New meeting" of the phone tab bar. */
   onNew: () => void;
@@ -48,6 +51,8 @@ interface Item {
   label: Key;
   icon: IconComponent;
   testId: string;
+  /** Shown indented under the item before it (Profile under Settings, owner decision 1 of the profile package). */
+  sub?: boolean;
 }
 
 // Only real sections (decision 1): Home, Meetings, Recordings, Whiteboards, Settings; Admin for admins; Help.
@@ -57,12 +62,13 @@ const MAIN: Item[] = [
   { id: 'recordings', label: 'shRecordings', icon: IconRecord, testId: 'nav-recordings' },
   { id: 'whiteboards', label: 'shWhiteboards', icon: IconWhiteboard, testId: 'nav-whiteboards' },
   { id: 'settings', label: 'shSettings', icon: IconSettings, testId: 'nav-settings' },
+  { id: 'profile', label: 'shProfile', icon: IconUser, testId: 'nav-profile', sub: true },
 ];
 
-function NavLink({ href, label, icon: Icon, current, testId, onClick }: { href: string; label: string; icon: IconComponent; current: boolean; testId: string; onClick?: () => void }) {
+function NavLink({ href, label, icon: Icon, current, testId, onClick, sub }: { href: string; label: string; icon: IconComponent; current: boolean; testId: string; onClick?: () => void; sub?: boolean }) {
   return (
     <a
-      className="sh-link"
+      className={sub ? 'sh-link sh-link--sub' : 'sh-link'}
       href={href}
       aria-current={current ? 'page' : undefined}
       data-testid={testId}
@@ -87,6 +93,8 @@ export function AppShell(props: AppShellProps) {
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   const [more, setMore] = useState(false);
   const isCurrent = (id: AppSection) => current === id || (id === 'settings' && current === 'devices');
+  // The phone tab bar has no Profile tab: Settings stays lit there.
+  const tabCurrent = (id: AppSection) => isCurrent(id) || (id === 'settings' && current === 'profile');
 
   return (
     <ShellSlot.Provider value={{ inShell: true, adminNav: slot }}>
@@ -102,7 +110,7 @@ export function AppShell(props: AppShellProps) {
             <span className="hm-spacer" />
             {props.who ? (
               <span className="hm-who" title={props.who}>
-                <Avatar name={props.who} id={props.whoId} size={32} decorative />
+                <Avatar name={props.who} id={props.whoId} size={32} src={props.whoAvatar} decorative />
                 <span className="hm-who__name">{props.who}</span>
               </span>
             ) : null}
@@ -118,7 +126,7 @@ export function AppShell(props: AppShellProps) {
               <ul className="sh-list">
                 {MAIN.map((it) => (
                   <li key={it.id}>
-                    <NavLink href={pathFor(it.id)} label={t(lang, it.label)} icon={it.icon} current={isCurrent(it.id)} testId={it.testId} />
+                    <NavLink href={pathFor(it.id)} label={t(lang, it.label)} icon={it.icon} current={isCurrent(it.id)} testId={it.testId} sub={it.sub} />
                   </li>
                 ))}
                 {props.isAdmin ? (
@@ -158,7 +166,7 @@ export function AppShell(props: AppShellProps) {
           <Button variant="ghost" className="hm-tabbar__item hm-tabbar__new" icon={<IconPlus />} data-testid="tab-new" onClick={props.onNew}>
             {t(lang, 'hTabNew')}
           </Button>
-          <Button variant="ghost" className="hm-tabbar__item" icon={<IconSettings />} data-testid="tab-settings" aria-current={isCurrent('settings') ? 'page' : undefined} onClick={() => navigate(pathFor('settings'))}>
+          <Button variant="ghost" className="hm-tabbar__item" icon={<IconSettings />} data-testid="tab-settings" aria-current={tabCurrent('settings') ? 'page' : undefined} onClick={() => navigate(pathFor('settings'))}>
             {t(lang, 'hSettings')}
           </Button>
           <Button variant="ghost" className="hm-tabbar__item" icon={<IconMore />} data-testid="tab-more" aria-haspopup="dialog" aria-expanded={more} onClick={() => setMore(true)}>

@@ -8,6 +8,8 @@ export interface Identity {
   role: 'org_admin' | 'member';
   /** The token's email_verified claim (may be older than the click on the verification link). */
   emailVerified?: boolean;
+  /** The identity provider's session id (`sid`): "Where you're signed in" ties a device to it. */
+  sid?: string;
 }
 
 /** A signed-in account that has no organization yet: the first sign-in through Google or Microsoft. */
@@ -34,7 +36,8 @@ export function identityFromClaims(p: JWTPayload): Identity {
   const role = roles.includes('org_admin') ? 'org_admin' : roles.includes('member') ? 'member' : null;
   if (!role) throw new Error('token lacks a DavraBox role');
   const name = typeof p['name'] === 'string' ? (p['name'] as string) : email;
-  return { sub, email, name, orgSlug, role, emailVerified: p['email_verified'] === true };
+  const sid = typeof p['sid'] === 'string' && /^[A-Za-z0-9._-]{1,100}$/.test(p['sid'] as string) ? (p['sid'] as string) : undefined;
+  return { sub, email, name, orgSlug, role, emailVerified: p['email_verified'] === true, ...(sid ? { sid } : {}) };
 }
 
 /** Like identityFromClaims, but an organization and a role are not required (used only by the organization set-up). */

@@ -15,6 +15,10 @@ export interface ParticipantView {
   pinned?: boolean;
   /** Featured for everyone by the host (server-set room metadata). */
   spotlit?: boolean;
+  /** The person's profile picture (server-set join-token attribute), if any. */
+  avatarUrl?: string;
+  /** Job title and department, for members of the same organization only (owner decision 5). */
+  subtitle?: string;
 }
 
 export interface ChatLineView {

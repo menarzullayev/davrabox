@@ -48,7 +48,7 @@ try {
   // 1. left panel and addresses
   const nav = p.getByRole('navigation', { name: 'Main menu' });
   const names = await nav.getByRole('link').allInnerTexts();
-  check('the left panel lists Home, Meetings, Recordings, Whiteboards, Settings, Help (a member: no Admin)', names.join('|') === 'Home|Meetings|Recordings|Whiteboards|Settings|Help', names.join('|'));
+  check('the left panel lists Home, Meetings, Recordings, Whiteboards, Settings, Profile, Help (a member: no Admin)', names.join('|') === 'Home|Meetings|Recordings|Whiteboards|Settings|Profile|Help', names.join('|'));
   check('the phone tab bar is not shown on a desktop', !(await p.locator('.hm-tabbar').isVisible()));
   await p.getByTestId('nav-meetings').click();
   await p.getByTestId('meetings-page').waitFor();

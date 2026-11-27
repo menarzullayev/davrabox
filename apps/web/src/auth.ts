@@ -36,6 +36,61 @@ export function signIn(opts: { lang?: Lang; loginHint?: string; idpHint?: 'googl
   });
 }
 
+/** Identity-provider pages the profile sends the person to (application-initiated actions, Keycloak's own secure flows). */
+export type KcAction = 'UPDATE_PASSWORD' | 'CONFIGURE_TOTP' | 'webauthn-register-passwordless' | `delete_credential:${string}`;
+
+/** Where to come back to after an identity-provider page (the redirect always lands on /app). */
+export const RETURN_KEY = 'davra.returnTo';
+
+/**
+ * Runs one Keycloak action (change password, add 2FA, add a passkey, remove a sign-in method) in Keycloak's own pages; the
+ * person returns to `returnTo` signed in. Nothing about the secret ever passes through the application.
+ */
+export function startKcAction(action: KcAction, returnTo: string, lang?: Lang): Promise<void> {
+  try {
+    sessionStorage.setItem(RETURN_KEY, returnTo);
+  } catch {
+    /* lands on /app instead */
+  }
+  return manager.signinRedirect({ extraQueryParams: { kc_action: action, ui_locales: lang ?? detectLang() } });
+}
+
+/** base64url(SHA-256(text)). */
+async function sha256b64url(text: string): Promise<string> {
+  const d = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)));
+  let s = '';
+  for (const b of d) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/**
+ * Links a Google or Microsoft account to the signed-in account (Keycloak's client-initiated account linking: the request is
+ * bound to this session by a hash of a nonce, the session id, the client and the provider).
+ */
+export async function linkProvider(provider: string, sid: string, returnTo: string): Promise<void> {
+  const nonce = crypto.randomUUID();
+  const clientId = 'davrabox-web';
+  const hash = await sha256b64url(nonce + sid + clientId + provider);
+  try {
+    sessionStorage.setItem(RETURN_KEY, returnTo);
+  } catch {
+    /* lands on /app instead */
+  }
+  const q = new URLSearchParams({ client_id: clientId, redirect_uri: `${location.origin}/app`, nonce, hash });
+  location.assign(`${location.origin}/auth/realms/davrabox/broker/${encodeURIComponent(provider)}/link?${q.toString()}`);
+}
+
+/** After coming back from an identity-provider page: the in-app address to return to, once (same-origin paths only). */
+export function takeReturnTo(): string | null {
+  try {
+    const v = sessionStorage.getItem(RETURN_KEY);
+    sessionStorage.removeItem(RETURN_KEY);
+    return v && /^\/app(\/[a-z-]+)?$/.test(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Fresh access token for long-lived screens (the library renews it silently). */
 export async function freshToken(): Promise<string> {
   const u = await manager.getUser();

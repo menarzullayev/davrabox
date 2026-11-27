@@ -11,7 +11,7 @@
     "demo:videos": "node demo.videos.mjs",
     "test:e2ee": "node e2ee.e2e.mjs",
     "test:2fa": "node totp.e2e.mjs && node admin2fa.e2e.mjs && node passkey.e2e.mjs",
-    "test": "node call.e2e.mjs && node admin.e2e.mjs && node hostcontrols.e2e.mjs && node chat.e2e.mjs && node noise.e2e.mjs && node layout.e2e.mjs && node blur.e2e.mjs && node logini18n.e2e.mjs && node cohost.e2e.mjs && node files.e2e.mjs && node turn.e2e.mjs && node desktop.e2e.mjs && node sso.e2e.mjs && node signup.e2e.mjs && node onboarding.e2e.mjs && node guest.e2e.mjs && node styles.e2e.mjs && node glass.e2e.mjs && node incall.e2e.mjs && node home.e2e.mjs",
+    "test": "node call.e2e.mjs && node admin.e2e.mjs && node hostcontrols.e2e.mjs && node chat.e2e.mjs && node noise.e2e.mjs && node layout.e2e.mjs && node blur.e2e.mjs && node logini18n.e2e.mjs && node cohost.e2e.mjs && node files.e2e.mjs && node turn.e2e.mjs && node desktop.e2e.mjs && node sso.e2e.mjs && node signup.e2e.mjs && node onboarding.e2e.mjs && node guest.e2e.mjs && node styles.e2e.mjs && node glass.e2e.mjs && node incall.e2e.mjs && node home.e2e.mjs && node profile.e2e.mjs",
     "typecheck": "echo e2e is plain JS",
     "lint": "echo e2e is plain JS"
   },

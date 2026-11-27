@@ -97,6 +97,39 @@ export interface MyRecording {
   sizeBytes: number | null;
 }
 
+/** The signed-in person's profile (owner decision 2 of the profile package). */
+export interface Profile {
+  name: string;
+  email: string;
+  jobTitle: string | null;
+  departmentId: string | null;
+  department: string | null;
+  phone: string | null;
+  timeZone: string | null;
+  dateFormat: 'dmy' | 'mdy' | 'ymd' | null;
+  timeFormat: '24h' | '12h' | null;
+  avatarUrl: string | null;
+  departments: Array<{ id: string; name: string }>;
+}
+export type ProfilePatch = Partial<Pick<Profile, 'jobTitle' | 'departmentId' | 'phone' | 'timeZone' | 'dateFormat' | 'timeFormat'>>;
+export interface SecurityView {
+  password: boolean;
+  totp: Array<{ id: string; label: string | null; createdAt: string | null }>;
+  passkeys: Array<{ id: string; label: string | null; createdAt: string | null }>;
+  sessions: Array<{ id: string; current: boolean; start: string | null; lastAccess: string | null; device: string | null; browser: string | null; city: string | null; country: string | null; ip: string | null }>;
+  links: Array<{ provider: string; userName: string | null }>;
+  providers: string[];
+}
+export interface PersonCard {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  jobTitle?: string | null;
+  department?: string | null;
+  email?: string;
+  phone?: string | null;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -233,6 +266,47 @@ export const api = {
   regeneratePersonalRoom: (token: string) => call<PersonalRoom>(token, '/v1/me/personal-room/regenerate', { method: 'POST', body: {} }),
   recentActivity: (token: string, limit = 10) => call<{ items: ActivityItem[] }>(token, `/v1/me/activity?limit=${limit}`),
   connectionTest: (token: string) => call<{ url: string; token: string; room: string }>(token, '/v1/me/connection-test', { method: 'POST', body: {} }),
+  profile: (token: string) => call<Profile>(token, '/v1/me/profile'),
+  saveProfile: (token: string, patch: ProfilePatch) => call<Profile>(token, '/v1/me/profile', { method: 'PUT', body: patch }),
+  uploadAvatar: async (token: string, image: Blob): Promise<{ avatarUrl: string }> => {
+    const res = await fetch('/api/v1/me/avatar', { method: 'PUT', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/octet-stream' }, body: image });
+    if (!res.ok) {
+      let code: string | undefined;
+      try {
+        code = ((await res.json()) as { code?: string }).code;
+      } catch {
+        /* not JSON */
+      }
+      throw new ApiError(res.status, '', code);
+    }
+    return (await res.json()) as { avatarUrl: string };
+  },
+  removeAvatar: async (token: string): Promise<void> => {
+    const res = await fetch('/api/v1/me/avatar', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new ApiError(res.status);
+  },
+  security: (token: string) => call<SecurityView>(token, '/v1/me/security'),
+  endSession: async (token: string, sid: string): Promise<void> => {
+    const res = await fetch(`/api/v1/me/security/sessions/${enc(sid)}/end`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new ApiError(res.status);
+  },
+  endAllSessions: async (token: string): Promise<void> => {
+    const res = await fetch('/api/v1/me/security/sessions/end-all', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new ApiError(res.status);
+  },
+  unlinkProvider: async (token: string, provider: string): Promise<void> => {
+    const res = await fetch(`/api/v1/me/security/links/${enc(provider)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) {
+      let code: string | undefined;
+      try {
+        code = ((await res.json()) as { code?: string }).code;
+      } catch {
+        /* not JSON */
+      }
+      throw new ApiError(res.status, '', code);
+    }
+  },
+  person: (token: string, userId: string) => call<PersonCard>(token, `/v1/people/${enc(userId)}`),
   myRecordings: (token: string) => call<{ enabled: boolean; items: MyRecording[] }>(token, '/v1/recordings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
   onboarding: (token: string) => call<OnboardingView>(token, '/v1/me/onboarding'),

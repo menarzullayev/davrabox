@@ -393,3 +393,10 @@ export const IconRefresh = /*#__PURE__*/ makeIcon('refresh', () => (
 ));
 
 export const IconActivity = /*#__PURE__*/ makeIcon('activity', () => <path d="M3 12h4l3-7 4 14 3-7h4" />);
+
+export const IconKey = /*#__PURE__*/ makeIcon('key', () => (
+  <>
+    <circle cx="8" cy="15" r="4" />
+    <path d="M11 12l9-9M16 7l2.5 2.5M18.5 4.5L21 7" />
+  </>
+));

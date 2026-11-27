@@ -53,6 +53,8 @@
   .sh-link:is([aria-current='page'], [aria-current='true']) { background: var(--accent-soft); color: var(--accent); font-weight: var(--weight-semibold); }
   .sh-link:focus-visible { outline: 0.125rem solid var(--focus-ring); outline-offset: 0.125rem; }
   .sh-link > svg { flex: none; }
+  .sh-link--sub { min-height: 2.5rem; padding-inline-start: var(--space-8); }
+  .sh-link--sub > svg { width: 1.125rem; height: 1.125rem; }
   .sh-link__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* The admin console's section list sits under "Admin" (its own .adm-nav, rendered here through a portal). */
@@ -68,6 +70,7 @@
     .sh:not([data-section='admin']) { --sh-panel-w: 4.25rem; }
     .sh:not([data-section='admin']) .sh-body { gap: var(--space-5); }
     .sh:not([data-section='admin']) .sh-link { justify-content: center; padding: 0; }
+    .sh:not([data-section='admin']) .sh-link--sub { padding: 0; }
     .sh:not([data-section='admin']) .sh-link__label { position: absolute; width: 0.0625rem; height: 0.0625rem; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   }
 
