@@ -2,6 +2,10 @@ import { Badge, IconShieldCheck } from '../ui';
 import type { Lang } from '../i18n';
 import type { PlanSummary } from './logic';
 import { tx } from './text';
+import { CONTACT_EMAIL } from '../brand/contact';
+
+/** Where "Upgrade / Contact us" leads: the pricing section of the landing page (owner decision 5; no promo carousel). */
+export const PRICING_HREF = '/#pricing';
 
 /** "Plan & Limits": what the free trial of the organization allows and how long it lasts. Only rendered for trial organizations. */
 export function PlanPanel({ lang, plan }: { lang: Lang; plan: PlanSummary }) {
@@ -34,6 +38,14 @@ export function PlanPanel({ lang, plan }: { lang: Lang; plan: PlanSummary }) {
           </div>
         ) : null}
       </dl>
+      <div className="hm-plan__foot">
+        <a className="dx-btn" data-variant="highlight" data-size="md" href={PRICING_HREF} data-testid="plan-upgrade">
+          <span className="dx-btn__label">{tx(lang, 'plUpgrade')}</span>
+        </a>
+        <a className="dx-btn" data-variant="ghost" data-size="md" href={`mailto:${CONTACT_EMAIL}`} data-testid="plan-contact">
+          <span className="dx-btn__label">{tx(lang, 'plContact')}</span>
+        </a>
+      </div>
     </section>
   );
 }

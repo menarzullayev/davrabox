@@ -124,6 +124,10 @@ export class PrivacyService {
       const requests = await q(
         `SELECT m.code, j.status, j.created_at, j.decided_at FROM join_requests j JOIN meetings m ON m.id = j.meeting_id WHERE j.user_id = $1 ORDER BY j.created_at`,
       );
+      const attended = await q(
+        `SELECT m.code, s.started_at, s.ended_at, p.first_seen_at FROM meeting_session_participants p JOIN meeting_sessions s ON s.id = p.session_id JOIN meetings m ON m.id = s.meeting_id WHERE p.user_id = $1 ORDER BY s.started_at`,
+      );
+      const personal = await q(`SELECT code, waiting_room, (passcode_hash IS NOT NULL) AS has_passcode, guest_mode FROM meetings WHERE personal_owner = $1`);
       const cohost = await q(`SELECT m.code, ch.created_at FROM meeting_cohosts ch JOIN meetings m ON m.id = ch.meeting_id WHERE ch.user_id = $1 ORDER BY ch.created_at`);
       const files = await q(
         `SELECT f.id, m.code AS meeting_code, f.name, f.size_bytes, f.sha256, f.created_at FROM meeting_files f JOIN meetings m ON m.id = f.meeting_id WHERE f.uploader_id = $1 ORDER BY f.created_at`,
@@ -156,6 +160,8 @@ export class PrivacyService {
         },
         meetingsHosted: hosted.map((m) => ({ code: m.code, title: m.title, scheduledAt: iso(m.scheduled_at), createdAt: iso(m.created_at), waitingRoom: m.waiting_room, locked: m.locked, e2ee: m.e2ee })),
         meetingsJoined: joined.map((m) => ({ code: m.code, title: m.title, firstJoinedAt: iso(m.first_at) })),
+        meetingRuns: attended.map((r) => ({ meetingCode: r.code, startedAt: iso(r.started_at), endedAt: iso(r.ended_at), firstSeenAt: iso(r.first_seen_at) })),
+        personalRoom: personal[0] ? { code: personal[0].code, waitingRoom: personal[0].waiting_room, hasPasscode: personal[0].has_passcode, guests: personal[0].guest_mode } : null,
         joinRequests: requests.map((r) => ({ meetingCode: r.code, status: r.status, requestedAt: iso(r.created_at), decidedAt: iso(r.decided_at) })),
         coHostOf: cohost.map((r) => ({ meetingCode: r.code, since: iso(r.created_at) })),
         files: files.map((f) => ({ id: f.id, meetingCode: f.meeting_code, name: f.name, sizeBytes: Number(f.size_bytes), sha256: f.sha256, uploadedAt: iso(f.created_at) })),
@@ -249,6 +255,9 @@ export class PrivacyService {
       const hooks = await c.query('DELETE FROM webhook_endpoints WHERE created_by = $1', [userId]);
       await c.query('DELETE FROM user_prefs WHERE user_id = $1', [userId]); // display choices go with the person
       await c.query('DELETE FROM user_onboarding WHERE user_id = $1', [userId]); // and so does the "Get started" progress
+      await c.query('DELETE FROM meeting_session_participants WHERE user_id = $1', [userId]); // attendance in "Recent activity"
+      // The personal room stops being the person's: locked (nobody gets in through the old link) and left to retention.
+      await c.query('UPDATE meetings SET personal_owner = NULL, locked = true WHERE personal_owner = $1', [userId]);
       const cal = await c.query('DELETE FROM calendar_connections WHERE user_id = $1', [userId]);
       await c.query('SELECT privacy_purge_user_oauth_states($1, $2)', [orgId, userId]);
       await c.query(

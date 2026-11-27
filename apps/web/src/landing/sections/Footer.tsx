@@ -4,7 +4,8 @@ import { Logo } from '../../ui';
 import { REPO_URL } from '../menu';
 
 /** Contact address of the operator. TO CONFIRM before publication (see the PR description): it is the only mailto on the page. */
-export const CONTACT_EMAIL = 'hello@davrabox.uz';
+export { CONTACT_EMAIL } from '../../brand/contact';
+import { CONTACT_EMAIL } from '../../brand/contact';
 
 export function Footer({ lang }: { lang: Lang }) {
   return (

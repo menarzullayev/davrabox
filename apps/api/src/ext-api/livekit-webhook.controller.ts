@@ -1,9 +1,10 @@
 import { SkipRateLimit } from '../rate-limit/guard.js';
-import { Controller, Headers, HttpCode, HttpException, Inject, Post, Req } from '@nestjs/common';
+import { Controller, Headers, HttpCode, HttpException, Inject, Optional, Post, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { WebhookReceiver } from 'livekit-server-sdk';
 import type { Config } from '../config.js';
-import { EXT_CORE_CONFIG, EXT_WEBHOOKS } from './tokens.js';
+import { EXT_ACTIVITY, EXT_CORE_CONFIG, EXT_WEBHOOKS } from './tokens.js';
+import type { ActivityTracker } from '../meetings/activity.js';
 import type { WebhooksService } from './webhooks.service.js';
 
 const MAX_BODY_BYTES = 1_048_576;
@@ -41,7 +42,11 @@ function readRaw(req: IncomingMessage): Promise<{ text: string | null; tooLarge:
 export class LivekitWebhookController {
   private readonly receiver: WebhookReceiver;
 
-  constructor(@Inject(EXT_WEBHOOKS) private readonly hooks: WebhooksService, @Inject(EXT_CORE_CONFIG) cfg: Config) {
+  constructor(
+    @Inject(EXT_WEBHOOKS) private readonly hooks: WebhooksService,
+    @Inject(EXT_CORE_CONFIG) cfg: Config,
+    @Optional() @Inject(EXT_ACTIVITY) private readonly activity?: ActivityTracker,
+  ) {
     this.receiver = new WebhookReceiver(cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET);
   }
 
@@ -65,6 +70,13 @@ export class LivekitWebhookController {
       identity: ev.participant?.identity,
       participantName: ev.participant?.name,
       occurredAt: ev.createdAt ? new Date(Number(ev.createdAt) * 1000) : undefined,
+    });
+    await this.activity?.onEvent({
+      name: ev.event,
+      room: ev.room?.name ?? '',
+      roomSid: ev.room?.sid,
+      identity: ev.participant?.identity,
+      at: ev.createdAt ? new Date(Number(ev.createdAt) * 1000) : undefined,
     });
     return { received: true };
   }

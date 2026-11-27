@@ -1,4 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Inject, Module, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
+import { RoomServiceClient } from 'livekit-server-sdk';
+import { livekitClientOptions } from './common/timeouts.js';
 import type { Pool } from 'pg';
 import { createPool } from './db/pool.js';
 import { RateLimitModule } from './rate-limit/rate-limit.module.js';
@@ -8,6 +10,9 @@ import { AuthGuard, POOL, VERIFIER } from './auth/auth.guard.js';
 import { createVerifier } from './auth/jwt.js';
 import { MEETINGS, MeetingsController } from './meetings/meetings.controller.js';
 import { MeetingsService } from './meetings/meetings.service.js';
+import { ACTIVITY, MeController, PERSONAL_ROOM } from './meetings/me.controller.js';
+import { PersonalRoomService } from './meetings/personal-room.js';
+import { ActivityTracker } from './meetings/activity.js';
 import { GUESTS, GuestController } from './meetings/guest.controller.js';
 import { GuestService } from './meetings/guest.service.js';
 import { PREFS, PrefsController } from './prefs/prefs.controller.js';
@@ -38,7 +43,7 @@ export const CONFIG = Symbol('CONFIG');
 
 @Module({
   imports: [RateLimitModule.forRoot(), SignupModule, ExtApiModule],
-  controllers: [MeetingsController, GuestController, PrefsController, OnboardingController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
+  controllers: [MeetingsController, MeController, GuestController, PrefsController, OnboardingController, FilesController, AdminController, AuditController, HealthController, ...recordingControllers, ...calendarControllers, ...byokControllers, ...privacyControllers, ...assistantControllers],
   providers: [
     ...recordingProviders,
     ...byokProviders,
@@ -48,7 +53,21 @@ export const CONFIG = Symbol('CONFIG');
     { provide: POOL, useFactory: (cfg: Config) => createPool(cfg.DATABASE_URL, 10), inject: [CONFIG] },
     { provide: READINESS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new ReadinessService(pool, { livekitApiUrl: cfg.LIVEKIT_API_URL }, { rate }), inject: [POOL, CONFIG, RateLimitService] },
     { provide: VERIFIER, useFactory: (cfg: Config) => createVerifier(cfg.KEYCLOAK_ISSUER, cfg.KEYCLOAK_AUDIENCE, cfg.KEYCLOAK_JWKS_URL), inject: [CONFIG] },
-    { provide: MEETINGS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new MeetingsService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
+    {
+      provide: ACTIVITY,
+      useFactory: (pool: Pool, cfg: Config) => new ActivityTracker(pool, new RoomServiceClient(cfg.LIVEKIT_API_URL, cfg.LIVEKIT_API_KEY, cfg.LIVEKIT_API_SECRET, livekitClientOptions())),
+      inject: [POOL, CONFIG],
+    },
+    {
+      provide: MEETINGS,
+      useFactory: (pool: Pool, cfg: Config, rate: RateLimitService, activity: ActivityTracker) => {
+        const svc = new MeetingsService(pool, cfg, rate);
+        svc.onEnded = (orgId, meetingId) => activity.endedByHost(orgId, meetingId);
+        return svc;
+      },
+      inject: [POOL, CONFIG, RateLimitService, ACTIVITY],
+    },
+    { provide: PERSONAL_ROOM, useFactory: (pool: Pool) => new PersonalRoomService(pool), inject: [POOL] },
     { provide: GUESTS, useFactory: (pool: Pool, cfg: Config, rate: RateLimitService) => new GuestService(pool, cfg, rate), inject: [POOL, CONFIG, RateLimitService] },
     { provide: PREFS, useFactory: (pool: Pool) => new PrefsService(pool), inject: [POOL] },
     {
@@ -95,4 +114,16 @@ export const CONFIG = Symbol('CONFIG');
     AuditAdminGuard,
   ],
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown {
+  constructor(@Inject(ACTIVITY) private readonly activity: ActivityTracker) {}
+
+  /** "Recent activity" follows the media server (same switch as the other background jobs: off in API tests). */
+  onApplicationBootstrap(): void {
+    if (process.env['SIGNUP_BACKGROUND_JOBS'] === '0') return;
+    this.activity.start();
+  }
+
+  onApplicationShutdown(): void {
+    this.activity.stop();
+  }
+}

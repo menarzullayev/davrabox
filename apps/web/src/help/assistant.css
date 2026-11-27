@@ -63,3 +63,9 @@
   :root[data-style='liquid-glass'] .ln-page .as-launch { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 5rem); }
   :root[data-style='liquid-glass'] .ln-page .as-panel { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 9rem); }
 }
+
+/* Signed-in shell on phones: the launcher and its panel ride above the bottom tab bar (every style). */
+@media (max-width: 639px) {
+  .sh ~ .as-launch { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 5.25rem); }
+  .sh ~ .as-panel { inset-block-end: calc(env(safe-area-inset-bottom, 0rem) + 9.25rem); }
+}

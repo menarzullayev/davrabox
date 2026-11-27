@@ -96,10 +96,11 @@ try {
   check('nothing is done yet on a brand-new organisation', (await page.locator('[data-testid^="gs-step-"][data-done]').count()) === 0);
 
   await page.getByTestId('gs-action-devices').click();
-  await page.getByTestId('prejoin').waitFor();
-  check('the device check opens the camera preview in check mode', (await page.getByTestId('prejoin').getAttribute('data-mode')) === 'test');
-  await page.waitForFunction(() => (document.querySelector('[data-testid=prejoin-video]')?.videoWidth ?? 0) > 0, null, { timeout: 15000 });
-  await page.getByTestId('prejoin-join').click();
+  await page.getByTestId('devices-page').waitFor();
+  check('the device check opens the "Test your devices" page (owner decision 6 of the home package)', new URL(page.url()).pathname === '/app/devices');
+  await page.waitForFunction(() => (document.querySelector('[data-testid=dv-video]')?.videoWidth ?? 0) > 0, null, { timeout: 15000 });
+  await page.getByTestId('dv-done').click();
+  await page.waitForSelector('[data-testid=get-started]', { timeout: 15000 });
   await page.getByTestId('get-started').waitFor();
   await page.waitForFunction(() => document.querySelector('[data-testid=gs-step-devices]')?.hasAttribute('data-done'), null, { timeout: 10000 });
   check('"Test camera and microphone" ticks itself', await isDone(page, 'devices'));

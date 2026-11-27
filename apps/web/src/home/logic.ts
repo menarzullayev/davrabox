@@ -166,6 +166,7 @@ export interface ProfileLike {
   name?: unknown;
   preferred_username?: unknown;
   email?: unknown;
+  sub?: unknown;
 }
 
 const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');

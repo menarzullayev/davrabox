@@ -40,6 +40,12 @@ export class RecordingController {
     return wrap(this.svc.stop(req.user, code));
   }
 
+  /** The app's "Recordings" section: finished recordings of the meetings the caller manages, plus whether recording is on. */
+  @Get('recordings')
+  mine(@Req() req: Req) {
+    return wrap(this.svc.mine(req.user));
+  }
+
   @Get('meetings/:code/recordings')
   list(@Req() req: Req, @Param('code') code: string) {
     return wrap(this.svc.list(req.user, code));

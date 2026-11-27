@@ -60,6 +60,43 @@ export interface RecordingSummary {
   startedBy: string;
 }
 
+/** The person's personal room (owner decision 3, 2026-11-27); the passcode itself is never sent back. */
+export interface PersonalRoom {
+  code: string;
+  title: string;
+  waitingRoom: boolean;
+  hasPasscode: boolean;
+  guests: GuestMode;
+}
+export interface PersonalRoomView {
+  room: PersonalRoom | null;
+  policy: { requirePasscode: boolean; guestPolicy: GuestMode };
+}
+/** One ended run of a meeting ("Recent activity"): only what the server really recorded. */
+export interface ActivityItem {
+  id: string;
+  meetingCode: string;
+  title: string;
+  personal: boolean;
+  isHost: boolean;
+  startedAt: string;
+  endedAt: string;
+  durationSeconds: number;
+  participants: number;
+  guests: number;
+  peak: number;
+  files: number;
+  recordings: number;
+}
+export interface MyRecording {
+  id: string;
+  meetingCode: string;
+  title: string;
+  startedAt: string;
+  endedAt: string | null;
+  sizeBytes: number | null;
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -189,6 +226,14 @@ export const api = {
   stopRecording: (token: string, code: string) => call<{ id: string; status: string }>(token, `/v1/meetings/${enc(code)}/recording/stop`, { method: 'POST', body: {} }),
   recordings: (token: string, code: string) => call<RecordingSummary[]>(token, `/v1/meetings/${enc(code)}/recordings`),
   list: (token: string) => call<Meeting[]>(token, '/v1/meetings'),
+  personalRoom: (token: string) => call<PersonalRoomView>(token, '/v1/me/personal-room'),
+  ensurePersonalRoom: (token: string, body: { title: string; passcode?: string }) => call<PersonalRoom>(token, '/v1/me/personal-room', { method: 'POST', body }),
+  updatePersonalRoom: (token: string, patch: { passcode?: string | null; waitingRoom?: boolean; guests?: GuestMode }) =>
+    call<PersonalRoom>(token, '/v1/me/personal-room', { method: 'PATCH', body: patch }),
+  regeneratePersonalRoom: (token: string) => call<PersonalRoom>(token, '/v1/me/personal-room/regenerate', { method: 'POST', body: {} }),
+  recentActivity: (token: string, limit = 10) => call<{ items: ActivityItem[] }>(token, `/v1/me/activity?limit=${limit}`),
+  connectionTest: (token: string) => call<{ url: string; token: string; room: string }>(token, '/v1/me/connection-test', { method: 'POST', body: {} }),
+  myRecordings: (token: string) => call<{ enabled: boolean; items: MyRecording[] }>(token, '/v1/recordings'),
   trial: (token: string) => call<TrialStatus>(token, '/v1/trial'),
   onboarding: (token: string) => call<OnboardingView>(token, '/v1/me/onboarding'),
   setOnboarding: (token: string, patch: { devicesTested?: true; meetingJoined?: true; dismissed?: true }) => call<OnboardingView>(token, '/v1/me/onboarding', { method: 'PUT', body: patch }),
@@ -201,7 +246,7 @@ export const api = {
   guestJoin: (code: string, name: string, passcode?: string) =>
     guestCall<GuestJoinResult>(`/v1/guest/meetings/${enc(code)}/join`, { method: 'POST', body: { name, ...(passcode ? { passcode } : {}) } }),
   guestStatus: (guestToken: string, id: string) => guestCall<JoinedResult | { status: 'waiting' }>(`/v1/guest/requests/${enc(id)}`, { bearer: guestToken }),
-  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean; guests?: GuestMode }) =>
+  create: (token: string, body: { title: string; passcode?: string; waitingRoom?: boolean; e2ee?: boolean; guests?: GuestMode; scheduledAt?: string }) =>
     call<Meeting>(token, '/v1/meetings', { method: 'POST', body }),
   join: (token: string, code: string, passcode?: string) =>
     call<JoinResult>(token, `/v1/meetings/${enc(code)}/join`, { method: 'POST', body: { passcode } }),

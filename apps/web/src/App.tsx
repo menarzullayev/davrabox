@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import type { User } from 'oidc-client-ts';
 import { api, onSessionLost, type GuestMode, type JoinedResult, type Meeting, type OnboardingView, type TrialStatus } from './api';
 import { appErrorKey as errorKey } from './errors';
@@ -19,6 +19,11 @@ import { createMeetingWithKey } from './e2ee/create';
 import { takeKeyFromLocation } from './e2ee/keys';
 import { startPrefsSync, usePrefs } from './prefs';
 import { AppearanceControls } from './home/AppearanceControls';
+import { homeApiFor } from './home/homeApi';
+import { AppShell } from './shell/AppShell';
+import { navigate, sectionFromPath, useLocationPath } from './shell/nav';
+import { ToastProvider } from './ui';
+import { displayName } from './home/logic';
 
 // Loaded on demand so the home/call bundle does not grow for non-admins.
 const AdminApp = lazy(() => import('./admin/AdminApp').then((m) => ({ default: m.AdminApp })));
@@ -67,16 +72,15 @@ export function App() {
   // Set when the host ended the call for everyone; shown once on the screen the person lands on.
   const [ended, setEnded] = useState(false);
 
-  const [adminView, setAdminView] = useState(() => isAdminPath(location.pathname));
+  const loc = useLocationPath();
+  const adminView = isAdminPath(loc.path);
+  const section = sectionFromPath(loc.path);
 
   useEffect(() => {
     currentUser()
       .then((u) => {
         // The Keycloak redirect always lands on "/": go back to the admin console if that is where the user was headed.
-        if (u && consumeReturnPath()) {
-          history.replaceState({}, document.title, '/admin');
-          setAdminView(true);
-        }
+        if (u && consumeReturnPath()) navigate('/admin', { replace: true });
         setUser(u);
       })
       .catch(() => setUser(null))
@@ -91,7 +95,7 @@ export function App() {
   const orgless = needsOrganization(user?.access_token);
   const token = user && !orgless ? user.access_token : '';
   const [onboarding, setOnboarding] = useState<OnboardingView | null>(null);
-  const [deviceTest, setDeviceTest] = useState(false);
+  const homeApi = useMemo(() => homeApiFor(freshToken), []);
   const loadOnboarding = useCallback(() => {
     if (!token) return;
     api.onboarding(token).then(setOnboarding).catch(() => setOnboarding(null)); // the card is optional: no card on failure
@@ -291,26 +295,27 @@ export function App() {
     );
   }
 
-  if (deviceTest) {
-    return (
-      <PreJoin
-        lang={lang}
-        mode="test"
-        title={t(lang, 'obDeviceTestLead')}
-        onJoin={() => {
-          markOnboarding({ devicesTested: true });
-          setDeviceTest(false);
-        }}
-        onCancel={() => setDeviceTest(false)}
-      />
-    );
-  }
-
   if (adminView && !joined && !waiting) {
     return (
-      <Suspense fallback={<main className="center">{t(lang, 'admLoading')}</main>}>
-        <AdminApp lang={lang} langPicker={langPicker} user={user} onSignOut={() => void manager.signoutRedirect()} />
-      </Suspense>
+      <ToastProvider dismissLabel={t(lang, 'uiDismiss')} regionLabel={t(lang, 'hToasts')}>
+        <AppShell
+          lang={lang}
+          onLang={changeLang}
+          theme={theme}
+          onTheme={changeTheme}
+          relay={{ value: relayMode, onChange: changeRelay }}
+          current="admin"
+          isAdmin={isOrgAdmin(token)}
+          who={displayName(user.profile)}
+          whoId={user.profile.sub}
+          onSignOut={() => void manager.signoutRedirect()}
+          onNew={() => navigate('/app#new')}
+        >
+          <Suspense fallback={<main className="center">{t(lang, 'admLoading')}</main>}>
+            <AdminApp lang={lang} langPicker={langPicker} user={user} onSignOut={() => void manager.signoutRedirect()} />
+          </Suspense>
+        </AppShell>
+      </ToastProvider>
     );
   }
 
@@ -384,7 +389,9 @@ export function App() {
       guestMax={guestMax}
       onboarding={onboarding}
       email={typeof user.profile.email === 'string' ? user.profile.email : ''}
-      onTestDevices={() => setDeviceTest(true)}
+      onTestDevices={() => markOnboarding({ devicesTested: true })}
+      section={section}
+      homeApi={homeApi}
       onSendVerification={async () => {
         await api.sendVerification(token);
       }}

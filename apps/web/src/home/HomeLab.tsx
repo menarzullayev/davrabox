@@ -10,6 +10,8 @@ import type { Key, Lang } from '../i18n';
 import { isLang, isTheme, setPref, usePrefs, type ThemeChoice } from '../prefs';
 import { LoadingScreen, SignInScreen, WaitingView } from './AuthScreens';
 import { HomeScreen } from './HomeScreen';
+import type { HomeApi } from './homeApi';
+import { SECTIONS, type AppSection } from '../shell/nav';
 import { PreJoin } from './PreJoin';
 
 /** Fixed clock: Monday 23 November 2026, 14:20 local time. */
@@ -96,6 +98,23 @@ function Index() {
   );
 }
 
+/** Fake server answers of the home package (lab only: never in a production build). */
+const LAB_API: HomeApi = {
+  personalRoom: async () => ({ room: { code: '41234567890', title: 'Alisher — shaxsiy xona', waitingRoom: true, hasPasscode: true, guests: 'waiting_room' }, policy: { requirePasscode: false, guestPolicy: 'waiting_room' } }),
+  ensurePersonalRoom: async () => ({ code: '41234567890', title: 'Alisher', waitingRoom: true, hasPasscode: false, guests: 'off' }),
+  updatePersonalRoom: async (p) => ({ code: '41234567890', title: 'Alisher', waitingRoom: p.waitingRoom ?? true, hasPasscode: true, guests: p.guests ?? 'waiting_room' }),
+  regeneratePersonalRoom: async () => ({ code: '49876543210', title: 'Alisher', waitingRoom: true, hasPasscode: true, guests: 'waiting_room' }),
+  recentActivity: async () => ({
+    items: [
+      { id: 'a1', meetingCode: '30812345678', title: 'Haftalik yig‘ilish', personal: false, isHost: true, startedAt: '2026-11-23T08:00:00Z', endedAt: '2026-11-23T08:47:00Z', durationSeconds: 47 * 60, participants: 6, guests: 1, peak: 5, files: 2, recordings: 0 },
+      { id: 'a2', meetingCode: '41234567890', title: 'Alisher — shaxsiy xona', personal: true, isHost: true, startedAt: '2026-11-22T12:00:00Z', endedAt: '2026-11-22T12:18:00Z', durationSeconds: 18 * 60, participants: 2, guests: 0, peak: 2, files: 0, recordings: 0 },
+    ],
+  }),
+  myRecordings: async () => ({ enabled: false, items: [] }),
+  downloadRecording: async () => new Blob(),
+  connectionTest: async () => Promise.reject(new Error('lab')),
+};
+
 export default function HomeLab() {
   const q = useMemo(() => new URLSearchParams(location.search), []);
   const screen = q.get('screen');
@@ -143,6 +162,10 @@ export default function HomeLab() {
       }}
       onSignOut={() => undefined}
       now={LAB_NOW}
+      homeApi={LAB_API}
+      section={(SECTIONS as readonly string[]).includes(q.get('section') ?? '') ? (q.get('section') as AppSection) : 'home'}
+      trial={state === 'trial' ? { trial: true, expired: false, endsAt: '2026-11-25T10:00:00Z', maxParticipants: 10, maxMinutes: 40 } : null}
+      banner={state === 'trial' ? { key: 'lnTrialEnds', n: 2 } : null}
     />
   );
 }

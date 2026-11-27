@@ -7,6 +7,7 @@ import './fonts.css';
 import './styles.css';
 import './ui/ui.css';
 import './home/home.css';
+import './shell/shell.css';
 import './glass/liquid-glass.css';
 import { initErrorTracking } from './observability/errorTracking';
 import { watchDesktopTitleBar, watchSystemBars } from './platform/system-bars';

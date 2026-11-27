@@ -31,6 +31,7 @@ export const REFRACT_SELECTORS = [
   '.pj__skip > *',
   '.pj__actions',
   '.hm-tabbar',
+  '.sh-panel',
   '.si__card',
   '.adm-nav',
 ] as const;
